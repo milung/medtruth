@@ -4,10 +4,12 @@
   "private": true,
   "description": "Web application for analyzing med pictures.",
   "dependencies": {
+    "@types/react-redux": "^4.4.46",
     "cornerstone": "^0.1.1",
     "dicom-parser": "^1.7.5",
     "husky": "^0.14.3",
     "lint-staged": "^4.0.1",
+    "lodash": "^4.17.4",
     "nodemon": "^1.11.0",
     "prettier": "^1.5.2",
     "react": "^15.6.1",
@@ -19,11 +21,13 @@
   "devDependencies": {
     "@types/enzyme": "^2.8.2",
     "@types/jest": "^20.0.2",
+    "@types/lodash": "^4.14.69",
     "@types/node": "^8.0.12",
     "@types/react": "^15.0.38",
     "@types/react-dom": "^15.5.1",
     "cross-env": "^5.0.1",
     "enzyme": "^2.9.1",
+    "react-redux": "^5.0.5",
     "react-test-renderer": "^15.6.1",
     "typescript": "^2.4.1"
   },
