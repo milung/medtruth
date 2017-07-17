@@ -6,5 +6,5 @@ import FileForm from './FileForm';
 describe('<FileForm />', () => {
     it('should render', () => {
         shallow(<FileForm />);
-    })
-})
+    });
+});
