@@ -1,15 +1,6 @@
-<<<<<<< HEAD
 
 */node_modules
 */client/node_modules
 */server/node_modules
 */git
 */.vscode
-=======
-*/node_modules/
-./node_modules
-./client/node_modules
-./server/node_modules
-./git
-./.vscode
->>>>>>> 3121bda5cba54e1656235acd664653185eaeba41
