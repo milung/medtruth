@@ -1,10 +1,11 @@
 
 import * as React from 'react';
+import FileForm from '../components/FileForm/FileForm';
 
 export default class App extends React.Component<{}, {}> {
     render() {
         return (
-            <h2>It worked!</h2>
+            <FileForm />
         ); 
     }
 }
