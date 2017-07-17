@@ -1,5 +1,5 @@
-*/node_modules/
-**/.tmp/
-**/*.log
-**/dist
-**/out
+
+./client/node_modules
+./server/node_modules
+./.vscode
+./.git
