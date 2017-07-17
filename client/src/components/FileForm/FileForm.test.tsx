@@ -8,7 +8,7 @@ describe('<FileForm />', () => {
         shallow(<FileForm />);
     });
 
-    it('valid file extension', () => {
+    it('if valid file extension', () => {
         // Given
         const fileForm = shallow(<FileForm />);
         const input = fileForm.getNode().props.children[0];
@@ -21,7 +21,7 @@ describe('<FileForm />', () => {
         expect(input.props.onChange(event)).toBeTruthy();
     });
 
-    it('invalid file extension', () => {
+    it('if invalid file extension', () => {
         // Given
         const fileForm = shallow(<FileForm />);
         const input = fileForm.getNode().props.children[0];
