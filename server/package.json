@@ -1,0 +1,23 @@
+{
+  "name": "medtruth-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Web application for analyzing med pictures.",
+  "dependencies": {
+    "cornerstone": "^0.1.1",
+    "dicom-parser": "^1.7.5",
+    "express": "^4.15.3",
+    "nodemon": "^1.11.0",
+    "prettier": "^1.5.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.0.36",
+    "typescript": "^2.4.1"
+  },
+  "scripts": {
+    "start": "cross-env NODE_PATH=src react-scripts-ts start",
+    "build": "cross-env NODE_PATH=src react-scripts-ts build",
+    "test": "cross-env NODE_PATH=src react-scripts-ts test --env=jsdom",
+    "eject": "react-scripts-ts eject"
+  }
+}
