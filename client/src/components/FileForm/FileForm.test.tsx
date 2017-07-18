@@ -12,11 +12,9 @@ describe('<FileForm />', () => {
         // Given
         const fileForm = shallow(<FileForm />);
         const input = fileForm.getNode().props.children[0];
-
         // When
         const validName: string = 'valid.dcm';
-        const event: object = {target: {files: [{name: validName}]}}
-        
+        const event: object = {target: {files: [{name: validName}]}};
         // Then
         expect(input.props.onChange(event)).toBeTruthy();
     });
@@ -25,12 +23,10 @@ describe('<FileForm />', () => {
         // Given
         const fileForm = shallow(<FileForm />);
         const input = fileForm.getNode().props.children[0];
-
         // When
         const invalidName: string = 'invalid.jpg';
-        const event: object = {target: {files: [{name: invalidName}]}}
-        
+        const event: object = {target: {files: [{name: invalidName}]}};
         // Then
         expect(input.props.onChange(event)).toBeFalsy();
-    })
+    });
 });

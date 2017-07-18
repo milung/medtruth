@@ -10,8 +10,10 @@ export default class FileForm extends React.Component<{}, {}> {
 
     loadFile(event: any): boolean {
         const file: File = event.target.files[0] as File;
-        if (!isFileValid(file.name, validFileExtensions)) { return false; }
-        
+        if (!isFileValid(file.name.toLowerCase(), validFileExtensions)) { 
+            return false; 
+        }
+
         // TODO: Implement a DICOM file parser with PNG conversion.
 
         return true;
