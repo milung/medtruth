@@ -12,9 +12,14 @@ interface ConnectedDispatch {
     change: (valid: boolean) => FileFormAction;
 }
 
-export class FileForm extends React.Component<ConnectedDispatch, {}> {
+interface OwnState{
+    valid: boolean // enables/disables submit button
+}
+
+export class FileForm extends React.Component<ConnectedDispatch, OwnState> {
     constructor() {
         super();
+        this.state = {valid: false};
         this.loadFile = this.loadFile.bind(this);
     }
 
@@ -29,12 +34,14 @@ export class FileForm extends React.Component<ConnectedDispatch, {}> {
         // Check for a valid extension of a loaded file.
         if (!isFileValid(file.name.toLowerCase(), validFileExtensions)) {
             this.props.change(false);
+            this.setState({valid: false});
             return false;
         }
 
         // TODO: Implement a DICOM file parser with PNG conversion.
 
         this.props.change(true);
+        this.setState({valid: true});
         return true;
     }
 
@@ -46,7 +53,7 @@ export class FileForm extends React.Component<ConnectedDispatch, {}> {
         return (
             <form>
                 <input type="file" onChange={this.loadFile} />
-                <input type="submit" value="Submit" />
+                <input type="submit" value="Submit" disabled={!this.state.valid} />
                 <VisibleFileButton />
             </form>
         );
