@@ -5,7 +5,7 @@ interface FileFormState {
     file: {
         data: any,
         valid: boolean
-    }
+    };
 }
 
 const initialState: FileFormState = {

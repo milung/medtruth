@@ -5,12 +5,18 @@ import { FileForm } from './FileForm';
 
 describe('<FileForm />', () => {
     it('should render', () => {
-        shallow(<FileForm change={() => {}}/>);
+        const props = {
+            change: jest.fn()
+        }
+        shallow(<FileForm {...props}/>);
     });
 
     it('if valid file extension', () => {
         // Given
-        const fileForm = shallow(<FileForm change={() => {}}/>);
+        const props = {
+            change: jest.fn()
+        }
+        const fileForm = shallow(<FileForm {...props}/>);
         const input = fileForm.getNode().props.children[0];
         // When
         const validName: string = 'valid.dcm';
@@ -21,7 +27,10 @@ describe('<FileForm />', () => {
 
     it('if invalid file extension', () => {
         // Given
-        const fileForm = shallow(<FileForm change={() => {}}/>);
+        const props = {
+            change: jest.fn()
+        }
+        const fileForm = shallow(<FileForm {...props}/>);
         const input = fileForm.getNode().props.children[0];
         // When
         const invalidName: string = 'invalid.jpg';
