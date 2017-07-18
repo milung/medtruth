@@ -38,6 +38,10 @@ export class FileForm extends React.Component<ConnectedDispatch, {}> {
         return true;
     }
 
+    sendFile() {
+        return;
+    }
+
     render() {
         return (
             <form>
