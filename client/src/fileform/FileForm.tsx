@@ -2,6 +2,8 @@
 import * as React from 'react';
 import * as Redux from 'redux';
 import { connect } from 'react-redux';
+
+import { VisibleFileButton } from './filebutton/FileButton';
 import { FileFormAction, fileChanged } from './FileFormActions';
 import { isFileValid } from './FileUtils';
 import { validFileExtensions } from '../constants';
@@ -41,14 +43,17 @@ export class FileForm extends React.Component<ConnectedDispatch, {}> {
             <form>
                 <input type="file" onChange={this.loadFile} />
                 <input type="submit" value="Submit" />
+                <VisibleFileButton />
             </form>
         );
     }
 }
 
-const mapDispatchToProps = (dispatch: Redux.Dispatch<{}>): ConnectedDispatch => ({
-    change: (valid: boolean) =>
-        dispatch(fileChanged(valid)),
-});
+function mapDispatchToProps(dispatch: Redux.Dispatch<ConnectedDispatch>): ConnectedDispatch {
+    return {
+        change: (valid: boolean) =>
+            dispatch(fileChanged(valid)),
+    };
+}
 
 export const VisibleFileForm = connect(null, mapDispatchToProps)(FileForm);
