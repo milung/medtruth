@@ -29,6 +29,7 @@
     "@types/lodash": "^4.14.69",
     "enzyme": "^2.9.1",
     "react-test-renderer": "^15.6.1",
+    "redux-devtools-extension": "^2.13.2",
     "typescript": "^2.4.1"
   },
   "scripts": {
