@@ -4,14 +4,16 @@ import { FileFormAction, FILE_CHANGED } from './FileFormActions';
 export interface FileFormState {
     file: {
         data: any,
-        valid: boolean
+        valid: boolean,
+        imageId: string
     };
 }
 
 const initialState: FileFormState = {
     file: {
         data: null as any,
-        valid: null as boolean
+        valid: null as boolean,
+        imageId: ''
     }
 };
 
@@ -23,7 +25,7 @@ export function fileFormReducer(
             return Object.assign(
                 {}, 
                 prevState, 
-                prevState.file = {...prevState.file, valid: action.valid});
+                prevState.file = {...prevState.file, valid: action.valid, imageId: action.imageID});
         default:
             return prevState;
     }

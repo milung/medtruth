@@ -8,8 +8,10 @@ import { FileFormAction, fileChanged } from './FileFormActions';
 import { isFileValid } from './FileUtils';
 import { validFileExtensions } from '../constants';
 
+import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
+
 interface ConnectedDispatch {
-    change: (valid: boolean) => FileFormAction;
+    change: (valid: boolean, imageID: string) => FileFormAction;
 }
 
 export class FileForm extends React.Component<ConnectedDispatch> {
@@ -28,11 +30,13 @@ export class FileForm extends React.Component<ConnectedDispatch> {
 
         // Check for a valid extension of a loaded file.
         if (!isFileValid(file.name.toLowerCase(), validFileExtensions)) {
-            this.props.change(false);
+            this.props.change(false, '');
             return false;
         }
 
-        this.props.change(true);
+        var imageId = cornerstoneWADOImageLoader.wadouri.fileManager.add(file);
+
+        this.props.change(true, imageId);
         return true;
     }
 
@@ -44,7 +48,7 @@ export class FileForm extends React.Component<ConnectedDispatch> {
     render() {
         return (
             <form>
-                <input type="file" onChange={this.loadFile} />                
+                <input type="file" onChange={this.loadFile} />
                 <VisibleFileSubmit />
             </form>
         );
@@ -53,8 +57,8 @@ export class FileForm extends React.Component<ConnectedDispatch> {
 
 function mapDispatchToProps(dispatch: Redux.Dispatch<FileFormAction>): ConnectedDispatch {
     return {
-        change: (valid: boolean) =>
-            dispatch(fileChanged(valid)),
+        change: (valid: boolean, imageID: string) =>
+            dispatch(fileChanged(valid, imageID)),
     };
 }
 
