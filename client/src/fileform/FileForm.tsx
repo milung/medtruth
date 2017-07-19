@@ -3,7 +3,7 @@ import * as React from 'react';
 import * as Redux from 'redux';
 import { connect } from 'react-redux';
 
-import { VisibleFileButton } from './filebutton/FileButton';
+import { VisibleFileSubmit } from './filesubmit/FileSubmit';
 import { FileFormAction, fileChanged } from './FileFormActions';
 import { isFileValid } from './FileUtils';
 import { validFileExtensions } from '../constants';
@@ -12,14 +12,9 @@ interface ConnectedDispatch {
     change: (valid: boolean) => FileFormAction;
 }
 
-interface OwnState{
-    valid: boolean // enables/disables submit button
-}
-
-export class FileForm extends React.Component<ConnectedDispatch, OwnState> {
+export class FileForm extends React.Component<ConnectedDispatch> {
     constructor() {
         super();
-        this.state = {valid: false};
         this.loadFile = this.loadFile.bind(this);
     }
 
@@ -34,33 +29,29 @@ export class FileForm extends React.Component<ConnectedDispatch, OwnState> {
         // Check for a valid extension of a loaded file.
         if (!isFileValid(file.name.toLowerCase(), validFileExtensions)) {
             this.props.change(false);
-            this.setState({valid: false});
             return false;
         }
 
-        // TODO: Implement a DICOM file parser with PNG conversion.
-
         this.props.change(true);
-        this.setState({valid: true});
         return true;
     }
 
     sendFile() {
+        // TODO: Implement a DICOM file parser with PNG conversion.
         return;
     }
 
     render() {
         return (
             <form>
-                <input type="file" onChange={this.loadFile} />
-                <input type="submit" value="Submit" disabled={!this.state.valid} />
-                <VisibleFileButton />
+                <input type="file" onChange={this.loadFile} />                
+                <VisibleFileSubmit />
             </form>
         );
     }
 }
 
-function mapDispatchToProps(dispatch: Redux.Dispatch<ConnectedDispatch>): ConnectedDispatch {
+function mapDispatchToProps(dispatch: Redux.Dispatch<FileFormAction>): ConnectedDispatch {
     return {
         change: (valid: boolean) =>
             dispatch(fileChanged(valid)),

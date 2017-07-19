@@ -38,4 +38,17 @@ describe('<FileForm />', () => {
         // Then
         expect(input.props.onChange(event)).toBeFalsy();
     });
+
+    it('if none file selected', () => {
+        // Given
+        const props = {
+            change: jest.fn()
+        }
+        const fileForm = shallow(<FileForm {...props} />);
+        const input = fileForm.getNode().props.children[0];
+        // When
+        const event: object = {target: {files: [undefined]}};
+        // Then
+        expect(input.props.onChange(event)).toBeFalsy();
+    });
 });

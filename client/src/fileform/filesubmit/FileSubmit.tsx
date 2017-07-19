@@ -7,12 +7,11 @@ interface ConnectedState {
     active: boolean
 }
 
-export class FileButton extends React.Component<ConnectedState, {}> {
+export class FileSubmit extends React.Component<ConnectedState, {}> {
     render() {
-        var text = this.props.active ? 'File is valid.' : '';
         return (
-            <h1>{text}</h1>
-        );
+            <input type="submit" value="Send" disabled={!this.props.active} />
+        )
     }
 }
 
@@ -20,4 +19,4 @@ function mapStateToProps(state: FileFormState): ConnectedState {
     return { active: state.file.valid }
 }
 
-export const VisibleFileButton = connect(mapStateToProps, null)(FileButton);
+export const VisibleFileSubmit = connect(mapStateToProps, null)(FileSubmit);
