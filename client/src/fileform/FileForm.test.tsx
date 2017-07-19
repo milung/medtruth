@@ -11,7 +11,7 @@ describe('<FileForm />', () => {
         shallow(<FileForm {...props}/>);
     });
 
-    it('if valid file extension', () => {
+    it('should return true if valid file extension', () => {
         // Given
         const props = {
             change: jest.fn()
@@ -25,7 +25,7 @@ describe('<FileForm />', () => {
         expect(input.props.onChange(event)).toBeTruthy();
     });
 
-    it('if invalid file extension', () => {
+    it('should return false if invalid file extension', () => {
         // Given
         const props = {
             change: jest.fn()
@@ -39,7 +39,7 @@ describe('<FileForm />', () => {
         expect(input.props.onChange(event)).toBeFalsy();
     });
 
-    it('if none file selected', () => {
+    it('should return false if none file selected', () => {
         // Given
         const props = {
             change: jest.fn()

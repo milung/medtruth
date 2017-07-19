@@ -5,26 +5,47 @@ import { FileSubmit } from './FileSubmit';
 
 describe('<FileSubmit />', () => {
     it('should render with true active prop', () => {
-        shallow(<FileSubmit active={true} />);
+        const props = {
+            active: true
+        };
+        shallow(<FileSubmit {...props} />);
     });
 
     it('should render with false active prop', () => {
-        shallow(<FileSubmit active={undefined} />);
-        shallow(<FileSubmit active={false} />);
+        const props = {
+            active: false
+        };
+        shallow(<FileSubmit {...props} />);
+    });
+
+    it('should render with undefined active prop', () => {
+        const props = {
+            active: undefined
+        };
+        shallow(<FileSubmit {...props} />);
     });
 
     it('should be enabled if active prop is true', () => {
-        const fileSubmit = shallow(<FileSubmit active={true} />);
+        const props = {
+            active: true
+        };
+        const fileSubmit = shallow(<FileSubmit {...props} />);
         expect(fileSubmit.find('input').prop('disabled')).toBeFalsy();
     });
 
     it('should be disabled if active prop is false', () => {
-        const fileSubmit = shallow(<FileSubmit active={false} />);
+        const props = {
+            active: false
+        };
+        const fileSubmit = shallow(<FileSubmit {...props} />);
         expect(fileSubmit.find('input').prop('disabled')).toBeTruthy();
     });
 
     it('should be disabled if active prop is undefined', () => {
-        const fileSubmit = shallow(<FileSubmit active={undefined} />);
+        const props = {
+            active: undefined
+        };
+        const fileSubmit = shallow(<FileSubmit {...props} />);
         expect(fileSubmit.find('input').prop('disabled')).toBeTruthy();
     });
 });
