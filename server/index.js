@@ -52,7 +52,7 @@ server.get('/_image', function (req, res) {
     res.send(constants_1.base64png + new Buffer(file).toString('base64'));
 });
 // Listen and serve.
-var port = process.env.PORT || 8080;
+var port = 43;
 server.listen(port, function () {
     console.log("Listening on port", port);
 });
