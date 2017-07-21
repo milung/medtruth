@@ -34,10 +34,29 @@ export class FileFormComponent extends React.Component<ConnectedDispatch> {
         }
 
         this.props.change(true, '');
+
+        // Reads a file from the input element.
         var fr = new FileReader();
         fr.onload = (e: any) => {
             let data = e.target.result;
-            ApiService.send(...[data, data]);
+            // Uploads the data to the server.
+            ApiService.upload(...[data, data])
+                .then((res) => {
+                    // After that, fetch an image.
+                    ApiService.getImages()
+                        .then((res) => {
+                            let img = document.getElementById('thumbnail') as HTMLImageElement;
+                            img.height = 500;
+                            img.width = 500;
+                            img.src = res.data;
+                        })
+                        .catch((res) => {
+                            // Error if fetching an image went wrong.
+                        });
+                })
+                .catch((res) => {
+                    // Error if upload to the server went wrong.
+                });
         };
         fr.readAsArrayBuffer(file);
 
@@ -53,6 +72,7 @@ export class FileFormComponent extends React.Component<ConnectedDispatch> {
             <form>
                 <input type="file" onChange={this.loadFile} />
                 <FileSubmit />
+                <img id="thumbnail"></img>
             </form>
         );
     }
