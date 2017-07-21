@@ -59,7 +59,7 @@ server.get('/_image', (req, res) => {
 });
 
 // Listen and serve.
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 80;
 server.listen(port, () => {
     console.log("Listening on port", port);
 });
