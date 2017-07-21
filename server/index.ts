@@ -1,13 +1,13 @@
 
 import * as express from 'express';
 import * as multer from 'multer';
-import { StatusCode, storagePath } from './constants';
+import { StatusCode, storagePath, base64png } from './constants';
 import { AzureStorage } from './azure-service';
 import * as fs from 'fs';
 
 // Set-up a server, that automatically serves static files.
 const server = express();
-server.use(express.static('public'));
+server.use(express.static('/out/public'));
 
 // Set-up a storage to the local folder for incoming files.
 const storageConfig = multer.diskStorage({
@@ -55,7 +55,7 @@ server.post('/_upload', storage.single('data'), (req, res) => {
 */
 server.get('/_image', (req, res) => {
     let file = fs.readFileSync("uploads/sample.png");
-    res.send("data:image/png;base64,"+ new Buffer(file).toString('base64'))
+    res.send(base64png + new Buffer(file).toString('base64'));
 });
 
 // Listen and serve.

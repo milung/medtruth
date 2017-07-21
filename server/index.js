@@ -7,7 +7,7 @@ var azure_service_1 = require("./azure-service");
 var fs = require("fs");
 // Set-up a server, that automatically serves static files.
 var server = express();
-server.use(express.static('public'));
+server.use(express.static('/out/public'));
 // Set-up a storage to the local folder for incoming files.
 var storageConfig = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -49,7 +49,7 @@ server.post('/_upload', storage.single('data'), function (req, res) {
 */
 server.get('/_image', function (req, res) {
     var file = fs.readFileSync("uploads/sample.png");
-    res.send("data:image/png;base64," + new Buffer(file).toString('base64'));
+    res.send(constants_1.base64png + new Buffer(file).toString('base64'));
 });
 // Listen and serve.
 var port = process.env.PORT || 8080;
