@@ -40,7 +40,7 @@ export class FileFormComponent extends React.Component<ConnectedDispatch> {
         fr.onload = (e: any) => {
             let data = e.target.result;
             // Uploads the data to the server.
-            ApiService.upload(...[data, data])
+            ApiService.upload(data)
                 .then((res) => {
                     // After that, fetch an image.
                     ApiService.getImages()

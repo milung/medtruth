@@ -11,12 +11,10 @@ export namespace ApiService {
         Sends files to the server.
     */
     const uri_Upload = apiEndpoint + '_upload';
-    export function upload(...data: any[]): axios.AxiosPromise {
+    export function upload(data: any): axios.AxiosPromise {
         const url = uri_Upload;
         let form = new FormData();
-        for (var single in data) {
-            form.append('data', new Blob([single], { type: 'application/octet-stream' }));
-        }
+        form.append('data', new Blob([data], { type: 'application/octet-stream' }));
 
         return axios.default({
             method: 'POST',
