@@ -2,7 +2,7 @@
 import * as axios from 'axios';
 
 export namespace ApiService {
-    const apiEndpoint = "http://medtruth.azurewebsites.net/";
+    const apiEndpoint = "http://medtruth.azurewebsites.net:8080/";
 
     /*
         Route:      POST '/_upload'
