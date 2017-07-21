@@ -28,7 +28,7 @@ var storage = multer({ storage: storageConfig });
     Files are sent to the Azure Storage.
     Then they are converted to the PNG format and sent back to the response.
 */
-server.post('/_upload', storage.array('data'), function (req, res) {
+server.post('/_upload', storage.single('data'), function (req, res) {
     // TODO: Create a way to recognize images downloaded and remove them
     // from the disk.
     azure_service_1.AzureStorage.upload('blob', 'sample.dcm')
