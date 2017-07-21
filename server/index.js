@@ -4,6 +4,7 @@ var express = require("express");
 var multer = require("multer");
 var constants_1 = require("./constants");
 var azure_service_1 = require("./azure-service");
+var fs = require("fs");
 // Set-up a server, that automatically serves static files.
 var server = express();
 server.use(express.static('public'));
@@ -18,7 +19,7 @@ var storageConfig = multer.diskStorage({
 });
 var storage = multer({ storage: storageConfig });
 /*
-    Route:       POST '/file'.
+    Route:       POST '/_upload'.
     Middleware:  Multer.
     Expects:     Form-data containing a single file.
     -----------------------------------------------------------------------
@@ -39,6 +40,16 @@ server.post('/_upload', storage.array('data'), function (req, res) {
         console.log(message);
         res.sendStatus(constants_1.StatusCode.BadRequest);
     });
+});
+/*
+    Route:      GET '/_image'
+    Expects:
+    --------------------------------------------
+    Returns image to the client.
+*/
+server.get('/_image', function (req, res) {
+    var file = fs.readFileSync("uploads/sample.png");
+    res.send("data:image/png;base64," + new Buffer(file).toString('base64'));
 });
 // Listen and serve.
 var port = process.env.PORT || 8080;

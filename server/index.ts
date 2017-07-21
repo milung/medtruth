@@ -3,6 +3,7 @@ import * as express from 'express';
 import * as multer from 'multer';
 import { StatusCode, storagePath } from './constants';
 import { AzureStorage } from './azure-service';
+import * as fs from 'fs';
 
 // Set-up a server, that automatically serves static files.
 const server = express();
@@ -20,7 +21,7 @@ const storageConfig = multer.diskStorage({
 const storage = multer({ storage: storageConfig });
 
 /*
-    Route:       POST '/file'.
+    Route:       POST '/_upload'.
     Middleware:  Multer.
     Expects:     Form-data containing a single file.
     -----------------------------------------------------------------------
@@ -44,6 +45,17 @@ server.post('/_upload', storage.array('data'), (req, res) => {
             console.log(message);
             res.sendStatus(StatusCode.BadRequest);
         });
+});
+
+/*
+    Route:      GET '/_image'
+    Expects:    
+    --------------------------------------------
+    Returns image to the client.
+*/
+server.get('/_image', (req, res) => {
+    let file = fs.readFileSync("uploads/sample.png");
+    res.send("data:image/png;base64,"+ new Buffer(file).toString('base64'))
 });
 
 // Listen and serve.
