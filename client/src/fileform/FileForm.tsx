@@ -3,18 +3,17 @@ import * as React from 'react';
 import * as Redux from 'redux';
 import { connect } from 'react-redux';
 
-import { VisibleFileSubmit } from './filesubmit/FileSubmit';
+import { FileSubmit } from './filesubmit/FileSubmit';
 import { FileFormAction, fileChanged } from './FileFormActions';
 import { isFileValid } from './FileUtils';
 import { validFileExtensions } from '../constants';
-
-import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
+import { ApiService } from '../api';
 
 interface ConnectedDispatch {
     change: (valid: boolean, imageID: string) => FileFormAction;
 }
 
-export class FileForm extends React.Component<ConnectedDispatch> {
+export class FileFormComponent extends React.Component<ConnectedDispatch> {
     constructor() {
         super();
         this.loadFile = this.loadFile.bind(this);
@@ -34,14 +33,18 @@ export class FileForm extends React.Component<ConnectedDispatch> {
             return false;
         }
 
-        var imageId = cornerstoneWADOImageLoader.wadouri.fileManager.add(file);
+        this.props.change(true, '');
+        var fr = new FileReader();
+        fr.onload = (e: any) => {
+            let data = e.target.result;
+            ApiService.send(...[data, data]);
+        };
+        fr.readAsArrayBuffer(file);
 
-        this.props.change(true, imageId);
         return true;
     }
 
     sendFile() {
-        // TODO: Implement a DICOM file parser with PNG conversion.
         return;
     }
 
@@ -49,7 +52,7 @@ export class FileForm extends React.Component<ConnectedDispatch> {
         return (
             <form>
                 <input type="file" onChange={this.loadFile} />
-                <VisibleFileSubmit />
+                <FileSubmit />
             </form>
         );
     }
@@ -62,4 +65,4 @@ function mapDispatchToProps(dispatch: Redux.Dispatch<FileFormAction>): Connected
     };
 }
 
-export const VisibleFileForm = connect(null, mapDispatchToProps)(FileForm);
+export const FileForm = connect(null, mapDispatchToProps)(FileFormComponent);

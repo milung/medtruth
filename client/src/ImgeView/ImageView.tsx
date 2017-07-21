@@ -12,7 +12,7 @@ export class ImageViewComponent extends React.Component<ConnectedProps, {}> {
     divElement: HTMLDivElement;
 
     loadAndViewImage() {
-        if (this.props.valid === false) {
+        if (this.props.valid === false || this.props.imageID === '') {
             this.divElement.hidden = true;
             return;
         }

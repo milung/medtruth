@@ -1,54 +1,29 @@
 
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { FileForm } from './FileForm';
+import { FileFormComponent } from './FileForm';
+import { isFileValid } from './FileUtils';
+import { validFileExtensions } from '../constants';
 
 describe('<FileForm />', () => {
     it('should render', () => {
         const props = {
             change: jest.fn()
         }
-        shallow(<FileForm {...props}/>);
+        shallow(<FileFormComponent {...props}/>);
     });
 
     it('should return true if valid file extension', () => {
         // Given
-        const props = {
-            change: jest.fn()
-        }
-        const fileForm = shallow(<FileForm {...props}/>);
-        const input = fileForm.getNode().props.children[0];
-        // When
         const validName: string = 'valid.dcm';
-        const event: object = {target: {files: [{name: validName}]}};
         // Then
-        expect(input.props.onChange(event)).toBeTruthy();
+        expect(isFileValid(validName, validFileExtensions)).toBeTruthy();
     });
 
     it('should return false if invalid file extension', () => {
         // Given
-        const props = {
-            change: jest.fn()
-        }
-        const fileForm = shallow(<FileForm {...props}/>);
-        const input = fileForm.getNode().props.children[0];
-        // When
-        const invalidName: string = 'invalid.jpg';
-        const event: object = {target: {files: [{name: invalidName}]}};
+        const invalidName: string = 'invalid.png';
         // Then
-        expect(input.props.onChange(event)).toBeFalsy();
-    });
-
-    it('should return false if none file selected', () => {
-        // Given
-        const props = {
-            change: jest.fn()
-        }
-        const fileForm = shallow(<FileForm {...props} />);
-        const input = fileForm.getNode().props.children[0];
-        // When
-        const event: object = {target: {files: [undefined]}};
-        // Then
-        expect(input.props.onChange(event)).toBeFalsy();
+        expect(isFileValid(invalidName, validFileExtensions)).toBeFalsy();
     });
 });

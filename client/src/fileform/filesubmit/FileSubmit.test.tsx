@@ -1,35 +1,35 @@
 
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { FileSubmit } from './FileSubmit';
+import { FileSubmitComponent } from './FileSubmit';
 
 describe('<FileSubmit />', () => {
     it('should render with true active prop', () => {
         const props = {
             active: true
         };
-        shallow(<FileSubmit {...props} />);
+        shallow(<FileSubmitComponent {...props} />);
     });
 
     it('should render with false active prop', () => {
         const props = {
             active: false
         };
-        shallow(<FileSubmit {...props} />);
+        shallow(<FileSubmitComponent {...props} />);
     });
 
     it('should render with undefined active prop', () => {
         const props = {
             active: undefined
         };
-        shallow(<FileSubmit {...props} />);
+        shallow(<FileSubmitComponent {...props} />);
     });
 
     it('should be enabled if active prop is true', () => {
         const props = {
             active: true
         };
-        const fileSubmit = shallow(<FileSubmit {...props} />);
+        const fileSubmit = shallow(<FileSubmitComponent {...props} />);
         expect(fileSubmit.find('input').prop('disabled')).toBeFalsy();
     });
 
@@ -37,7 +37,7 @@ describe('<FileSubmit />', () => {
         const props = {
             active: false
         };
-        const fileSubmit = shallow(<FileSubmit {...props} />);
+        const fileSubmit = shallow(<FileSubmitComponent {...props} />);
         expect(fileSubmit.find('input').prop('disabled')).toBeTruthy();
     });
 
@@ -45,7 +45,7 @@ describe('<FileSubmit />', () => {
         const props = {
             active: undefined
         };
-        const fileSubmit = shallow(<FileSubmit {...props} />);
+        const fileSubmit = shallow(<FileSubmitComponent {...props} />);
         expect(fileSubmit.find('input').prop('disabled')).toBeTruthy();
     });
 });
