@@ -2,19 +2,23 @@
 import * as axios from 'axios';
 
 export namespace ApiService {
-    const apiEndpoint = "http://medtruth.azurewebsites.net/";
+    const apiEndpoint   = 'http://localhost:8080';
+    const uriUpload     = apiEndpoint + '/_upload';
+    const uriImages     = apiEndpoint + '/_images';
 
     /*
         Route:      POST '/_upload'
         Expects:    Any datas to be sent to the server.
         -------------------------------------------------
         Sends files to the server.
+        Files HAVE TO contain a header: 'ContentType': 'multipart/form-data'.
     */
-    const uri_Upload = apiEndpoint + '_upload';
-    export function upload(data: any): axios.AxiosPromise {
-        const url = uri_Upload;
+    export function upload(...data: any[]): axios.AxiosPromise {
+        const url = uriUpload;
         let form = new FormData();
-        form.append('data', new Blob([data], { type: 'application/octet-stream' }));
+        data.forEach((d) => {
+            form.append('data', new Blob([d], { type: 'application/octet-stream' }));
+        });
 
         return axios.default({
             method: 'POST',
@@ -25,14 +29,13 @@ export namespace ApiService {
     }
 
     /*
-        Route:      GET '/_image'
-        Expects:    
+        Route:      GET '/_images'
+        Expects:    Nothing.
         -------------------------------------------
         Retreive images from the server.
     */
-    const uri_Image = apiEndpoint + '_image';
     export function getImages(): axios.AxiosPromise {
-        const url = uri_Image;
+        const url = uriImages;
 
         return axios.default({
             method: 'GET',
@@ -40,4 +43,10 @@ export namespace ApiService {
             headers: {}
         });
     }
+
+    /*  
+        TODO:
+        /_images/latest
+        /_images/:id
+    */
 }

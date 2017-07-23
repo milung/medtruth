@@ -6,28 +6,32 @@ import { FileSubmitComponent } from './FileSubmit';
 describe('<FileSubmit />', () => {
     it('should render with true active prop', () => {
         const props = {
-            active: true
+            active: true,
+            send: jest.fn()
         };
         shallow(<FileSubmitComponent {...props} />);
     });
 
     it('should render with false active prop', () => {
         const props = {
-            active: false
+            active: false,
+            send: jest.fn()
         };
         shallow(<FileSubmitComponent {...props} />);
     });
 
     it('should render with undefined active prop', () => {
         const props = {
-            active: undefined
+            active: undefined,
+            send: jest.fn()
         };
         shallow(<FileSubmitComponent {...props} />);
     });
 
     it('should be enabled if active prop is true', () => {
         const props = {
-            active: true
+            active: true,
+            send: jest.fn()
         };
         const fileSubmit = shallow(<FileSubmitComponent {...props} />);
         expect(fileSubmit.find('input').prop('disabled')).toBeFalsy();
@@ -35,7 +39,8 @@ describe('<FileSubmit />', () => {
 
     it('should be disabled if active prop is false', () => {
         const props = {
-            active: false
+            active: false,
+            send: jest.fn()
         };
         const fileSubmit = shallow(<FileSubmitComponent {...props} />);
         expect(fileSubmit.find('input').prop('disabled')).toBeTruthy();
@@ -43,7 +48,8 @@ describe('<FileSubmit />', () => {
 
     it('should be disabled if active prop is undefined', () => {
         const props = {
-            active: undefined
+            active: undefined,
+            send: jest.fn()
         };
         const fileSubmit = shallow(<FileSubmitComponent {...props} />);
         expect(fileSubmit.find('input').prop('disabled')).toBeTruthy();
