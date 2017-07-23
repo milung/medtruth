@@ -1,65 +1,91 @@
 
 import * as express from 'express';
 import * as multer from 'multer';
+import * as fs from 'fs';
 import { StatusCode, storagePath, base64png } from './constants';
 import { AzureStorage } from './azure-service';
-import * as fs from 'fs';
+import * as converter from './dcmtk/dcmj2pnm';
 
 // Set-up a server, that automatically serves static files.
 const server = express();
-server.use(express.static('/out/public'));
+server.use(express.static('public/'));
 
 // Set-up a storage to the local folder for incoming files.
 const storageConfig = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, storagePath);
-    },
-    filename: (req, file, cb) => {
-        cb(null, "sample.dcm");
     }
 });
 const storage = multer({ storage: storageConfig });
 
+// Extend the response's timeout for uploading larger files.
+const extendTimeout = (req, res, next) => {
+    res.setTimeout(480000, () => {
+        res.sendStatus(StatusCode.GatewayTimeout).end();
+    });
+    next();
+}
+
 /*
     Route:       POST '/_upload'.
-    Middleware:  Multer.
-    Expects:     Form-data containing a single file.
+    Middleware:  extendTimeout, Multer array of data.
+    Expects:     Form-data, containing files.
     -----------------------------------------------------------------------
     Saves incoming files to the 'uploadsPath' folder.
     Files HAVE TO contain a header: 'Content-Type': 'multipart/form-data'.
-    Files are sent to the Azure Storage.
-    Then they are converted to the PNG format and sent back to the response.
+    Files are sent to the Azure Storage and converted to the PNG format.
 */
-server.post('/_upload', storage.single('data'), (req, res) => {
-    // TODO: Create a way to recognize images downloaded and remove them
-    // from the disk.
-    AzureStorage.upload('blob', 'sample.dcm')
-        // Upload to AzureStorage was succesful.
-        .then((message: string) => {
-            // TODO: Convert a sent DICOM file to the PNG.
-            console.log(message);
-            res.sendStatus(StatusCode.OK);
-        })
-        // Upload to AzureStorage triggered an error.
-        .catch((message: string) => {
-            console.log(message);
-            res.sendStatus(StatusCode.BadRequest);
-        });
+server.post('/_upload', extendTimeout, storage.array('data'), async (req, res) => {
+    const files = req.files as Express.Multer.File[];
+    // Upload all the files to the AzureStorage.
+    const uploads = files.map(async (file) => {
+        await new converter.Dcmj2pnm().convertToPng(file.path, 'sample.png', (p, s) => { return s; });
+        const msg1 = await AzureStorage.upload(AzureStorage.containerImages, 'sample.png', 'images/sample.png');
+        const msg2 = await AzureStorage.upload(AzureStorage.containerDicoms, file.filename, file.path);
+        fs.unlink(file.path, () => {});
+        // fs.unlink('images/sample.png', () => {});
+        return msg1 + msg2;
+    });
+    await Promise.all(uploads);
+    res.sendStatus(StatusCode.OK).end();
 });
 
 /*
-    Route:      GET '/_image'
+    Route:      GET '/_images'
     Expects:    
     --------------------------------------------
-    Returns image to the client.
+    Returns all PNG images to the client.
 */
-server.get('/_image', (req, res) => {
-    let file = fs.readFileSync("uploads/sample.png");
-    res.send(base64png + new Buffer(file).toString('base64'));
+server.get('/_images', (req, res) => {
+    fs.readFile("images/sample.png", (err, data) => {
+        if (err) { res.sendStatus(StatusCode.InternalServerError).end(); }
+        res.statusCode = StatusCode.OK;
+        res.send(base64png + new Buffer(data).toString('base64')).end();
+    });
+});
+
+/*
+    Route:      GET '/_images/latest'
+    Expects:    JSON, containing number of latest images.
+    --------------------------------------------
+    Returns latest PNG images uploaded to the server.
+*/
+server.get('/_images/latest', (req, res) => {
+    res.sendStatus(StatusCode.NotImplemented).end();
+});
+
+/*
+    Route:      GET '/_images/:id'
+    Expects:    JSON, containing an id of an image.
+    --------------------------------------------
+    Returns a PNG image by id.
+*/
+server.get('_images/:id', (req, res) => {
+    res.sendStatus(StatusCode.NotImplemented).end();
 });
 
 // Listen and serve.
-const port = 43;
+const port = 8080;
 server.listen(port, () => {
     console.log("Listening on port", port);
 });

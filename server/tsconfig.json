@@ -14,6 +14,10 @@
     "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": true
   },
+  "include": [
+    "**/*.ts",
+    "*.ts"
+  ],
   "exclude": [
     "node_modules",
     "build",
