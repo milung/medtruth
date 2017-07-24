@@ -2,7 +2,7 @@
 import * as express from 'express';
 import * as multer from 'multer';
 import * as fs from 'fs';
-import { StatusCode, storagePath, base64png } from './constants';
+import { StatusCode, storagePath /*,base64png*/ } from './constants';
 import { AzureStorage } from './azure-service';
 import * as converter from './dcmtk/dcmj2pnm';
 
@@ -39,6 +39,7 @@ server.post('/_upload', extendTimeout, storage.array('data'), async (req, res) =
     const files = req.files as Express.Multer.File[];
     // Upload all the files to the AzureStorage.
     const uploads = files.map(async (file) => {
+        
         const uploadDicom = AzureStorage.upload(AzureStorage.containerDicoms, file.filename, file.path);
         const convert = new converter.Dcmj2pnm().convertToPng(file.path, 'sample.png', (p, s) => { return s; });
         await convert;
@@ -46,6 +47,8 @@ server.post('/_upload', extendTimeout, storage.array('data'), async (req, res) =
         await uploadDicom, uploadImage;
         fs.unlink(file.path, () => {});
         // fs.unlink('images/sample.png', () => {});
+
+        
         return true;
     });
     await Promise.all(uploads);
@@ -62,7 +65,11 @@ server.get('/_images', (req, res) => {
     fs.readFile("images/sample.png", (err, data) => {
         if (err) { res.sendStatus(StatusCode.InternalServerError).end(); }
         res.statusCode = StatusCode.OK;
-        res.send(base64png + new Buffer(data).toString('base64')).end();
+        //res.send(base64png + new Buffer(data).toString('base64')).end();
+
+        let url: string = AzureStorage.getURLforImages('sample.png');
+        console.log(url);
+        res.send(url).end();
     });
 });
 
