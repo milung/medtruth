@@ -4,7 +4,7 @@ import * as axios from 'axios';
 export namespace ApiService {
     const apiEndpoint   = 'http://localhost:8080';
     const uriUpload     = apiEndpoint + '/_upload';
-    const uriImages     = apiEndpoint + '/_images';
+    const uriImages    = apiEndpoint + '/_images';
 
     /*
         Route:      POST '/_upload'
@@ -34,8 +34,8 @@ export namespace ApiService {
         -------------------------------------------
         Retreive images from the server.
     */
-    export function getImages(): axios.AxiosPromise {
-        const url = uriImages;
+    export function getImage(id: string): axios.AxiosPromise {
+        const url = uriImages + '/' + id;
 
         return axios.default({
             method: 'GET',

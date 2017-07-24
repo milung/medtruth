@@ -63,7 +63,8 @@ export class FileFormComponent extends React.Component<ConnectedDispatch, OwnSta
         ApiService.upload(this.state.file)
         .then((resUpload: axios.AxiosResponse) => {
             // After that, fetch an image.
-            ApiService.getImages()
+            console.log(resUpload.data);
+            ApiService.getImage(resUpload.data.images_id[0])
             .then((resImage: axios.AxiosResponse) => {
                 submit.value = 'Send';
                 submit.disabled = false;

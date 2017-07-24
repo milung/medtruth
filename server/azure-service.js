@@ -66,4 +66,43 @@ var AzureStorage;
         }); });
     }
     AzureStorage.upload = upload;
+    function toDicoms(blobName, filePath) {
+        return upload(AzureStorage.containerDicoms, blobName, filePath);
+    }
+    AzureStorage.toDicoms = toDicoms;
+    function toImages(blobName, filePath) {
+        return upload(AzureStorage.containerImages, blobName, filePath);
+    }
+    AzureStorage.toImages = toImages;
+    function getURLforImage(image) {
+        var _this = this;
+        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+            var startDate, expiryDate, sharedAccessPolicy, token, sasUrl;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        startDate = new Date();
+                        expiryDate = new Date(startDate);
+                        expiryDate.setMinutes(startDate.getMinutes() + 10);
+                        startDate.setMinutes(startDate.getMinutes() - 10);
+                        sharedAccessPolicy = {
+                            AccessPolicy: {
+                                Permissions: azure.BlobUtilities.SharedAccessPermissions.READ,
+                                Start: startDate,
+                                Expiry: expiryDate
+                            }
+                        };
+                        return [4 /*yield*/, blobService.generateSharedAccessSignature(AzureStorage.containerImages, image, sharedAccessPolicy)];
+                    case 1:
+                        token = _a.sent();
+                        return [4 /*yield*/, blobService.getUrl(AzureStorage.containerImages, image, token)];
+                    case 2:
+                        sasUrl = _a.sent();
+                        resolve(sasUrl);
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+    }
+    AzureStorage.getURLforImage = getURLforImage;
 })(AzureStorage = exports.AzureStorage || (exports.AzureStorage = {}));

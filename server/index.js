@@ -41,7 +41,7 @@ var multer = require("multer");
 var fs = require("fs");
 var constants_1 = require("./constants");
 var azure_service_1 = require("./azure-service");
-var converter = require("./dcmtk/dcmj2pnm");
+var converter_1 = require("./converter");
 // Set-up a server, that automatically serves static files.
 var server = express();
 server.use(express.static('public/'));
@@ -54,57 +54,52 @@ var storageConfig = multer.diskStorage({
 var storage = multer({ storage: storageConfig });
 // Extend the response's timeout for uploading larger files.
 var extendTimeout = function (req, res, next) {
-    res.setTimeout(480000, function () {
+    res.setTimeout(60000, function () {
         res.sendStatus(constants_1.StatusCode.GatewayTimeout).end();
     });
     next();
 };
-/*
-    Route:       POST '/_upload'.
-    Middleware:  extendTimeout, Multer array of data.
-    Expects:     Form-data, containing files.
-    -----------------------------------------------------------------------
-    Saves incoming files to the 'uploadsPath' folder.
-    Files HAVE TO contain a header: 'Content-Type': 'multipart/form-data'.
-    Files are sent to the Azure Storage and converted to the PNG format.
-*/
-server.post('/_upload', extendTimeout, storage.array('data'), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-    var _this = this;
-    var files, uploads;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                files = req.files;
-                uploads = files.map(function (file) { return __awaiter(_this, void 0, void 0, function () {
-                    var uploadDicom, convert, uploadImage;
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0:
-                                uploadDicom = azure_service_1.AzureStorage.upload(azure_service_1.AzureStorage.containerDicoms, file.filename, file.path);
-                                convert = new converter.Dcmj2pnm().convertToPng(file.path, 'sample.png', function (p, s) { return s; });
-                                return [4 /*yield*/, convert];
-                            case 1:
-                                _a.sent();
-                                return [4 /*yield*/, azure_service_1.AzureStorage.upload(azure_service_1.AzureStorage.containerImages, 'sample.png', 'images/sample.png')];
-                            case 2:
-                                uploadImage = _a.sent();
-                                return [4 /*yield*/, uploadDicom];
-                            case 3:
-                                _a.sent(), uploadImage;
-                                fs.unlink(file.path, function () { });
-                                // fs.unlink('images/sample.png', () => {});
-                                return [2 /*return*/, true];
-                        }
-                    });
-                }); });
-                return [4 /*yield*/, Promise.all(uploads)];
-            case 1:
-                _a.sent();
-                res.sendStatus(constants_1.StatusCode.OK).end();
-                return [2 /*return*/];
-        }
+server.post('/_upload', extendTimeout, storage.array('data'), function (req, res) {
+    var files = req.files;
+    // Upload all the files to the AzureStorage.
+    var uploads = files.map(function (file) { return __awaiter(_this, void 0, void 0, function () {
+        var convert, uploadDicom, uploadPng, e_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 3, , 4]);
+                    convert = converter_1.Converter.toPng(file.filename);
+                    uploadDicom = azure_service_1.AzureStorage.toDicoms(file.filename, file.path);
+                    // Before proceeding to upload PNG to Azure, make sure to convert first.
+                    return [4 /*yield*/, convert];
+                case 1:
+                    // Before proceeding to upload PNG to Azure, make sure to convert first.
+                    _a.sent();
+                    uploadPng = azure_service_1.AzureStorage.toImages(file.filename + '.png', constants_1.imagePath + file.filename + '.png');
+                    // Await for uploading, if necessary.
+                    return [4 /*yield*/, uploadDicom];
+                case 2:
+                    // Await for uploading, if necessary.
+                    _a.sent(), uploadPng;
+                    // Remove files from the local storage.
+                    fs.unlink(file.path, function () { });
+                    fs.unlink(constants_1.imagePath + file.filename + '.png', function () { });
+                    return [3 /*break*/, 4];
+                case 3:
+                    e_1 = _a.sent();
+                    console.error("Something got wrong", e_1);
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/, true];
+            }
+        });
+    }); });
+    Promise.all(uploads).then(function () {
+        console.log(files[0].filename);
+        res.json({
+            images_id: [files.map(function (file) { return file.filename; })]
+        }).end();
     });
-}); });
+});
 /*
     Route:      GET '/_images'
     Expects:
@@ -112,13 +107,7 @@ server.post('/_upload', extendTimeout, storage.array('data'), function (req, res
     Returns all PNG images to the client.
 */
 server.get('/_images', function (req, res) {
-    fs.readFile("images/sample.png", function (err, data) {
-        if (err) {
-            res.sendStatus(constants_1.StatusCode.InternalServerError).end();
-        }
-        res.statusCode = constants_1.StatusCode.OK;
-        res.send(constants_1.base64png + new Buffer(data).toString('base64')).end();
-    });
+    res.sendStatus(constants_1.StatusCode.OK).end();
 });
 /*
     Route:      GET '/_images/latest'
@@ -135,9 +124,20 @@ server.get('/_images/latest', function (req, res) {
     --------------------------------------------
     Returns a PNG image by id.
 */
-server.get('_images/:id', function (req, res) {
-    res.sendStatus(constants_1.StatusCode.NotImplemented).end();
-});
+server.get('/_images/:id', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    var id, url;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                id = req.params.id + ".png";
+                return [4 /*yield*/, azure_service_1.AzureStorage.getURLforImage(id)];
+            case 1:
+                url = _a.sent();
+                res.send(url).end();
+                return [2 /*return*/];
+        }
+    });
+}); });
 // Listen and serve.
 var port = 8080;
 server.listen(port, function () {

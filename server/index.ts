@@ -50,14 +50,19 @@ server.post('/_upload', extendTimeout, storage.array('data'), (req, res) => {
             await uploadDicom, uploadPng;
             // Remove files from the local storage.
             fs.unlink(file.path, () => { });
-            // fs.unlink(imagePath + file.filename + '.png', () => {});
+            fs.unlink(imagePath + file.filename + '.png', () => {});
         } catch (e) {
             console.error("Something got wrong", e);
         }
         return true;
     });
     Promise.all(uploads).then(() => {
-        res.sendStatus(StatusCode.OK).end();
+        console.log(files[0].filename);
+        res.json(
+            {
+                images_id: [files.map((file) => { return file.filename; })]
+            }
+        ).end();
     })
 });
 
@@ -67,14 +72,10 @@ server.post('/_upload', extendTimeout, storage.array('data'), (req, res) => {
     --------------------------------------------
     Returns all PNG images to the client.
 */
-server.get('/_images', (req, res) => {
-    fs.readFile("images/sample.png", (err, data) => {
-        if (err) { res.sendStatus(StatusCode.InternalServerError).end(); }
-        res.statusCode = StatusCode.OK;
-        res.send(base64png + new Buffer(data).toString('base64')).end();
-    });
-});
 
+server.get('/_images', (req, res) => {
+    res.sendStatus(StatusCode.OK).end();
+});
 
 /*
     Route:      GET '/_images/latest'
@@ -92,8 +93,10 @@ server.get('/_images/latest', (req, res) => {
     --------------------------------------------
     Returns a PNG image by id.
 */
-server.get('_images/:id', (req, res) => {
-    res.sendStatus(StatusCode.NotImplemented).end();
+server.get('/_images/:id', async (req, res) => {
+    let id = req.params.id + ".png";
+    let url: string = await AzureStorage.getURLforImage(id);
+    res.send(url).end();
 });
 
 // Listen and serve.

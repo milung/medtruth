@@ -2,6 +2,7 @@
 exports.__esModule = true;
 // Storage path to where are the incoming files stored.
 exports.storagePath = "uploads/";
+exports.imagePath = "images/";
 // Base64 PNG prefix.
 exports.base64png = "data:image/png;base64,";
 // HTTP status codes.

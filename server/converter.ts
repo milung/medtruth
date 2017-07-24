@@ -34,6 +34,11 @@ export namespace Converter {
 
     // Converts DICOM file to 16 bit PNG file using dcmj2pnm.exe and store it in the file system.
     export const toPng = (dicomName: string): Promise<ConvertionStatus> => {
-        return convert(dicomName, ['--write-16-bit-png']);
+        return convert(dicomName, [
+            '--write-16-bit-png',
+            '--min-max-window',
+            '--no-overlays',
+            '--interpolate 3'
+        ]);
     }
 }

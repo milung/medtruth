@@ -4,7 +4,6 @@
   "private": true,
   "description": "Web application for analyzing med pictures.",
   "dependencies": {
-    "@types/es6-promise": "^0.0.32",
     "@types/mongodb": "^2.2.7",
     "azure-storage": "^2.2.1",
     "body-parser": "^1.17.2",
