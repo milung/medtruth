@@ -76,21 +76,24 @@ server.post('/_upload', extendTimeout, storage.array('data'), function (req, res
             case 0:
                 files = req.files;
                 uploads = files.map(function (file) { return __awaiter(_this, void 0, void 0, function () {
-                    var msg1, msg2;
+                    var uploadDicom, convert, uploadImage;
                     return __generator(this, function (_a) {
                         switch (_a.label) {
-                            case 0: return [4 /*yield*/, new converter.Dcmj2pnm().convertToPng(file.path, 'sample.png', function (p, s) { return s; })];
+                            case 0:
+                                uploadDicom = azure_service_1.AzureStorage.upload(azure_service_1.AzureStorage.containerDicoms, file.filename, file.path);
+                                convert = new converter.Dcmj2pnm().convertToPng(file.path, 'sample.png', function (p, s) { return s; });
+                                return [4 /*yield*/, convert];
                             case 1:
                                 _a.sent();
                                 return [4 /*yield*/, azure_service_1.AzureStorage.upload(azure_service_1.AzureStorage.containerImages, 'sample.png', 'images/sample.png')];
                             case 2:
-                                msg1 = _a.sent();
-                                return [4 /*yield*/, azure_service_1.AzureStorage.upload(azure_service_1.AzureStorage.containerDicoms, file.filename, file.path)];
+                                uploadImage = _a.sent();
+                                return [4 /*yield*/, uploadDicom];
                             case 3:
-                                msg2 = _a.sent();
+                                _a.sent(), uploadImage;
                                 fs.unlink(file.path, function () { });
                                 // fs.unlink('images/sample.png', () => {});
-                                return [2 /*return*/, msg1 + msg2];
+                                return [2 /*return*/, true];
                         }
                     });
                 }); });

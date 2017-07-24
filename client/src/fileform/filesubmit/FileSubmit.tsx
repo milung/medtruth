@@ -14,7 +14,7 @@ interface ConnectedState {
 export class FileSubmitComponent extends React.Component<ConnectedState & OwnProps, {}> {
     render() {
         return (
-            <input type="submit" value="Send" onClick={this.props.send} disabled={!this.props.active} />
+            <input id="submit" type="submit" value="Send" onClick={this.props.send} disabled={!this.props.active} />
         );
     }
 }

@@ -39,12 +39,14 @@ server.post('/_upload', extendTimeout, storage.array('data'), async (req, res) =
     const files = req.files as Express.Multer.File[];
     // Upload all the files to the AzureStorage.
     const uploads = files.map(async (file) => {
-        await new converter.Dcmj2pnm().convertToPng(file.path, 'sample.png', (p, s) => { return s; });
-        const msg1 = await AzureStorage.upload(AzureStorage.containerImages, 'sample.png', 'images/sample.png');
-        const msg2 = await AzureStorage.upload(AzureStorage.containerDicoms, file.filename, file.path);
+        const uploadDicom = AzureStorage.upload(AzureStorage.containerDicoms, file.filename, file.path);
+        const convert = new converter.Dcmj2pnm().convertToPng(file.path, 'sample.png', (p, s) => { return s; });
+        await convert;
+        const uploadImage = await AzureStorage.upload(AzureStorage.containerImages, 'sample.png', 'images/sample.png');
+        await uploadDicom, uploadImage;
         fs.unlink(file.path, () => {});
         // fs.unlink('images/sample.png', () => {});
-        return msg1 + msg2;
+        return true;
     });
     await Promise.all(uploads);
     res.sendStatus(StatusCode.OK).end();
