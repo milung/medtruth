@@ -2,9 +2,9 @@
 import * as express from 'express';
 import * as multer from 'multer';
 import * as fs from 'fs';
-import { StatusCode, storagePath, base64png } from './constants';
+import { StatusCode, storagePath, imagePath } from './constants';
 import { AzureStorage } from './azure-service';
-import * as converter from './dcmtk/dcmj2pnm';
+import { Converter } from './converter';
 
 // Set-up a server, that automatically serves static files.
 const server = express();
@@ -20,7 +20,7 @@ const storage = multer({ storage: storageConfig });
 
 // Extend the response's timeout for uploading larger files.
 const extendTimeout = (req, res, next) => {
-    res.setTimeout(480000, () => {
+    res.setTimeout(60000, () => {
         res.sendStatus(StatusCode.GatewayTimeout).end();
     });
     next();
@@ -34,22 +34,31 @@ const extendTimeout = (req, res, next) => {
     Saves incoming files to the 'uploadsPath' folder.
     Files HAVE TO contain a header: 'Content-Type': 'multipart/form-data'.
     Files are sent to the Azure Storage and converted to the PNG format.
-*/
-server.post('/_upload', extendTimeout, storage.array('data'), async (req, res) => {
+*/;
+server.post('/_upload', extendTimeout, storage.array('data'), (req, res) => {
     const files = req.files as Express.Multer.File[];
     // Upload all the files to the AzureStorage.
     const uploads = files.map(async (file) => {
-        const uploadDicom = AzureStorage.upload(AzureStorage.containerDicoms, file.filename, file.path);
-        const convert = new converter.Dcmj2pnm().convertToPng(file.path, 'sample.png', (p, s) => { return s; });
-        await convert;
-        const uploadImage = await AzureStorage.upload(AzureStorage.containerImages, 'sample.png', 'images/sample.png');
-        await uploadDicom, uploadImage;
-        fs.unlink(file.path, () => {});
-        // fs.unlink('images/sample.png', () => {});
+        try {
+            // Convert and upload DICOM to Azure asynchronously.
+            let convert = Converter.toPng(file.filename);
+            let uploadDicom = AzureStorage.toDicoms(file.filename, file.path);
+            // Before proceeding to upload PNG to Azure, make sure to convert first.
+            await convert;
+            let uploadPng = AzureStorage.toImages(file.filename + '.png', imagePath + file.filename + '.png');
+            // Await for uploading, if necessary.
+            await uploadDicom, uploadPng;
+            // Remove files from the local storage.
+            fs.unlink(file.path, () => { });
+            // fs.unlink(imagePath + file.filename + '.png', () => {});
+        } catch (e) {
+            console.error("Something got wrong", e);
+        }
         return true;
     });
-    await Promise.all(uploads);
-    res.sendStatus(StatusCode.OK).end();
+    Promise.all(uploads).then(() => {
+        res.sendStatus(StatusCode.OK).end();
+    })
 });
 
 /*
@@ -65,6 +74,7 @@ server.get('/_images', (req, res) => {
         res.send(base64png + new Buffer(data).toString('base64')).end();
     });
 });
+
 
 /*
     Route:      GET '/_images/latest'
