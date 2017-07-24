@@ -54,6 +54,14 @@ export class Dcmj2pnm {
     *   converts dicom file to 16 bit png file using dcmj2pnm.exe and stored it in file system
     */
     public convertToPng(dicomPath: string, imageName: string, callback: (imagePath: string, status: ConvertionStatus) => void) {
-        this.convert(dicomPath, imageName, ['--write-16-bit-png'], callback);
+        this.convert(dicomPath, imageName,
+            [
+                '--write-16-bit-png',
+                '--min-max-window',
+                '--no-overlays',
+                '--interpolate 3'
+                /*, '--all-frames'*/
+            ],
+            callback);
     }
 }
