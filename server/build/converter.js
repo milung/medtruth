@@ -2,16 +2,15 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const constants_1 = require("./constants");
 /*
-*   Status of operation
+*   Status of conversion
 *   SUCCESSFUL          = dicom file converted and image stored in path
 *   COMPILATION_FAILED  = error during compilation
-*   FILE_NOT_FOUNT      = dicom file was to found in system
 */
-var ConvertionStatus;
-(function (ConvertionStatus) {
-    ConvertionStatus[ConvertionStatus["SUCCESSFUL"] = 0] = "SUCCESSFUL";
-    ConvertionStatus[ConvertionStatus["COMPILATION_FAILED"] = 1] = "COMPILATION_FAILED";
-})(ConvertionStatus = exports.ConvertionStatus || (exports.ConvertionStatus = {}));
+var ConversionStatus;
+(function (ConversionStatus) {
+    ConversionStatus[ConversionStatus["SUCCESSFUL"] = 0] = "SUCCESSFUL";
+    ConversionStatus[ConversionStatus["COMPILATION_FAILED"] = 1] = "COMPILATION_FAILED";
+})(ConversionStatus = exports.ConversionStatus || (exports.ConversionStatus = {}));
 var Converter;
 (function (Converter) {
     const exePath = 'dcmj2pnm';
@@ -26,10 +25,10 @@ var Converter;
             });
             exec(cmd, (error, stdout, stderr) => {
                 if (error === null) {
-                    resolve(ConvertionStatus.SUCCESSFUL);
+                    resolve(ConversionStatus.SUCCESSFUL);
                 }
                 else {
-                    reject(ConvertionStatus.COMPILATION_FAILED);
+                    reject(ConversionStatus.COMPILATION_FAILED);
                 }
             });
         });

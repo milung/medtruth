@@ -3,9 +3,6 @@
 export const storagePath = "uploads/";
 export const imagePath = "images/";
 
-// Base64 PNG prefix.
-export const base64png = "data:image/png;base64,";
-
 // HTTP status codes.
 export namespace StatusCode {
     // 1xx

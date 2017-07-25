@@ -12,9 +12,19 @@ const express_1 = require("express");
 const constants_1 = require("../../constants");
 const azure_service_1 = require("../../azure-service");
 exports.rootImages = '/_images';
-const imagesLatest = '/latest';
-const imagesId = '/:id';
 exports.routerImages = express_1.Router();
+/*
+    Route:      OPTIONS '/_images'
+    Expects:
+    --------------------------------------------
+    Returns information about this endpoint.
+*/
+exports.routerImages.options('/', (req, res) => {
+    return res.json({
+        endpoint: '/api/_images',
+        message: 'Images is an endpoint for retreiving converted images.'
+    });
+});
 /*
     Route:      GET '/_images'
     Expects:
@@ -30,8 +40,8 @@ exports.routerImages.get('/', (req, res) => {
     --------------------------------------------
     Returns latest PNG images uploaded to the server.
 */
-exports.routerImages.get(imagesLatest, (req, res) => {
-    res.sendStatus(constants_1.StatusCode.NotImplemented).end();
+exports.routerImages.get('/latest', (req, res) => {
+    res.sendStatus(constants_1.StatusCode.NotImplemented);
 });
 /*
     Route:      GET '/_images/:id'
@@ -39,7 +49,7 @@ exports.routerImages.get(imagesLatest, (req, res) => {
     --------------------------------------------
     Returns a PNG image by id.
 */
-exports.routerImages.get(imagesId, (req, res) => __awaiter(this, void 0, void 0, function* () {
+exports.routerImages.get('/:id', (req, res) => __awaiter(this, void 0, void 0, function* () {
     let id = req.params.id + ".png";
     let url = yield azure_service_1.AzureStorage.getURLforImage(id);
     res.send(url).end();

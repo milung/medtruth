@@ -17,8 +17,8 @@ api.options('/', (req, res) => {
     return res.json(
         {
             routes: [
-                { route: rootUpload },
-                { route: rootImages }
+                { endpoint: rootUpload },
+                { endpoint: rootImages }
             ]
         }
     );

@@ -43,8 +43,8 @@ var AzureStorage;
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             var startDate = new Date();
             var expiryDate = new Date(startDate);
-            expiryDate.setMinutes(startDate.getMinutes() + 10);
             startDate.setMinutes(startDate.getMinutes() - 10);
+            expiryDate.setMinutes(startDate.getMinutes() + 10);
             var sharedAccessPolicy = {
                 AccessPolicy: {
                     Permissions: azure.BlobUtilities.SharedAccessPermissions.READ,

@@ -7,8 +7,8 @@ import { StatusCode, storagePath, imagePath } from '../../constants';
 import { AzureStorage } from '../../azure-service';
 import { Converter } from '../../converter';
 
-export const rootUpload     = '/_upload';
-export const routerUpload   = Router();
+export const rootUpload = '/_upload';
+export const routerUpload = Router();
 
 // Set-up a storage to the local folder for incoming files.
 const storageConfig = multer.diskStorage({
@@ -41,33 +41,59 @@ routerUpload.options('/', (req, res) => {
     );
 });
 
+interface UploadError {
+    filename: string,
+    message: string
+}
+
+/*
+    Route:      POST '/_upload'
+    Middleware: extendTimeout, Multer storage
+    Expects:    Form-data
+    --------------------------------------------
+    Converts DICOM files to the PNG and uploads both formats to the Azure storage.
+    Returns JSON, that cointains ID's of the converted files.
+*/
 routerUpload.post('/', extendTimeout, storage.array('data'), async (req, res) => {
+    // Upload all the files from the request to the AzureStorage.
     const files = req.files as Express.Multer.File[];
-    // Upload all the files to the AzureStorage.
+    let err: UploadError[];
     const uploads = files.map(async (file) => {
         try {
             // Convert and upload DICOM to Azure asynchronously.
-            let convert = Converter.toPng(file.filename);
-            let uploadDicom = AzureStorage.toDicoms(file.filename, file.path);
+            let conversion = Converter.toPng(file.filename);
+            let uploadingDicom = AzureStorage.toDicoms(
+                file.filename,
+                file.path);
             // Before proceeding to upload PNG to Azure, make sure to convert first.
-            await convert;
-            let uploadPng = AzureStorage.toImages(file.filename + '.png', imagePath + file.filename + '.png');
-            // Await for uploading, if necessary.
-            await uploadDicom, uploadPng;
+            await conversion;
+            let uploadingImage = AzureStorage.toImages(
+                file.filename + '.png',
+                imagePath + file.filename + '.png');
+            // Await for uploads, if necessary.
+            await uploadingDicom, uploadingImage;
         } catch (e) {
-            console.error("Something got wrong", e);
+            let filename = file.originalname;
+            if (e === Converter.Status.FAILED) {
+                err.push({ filename: filename, message: "Conversion Error" });
+            }
+            if (e === AzureStorage.Status.FAILED) {
+                err.push({ filename: filename, message: "Storage Error" });
+            }
         } finally {
-            // Remove files from the local storage.
+            // Remove both formats from the local storage.
             fs.unlink(file.path, () => { });
             fs.unlink(imagePath + file.filename + '.png', () => { });
         }
         return true;
     });
-    // For all successed promises, send a JSON response.
+    // Wait for all upload promises.
     await Promise.all(uploads);
+    // Send a JSON response.
     res.json(
         {
-            images_id: [files.map((file) => { return file.filename; })]
+            images_id: [files.map((file) => { return file.filename; })],
+            err: [...err]
         }
     ).end();
 });

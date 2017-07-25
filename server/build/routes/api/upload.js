@@ -26,36 +26,57 @@ const storage = multer({ storage: storageConfig });
 // Extend the response's timeout for uploading larger files.
 const extendTimeout = (req, res, next) => {
     res.setTimeout(60000, () => {
-        res.sendStatus(constants_1.StatusCode.GatewayTimeout).end();
+        res.sendStatus(constants_1.StatusCode.GatewayTimeout);
     });
     next();
 };
+/*
+    Route:      OPTIONS '/_uploads'
+    Expects:
+    --------------------------------------------
+    Returns information about this endpoint.
+*/
+exports.routerUpload.options('/', (req, res) => {
+    return res.json({
+        endpoint: '/api/_upload',
+        message: 'Uploads is an endpoint for uploading series of DICOM images.'
+    });
+});
+/*
+    Route:      POST '/_upload'
+    Middleware: extendTimeout, Multer storage
+    Expects:    Form-data
+    --------------------------------------------
+    Converts DICOM files to the PNG and uploads both formats to the Azure storage.
+    Returns JSON, that cointains ID's of the converted files.
+*/
 exports.routerUpload.post('/', extendTimeout, storage.array('data'), (req, res) => __awaiter(this, void 0, void 0, function* () {
+    // Upload all the files from the request to the AzureStorage.
     const files = req.files;
-    // Upload all the files to the AzureStorage.
     const uploads = files.map((file) => __awaiter(this, void 0, void 0, function* () {
         try {
             // Convert and upload DICOM to Azure asynchronously.
-            let convert = converter_1.Converter.toPng(file.filename);
-            let uploadDicom = azure_service_1.AzureStorage.toDicoms(file.filename, file.path);
+            let conversion = converter_1.Converter.toPng(file.filename);
+            let uploadingDicom = azure_service_1.AzureStorage.toDicoms(file.filename, file.path);
             // Before proceeding to upload PNG to Azure, make sure to convert first.
-            yield convert;
-            let uploadPng = azure_service_1.AzureStorage.toImages(file.filename + '.png', constants_1.imagePath + file.filename + '.png');
-            // Await for uploading, if necessary.
-            yield uploadDicom, uploadPng;
+            yield conversion;
+            let uploadingImage = azure_service_1.AzureStorage.toImages(file.filename + '.png', constants_1.imagePath + file.filename + '.png');
+            // Await for uploads, if necessary.
+            yield uploadingDicom, uploadingImage;
         }
         catch (e) {
             console.error("Something got wrong", e);
         }
         finally {
-            // Remove files from the local storage.
+            // Remove both formats from the local storage.
             fs.unlink(file.path, () => { });
             fs.unlink(constants_1.imagePath + file.filename + '.png', () => { });
         }
         return true;
     }));
-    // For all successed promises, send a JSON response.
+    // Wait for all upload promises.
     yield Promise.all(uploads);
+    // Send a JSON response.
     res.json({
         images_id: [files.map((file) => { return file.filename; })]
     }).end();
