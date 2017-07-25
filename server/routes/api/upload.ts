@@ -6,9 +6,12 @@ import * as fs from 'fs';
 import { StatusCode, storagePath, imagePath } from '../../constants';
 import { AzureStorage } from '../../azure-service';
 import { Converter } from '../../converter';
+import { JSONCreator } from "../../Objects";
 
 export const rootUpload = '/_upload';
 export const routerUpload = Router();
+
+let jsonCreator: JSONCreator = new JSONCreator();
 
 // Set-up a storage to the local folder for incoming files.
 const storageConfig = multer.diskStorage({
@@ -96,4 +99,20 @@ routerUpload.post('/', extendTimeout, storage.array('data'), async (req, res) =>
             err: [...err]
         }
     ).end();
+});
+
+/*
+    Route:      GET '_upload:id'
+    Expects:    
+    --------------------------------------------
+    Returns detalis about upload.
+*/
+routerUpload.get('/_upload/:id', (req, res) => {
+    if (req.params.id == 12345) {
+        let responseJSON = jsonCreator.getUploadJSON();
+        res.json(responseJSON).end();
+    } else {
+        res.json({status:"INVALID UPLOAD ID"}).end();
+    }
+
 });

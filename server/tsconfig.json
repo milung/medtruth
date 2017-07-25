@@ -2,11 +2,7 @@
   "compilerOptions": {
     "target": "es6",
     "module": "commonjs",
-<<<<<<< HEAD
     "outDir": "build",
-=======
-    "outDir": ".",
->>>>>>> 794d24a76d66d91d9f9243bf37af36506d0d5911
     "sourceMap": true,
     "forceConsistentCasingInFileNames": false,
     "noImplicitReturns": true,
