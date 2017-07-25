@@ -1,7 +1,9 @@
 
 import * as express from 'express';
 import * as request from 'supertest';
+import * as azure from 'azure-storage';
 
+import { AzureStorage } from './azure-service';
 import { routes } from './routes';
 import { StatusCode } from './constants';
 
@@ -18,21 +20,21 @@ describe('<Server>', () => {
             .expect(StatusCode.OK);
     });
 
-    it('send NotFound status for unknown route', () => {
+    it('NotFound status for unknown route', () => {
         return req.get('/unknown/route')
             .expect(StatusCode.NotFound);
     })
 
     // <API> tests.
     describe('<API>', () => {
-        it('api should return options', () => {
+        it('/api respond to OPTIONS', () => {
             return req.options('/api')
                 .expect(StatusCode.OK);
         });
 
         // <Uploads> tests.
-        describe('<Uploads>', () => {
-            it('uploads should return options', () => {
+        describe('<Upload>', () => {
+            it('/_upload respond to OPTIONS', () => {
                 return req.options('/api/_upload')
                     .expect(StatusCode.OK);
             });
@@ -40,10 +42,15 @@ describe('<Server>', () => {
 
         // <Images> tests.
         describe('<Images>', () => {
-            it('images should return options', () => {
+            it('/_images        respond to OPTIONS', () => {
                 return req.options('/api/_images')
                     .expect(StatusCode.OK);
             });
+
+            it('/_images/:id    NotFound status with invalid id', () => {
+                return req.get('/api/_images/34298148941')
+                    .expect(StatusCode.NotFound);
+            })
         });
     });
 });
