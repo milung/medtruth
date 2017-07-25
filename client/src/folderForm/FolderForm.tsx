@@ -5,7 +5,7 @@ import * as React from 'react';
 import * as axios from 'axios';
 
 // import { FileFormAction, fileChanged } from './FileFormActions';
-import { FileUtils } from '../FileUtils';
+import { FileUtils } from '../fileform/FileUtils';
 import { validFileExtensions } from '../constants';
 import { ApiService } from '../api';
 
