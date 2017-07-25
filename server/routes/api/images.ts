@@ -4,9 +4,22 @@ import { StatusCode } from '../../constants';
 import { AzureStorage } from '../../azure-service';
 
 export const rootImages     = '/_images';
-const imagesLatest          = '/latest';
-const imagesId              = '/:id';
 export const routerImages   = Router();
+
+/*
+    Route:      OPTIONS '/_images'
+    Expects:    
+    --------------------------------------------
+    Returns information about this endpoint.
+*/
+routerImages.options('/', (req, res) => {
+    return res.json(
+        {
+            endpoint: '/api/_images',
+            message: 'Images is an endpoint for retreiving converted images.'
+        }
+    );
+});
 
 /*
     Route:      GET '/_images'
@@ -14,7 +27,6 @@ export const routerImages   = Router();
     --------------------------------------------
     Returns all PNG images to the client.
 */
-
 routerImages.get('/', (req, res) => {
     res.sendStatus(StatusCode.NotImplemented);
 });
@@ -25,8 +37,8 @@ routerImages.get('/', (req, res) => {
     --------------------------------------------
     Returns latest PNG images uploaded to the server.
 */
-routerImages.get(imagesLatest, (req, res) => {
-    res.sendStatus(StatusCode.NotImplemented).end();
+routerImages.get('/latest', (req, res) => {
+    res.sendStatus(StatusCode.NotImplemented);
 });
 
 /*
@@ -35,7 +47,7 @@ routerImages.get(imagesLatest, (req, res) => {
     --------------------------------------------
     Returns a PNG image by id.
 */
-routerImages.get(imagesId, async (req, res) => {
+routerImages.get('/:id', async (req, res) => {
     let id = req.params.id + ".png";
     let url: string = await AzureStorage.getURLforImage(id);
     res.send(url).end();

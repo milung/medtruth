@@ -21,10 +21,25 @@ const storage = multer({ storage: storageConfig });
 // Extend the response's timeout for uploading larger files.
 const extendTimeout = (req, res, next) => {
     res.setTimeout(60000, () => {
-        res.sendStatus(StatusCode.GatewayTimeout).end();
+        res.sendStatus(StatusCode.GatewayTimeout);
     });
     next();
 }
+
+/*
+    Route:      OPTIONS '/_uploads'
+    Expects:    
+    --------------------------------------------
+    Returns information about this endpoint.
+*/
+routerUpload.options('/', (req, res) => {
+    return res.json(
+        {
+            endpoint: '/api/_upload',
+            message: 'Uploads is an endpoint for uploading series of DICOM images.'
+        }
+    );
+});
 
 routerUpload.post('/', extendTimeout, storage.array('data'), async (req, res) => {
     const files = req.files as Express.Multer.File[];

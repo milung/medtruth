@@ -35,8 +35,8 @@ export namespace AzureStorage {
         return new Promise<string>(async (resolve, reject) => {
             var startDate = new Date();
             var expiryDate = new Date(startDate);
-            expiryDate.setMinutes(startDate.getMinutes() + 10);
             startDate.setMinutes(startDate.getMinutes() - 10);
+            expiryDate.setMinutes(startDate.getMinutes() + 10);
 
             var sharedAccessPolicy = {
                 AccessPolicy: {
