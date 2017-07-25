@@ -60,6 +60,7 @@ interface UploadError {
 routerUpload.post('/', extendTimeout, storage.array('data'), async (req, res) => {
     // Keep track of all the files converted
     // and if any error happened, append it along the way.
+    
     const files = req.files as Express.Multer.File[];
     let err: UploadError[] = [];
     // Upload all the files from the request to the AzureStorage.
@@ -108,7 +109,7 @@ routerUpload.post('/', extendTimeout, storage.array('data'), async (req, res) =>
     --------------------------------------------
     Returns detalis about upload.
 */
-routerUpload.get('/_upload/:id', (req, res) => {
+routerUpload.get('/:id', (req, res) => {
     if (req.params.id == 12345) {
         let responseJSON = jsonCreator.getUploadJSON();
         res.json(responseJSON).end();

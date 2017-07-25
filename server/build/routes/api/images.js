@@ -47,11 +47,16 @@ exports.routerImages.get('/latest', (req, res) => {
     Route:      GET '/_images/:id'
     Expects:    JSON, containing an id of an image.
     --------------------------------------------
-    Returns a PNG image by id.
+    Returns a PNG image by it's id.
 */
 exports.routerImages.get('/:id', (req, res) => __awaiter(this, void 0, void 0, function* () {
     let id = req.params.id + ".png";
-    let url = yield azure_service_1.AzureStorage.getURLforImage(id);
-    res.send(url).end();
+    try {
+        let url = yield azure_service_1.AzureStorage.getURLforImage(id);
+        res.status(constants_1.StatusCode.OK).send(url).end();
+    }
+    catch (e) {
+        res.sendStatus(constants_1.StatusCode.NotFound);
+    }
 }));
 //# sourceMappingURL=images.js.map

@@ -14,8 +14,10 @@ const fs = require("fs");
 const constants_1 = require("../../constants");
 const azure_service_1 = require("../../azure-service");
 const converter_1 = require("../../converter");
+const Objects_1 = require("../../Objects");
 exports.rootUpload = '/_upload';
 exports.routerUpload = express_1.Router();
+let jsonCreator = new Objects_1.JSONCreator();
 // Set-up a storage to the local folder for incoming files.
 const storageConfig = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -51,8 +53,12 @@ exports.routerUpload.options('/', (req, res) => {
     Returns JSON, that cointains ID's of the converted files.
 */
 exports.routerUpload.post('/', extendTimeout, storage.array('data'), (req, res) => __awaiter(this, void 0, void 0, function* () {
-    // Upload all the files from the request to the AzureStorage.
+    // Keep track of all the files converted
+    // and if any error happened, append it along the way.
+    console.log("UPLOAD POST");
     const files = req.files;
+    let err = [];
+    // Upload all the files from the request to the AzureStorage.
     const uploads = files.map((file) => __awaiter(this, void 0, void 0, function* () {
         try {
             // Convert and upload DICOM to Azure asynchronously.
@@ -65,7 +71,12 @@ exports.routerUpload.post('/', extendTimeout, storage.array('data'), (req, res) 
             yield uploadingDicom, uploadingImage;
         }
         catch (e) {
-            console.error("Something got wrong", e);
+            if (e === converter_1.Converter.Status.FAILED) {
+                err.push({ filename: file.originalname, message: 'Conversion Error' });
+            }
+            else if (e === azure_service_1.AzureStorage.Status.FAILED) {
+                err.push({ filename: file.originalname, message: 'Storage Error' });
+            }
         }
         finally {
             // Remove both formats from the local storage.
@@ -78,7 +89,23 @@ exports.routerUpload.post('/', extendTimeout, storage.array('data'), (req, res) 
     yield Promise.all(uploads);
     // Send a JSON response.
     res.json({
-        images_id: [files.map((file) => { return file.filename; })]
+        ids: [files.map((file) => { return file.filename; })],
+        err: err.slice()
     }).end();
 }));
+/*
+    Route:      GET '_upload:id'
+    Expects:
+    --------------------------------------------
+    Returns detalis about upload.
+*/
+exports.routerUpload.get('/:id', (req, res) => {
+    if (req.params.id == 12345) {
+        let responseJSON = jsonCreator.getUploadJSON();
+        res.json(responseJSON).end();
+    }
+    else {
+        res.json({ status: "INVALID UPLOAD ID" }).end();
+    }
+});
 //# sourceMappingURL=upload.js.map

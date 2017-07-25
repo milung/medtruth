@@ -9,24 +9,28 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const azure = require("azure-storage");
+const request = require("request");
 // import * as mongo from 'mongodb';
+const constants_1 = require("./constants");
 var AzureStorage;
 (function (AzureStorage) {
     const accountName = 'medtruth';
     const accountKey = 'fKbRBTAuaUOGJiuIXpjx2cG4Zgs2oZ2wYgunmRdNJ92oMdU1HbRjSv89JtLnmXS+LhlT0SzLMzKxjG/Vyt+GSQ==';
-    const blobService = azure.createBlobService(accountName, accountKey);
+    AzureStorage.blobService = azure.createBlobService(accountName, accountKey);
     AzureStorage.containerDicoms = 'dicoms';
     AzureStorage.containerImages = 'images';
+    let Status;
+    (function (Status) {
+        Status[Status["SUCCESFUL"] = 0] = "SUCCESFUL";
+        Status[Status["FAILED"] = 1] = "FAILED";
+    })(Status = AzureStorage.Status || (AzureStorage.Status = {}));
     function upload(container, blobName, filePath) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            yield blobService.createBlockBlobFromLocalFile(container, blobName, filePath, (error, result, response) => {
-                let message = "Created: " + result.name + ", exists: " + result.exists + ", is successful: " + response.isSuccessful;
-                if (!error) {
-                    resolve(message);
-                }
-                else {
-                    reject(message);
-                }
+            yield AzureStorage.blobService.createBlockBlobFromLocalFile(container, blobName, filePath, (error, result, response) => {
+                if (error)
+                    reject(Status.FAILED);
+                else
+                    resolve(Status.SUCCESFUL);
             });
         }));
     }
@@ -41,20 +45,21 @@ var AzureStorage;
     AzureStorage.toImages = toImages;
     function getURLforImage(image) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            var startDate = new Date();
-            var expiryDate = new Date(startDate);
-            startDate.setMinutes(startDate.getMinutes() - 10);
-            expiryDate.setMinutes(startDate.getMinutes() + 10);
-            var sharedAccessPolicy = {
+            let sharedAccessPolicy = {
                 AccessPolicy: {
                     Permissions: azure.BlobUtilities.SharedAccessPermissions.READ,
-                    Start: startDate,
-                    Expiry: expiryDate
+                    Expiry: azure.date.minutesFromNow(60)
                 },
             };
-            var token = yield blobService.generateSharedAccessSignature(AzureStorage.containerImages, image, sharedAccessPolicy);
-            var sasUrl = yield blobService.getUrl(AzureStorage.containerImages, image, token);
-            resolve(sasUrl);
+            let token = yield AzureStorage.blobService.generateSharedAccessSignature(AzureStorage.containerImages, image, sharedAccessPolicy);
+            let sasUrl = yield AzureStorage.blobService.getUrl(AzureStorage.containerImages, image, token);
+            yield request(sasUrl, (err, res) => {
+                if (err)
+                    reject(Status.FAILED);
+                if (res.statusCode === constants_1.StatusCode.OK)
+                    resolve(sasUrl);
+                reject(Status.FAILED);
+            });
         }));
     }
     AzureStorage.getURLforImage = getURLforImage;

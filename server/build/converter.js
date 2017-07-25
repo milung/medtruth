@@ -1,20 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const constants_1 = require("./constants");
-/*
-*   Status of conversion
-*   SUCCESSFUL          = dicom file converted and image stored in path
-*   COMPILATION_FAILED  = error during compilation
-*/
-var ConversionStatus;
-(function (ConversionStatus) {
-    ConversionStatus[ConversionStatus["SUCCESSFUL"] = 0] = "SUCCESSFUL";
-    ConversionStatus[ConversionStatus["COMPILATION_FAILED"] = 1] = "COMPILATION_FAILED";
-})(ConversionStatus = exports.ConversionStatus || (exports.ConversionStatus = {}));
 var Converter;
 (function (Converter) {
     const exePath = 'dcmj2pnm';
     const exec = require('child_process').exec;
+    let Status;
+    (function (Status) {
+        Status[Status["SUCCESSFUL"] = 0] = "SUCCESSFUL";
+        Status[Status["FAILED"] = 1] = "FAILED";
+    })(Status = Converter.Status || (Converter.Status = {}));
     const convert = (dicomName, args) => {
         return new Promise((resolve, reject) => {
             let dicomSrcPath = constants_1.storagePath + dicomName;
@@ -24,12 +19,10 @@ var Converter;
                 cmd = cmd + ' ' + arg;
             });
             exec(cmd, (error, stdout, stderr) => {
-                if (error === null) {
-                    resolve(ConversionStatus.SUCCESSFUL);
-                }
-                else {
-                    reject(ConversionStatus.COMPILATION_FAILED);
-                }
+                if (error === null)
+                    resolve(Status.SUCCESSFUL);
+                else
+                    reject(Status.FAILED);
             });
         });
     };

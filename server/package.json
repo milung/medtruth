@@ -49,6 +49,6 @@
     "start": "node build/server.js",
     "build": "tsc",
     "test": "jest",
-    "debug": "node --inspect-brk=5858 index.js"
+    "debug": "node --inspect-brk=5858 build/server.js"
   }
 }

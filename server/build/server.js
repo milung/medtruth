@@ -9,7 +9,10 @@ exports.server.use(express.static('public/'));
 exports.server.use(routes_1.routes);
 // Handle a 404 Page Not Found.
 exports.server.use((req, res, next) => {
-    res.status(constants_1.StatusCode.NotFound);
+    res.status(constants_1.StatusCode.NotFound)
+        .json({
+        message: 'Route not found'
+    });
 });
 // Listen and serve.
 const port = 8080;
