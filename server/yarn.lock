@@ -46,6 +46,23 @@
   dependencies:
     "@types/node" "*"
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+"@types/chai-http@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@types/chai-http/-/chai-http-3.0.0.tgz#82761e35c9b631978eca9be368f53ea0a5058b9b"
+  dependencies:
+    "@types/chai" "*"
+    "@types/node" "*"
+
+"@types/chai@*", "@types/chai@^4.0.1":
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/@types/chai/-/chai-4.0.1.tgz#37fea779617cfec3fd2b19a0247e8bbdd5133bf6"
+
+>>>>>>> 5659d81efe5ca4902bdfdc735ecc0846a2fc8b5a
+>>>>>>> 9737e0f3d6511a894de4aeb5d7a2709915233a00
 "@types/express-serve-static-core@*":
   version "4.0.49"
   resolved "https://registry.yarnpkg.com/@types/express-serve-static-core/-/express-serve-static-core-4.0.49.tgz#3438d68d26e39db934ba941f18e3862a1beeb722"
@@ -754,6 +771,14 @@ cryptiles@2.x.x:
   dependencies:
     boom "2.x.x"
 
+<<<<<<< HEAD
+daikon@^1.2.17:
+  version "1.2.17"
+  resolved "https://registry.yarnpkg.com/daikon/-/daikon-1.2.17.tgz#1e7f08664fe5e3d7c3f450b16368e812d7e94d08"
+  dependencies:
+    jpeg-lossless-decoder-js "git+https://github.com/rii-mango/JPEGLosslessDecoderJS.git"
+    pako "*"
+=======
 cssom@0.3.x, "cssom@>= 0.3.2 < 0.4.0":
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/cssom/-/cssom-0.3.2.tgz#b8036170c79f07a90ff2f16e22284027a243848b"
@@ -763,6 +788,7 @@ cssom@0.3.x, "cssom@>= 0.3.2 < 0.4.0":
   resolved "https://registry.yarnpkg.com/cssstyle/-/cssstyle-0.2.37.tgz#541097234cb2513c83ceed3acddc27ff27987d54"
   dependencies:
     cssom "0.3.x"
+>>>>>>> 5659d81efe5ca4902bdfdc735ecc0846a2fc8b5a
 
 daikon@^1.2.17:
   version "1.2.17"
@@ -1565,6 +1591,15 @@ isstream@~0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/isstream/-/isstream-0.1.2.tgz#47e63f7af55afa6f92e1500e690eb8b8529c099a"
 
+<<<<<<< HEAD
+"jpeg-lossless-decoder-js@git+https://github.com/rii-mango/JPEGLosslessDecoderJS.git":
+  version "2.0.2"
+  resolved "git+https://github.com/rii-mango/JPEGLosslessDecoderJS.git#6d2c969efca533f057e1ef74f8726eba63ebd090"
+
+jsbn@~0.1.0:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/jsbn/-/jsbn-0.1.1.tgz#a5e654c2e5a2deb5f201d96cefbca80c0ef2f513"
+=======
 istanbul-api@^1.1.1:
   version "1.1.11"
   resolved "https://registry.yarnpkg.com/istanbul-api/-/istanbul-api-1.1.11.tgz#fcc0b461e2b3bda71e305155138238768257d9de"
@@ -1580,6 +1615,7 @@ istanbul-api@^1.1.1:
     js-yaml "^3.7.0"
     mkdirp "^0.5.1"
     once "^1.4.0"
+>>>>>>> 5659d81efe5ca4902bdfdc735ecc0846a2fc8b5a
 
 istanbul-lib-coverage@^1.0.1, istanbul-lib-coverage@^1.1.1:
   version "1.1.1"
