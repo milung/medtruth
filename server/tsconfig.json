@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "lib": [
-      "es2015", "es5", "dom"
-    ],
     "module": "commonjs",
+<<<<<<< HEAD
+    "outDir": "build",
+=======
     "outDir": ".",
+>>>>>>> 794d24a76d66d91d9f9243bf37af36506d0d5911
     "sourceMap": true,
     "forceConsistentCasingInFileNames": false,
     "noImplicitReturns": true,
@@ -14,10 +15,6 @@
     "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": true
   },
-  "include": [
-    "**/*.ts",
-    "*.ts"
-  ],
   "exclude": [
     "node_modules",
     "build",
@@ -25,9 +22,9 @@
     "acceptance-tests",
     "webpack",
     "jest",
-    "src/setupTests.ts"
+    "**/*.test.ts"
   ],
   "types": [
-    "typePatches"
+    "node"
   ]
 }
