@@ -48,12 +48,7 @@
   "scripts": {
     "start": "node build/server.js",
     "build": "tsc",
-<<<<<<< HEAD
-    "test": "jest"
-=======
     "test": "jest",
-    "hot": "tsc --watch | nodemon index.js",
     "debug": "node --inspect-brk=5858 index.js"
->>>>>>> 9737e0f3d6511a894de4aeb5d7a2709915233a00
   }
 }
