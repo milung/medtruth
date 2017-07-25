@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 // Storage path to where are the incoming files stored.
 exports.storagePath = "uploads/";
 exports.imagePath = "images/";
@@ -46,3 +46,4 @@ var StatusCode;
     StatusCode.GatewayTimeout = 504;
     StatusCode.HTTPNotSupported = 505;
 })(StatusCode = exports.StatusCode || (exports.StatusCode = {}));
+//# sourceMappingURL=constants.js.map
