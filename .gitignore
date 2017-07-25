@@ -4,3 +4,9 @@
 */server/node_modules
 */git
 */.vscode
+*/server/build
+*/client/build
+*/server/yarn.lock
+*/server/package-lock.json
+*/client/yarn.lock
+*/cient/package-lock.json

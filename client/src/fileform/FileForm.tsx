@@ -48,7 +48,7 @@ export class FileFormComponent extends React.Component<ConnectedDispatch, OwnSta
         var fr = new FileReader();
         fr.onload = (e: any) => {
             this.setState({ file: e.target.result as ArrayBuffer });
-            this.props.change(true, '')
+            this.props.change(true, '');
             valid = true;
         };
         fr.readAsArrayBuffer(file);
@@ -64,7 +64,7 @@ export class FileFormComponent extends React.Component<ConnectedDispatch, OwnSta
         .then((resUpload: axios.AxiosResponse) => {
             // After that, fetch an image.
             console.log(resUpload.data);
-            ApiService.getImage(resUpload.data.images_id[0])
+            ApiService.getImage(resUpload.data.ids[0])
             .then((resImage: axios.AxiosResponse) => {
                 submit.value = 'Send';
                 submit.disabled = false;

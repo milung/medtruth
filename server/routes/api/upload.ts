@@ -58,9 +58,11 @@ interface UploadError {
     Returns JSON, that cointains ID's of the converted files.
 */
 routerUpload.post('/', extendTimeout, storage.array('data'), async (req, res) => {
-    // Upload all the files from the request to the AzureStorage.
+    // Keep track of all the files converted
+    // and if any error happened, append it along the way.
     const files = req.files as Express.Multer.File[];
-    let err: UploadError[];
+    let err: UploadError[] = [];
+    // Upload all the files from the request to the AzureStorage.
     const uploads = files.map(async (file) => {
         try {
             // Convert and upload DICOM to Azure asynchronously.
@@ -76,12 +78,11 @@ routerUpload.post('/', extendTimeout, storage.array('data'), async (req, res) =>
             // Await for uploads, if necessary.
             await uploadingDicom, uploadingImage;
         } catch (e) {
-            let filename = file.originalname;
             if (e === Converter.Status.FAILED) {
-                err.push({ filename: filename, message: "Conversion Error" });
+                err.push({ filename: file.originalname, message: 'Conversion Error' })
             }
-            if (e === AzureStorage.Status.FAILED) {
-                err.push({ filename: filename, message: "Storage Error" });
+            else if (e === AzureStorage.Status.FAILED) {
+                err.push({ filename: file.originalname, message: 'Storage Error' })
             }
         } finally {
             // Remove both formats from the local storage.
@@ -95,8 +96,8 @@ routerUpload.post('/', extendTimeout, storage.array('data'), async (req, res) =>
     // Send a JSON response.
     res.json(
         {
-            images_id: [files.map((file) => { return file.filename; })],
-            err: [...err]
+            ids: [files.map((file: Express.Multer.File) => { return file.filename; })],
+            err: err.slice()
         }
     ).end();
 });
