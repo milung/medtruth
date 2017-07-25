@@ -1,11 +1,14 @@
 
 import * as azure from 'azure-storage';
+import * as request from 'request';
 // import * as mongo from 'mongodb';
+
+import { StatusCode } from './constants';
 
 export namespace AzureStorage {
     const accountName = 'medtruth';
     const accountKey = 'fKbRBTAuaUOGJiuIXpjx2cG4Zgs2oZ2wYgunmRdNJ92oMdU1HbRjSv89JtLnmXS+LhlT0SzLMzKxjG/Vyt+GSQ==';
-    const blobService = azure.createBlobService(accountName, accountKey);
+    export const blobService = azure.createBlobService(accountName, accountKey);
     export const containerDicoms = 'dicoms';
     export const containerImages = 'images';
 
@@ -18,8 +21,8 @@ export namespace AzureStorage {
         return new Promise<Status>(async (resolve, reject) => {
             await blobService.createBlockBlobFromLocalFile(container, blobName, filePath,
                 (error, result, response) => {
-                    if (!error)     resolve(Status.SUCCESFUL);  
-                    else            reject(Status.FAILED); 
+                    if (error)     reject(Status.FAILED);  
+                    else           resolve(Status.SUCCESFUL); 
                 });
         });
     }
@@ -34,22 +37,23 @@ export namespace AzureStorage {
 
     export function getURLforImage(image: string): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
-            var startDate = new Date();
-            var expiryDate = new Date(startDate);
-            startDate.setMinutes(startDate.getMinutes() - 10);
-            expiryDate.setMinutes(startDate.getMinutes() + 10);
-
-            var sharedAccessPolicy = {
+            let sharedAccessPolicy = {
                 AccessPolicy: {
                     Permissions: azure.BlobUtilities.SharedAccessPermissions.READ,
-                    Start: startDate,
-                    Expiry: expiryDate
+                    Expiry: azure.date.minutesFromNow(60)
                 },
             };
 
-            var token = await blobService.generateSharedAccessSignature(containerImages, image, sharedAccessPolicy);
-            var sasUrl = await blobService.getUrl(containerImages, image, token);
-            resolve(sasUrl);
+            let token = await blobService.generateSharedAccessSignature(
+                containerImages, 
+                image, 
+                sharedAccessPolicy);
+            let sasUrl = await blobService.getUrl(containerImages, image, token);
+            await request(sasUrl, (err, res) => {
+                if (err)                                reject(Status.FAILED);
+                if (res.statusCode === StatusCode.OK)   resolve(sasUrl)
+                reject(Status.FAILED);
+            })
         });
     }
 }
