@@ -44,9 +44,10 @@ routerUpload.options('/', (req, res) => {
     );
 });
 
-interface UploadError {
-    filename: string,
-    message: string
+interface UploadMessage {
+    name: string;
+    id?: string;
+    err?: string;
 }
 
 /*
@@ -61,10 +62,10 @@ routerUpload.post('/', extendTimeout, storage.array('data'), async (req, res) =>
     // Keep track of all the files converted
     // and if any error happened, append it along the way.
     const files = req.files as Express.Multer.File[];
-    let err: UploadError[] = [];
     // Upload all the files from the request to the AzureStorage.
     const uploads = files.map(async (file) => {
         try {
+            var upload: UploadMessage = { name: file.originalname };
             // Convert and upload DICOM to Azure asynchronously.
             let conversion = Converter.toPng(file.filename);
             let uploadingDicom = AzureStorage.toDicoms(
@@ -77,29 +78,29 @@ routerUpload.post('/', extendTimeout, storage.array('data'), async (req, res) =>
                 imagePath + file.filename + '.png');
             // Await for uploads, if necessary.
             await uploadingDicom, uploadingImage;
+            upload.id = file.filename;
         } catch (e) {
             if (e === Converter.Status.FAILED) {
-                err.push({ filename: file.originalname, message: 'Conversion Error' })
+                upload.err = 'Conversion Error';
             }
             else if (e === AzureStorage.Status.FAILED) {
-                err.push({ filename: file.originalname, message: 'Storage Error' })
+                upload.err = 'Storage Error';
             }
         } finally {
             // Remove both formats from the local storage.
             fs.unlink(file.path, () => { });
             fs.unlink(imagePath + file.filename + '.png', () => { });
         }
-        return true;
+        return upload;
     });
     // Wait for all upload promises.
-    await Promise.all(uploads);
-    // Send a JSON response.
-    res.json(
-        {
-            ids: [files.map((file: Express.Multer.File) => { return file.filename; })],
-            err: err.slice()
-        }
-    ).end();
+    await Promise.all(uploads).then((uploads: UploadMessage[]) => {
+        res.json(
+            {
+                statuses: uploads.slice()
+            }
+        )
+    });
 });
 
 /*
@@ -108,12 +109,12 @@ routerUpload.post('/', extendTimeout, storage.array('data'), async (req, res) =>
     --------------------------------------------
     Returns detalis about upload.
 */
-routerUpload.get('/_upload/:id', (req, res) => {
+routerUpload.get('/:id', (req, res) => {
     if (req.params.id == 12345) {
         let responseJSON = jsonCreator.getUploadJSON();
-        res.json(responseJSON).end();
+        res.json(responseJSON);
     } else {
-        res.json({status:"INVALID UPLOAD ID"}).end();
+        res.json({ status: "INVALID UPLOAD ID" });
     }
 
 });
