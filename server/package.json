@@ -29,6 +29,7 @@
     "start": "node index.js",
     "build": "tsc",
     "test": "",
-    "hot": "tsc --watch | nodemon index.js"
+    "hot": "tsc --watch | nodemon index.js",
+    "debug": "node --inspect-brk=5858 index.js"
   }
 }

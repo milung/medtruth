@@ -1,10 +1,14 @@
 
 import * as express from 'express';
 import * as multer from 'multer';
-import * as fs from 'fs';
-import { StatusCode, storagePath, imagePath } from './constants';
+//import * as fs from 'fs';
+import { StatusCode, storagePath /*,imagePath*/ } from './constants';
 import { AzureStorage } from './azure-service';
-import { Converter } from './converter';
+//import { Converter } from './converter';
+import { DaikonConverter } from './daikon/daikon'
+import { JSONCreator } from "./Objects";
+
+let jsonCreator: JSONCreator = new JSONCreator();
 
 // Set-up a server, that automatically serves static files.
 const server = express();
@@ -26,6 +30,7 @@ const extendTimeout = (req, res, next) => {
     next();
 }
 
+
 /*
     Route:       POST '/_upload'.
     Middleware:  extendTimeout, Multer array of data.
@@ -37,20 +42,44 @@ const extendTimeout = (req, res, next) => {
 */;
 server.post('/_upload', extendTimeout, storage.array('data'), (req, res) => {
     const files = req.files as Express.Multer.File[];
+
     // Upload all the files to the AzureStorage.
     const uploads = files.map(async (file) => {
         try {
-            // Convert and upload DICOM to Azure asynchronously.
-            let convert = Converter.toPng(file.filename);
-            let uploadDicom = AzureStorage.toDicoms(file.filename, file.path);
-            // Before proceeding to upload PNG to Azure, make sure to convert first.
-            await convert;
-            let uploadPng = AzureStorage.toImages(file.filename + '.png', imagePath + file.filename + '.png');
-            // Await for uploading, if necessary.
-            await uploadDicom, uploadPng;
-            // Remove files from the local storage.
-            fs.unlink(file.path, () => { });
-            fs.unlink(imagePath + file.filename + '.png', () => {});
+            let daikon = new DaikonConverter(file.path);
+            console.log("getImageNumber " + daikon.getImageNumber());
+            console.log("getPatientName " + daikon.getPatientName());
+            console.log("getSeriesDescription " + daikon.getSeriesDescription());
+            console.log("getSeriesUID " + daikon.getSeriesUID());
+            console.log("getStudyDate " + daikon.getStudyDate());
+            console.log("getPatientDateOfBirth " + daikon.getPatientDateOfBirth());
+            console.log("patientID " + daikon.getPatientID());
+            console.log("patientsex " + daikon.getPatientSex());
+            console.log("getPhysicianName " + daikon.getPhysicianName());
+
+            let d: Date = daikon.getPatientDateOfBirth();
+
+            console.log(d.getDate());
+            console.log(d.getMonth());
+            console.log(d.getFullYear());
+
+
+
+
+
+            /*
+                        // Convert and upload DICOM to Azure asynchronously.
+                        let convert = Converter.toPng(file.filename);
+                        let uploadDicom = AzureStorage.toDicoms(file.filename, file.path);
+                        // Before proceeding to upload PNG to Azure, make sure to convert first.
+                        await convert;
+                        let uploadPng = AzureStorage.toImages(file.filename + '.png', imagePath + file.filename + '.png');
+                        // Await for uploading, if necessary.
+                        await uploadDicom, uploadPng;
+                        // Remove files from the local storage.
+                        fs.unlink(file.path, () => { });
+                        fs.unlink(imagePath + file.filename + '.png', () => {});
+                        */
         } catch (e) {
             console.error("Something got wrong", e);
         }
@@ -65,6 +94,23 @@ server.post('/_upload', extendTimeout, storage.array('data'), (req, res) => {
         ).end();
     })
 });
+
+/*
+    Route:      GET '_upload:id'
+    Expects:    
+    --------------------------------------------
+    Returns detalis about upload.
+*/
+server.get('/_upload/:id', (req, res) => {
+    if (req.params.id == 12345) {
+        let responseJSON = jsonCreator.getUploadJSON();
+        res.json(responseJSON).end();
+    } else {
+        res.json({status:"INVALID UPLOAD ID"}).end();
+    }
+
+});
+
 
 /*
     Route:      GET '/_images'
