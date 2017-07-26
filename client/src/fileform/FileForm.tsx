@@ -2,7 +2,6 @@
 import * as React from 'react';
 import * as Redux from 'redux';
 import { connect } from 'react-redux';
-import * as axios from 'axios';
 
 import { FileSubmit } from './filesubmit/FileSubmit';
 import { FileFormAction, fileChanged } from './FileFormActions';
@@ -55,29 +54,20 @@ export class FileFormComponent extends React.Component<ConnectedDispatch, OwnSta
         return valid;
     }
 
-    sendFile(): void {
-        // Upload the data to the server.
+    async sendFile(): Promise<void> {
         const submit = document.getElementById('submit') as HTMLInputElement;
         submit.value = 'Uploading';
         submit.disabled = true;
-        ApiService.upload(this.state.file)
-        .then((resUpload: axios.AxiosResponse) => {
-            // After that, fetch an image.
-            console.log(resUpload.data);
-            ApiService.getImage(resUpload.data.ids[0])
-            .then((resImage: axios.AxiosResponse) => {
-                submit.value = 'Send';
-                submit.disabled = false;
-                let img = document.getElementById('thumbnail') as HTMLImageElement;
-                img.src = resImage.data;
-            })
-            .catch((resImageErr: axios.AxiosResponse) => {
-                // Error if fetching images went wrong.
-            });
-        })
-        .catch((resUploadErr: axios.AxiosResponse) => {
-            // Error if upload to the server went wrong.
-        });
+
+        // Upload the data to the server.
+        let resUpload = await ApiService.upload(this.state.file);
+        // After that, fetch an image.
+        let resImage = await ApiService.getImage(resUpload.statuses[0].id);
+
+        submit.value = 'Send';
+        submit.disabled = false;
+        let img = document.getElementById('thumbnail') as HTMLImageElement;
+        img.src = resImage.url;
     }
 
     render() {
@@ -85,7 +75,7 @@ export class FileFormComponent extends React.Component<ConnectedDispatch, OwnSta
             <div>
                 <div id="form">
                     <input id="loader" type="file" onChange={this.loadFile} />
-                    <FileSubmit send={this.sendFile}/>
+                    <FileSubmit send={this.sendFile} />
                 </div>
                 <img id="thumbnail" width={500} height={500} />
             </div>

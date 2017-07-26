@@ -2,9 +2,9 @@
 import * as axios from 'axios';
 
 export namespace ApiService {
-    const apiEndpoint   = 'http://localhost:8080/api';
-    const uriUpload     = apiEndpoint + '/_upload';
-    const uriImages    = apiEndpoint + '/_images';
+    const apiEndpoint = 'http://localhost:8080/api';
+    const uriUpload = apiEndpoint + '/upload';
+    const uriImages = apiEndpoint + '/images';
 
     /*
         Route:      POST '/_upload'
@@ -13,19 +13,29 @@ export namespace ApiService {
         Sends files to the server.
         Files HAVE TO contain a header: 'ContentType': 'multipart/form-data'.
     */
-    export function upload(...data: any[]): axios.AxiosPromise {
+    interface UploadStatus {
+        name: string;
+        id: string;
+        err: string;
+    }
+    interface UploadResponse {
+        statuses: UploadStatus[];
+    }
+
+    export async function upload(...data: any[]): Promise<UploadResponse> {
         const url = uriUpload;
         let form = new FormData();
         data.forEach((d) => {
             form.append('data', new Blob([d], { type: 'application/octet-stream' }));
         });
 
-        return axios.default({
+        let res: axios.AxiosResponse = await axios.default({
             method: 'POST',
             url: url,
             data: form,
             headers: { 'Content-Type': 'multipart/form-data' }
         });
+        return {...res.data};
     }
 
     /*
@@ -34,14 +44,18 @@ export namespace ApiService {
         -------------------------------------------
         Retreive images from the server.
     */
-    export function getImage(id: string): axios.AxiosPromise {
+    interface ImageIdResponse {
+        url: string;
+    }
+    export async function getImage(id: string): Promise<ImageIdResponse> {
         const url = uriImages + '/' + id;
 
-        return axios.default({
+        let res: axios.AxiosResponse = await axios.default({
             method: 'GET',
             url: url,
             headers: {}
         });
+        return {...res.data};
     }
 
     /*  

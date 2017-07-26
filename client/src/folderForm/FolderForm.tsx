@@ -2,7 +2,6 @@
 import * as React from 'react';
 // import * as Redux from 'redux';
 // import { connect } from 'react-redux';
-import * as axios from 'axios';
 
 // import { FileFormAction, fileChanged } from './FileFormActions';
 import { FileUtils } from '../fileform/FileUtils';
@@ -78,13 +77,13 @@ export class FolderFormComponent extends React.Component<{}, OwnState> {
         // Upload the data to the server.
         this.setState({ folderFormState: folderFormStates.UPLOADING_FILES });
         ApiService.upload(...this.filesData)
-            .then((resUpload: axios.AxiosResponse) => {
+            .then((resUpload) => {
                 // After that, fetch an image.
                 this.setState({
                     folderFormState: folderFormStates.FILES_UPLOADED
                 });
             })
-            .catch((resUploadErr: axios.AxiosError) => {
+            .catch((resUploadErr) => {
                 // Error if upload to the server went wrong.
                 this.setState({
                     folderFormState: folderFormStates.ERROR,
