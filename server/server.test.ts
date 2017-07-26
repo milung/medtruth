@@ -15,7 +15,7 @@ describe('<Server>', () => {
     server.use(routes);
     const req = request(server)
 
-    it('should serve', () => {
+    it('should serve public', () => {
         return req.get('/')
             .expect(StatusCode.OK);
     });
