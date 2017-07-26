@@ -34,21 +34,21 @@ describe('<Server>', () => {
 
         // <Uploads> tests.
         describe('<Upload>', () => {
-            it('/_upload respond to OPTIONS', () => {
-                return req.options('/api/_upload')
+            it('/upload respond to OPTIONS', () => {
+                return req.options('/api/upload')
                     .expect(StatusCode.OK);
             });
         });
 
         // <Images> tests.
         describe('<Images>', () => {
-            it('/_images        respond to OPTIONS', () => {
-                return req.options('/api/_images')
+            it('/images        respond to OPTIONS', () => {
+                return req.options('/api/images')
                     .expect(StatusCode.OK);
             });
 
-            it('/_images/:id    NotFound status with invalid id', () => {
-                return req.get('/api/_images/34298148941')
+            it('/images/:id    NotFound status with invalid id', () => {
+                return req.get('/api/images/34298148941')
                     .expect(StatusCode.NotFound);
             })
         });

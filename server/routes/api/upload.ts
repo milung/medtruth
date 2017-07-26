@@ -8,7 +8,7 @@ import { AzureStorage } from '../../azure-service';
 import { Converter } from '../../converter';
 import { JSONCreator } from "../../Objects";
 
-export const rootUpload = '/_upload';
+export const rootUpload = '/upload';
 export const routerUpload = Router();
 
 let jsonCreator: JSONCreator = new JSONCreator();
@@ -38,7 +38,7 @@ const extendTimeout = (req, res, next) => {
 routerUpload.options('/', (req, res) => {
     return res.json(
         {
-            endpoint: '/api/_upload',
+            endpoint: '/api/upload',
             message: 'Uploads is an endpoint for uploading series of DICOM images.'
         }
     );
@@ -46,8 +46,8 @@ routerUpload.options('/', (req, res) => {
 
 interface UploadMessage {
     name: string;
-    id?: string;
-    err?: string;
+    id: string;
+    err: string;
 }
 
 /*
@@ -66,7 +66,7 @@ routerUpload.post('/', extendTimeout, storage.array('data'), async (req, res) =>
     // Upload all the files from the request to the AzureStorage.
     const uploads = files.map(async (file) => {
         try {
-            var upload: UploadMessage = { name: file.originalname };
+            var upload: UploadMessage = { name: file.originalname, id: null, err: null };
             // Convert and upload DICOM to Azure asynchronously.
             let conversion = Converter.toPng(file.filename);
             let uploadingDicom = AzureStorage.toDicoms(
@@ -79,8 +79,10 @@ routerUpload.post('/', extendTimeout, storage.array('data'), async (req, res) =>
                 imagePath + file.filename + '.png');
             // Await for uploads, if necessary.
             await uploadingDicom, uploadingImage;
+            // Assign the upload's id.
             upload.id = file.filename;
         } catch (e) {
+            // Assign errors for each case of exception.
             if (e === Converter.Status.FAILED) {
                 upload.err = 'Conversion Error';
             }

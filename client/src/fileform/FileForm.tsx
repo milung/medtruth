@@ -2,7 +2,6 @@
 import * as React from 'react';
 import * as Redux from 'redux';
 import { connect } from 'react-redux';
-import * as axios from 'axios';
 
 import { FileSubmit } from './filesubmit/FileSubmit';
 import { FileFormAction, fileChanged } from './FileFormActions';
@@ -55,11 +54,22 @@ export class FileFormComponent extends React.Component<ConnectedDispatch, OwnSta
         return valid;
     }
 
-    sendFile(): void {
-        // Upload the data to the server.
+    async sendFile(): Promise<void> {
         const submit = document.getElementById('submit') as HTMLInputElement;
         submit.value = 'Uploading';
         submit.disabled = true;
+<<<<<<< HEAD
+
+        // Upload the data to the server.
+        let resUpload = await ApiService.upload(this.state.file);
+        // After that, fetch an image.
+        let resImage = await ApiService.getImage(resUpload.statuses[0].id);
+
+        submit.value = 'Send';
+        submit.disabled = false;
+        let img = document.getElementById('thumbnail') as HTMLImageElement;
+        img.src = resImage.url;
+=======
         ApiService.upload(this.state.file)
         .then((resUpload: axios.AxiosResponse) => {
             // After that, fetch an image.
@@ -78,6 +88,7 @@ export class FileFormComponent extends React.Component<ConnectedDispatch, OwnSta
         .catch((resUploadErr: axios.AxiosResponse) => {
             // Error if upload to the server went wrong.
         });
+>>>>>>> f537d450ebcbddd39ca3a2c88bc55ad7d4a171f4
     }
 
     render() {
@@ -85,7 +96,7 @@ export class FileFormComponent extends React.Component<ConnectedDispatch, OwnSta
             <div>
                 <div id="form">
                     <input id="loader" type="file" onChange={this.loadFile} />
-                    <FileSubmit send={this.sendFile}/>
+                    <FileSubmit send={this.sendFile} />
                 </div>
                 <img id="thumbnail" width={500} height={500} />
             </div>
