@@ -21,8 +21,8 @@ export namespace AzureStorage {
         return new Promise<Status>((resolve, reject) => {
             blobService.createBlockBlobFromLocalFile(container, blobName, filePath,
                 (error, result, response) => {
-                    if (error)     reject(Status.FAILED);  
-                    else           resolve(Status.SUCCESFUL); 
+                    if (error === null)     resolve(Status.SUCCESFUL);  
+                    else                    reject(Status.FAILED); 
                 });
         });
     }

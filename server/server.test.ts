@@ -25,6 +25,16 @@ describe('<Server>', () => {
             .expect(StatusCode.NotFound);
     })
 
+    describe('<Services>', () => {
+        it('Azure Storage should be up', async (done) => {
+            let status = await AzureStorage.upload('test', 'testblob', 'HG_001_0.dcm');
+            expect(status).toBe(AzureStorage.Status.SUCCESFUL);
+            await AzureStorage.blobService.deleteBlob('test', 'testblob', (err, res) => {
+                if (err === null) done();
+            });
+        });
+    });
+
     // <API> tests.
     describe('<API>', () => {
         it('/api responds to OPTIONS', () => {
