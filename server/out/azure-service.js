@@ -12,6 +12,12 @@ const azure = require("azure-storage");
 const request = require("request");
 // import * as mongo from 'mongodb';
 const constants_1 = require("./constants");
+const server_1 = require("./server");
+var Status;
+(function (Status) {
+    Status[Status["SUCCESFUL"] = 0] = "SUCCESFUL";
+    Status[Status["FAILED"] = 1] = "FAILED";
+})(Status = exports.Status || (exports.Status = {}));
 var AzureStorage;
 (function (AzureStorage) {
     const accountName = 'medtruth';
@@ -19,11 +25,6 @@ var AzureStorage;
     AzureStorage.blobService = azure.createBlobService(accountName, accountKey);
     AzureStorage.containerDicoms = 'dicoms';
     AzureStorage.containerImages = 'images';
-    let Status;
-    (function (Status) {
-        Status[Status["SUCCESFUL"] = 0] = "SUCCESFUL";
-        Status[Status["FAILED"] = 1] = "FAILED";
-    })(Status = AzureStorage.Status || (AzureStorage.Status = {}));
     function upload(container, blobName, filePath) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             yield AzureStorage.blobService.createBlockBlobFromLocalFile(container, blobName, filePath, (error, result, response) => {
@@ -64,4 +65,22 @@ var AzureStorage;
     }
     AzureStorage.getURLforImage = getURLforImage;
 })(AzureStorage = exports.AzureStorage || (exports.AzureStorage = {}));
+var AzureDatabase;
+(function (AzureDatabase) {
+    function insertObject(object) {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            let collection = yield server_1.db.collection(constants_1.collectionName);
+            yield collection.insert(object, (error, result) => {
+                let message = "Inserted " + result.result.n + " object, ID: " + result.insertedId;
+                console.log(result);
+                if (error)
+                    reject(Status.FAILED);
+                else
+                    resolve(Status.SUCCESFUL);
+                console.log(message);
+            });
+        }));
+    }
+    AzureDatabase.insertObject = insertObject;
+})(AzureDatabase = exports.AzureDatabase || (exports.AzureDatabase = {}));
 //# sourceMappingURL=azure-service.js.map

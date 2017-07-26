@@ -32,13 +32,13 @@ export class JSONCreator {
             "image01");
 
         this.setSeries(seriesQuattro, "w8w201w.duckfic0n.0.00145s64x",
-            "Who are we? Why our we here? What is our purpose?",
+            "Who are we? Why are we here? What is our purpose?",
             "Chudjak Kristián",
             new Date(1143567890123).getTime(),
             "image02");
 
         this.setSeries(seriesDalej, "fdsa541g6ds.51fsad56.45",
-            "This is supose to be a description, but im too lazy to write a proper one.",
+            "This is supposed to be a description, but im too lazy to write a proper one.",
             "Nguyenová Michaela",
             new Date(1292567890123).getTime(),
             "image05");

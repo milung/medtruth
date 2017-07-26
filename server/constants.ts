@@ -1,7 +1,15 @@
 
-// Storage path to where are the incoming files stored.
+// Storage path to where the incoming files are stored.
 export const storagePath = "uploads/";
 export const imagePath = "images/";
+
+// Path to MongoDB.
+export const dbName = "/myproject";
+export const dbAddress = "localhost:27017";
+export const url = "mongodb://" + dbAddress + dbName;
+
+// Name of the collection in database
+export const collectionName = "images";        
 
 // HTTP status codes.
 export namespace StatusCode {

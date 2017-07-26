@@ -76,7 +76,7 @@ exports.routerUpload.post('/', extendTimeout, storage.array('data'), (req, res) 
             if (e === converter_1.Converter.Status.FAILED) {
                 upload.err = 'Conversion Error';
             }
-            else if (e === azure_service_1.AzureStorage.Status.FAILED) {
+            else if (e === azure_service_1.Status.FAILED) {
                 upload.err = 'Storage Error';
             }
         }
@@ -98,7 +98,7 @@ exports.routerUpload.post('/', extendTimeout, storage.array('data'), (req, res) 
     Route:      GET '_upload:id'
     Expects:
     --------------------------------------------
-    Returns detalis about upload.
+    Returns details about upload.
 */
 exports.routerUpload.get('/:id', (req, res) => {
     if (req.params.id == 12345) {
@@ -109,4 +109,38 @@ exports.routerUpload.get('/:id', (req, res) => {
         res.json({ status: "INVALID UPLOAD ID" });
     }
 });
+/*
+    Mock route for testing the upload to MongoDB
+    Route:      POST '_upload/document'
+    Expects:
+    --------------------------------------------
+    Returns details about upload.
+*/
+//routerUpload.post('/document', (req, res) => {
+exports.routerUpload.post('/document', extendTimeout, storage.array('data'), (req, res) => __awaiter(this, void 0, void 0, function* () {
+    // const files = req.files as Express.Multer.File[];
+    // console.log(req.body);
+    // let file = files[0];
+    // console.log(file);
+    // console.log(file.buffer);
+    // let responseJSON = await AzureDatabase.insertObject(files[0]);
+    // res.json(responseJSON);
+    // Upload the document from the request to MongoDB
+    // let responseJSON;
+    // files.map(async (file) => {
+    //     responseJSON = AzureDatabase.insertObject(file);
+    // });
+    // res.json(responseJSON);
+    let img = {
+        seriesID: "skfalfslanfas",
+        patientName: "Hana Hahhahah",
+        imageID: "sadd297nsdjan31 239729 adskaj",
+        date: new Date(),
+        uploadDate: new Date(),
+        uploadID: new Date().getTime(),
+        thumbnail: "00614ad28b6d7b1628cc208c4d328b99"
+    };
+    let responseJSON = yield azure_service_1.AzureDatabase.insertObject(img);
+    res.json(responseJSON);
+}));
 //# sourceMappingURL=upload.js.map

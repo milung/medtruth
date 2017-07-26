@@ -4,14 +4,15 @@ import * as multer from 'multer';
 import * as fs from 'fs';
 
 import { StatusCode, storagePath, imagePath } from '../../constants';
-import { AzureStorage } from '../../azure-service';
+import { Status, AzureStorage, AzureDatabase } from '../../azure-service';
 import { Converter } from '../../converter';
-import { JSONCreator } from "../../Objects";
+import { JSONCreator } from '../../Objects';
 
 export const rootUpload = '/upload';
 export const routerUpload = Router();
 
 let jsonCreator: JSONCreator = new JSONCreator();
+
 
 // Set-up a storage to the local folder for incoming files.
 const storageConfig = multer.diskStorage({
@@ -61,7 +62,7 @@ interface UploadMessage {
 routerUpload.post('/', extendTimeout, storage.array('data'), async (req, res) => {
     // Keep track of all the files converted
     // and if any error happened, append it along the way.
-    
+
     const files = req.files as Express.Multer.File[];
     // Upload all the files from the request to the AzureStorage.
     const uploads = files.map(async (file) => {
@@ -86,7 +87,7 @@ routerUpload.post('/', extendTimeout, storage.array('data'), async (req, res) =>
             if (e === Converter.Status.FAILED) {
                 upload.err = 'Conversion Error';
             }
-            else if (e === AzureStorage.Status.FAILED) {
+            else if (e === Status.FAILED) {
                 upload.err = 'Storage Error';
             }
         } finally {
@@ -110,7 +111,7 @@ routerUpload.post('/', extendTimeout, storage.array('data'), async (req, res) =>
     Route:      GET '_upload:id'
     Expects:    
     --------------------------------------------
-    Returns detalis about upload.
+    Returns details about upload.
 */
 routerUpload.get('/:id', (req, res) => {
     if (req.params.id == 12345) {
@@ -119,5 +120,43 @@ routerUpload.get('/:id', (req, res) => {
     } else {
         res.json({ status: "INVALID UPLOAD ID" });
     }
+});
 
+/*
+    Mock route for testing the upload to MongoDB
+    Route:      POST 'upload/document'
+    Expects:    
+    --------------------------------------------
+    Returns details about upload.
+*/
+//routerUpload.post('/document', (req, res) => {
+routerUpload.post('/document', extendTimeout, storage.array('data'), async (req, res) => {
+    // const files = req.files as Express.Multer.File[];
+    // console.log(req.body);
+    
+    // let file = files[0];
+    // console.log(file);
+    // console.log(file.buffer);
+    // let responseJSON = await AzureDatabase.insertObject(files[0]);
+    // res.json(responseJSON);
+
+    // Upload the document from the request to MongoDB
+    // let responseJSON;
+    // files.map(async (file) => {
+    //     responseJSON = AzureDatabase.insertObject(file);
+    // });
+    // res.json(responseJSON);
+
+    let img: AzureDatabase.Image = {
+        seriesID: "skfalfslanfas",
+        patientName: "Hana Hahhahah",
+        imageID: "sadd297nsdjan31 239729 adskaj",
+        date: new Date(),
+        uploadDate: new Date(),
+        uploadID: new Date().getTime(),
+        thumbnail: "00614ad28b6d7b1628cc208c4d328b99"
+    }
+
+    let responseJSON = await AzureDatabase.insertObject(img);
+    res.json(responseJSON);
 });
