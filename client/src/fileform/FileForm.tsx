@@ -62,12 +62,15 @@ export class FileFormComponent extends React.Component<ConnectedDispatch, OwnSta
         // Upload the data to the server.
         let resUpload = await ApiService.upload(this.state.file);
         // After that, fetch an image.
-        let resImage = await ApiService.getImage(resUpload.statuses[0].id);
+        if (!resUpload.statuses[0].err) {
+            let resImage = await ApiService.getImage(resUpload.statuses[0].id);
+
+            let img = document.getElementById('thumbnail') as HTMLImageElement;
+            img.src = resImage.url;
+        }
 
         submit.value = 'Send';
         submit.disabled = false;
-        let img = document.getElementById('thumbnail') as HTMLImageElement;
-        img.src = resImage.url;
     }
 
     render() {

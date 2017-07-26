@@ -2,17 +2,19 @@
 import * as axios from 'axios';
 
 export namespace ApiService {
-    const apiEndpoint   = 'http://medtruth.azurewebsites.net/api';
-    //const apiEndpoint   = 'http://localhost:8080/api';
-    const uriUpload     = apiEndpoint + '/upload';
-    const uriImages    = apiEndpoint + '/images';
+    const apiEndpoint = 'http://localhost:8080/api';
+    const uriUpload = apiEndpoint + '/upload';
+    const uriImages = apiEndpoint + '/images';
 
     /*
-        Route:      POST '/_upload'
+        Route:      POST '/upload'
         Expects:    Any datas to be sent to the server.
         -------------------------------------------------
         Sends files to the server.
         Files HAVE TO contain a header: 'ContentType': 'multipart/form-data'.
+        
+        Server sends a JSON, that contains a name of the sent file,
+        upload id and error, if occured during uploading.
     */
     interface UploadStatus {
         name: string;
@@ -40,10 +42,13 @@ export namespace ApiService {
     }
 
     /*
-        Route:      GET '/_images'
-        Expects:    Nothing.
+        Route:      GET '/images/:id'
+        Expects:    Upload ID as a parameter.
         -------------------------------------------
         Retreive images from the server.
+
+        Server sends a URL to the image from Azure Storage,
+        or null if it's invalid.
     */
     interface ImageIdResponse {
         url: string;
@@ -62,6 +67,5 @@ export namespace ApiService {
     /*  
         TODO:
         /_images/latest
-        /_images/:id
     */
 }

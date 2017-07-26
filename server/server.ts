@@ -5,10 +5,14 @@ import { StatusCode } from './constants';
 
 // Set-up a server, with routes and static public files.
 export const server = express();
+
+// Serve public files first.
 server.use(express.static('public/'));
+
+// Serve routes.
 server.use(routes);
 
-// Handle a 404 Page Not Found.
+// As a last resort, send a NotFound status.
 server.use((req, res, next) => {
     res.status(StatusCode.NotFound)
         .json(

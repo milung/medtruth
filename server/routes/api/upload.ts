@@ -44,6 +44,7 @@ routerUpload.options('/', (req, res) => {
     );
 });
 
+<<<<<<< HEAD
 interface UploadMessage {
     name: string;
     id: string;
@@ -56,6 +57,8 @@ interface UploadMessage {
 }*/
 
 
+=======
+>>>>>>> f2f7647399d26eedecc3d5551396ce0b9bee2ec6
 /*
     Route:      POST '/_upload'
     Middleware: extendTimeout, Multer storage
@@ -64,6 +67,12 @@ interface UploadMessage {
     Converts DICOM files to the PNG and uploads both formats to the Azure storage.
     Returns JSON, that cointains ID's of the converted files.
 */
+interface UploadMessage {
+    name: string;
+    id: string;
+    err: string;
+}
+
 routerUpload.post('/', extendTimeout, storage.array('data'), async (req, res) => {
     // Keep track of all the files converted
     // and if any error happened, append it along the way.
