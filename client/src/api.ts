@@ -2,9 +2,15 @@
 import * as axios from 'axios';
 
 export namespace ApiService {
+<<<<<<< HEAD
     const apiEndpoint = 'http://localhost:8080/api';
     const uriUpload = apiEndpoint + '/upload';
     const uriImages = apiEndpoint + '/images';
+=======
+    const apiEndpoint   = 'http://medtruth.azurewebsites.net/api';
+    const uriUpload     = apiEndpoint + '/_upload';
+    const uriImages    = apiEndpoint + '/_images';
+>>>>>>> f537d450ebcbddd39ca3a2c88bc55ad7d4a171f4
 
     /*
         Route:      POST '/_upload'
