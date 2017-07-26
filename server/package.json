@@ -46,9 +46,9 @@
     "typescript": "^2.4.1"
   },
   "scripts": {
-    "start": "node build/server.js",
+    "start": "node out/server.js",
     "build": "tsc",
     "test": "jest",
-    "debug": "node --inspect-brk=5858 build/server.js"
+    "debug": "node --inspect-brk=5858 out/server.js"
   }
 }
