@@ -50,6 +50,12 @@ interface UploadMessage {
     err: string;
 }
 
+/*interface UploadData{
+    images: string[],
+
+}*/
+
+
 /*
     Route:      POST '/_upload'
     Middleware: extendTimeout, Multer storage
@@ -66,6 +72,7 @@ routerUpload.post('/', extendTimeout, storage.array('data'), async (req, res) =>
     // Upload all the files from the request to the AzureStorage.
     const uploads = files.map(async (file) => {
         try {
+
             var upload: UploadMessage = { name: file.originalname, id: null, err: null };
             // Convert and upload DICOM to Azure asynchronously.
             let conversion = Converter.toPng(file.filename);

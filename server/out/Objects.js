@@ -4,40 +4,65 @@ class JSONCreator {
     getUploadJSON() {
         let uploadJSON = new UploadJSON();
         uploadJSON.uploadID = 12345;
-        let seriesUno = new SeriesJSON();
-        let seriesDue = new SeriesJSON();
-        let seriesTre = new SeriesJSON();
-        let seriesQuattro = new SeriesJSON();
-        let seriesDalej = new SeriesJSON();
-        let seriesNeviem = new SeriesJSON();
-        this.setSeries(seriesUno, "gsdf51hsf651.654gsdf54.g4ds", "Head scan or something.", "Plávka Adrián", new Date(1234567890123).getTime(), "image04");
-        this.setSeries(seriesDue, "gsfd54.fg4df5hf4.5g4d", "Don't know what this thing is LOL", "Durneková Martina", new Date(1235567890123).getTime(), "image03");
-        this.setSeries(seriesTre, "d54gdfs5g4d8.8f4h6df4", "Scan of some part of the body.", "Hlavatý Tomas", new Date(1243567890123).getTime(), "image01");
-        this.setSeries(seriesQuattro, "w8w201w.duckfic0n.0.00145s64x", "Who are we? Why our we here? What is our purpose?", "Chudjak Kristián", new Date(1143567890123).getTime(), "image02");
-        this.setSeries(seriesDalej, "fdsa541g6ds.51fsad56.45", "This is supose to be a description, but im too lazy to write a proper one.", "Nguyenová Michaela", new Date(1292567890123).getTime(), "image05");
-        this.setSeries(seriesNeviem, "w15fsd51.51sdfa.54", "This is a scan of another scan. SCANCEPTION !", "Pištek Marek", new Date(1283467890123).getTime(), "image06");
-        uploadJSON.series.push(seriesUno);
-        uploadJSON.series.push(seriesDue);
-        uploadJSON.series.push(seriesTre);
-        uploadJSON.series.push(seriesQuattro);
-        uploadJSON.series.push(seriesDalej);
-        uploadJSON.series.push(seriesNeviem);
+        uploadJSON.uploadDate = new Date().getTime();
+        let study1 = new StudyJSON();
+        let study2 = new StudyJSON();
+        study1.studyID = "studyID 01";
+        study1.studyDescription = "This is study01 descripotion";
+        study1.patientName = "Hlavatý Tomas";
+        study1.patientBirthDay = new Date(1234567890123).getTime();
+        study2.studyID = "studyID is 02";
+        study2.studyDescription = "This study is about somthing very important";
+        study2.patientName = "Chudjak Kristián";
+        study2.patientBirthDay = new Date(1243567890123).getTime();
+        let series01 = new SeriesJSON();
+        let series02 = new SeriesJSON();
+        let series03 = new SeriesJSON();
+        let series04 = new SeriesJSON();
+        let series05 = new SeriesJSON();
+        let series06 = new SeriesJSON();
+        this.setSeries(series01, "SeriesID01", "seriesDescription: Head scan or something.", "image04");
+        this.setSeries(series02, "SeriesID02", "seriesDescription: Don't know what this thing is LOL", "image03");
+        this.setSeries(series03, "SeriesID03", "seriesDescription: Scan of some part of the body.", "image01");
+        this.setSeries(series04, "SeriesID04", "seriesDescription: Who are we? Why our we here? What is our purpose?", "image02");
+        this.setSeries(series05, "SeriesID05", "seriesDescription: This is supose to be a description, but im too lazy to write a proper one.", "image05");
+        this.setSeries(series06, "SeriesID06", "seriesDescription This is a scan of another scan. SCANCEPTION !", "image06");
+        study1.series.push(series01);
+        study1.series.push(series02);
+        study1.series.push(series03);
+        study1.series.push(series04);
+        study2.series.push(series05);
+        study2.series.push(series06);
+        uploadJSON.studies.push(study1);
+        uploadJSON.studies.push(study2);
         return (uploadJSON);
     }
-    setSeries(series, seriesID, seriesDescription, patientName, birthday, thumbnail) {
+    setSeries(series, seriesID, seriesDescription, thumbnail) {
         series.seriesID = seriesID;
         series.seriesDescription = seriesDescription;
-        series.patientName = patientName;
-        series.patienBirthDate = birthday;
         series.thumbnailImageID = thumbnail;
+        series.images.push("image01");
+        series.images.push("image02");
+        series.images.push("image03");
+        series.images.push("image04");
+        series.images.push("image05");
+        series.images.push("image06");
     }
 }
 exports.JSONCreator = JSONCreator;
 class UploadJSON {
     constructor() {
-        this.series = new Array();
+        this.studies = [];
+    }
+}
+class StudyJSON {
+    constructor() {
+        this.series = [];
     }
 }
 class SeriesJSON {
+    constructor() {
+        this.images = [];
+    }
 }
 //# sourceMappingURL=Objects.js.map

@@ -15,6 +15,7 @@ const constants_1 = require("../../constants");
 const azure_service_1 = require("../../azure-service");
 const converter_1 = require("../../converter");
 const Objects_1 = require("../../Objects");
+const daikon_1 = require("../../daikon/daikon");
 exports.rootUpload = '/upload';
 exports.routerUpload = express_1.Router();
 let jsonCreator = new Objects_1.JSONCreator();
@@ -44,6 +45,10 @@ exports.routerUpload.options('/', (req, res) => {
         message: 'Uploads is an endpoint for uploading series of DICOM images.'
     });
 });
+/*interface UploadData{
+    images: string[],
+
+}*/
 /*
     Route:      POST '/_upload'
     Middleware: extendTimeout, Multer storage
@@ -59,6 +64,12 @@ exports.routerUpload.post('/', extendTimeout, storage.array('data'), (req, res) 
     // Upload all the files from the request to the AzureStorage.
     const uploads = files.map((file) => __awaiter(this, void 0, void 0, function* () {
         try {
+            let convertor = new daikon_1.DaikonConverter(file.path);
+            console.log("studyDesc: " + convertor.getStudyDescription());
+            console.log("seriesDesc: " + convertor.getSeriesDescription());
+            console.log("studyInstanceUID: " + convertor.getStudyInstanceUID());
+            console.log("seriesUID: " + convertor.getSeriesUID());
+            console.log("studyID: " + convertor.getStudyID());
             var upload = { name: file.originalname, id: null, err: null };
             // Convert and upload DICOM to Azure asynchronously.
             let conversion = converter_1.Converter.toPng(file.filename);
