@@ -4,8 +4,8 @@ import { rootUpload, routerUpload } from './upload';
 import { rootImages, routerImages } from './images';
 
 export const api = Router();
-api.use('/_upload', routerUpload);
-api.use('/_images', routerImages);
+api.use('/upload', routerUpload);
+api.use('/images', routerImages);
 
 /*
     Route:      OPTIONS '/api'

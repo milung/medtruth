@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { StatusCode } from '../../constants';
 import { AzureStorage } from '../../azure-service';
 
-export const rootImages = '/_images';
+export const rootImages = '/images';
 export const routerImages = Router();
 
 /*
@@ -43,16 +43,26 @@ routerImages.get('/latest', (req, res) => {
 
 /*
     Route:      GET '/_images/:id'
-    Expects:    JSON, containing an id of an image.
+    Expects:    Parameter 'id'
     --------------------------------------------
-    Returns a PNG image by it's id.
+    Returns a JSON object containing 'url' from the Azure Storage.
 */
 routerImages.get('/:id', async (req, res) => {
     let id = req.params.id + ".png";
+    // Declare a status code and a retreived url.
+    let code: number;
+    let url: string;
+    // Await for Azure Storage's url for image.
     try {
-        let url: string = await AzureStorage.getURLforImage(id);
-        res.status(StatusCode.OK).send(url).end();
+        url = await AzureStorage.getURLforImage(id);
+        code = StatusCode.OK;
     } catch (e) {
-        res.sendStatus(StatusCode.NotFound);
+        url = null;
+        code = StatusCode.NotFound;
     }
+    res.status(code).json(
+        {
+            url: url
+        }
+    );
 });
