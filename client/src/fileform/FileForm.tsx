@@ -58,37 +58,19 @@ export class FileFormComponent extends React.Component<ConnectedDispatch, OwnSta
         const submit = document.getElementById('submit') as HTMLInputElement;
         submit.value = 'Uploading';
         submit.disabled = true;
-<<<<<<< HEAD
 
         // Upload the data to the server.
         let resUpload = await ApiService.upload(this.state.file);
         // After that, fetch an image.
-        let resImage = await ApiService.getImage(resUpload.statuses[0].id);
+        if (!resUpload.statuses[0].err) {
+            let resImage = await ApiService.getImage(resUpload.statuses[0].id);
+
+            let img = document.getElementById('thumbnail') as HTMLImageElement;
+            img.src = resImage.url;
+        }
 
         submit.value = 'Send';
         submit.disabled = false;
-        let img = document.getElementById('thumbnail') as HTMLImageElement;
-        img.src = resImage.url;
-=======
-        ApiService.upload(this.state.file)
-        .then((resUpload: axios.AxiosResponse) => {
-            // After that, fetch an image.
-            console.log(resUpload.data);
-            ApiService.getImage(resUpload.data.statuses[0].id)
-            .then((resImage: axios.AxiosResponse) => {
-                submit.value = 'Send';
-                submit.disabled = false;
-                let img = document.getElementById('thumbnail') as HTMLImageElement;
-                img.src = resImage.data;
-            })
-            .catch((resImageErr: axios.AxiosResponse) => {
-                // Error if fetching images went wrong.
-            });
-        })
-        .catch((resUploadErr: axios.AxiosResponse) => {
-            // Error if upload to the server went wrong.
-        });
->>>>>>> f537d450ebcbddd39ca3a2c88bc55ad7d4a171f4
     }
 
     render() {
