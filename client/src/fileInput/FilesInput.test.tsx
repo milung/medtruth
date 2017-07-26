@@ -46,7 +46,7 @@ describe('<FilesInputComponent />', () => {
 
         const args = {
             target: {
-                result: fileMocks
+                files: fileMocks
             }
         };
 
