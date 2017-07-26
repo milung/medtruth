@@ -5,9 +5,11 @@ const routes_1 = require("./routes");
 const constants_1 = require("./constants");
 // Set-up a server, with routes and static public files.
 exports.server = express();
+// Serve public files first.
 exports.server.use(express.static('public/'));
+// Serve routes.
 exports.server.use(routes_1.routes);
-// Handle a 404 Page Not Found.
+// As a last resort, send a NotFound status.
 exports.server.use((req, res, next) => {
     res.status(constants_1.StatusCode.NotFound)
         .json({

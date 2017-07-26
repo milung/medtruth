@@ -25,7 +25,7 @@ const storageConfig = multer.diskStorage({
     }
 });
 const storage = multer({ storage: storageConfig });
-// Extend the response's timeout for uploading larger files.
+// Middleware for extending the response's timeout for uploading larger files.
 const extendTimeout = (req, res, next) => {
     res.setTimeout(60000, () => {
         res.sendStatus(constants_1.StatusCode.GatewayTimeout);
@@ -44,15 +44,10 @@ exports.routerUpload.options('/', (req, res) => {
         message: 'Uploads is an endpoint for uploading series of DICOM images.'
     });
 });
-/*
-    Route:      POST '/_upload'
-    Middleware: extendTimeout, Multer storage
-    Expects:    Form-data
-    --------------------------------------------
-    Converts DICOM files to the PNG and uploads both formats to the Azure storage.
-    Returns JSON, that cointains ID's of the converted files.
-*/
-exports.routerUpload.post('/', extendTimeout, storage.array('data'), (req, res) => __awaiter(this, void 0, void 0, function* () {
+exports.routerUpload.post('/', extendTimeout, storage.array('data'), (req, res) => {
+    if (req.files === undefined) {
+        res.sendStatus(constants_1.StatusCode.BadRequest);
+    }
     // Keep track of all the files converted
     // and if any error happened, append it along the way.
     const files = req.files;
@@ -88,12 +83,12 @@ exports.routerUpload.post('/', extendTimeout, storage.array('data'), (req, res) 
         return upload;
     }));
     // Wait for all upload promises.
-    yield Promise.all(uploads).then((uploads) => {
+    Promise.all(uploads).then((uploads) => {
         res.json({
             statuses: uploads.slice()
         });
     });
-}));
+});
 /*
     Route:      GET '_upload:id'
     Expects:

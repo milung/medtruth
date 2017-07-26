@@ -18,8 +18,8 @@ export namespace AzureStorage {
     }
 
     export function upload(container: string, blobName: string, filePath: string): Promise<Status> {
-        return new Promise<Status>(async (resolve, reject) => {
-            await blobService.createBlockBlobFromLocalFile(container, blobName, filePath,
+        return new Promise<Status>((resolve, reject) => {
+            blobService.createBlockBlobFromLocalFile(container, blobName, filePath,
                 (error, result, response) => {
                     if (error)     reject(Status.FAILED);  
                     else           resolve(Status.SUCCESFUL); 
@@ -36,7 +36,7 @@ export namespace AzureStorage {
     }
 
     export function getURLforImage(image: string): Promise<string> {
-        return new Promise<string>(async (resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
             let sharedAccessPolicy = {
                 AccessPolicy: {
                     Permissions: azure.BlobUtilities.SharedAccessPermissions.READ,
@@ -44,12 +44,12 @@ export namespace AzureStorage {
                 },
             };
 
-            let token = await blobService.generateSharedAccessSignature(
+            let token = blobService.generateSharedAccessSignature(
                 containerImages, 
                 image, 
                 sharedAccessPolicy);
-            let sasUrl = await blobService.getUrl(containerImages, image, token);
-            await request(sasUrl, (err, res) => {
+            let sasUrl = blobService.getUrl(containerImages, image, token);
+            request(sasUrl, (err, res) => {
                 if (err)                                reject(Status.FAILED);
                 if (res.statusCode === StatusCode.OK)   resolve(sasUrl)
                 reject(Status.FAILED);
