@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es6",
     "module": "commonjs",
-    "outDir": "build",
+    "outDir": "out",
     "sourceMap": true,
     "forceConsistentCasingInFileNames": false,
     "noImplicitReturns": true,
@@ -13,7 +13,7 @@
   },
   "exclude": [
     "node_modules",
-    "build",
+    "out",
     "scripts",
     "acceptance-tests",
     "webpack",
