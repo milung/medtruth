@@ -7,6 +7,9 @@ import * as React from 'react';
 import { FileUtils } from '../fileform/FileUtils';
 import { validFileExtensions } from '../constants';
 import { ApiService } from '../api';
+import { FilesInputComponent } from '../fileInput/FilesInput';
+import { ButtonComponent } from '../button/Button';
+import { OneLineInformationComponent } from '../oneLineInformation/OneLineInformation';
 
 var folderFormStates = {
     INITIAL_STATE: 0,
@@ -20,6 +23,7 @@ var folderFormStates = {
 interface OwnState {
     folderFormState: number;
     folderFormError: string;
+    fileNames: string[];
 }
 
 // interface ConnectedDispatch {
@@ -36,13 +40,13 @@ export class FolderFormComponent extends React.Component<{}, OwnState> {
         this.filesData = [];
         this.state = {
             folderFormState: folderFormStates.INITIAL_STATE,
-            folderFormError: ''
+            folderFormError: '',
+            fileNames: []
         };
     }
 
-    loadFile(event: any): void {
-        const files: File[] = event.target.files;
-
+    loadFile(files: File[]): void {
+        
         for (let ind = 0; ind < files.length; ind++) {
             let file = files[ind];
             if (file === undefined) {
@@ -69,7 +73,8 @@ export class FolderFormComponent extends React.Component<{}, OwnState> {
 
         FileUtils.getFilesData(files).then((filesData: ArrayBuffer[]) => {
             this.filesData = filesData;
-            this.setState({ folderFormState: folderFormStates.FILES_READ });
+            let fileNames: string[] = files.map((file) => file.name);
+            this.setState({ folderFormState: folderFormStates.FILES_READ , fileNames: fileNames});
         });
     }
 
@@ -122,14 +127,10 @@ export class FolderFormComponent extends React.Component<{}, OwnState> {
     render() {
         return (
             <div>
-                <input type="file" onChange={this.loadFile} multiple={true} />
-                <button
-                    onClick={this.sendFile}
-                    disabled={!this.isSendButtonActive()}
-                >
-                    {'Send'}
-                </button>
-                <p>{this.getStateInformationText()}</p>
+                <FilesInputComponent onFilesInput={this.loadFile}/>
+                <ButtonComponent active={this.isSendButtonActive()} onClick={this.sendFile} text="Send"/>
+                <OneLineInformationComponent text={this.state.fileNames.join(', ')} />
+                <OneLineInformationComponent text={this.getStateInformationText()} />
             </div>
         );
     }
