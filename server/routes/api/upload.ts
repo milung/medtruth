@@ -44,7 +44,6 @@ routerUpload.options('/', (req, res) => {
     );
 });
 
-<<<<<<< HEAD
 interface UploadMessage {
     name: string;
     id: string;
@@ -57,8 +56,6 @@ interface UploadMessage {
 }*/
 
 
-=======
->>>>>>> f2f7647399d26eedecc3d5551396ce0b9bee2ec6
 /*
     Route:      POST '/_upload'
     Middleware: extendTimeout, Multer storage
