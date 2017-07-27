@@ -4,7 +4,6 @@ import * as request from 'request';
 // import * as mongo from 'mongodb';
 
 import { collectionName, StatusCode } from './constants';
-import { db } from './server';
 
 export namespace AzureStorage {
     const accountName = 'medtruth';
@@ -60,6 +59,11 @@ export namespace AzureStorage {
 }
 export namespace AzureDatabase {
     // const accountKey = 'a6GUPQQs8Cpg70cbHT4m2xy1LRseQsuMKofjRI0RU9iSZZW5vT7HQDDUVuibdwlXw9pJIrJ53TDqy32h5r0BAw==';
+    
+    export enum Status {
+        SUCCESFUL,
+        FAILED
+    }
     export interface Image {
         seriesID: string,
         patientName: string,
@@ -91,6 +95,7 @@ export namespace AzureDatabase {
      * Creates new document in the MongoDB database.
      * @param object 
      */
+    /*
     export function insertDocument(object: Upload): Promise<Status> {
         return new Promise<Status>(async (resolve, reject) => {
             let collection = await db.collection(collectionName);
@@ -108,6 +113,7 @@ export namespace AzureDatabase {
      * Returns an array of JSON objects.
      * @param query 
      */
+    /*
     export function getDocuments(query): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
             let collection = await db.collection(collectionName);
@@ -122,4 +128,5 @@ export namespace AzureDatabase {
             });
         });
     }
+    */
 }

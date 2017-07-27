@@ -7,6 +7,8 @@ import { StatusCode, storagePath, imagePath } from '../../constants';
 import { AzureStorage, AzureDatabase } from '../../azure-service';
 import { Converter } from '../../converter';
 import { JSONCreator } from '../../Objects';
+import { DaikonConverter } from '../../daikon/daikon';
+import * as objects from '../../Objects';
 
 export const rootUpload = '/upload';
 export const routerUpload = express.Router();
@@ -118,20 +120,49 @@ const uploader = (req: express.Request, res: express.Response, next: express.Nex
     });
 }
 
+const parser = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    let json = new objects.UploadJSON();
+    json.uploadID = new Date().getTime();
+    json.uploadDate = json.uploadID;
+
+    let uploads = req.params.uploads.map((upload) => {
+        if (upload.err) { return; }
+        let converter = new DaikonConverter(upload.path);
+        let study = new objects.StudyJSON();
+        study.studyID = converter.getStudyInstanceUID();
+        study.studyDescription = converter.getStudyDescription();
+        study.patientBirthDay = converter.getPatientDateOfBirth().getTime();
+        study.patientName = converter.getPatientName();
+
+        let series = new objects.SeriesJSON();
+        series.seriesDescription = converter.getSeriesDescription();
+        series.seriesID = converter.getSeriesUID();
+        series.images.push(imagePath + upload.filename);
+        study.series.push(series);
+        json.studies.push(study);
+    });
+
+    req.params.json = json;
+    next();
+}
+
 routerUpload.post('/',
     extendTimeout,
     storage.any(),
     converter,
     uploader,
+    parser,
     (req: any, res) => {
+        /*
         let statuses: UploadMessage[] = req.params.uploads.map((upload) => { 
             fs.unlink(upload.path, () => { });
             fs.unlink(imagePath + upload.filename + ".png", () => { });
             return { name: upload.name, id: upload.id, err: upload.err } 
         });
+        */
         res.json(
             {
-                statuses
+                asd: req.params.json
             }
         );
     });
@@ -186,6 +217,7 @@ routerUpload.post('/document', extendTimeout, storage.array('data'), async (req,
     //     thumbnails: [{ name: "00614ad28b6d7b1628cc208c4d328b99" }, { name: "ksakdahsldjsda" }]
     // }
 
+    /*
     let upload: AzureDatabase.Upload = {
         uploadID: new Date().getTime(),
         uploadDate: new Date(),
@@ -220,4 +252,5 @@ routerUpload.post('/document', extendTimeout, storage.array('data'), async (req,
     let result = await AzureDatabase.getDocuments(query);
     //console.log(result);
     res.json(result);
+    */
 });
