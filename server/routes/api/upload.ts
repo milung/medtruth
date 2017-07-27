@@ -4,9 +4,9 @@ import * as multer from 'multer';
 import * as fs from 'fs';
 
 import { StatusCode, storagePath, imagePath } from '../../constants';
-import { AzureStorage } from '../../azure-service';
+import { AzureStorage, AzureDatabase } from '../../azure-service';
 import { Converter } from '../../converter';
-import { JSONCreator } from "../../Objects";
+import { JSONCreator } from '../../Objects';
 
 export const rootUpload = '/upload';
 export const routerUpload = express.Router();
@@ -149,4 +149,75 @@ routerUpload.get('/:id', (req, res) => {
     } else {
         res.json({ status: "INVALID UPLOAD ID" });
     }
+});
+
+/*
+    Mock route for testing the upload to MongoDB
+    Route:      POST 'upload/document'
+    Expects:    
+    --------------------------------------------
+    Returns details about upload.
+*/
+//routerUpload.post('/document', (req, res) => {
+routerUpload.post('/document', extendTimeout, storage.array('data'), async (req, res) => {
+    // const files = req.files as Express.Multer.File[];
+    // console.log(req.body);
+
+    // let file = files[0];
+    // console.log(file);
+    // console.log(file.buffer);
+    // let responseJSON = await AzureDatabase.insertObject(files[0]);
+    // res.json(responseJSON);
+
+
+    // let responseJSON;
+    // files.map(async (file) => {
+    //     responseJSON = AzureDatabase.insertObject(file);
+    // });
+    // res.json(responseJSON);
+
+    // let img: AzureDatabase.Image = {
+    //     seriesID: "skfalfslanfas",
+    //     patientName: "Hana Hahhahah",
+    //     imageID: "sadd297nsdjan31 239729 adskaj",
+    //     date: new Date(),
+    //     uploadDate: new Date(),
+    //     uploadID: new Date().getTime(),
+    //     thumbnails: [{ name: "00614ad28b6d7b1628cc208c4d328b99" }, { name: "ksakdahsldjsda" }]
+    // }
+
+    let upload: AzureDatabase.Upload = {
+        uploadID: new Date().getTime(),
+        uploadDate: new Date(),
+        studies: [{
+            patientName: "Abracadabra",
+            patientBirthday: new Date(),
+            series: [{
+                seriesID: "01",
+                seriesDescription: "KOLENO",
+                images: ["image01", "image04", "image06"]
+            }, {
+                seriesID: "02",
+                seriesDescription: "MOZOG",
+                images: ["image02", "image03"]
+            }]
+        }, {
+            patientName: "Ice King",
+            patientBirthday: new Date(),
+            series: [{
+                seriesID: "05",
+                seriesDescription: "chrbatik",
+                images: ["image05"]
+            }]
+        }]
+    }
+
+    // Upload the document to MongoDB
+    await AzureDatabase.insertDocument(upload);
+
+    // Get documents based on the query
+    var query = { patientName: "Hana Hahhahah" };
+    let result = await AzureDatabase.getDocuments(query);
+    //console.log(result);
+    res.json(result);
 });
