@@ -35,7 +35,8 @@ export class DaikonConverter {
     }
 
     getStudyDate(): Date {
-        var y = this.dataView.getStudyDate() as Date;
+        let y = this.dataView.getStudyDate();
+        if (y === null || y === undefined) return null;
         return y;
     }
 
@@ -52,7 +53,9 @@ export class DaikonConverter {
     }
 
     getSeriesDate(): Date {
-        return this.getVal(this.TAG_SERIES_DATE);
+        let y = this.getVal(this.TAG_SERIES_DATE);
+        if (y === null || y === undefined) return null;
+        return y;
     }
 
     getPatientID(): string {
@@ -68,7 +71,9 @@ export class DaikonConverter {
     }
 
     getPatientDateOfBirth(): Date {
-        return this.getVal(this.TAG_PATIENT_DATE_OF_BIRTH);
+        let y = this.getVal(this.TAG_PATIENT_DATE_OF_BIRTH);
+        if (y === null || y === undefined) return null;
+        return y;
     }
 
 
