@@ -10,7 +10,7 @@ export class DaikonConverter {
     TAG_STUDY_DES = [0x0008, 0x1030];
     TAG_STUDY_INSTANCE_UID = [0x0020, 0x000D];
     TAG_STUDY_ID = [0x0020, 0x0010];
-
+    TAG_SERIES_DATE = [0x0008, 0x0021];
 
 
     constructor(filePath: string) {
@@ -51,7 +51,9 @@ export class DaikonConverter {
         return this.getVal(this.TAG_STUDY_ID);;
     }
 
-
+    getSeriesDate(): Date {
+        return this.getVal(this.TAG_SERIES_DATE);
+    }
 
     getPatientID(): string {
         return this.dataView.getPatientID();

@@ -39,25 +39,12 @@ export class JSONCreator {
             "seriesDescription: Scan of some part of the body.",
             "image01");
 
-<<<<<<< HEAD
-        this.setSeries(seriesQuattro, "w8w201w.duckfic0n.0.00145s64x",
-            "Who are we? Why are we here? What is our purpose?",
-            "Chudjak Kristián",
-            new Date(1143567890123).getTime(),
-            "image02");
-
-        this.setSeries(seriesDalej, "fdsa541g6ds.51fsad56.45",
-            "This is supposed to be a description, but im too lazy to write a proper one.",
-            "Nguyenová Michaela",
-            new Date(1292567890123).getTime(),
-=======
         this.setSeries(series04, "SeriesID04",
             "seriesDescription: Who are we? Why our we here? What is our purpose?",
             "image02");
 
         this.setSeries(series05, "SeriesID05",
             "seriesDescription: This is supose to be a description, but im too lazy to write a proper one.",
->>>>>>> f0ff15150eedc02ebd3eb7eef9844c00e6ace2e4
             "image05");
 
         this.setSeries(series06, "SeriesID06",
