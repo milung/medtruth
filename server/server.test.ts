@@ -104,16 +104,6 @@ describe('<Server>', () => {
                     });
             });
 
-            it('/upload sends an InternalServerError if form doesn\'t contain key \'data\'', (done) => {
-                return req.post('/api/upload')
-                    .type('form')
-                    .attach('invalid', 'HG_001_0.dcm')
-                    .then((res: request.Response) => {
-                        expect(res.status).toBe(StatusCode.InternalServerError);
-                        done();
-                    });
-            });
-
             it('/upload sends a BadRequest if an invalid request has been made', (done) => {
                 return req.post('/api/upload')
                     .send({ something: 'invalid' })
