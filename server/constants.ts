@@ -1,7 +1,7 @@
 
 // Storage path to where are the incoming files stored.
-export const storagePath = "uploads/";
-export const imagePath = "images/";
+export const storagePath = "out/uploads/";
+export const imagePath = "out/images/";
 
 // HTTP status codes.
 export namespace StatusCode {

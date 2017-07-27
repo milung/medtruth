@@ -1,6 +1,4 @@
 
-import { storagePath, imagePath } from './constants';
-
 export namespace Converter {
     const exePath   = 'dcmj2pnm';
     const exec      = require('child_process').exec;
@@ -12,14 +10,25 @@ export namespace Converter {
 
     const convert = (dicomName: string, args: string[]): Promise<Status> => {
         return new Promise((resolve, reject) => {
-            let dicomSrcPath    = storagePath + dicomName;
-            let imgSrcPath      = imagePath + dicomName + '.png';
+            let dicomSrcPath    = 'uploads/' + dicomName;
+            let imgSrcPath      = 'images/' + dicomName + '.png';
             let cmd             = exePath + ' ' + dicomSrcPath + ' ' + imgSrcPath;
 
             args.forEach((arg) => {
                 cmd = cmd + ' ' + arg;
             });
-            exec(cmd, (error, stdout, stderr) => {
+            exec(cmd,
+                {cwd: 'out/'},
+                (error, stdout, stderr) => {
+                console.log("error");
+                console.log(error);
+                console.log(stdout);
+                console.log(stderr);  
+                console.log("dirpath "+__dirname);
+                console.log("filename "+__filename);
+
+                
+                
                 if (error === null) resolve(Status.SUCCESSFUL);
                 else                reject(Status.FAILED);
             });
