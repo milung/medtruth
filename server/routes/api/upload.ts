@@ -1,5 +1,5 @@
 
-import { Router } from 'express';
+import * as express from 'express';
 import * as multer from 'multer';
 import * as fs from 'fs';
 
@@ -9,25 +9,9 @@ import { Converter } from '../../converter';
 import { JSONCreator } from "../../Objects";
 
 export const rootUpload = '/upload';
-export const routerUpload = Router();
+export const routerUpload = express.Router();
 
 let jsonCreator: JSONCreator = new JSONCreator();
-
-// Set-up a storage to the local folder for incoming files.
-const storageConfig = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, storagePath);
-    }
-});
-const storage = multer({ storage: storageConfig });
-
-// Middleware for extending the response's timeout for uploading larger files.
-const extendTimeout = (req, res, next) => {
-    res.setTimeout(60000, () => {
-        res.sendStatus(StatusCode.GatewayTimeout);
-    });
-    next();
-}
 
 /*
     Route:      OPTIONS '/upload'
@@ -44,18 +28,6 @@ routerUpload.options('/', (req, res) => {
     );
 });
 
-interface UploadMessage {
-    name: string;
-    id: string;
-    err: string;
-}
-
-/*interface UploadData{
-    images: string[],
-
-}*/
-
-
 /*
     Route:      POST '/upload'
     Middleware: extendTimeout, Multer storage
@@ -70,56 +42,99 @@ interface UploadMessage {
     err: string;
 }
 
-routerUpload.post('/', extendTimeout, storage.array('data'), (req, res) => {
+// Middleware for extending the response's timeout for uploading larger files.
+const extendTimeout = (req, res, next) => {
+    res.setTimeout(60000, () => {
+        res.sendStatus(StatusCode.GatewayTimeout);
+    });
+    next();
+}
+
+// Middleware of storage to the local folder for incoming files.
+const storageConfig = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, storagePath);
+    }
+});
+const storage = multer({ storage: storageConfig });
+
+// Middleware of converting the files to an image.
+const converter = (req: express.Request, res: express.Response, next: express.NextFunction) => {
     // If files are undefined, send a BadRequest.
     if (req.files === undefined) {
         res.sendStatus(StatusCode.BadRequest);
     }
+
     // Keep track of all the files converted
     // and if any error happened, append it along the way.
     const files = req.files as Express.Multer.File[];
     // Upload all the files from the request to the AzureStorage.
     const uploads = files.map(async (file) => {
         try {
-            var upload: UploadMessage = { name: file.originalname, id: null, err: null };
-            // Convert and upload DICOM to Azure asynchronously.
-            let conversion = Converter.toPng(file.filename);
-            let uploadingDicom = AzureStorage.toDicoms(
-                file.filename,
-                file.path);
-            // Before proceeding to upload PNG to Azure, make sure to convert first.
-            await conversion;
-            let uploadingImage = AzureStorage.toImages(
-                file.filename + '.png',
-                imagePath + file.filename + '.png');
-            // Await for uploads, if necessary.
-            await uploadingDicom, uploadingImage;
-            // Assign the upload's id if all successed.
-            upload.id = file.filename;
+            var upload = Object.assign({}, file, { name: file.originalname as string, id: null as string, err: null as string });
+            await Converter.toPng(upload.filename);
         } catch (e) {
-            // Assign errors for each case of exception.
             if (e === Converter.Status.FAILED) {
-                upload.err = 'Conversion Error';
-            }
-            else if (e === AzureStorage.Status.FAILED) {
-                upload.err = 'Storage Error';
+                upload.err = "Conversion Error";
             }
         } finally {
-            // Remove both formats from the local storage.
-            fs.unlink(file.path, () => { });
-            fs.unlink(imagePath + file.filename + '.png', () => { });
+            return upload;
         }
-        return upload;
     });
-    // Wait for all upload promises and send a JSON response.
-    Promise.all(uploads).then((uploads: UploadMessage[]) => {
+    // Wait for all conversions.
+    Promise.all(uploads).then((uploads) => {
+        req.params.uploads = uploads;
+        next();
+    });
+}
+
+// Middleware of uploading the files to Azure.
+const uploader = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    // Iterate over conversions and send them to the Azure.
+    const uploads = req.params.uploads.map(async (upload) => {
+        try {
+            // If an error occured during conversion, don't send the file.
+            if (upload.err) { return; }
+            // Else upload the DICOM and PNG.
+            await AzureStorage.toDicoms(
+                upload.filename,
+                upload.path);
+            await AzureStorage.toImages(
+                upload.filename + ".png",
+                imagePath + upload.filename + ".png");
+            // Assign the upload id to this file.
+            upload.id = upload.filename;
+        } catch (e) {
+            if (e === AzureStorage.Status.FAILED) {
+                upload.err = "Storage Error";
+            }
+        } finally {
+            return upload;
+        }
+    });
+    Promise.all(uploads).then((uploads) => {
+        req.params.uploads = uploads;
+        next();
+    });
+}
+
+routerUpload.post('/',
+    extendTimeout,
+    storage.any(),
+    converter,
+    uploader,
+    (req: any, res) => {
+        let statuses: UploadMessage[] = req.params.uploads.map((upload) => { 
+            fs.unlink(upload.path, () => { });
+            fs.unlink(imagePath + upload.filename + ".png", () => { });
+            return { name: upload.name, id: upload.id, err: upload.err } 
+        });
         res.json(
             {
-                statuses: uploads.slice()
+                statuses
             }
-        )
+        );
     });
-});
 
 /*
     Route:      GET 'upload/:id'
