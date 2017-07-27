@@ -1,13 +1,15 @@
 
-*/node_modules
-*/client/node_modules
-*/server/node_modules
-*/git
-*/.vscode
-*/server/build
-*/client/build
-*/server/yarn.lock
-*/server/package-lock.json
-*/client/yarn.lock
-*/client/package-lock.json
-*/server/public
+node_modules/*
+client/node_modules/*
+server/node_modules/*
+git/*
+server/.vscode/*
+client/.vscode/*
+server/build/*
+client/build/*
+server/yarn.lock
+erver/package-lock.json
+client/yarn.lock
+client/package-lock.json
+server/public/*
+client/public/*
