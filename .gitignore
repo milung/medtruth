@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 node_modules/*
 client/node_modules/*
 server/node_modules/*
@@ -12,3 +13,19 @@ client/yarn.lock
 cient/package-lock.json
 server/public/*
 client/public/*
+=======
+
+node_modules/*
+client/node_modules/*
+server/node_modules/*
+git/*
+server/.vscode/*
+client/.vscode/*
+server/build/*
+client/build/*
+server/yarn.lock
+server/package-lock.json
+client/yarn.lock
+client/package-lock.json
+server/public/*
+>>>>>>> 58cfa4f96bb6b21e4dbd6331f5a8bc1d3d311455
