@@ -67,10 +67,31 @@ export namespace AzureDatabase {
         date: Date,             // When the image was created
         uploadDate: Date,
         uploadID: number,
-        thumbnail: string       // Blob reference
+        thumbnails: object[]       // Blob reference
+    }
+    export interface Upload {
+        uploadID: number,
+        uploadDate: Date,
+        studies: Study[]
     }
 
-    export function insertObject(object): Promise<Status> {
+    export interface Study {
+        patientName: string,
+        patientBirthday: Date,
+        series: Series[]
+    }
+
+    export interface Series {
+        seriesID: string,
+        seriesDescription: string,
+        images: string[]                    // Array of blob references
+    }
+
+    /**
+     * Creates new document in the MongoDB database.
+     * @param object 
+     */
+    export function insertDocument(object): Promise<Status> {
         return new Promise<Status>(async (resolve, reject) => {
             let collection = await db.collection(collectionName);
             await collection.insert(object, (error, result) => {
@@ -80,6 +101,25 @@ export namespace AzureDatabase {
                 else resolve(Status.SUCCESFUL);
                 console.log(message);
             })
+        });
+    }
+
+    /**
+     * Returns an array of JSON objects.
+     * @param query 
+     */
+    export function getDocuments(query): Promise<string> {
+        return new Promise<string>(async (resolve, reject) => {
+            let collection = await db.collection(collectionName);
+            //var query = { patientName: "Hana Hahhahah" };
+            await collection.find(query).toArray(function (err, result) {
+                //let message = result;
+                if (err) reject(Status.FAILED);
+                else resolve(result);
+                //console.log(result);
+                console.log("Number of found objects: " + result.length);
+                //db.close();
+            });
         });
     }
 }

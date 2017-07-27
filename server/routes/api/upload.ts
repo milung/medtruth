@@ -146,30 +146,62 @@ routerUpload.get('/:id', (req, res) => {
 routerUpload.post('/document', extendTimeout, storage.array('data'), async (req, res) => {
     // const files = req.files as Express.Multer.File[];
     // console.log(req.body);
-    
+
     // let file = files[0];
     // console.log(file);
     // console.log(file.buffer);
     // let responseJSON = await AzureDatabase.insertObject(files[0]);
     // res.json(responseJSON);
 
-    // Upload the document from the request to MongoDB
+
     // let responseJSON;
     // files.map(async (file) => {
     //     responseJSON = AzureDatabase.insertObject(file);
     // });
     // res.json(responseJSON);
 
-    let img: AzureDatabase.Image = {
-        seriesID: "skfalfslanfas",
-        patientName: "Hana Hahhahah",
-        imageID: "sadd297nsdjan31 239729 adskaj",
-        date: new Date(),
-        uploadDate: new Date(),
+    // let img: AzureDatabase.Image = {
+    //     seriesID: "skfalfslanfas",
+    //     patientName: "Hana Hahhahah",
+    //     imageID: "sadd297nsdjan31 239729 adskaj",
+    //     date: new Date(),
+    //     uploadDate: new Date(),
+    //     uploadID: new Date().getTime(),
+    //     thumbnails: [{ name: "00614ad28b6d7b1628cc208c4d328b99" }, { name: "ksakdahsldjsda" }]
+    // }
+
+    let upload: AzureDatabase.Upload = {
         uploadID: new Date().getTime(),
-        thumbnail: "00614ad28b6d7b1628cc208c4d328b99"
+        uploadDate: new Date(),
+        studies: [{
+            patientName: "Abracadabra",
+            patientBirthday: new Date(),
+            series: [{
+                seriesID: "01",
+                seriesDescription: "KOLENO",
+                images: ["image01", "image04", "image06"]
+            }, {
+                seriesID: "02",
+                seriesDescription: "MOZOG",
+                images: ["image02", "image03"]
+            }]
+        }, {
+            patientName: "Ice King",
+            patientBirthday: new Date(),
+            series: [{
+                seriesID: "05",
+                seriesDescription: "chrbatik",
+                images: ["image05"]
+            }]
+        }]
     }
 
-    let responseJSON = await AzureDatabase.insertObject(img);
-    res.json(responseJSON);
+    // Upload the document to MongoDB
+    await AzureDatabase.insertDocument(upload);
+
+    // Get documents based on the query
+    var query = { patientName: "Hana Hahhahah" };
+    let result = await AzureDatabase.getDocuments(query);
+    //console.log(result);
+    res.json(result);
 });
