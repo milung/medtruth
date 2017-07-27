@@ -46,9 +46,7 @@ export class FolderFormComponent extends React.Component<{}, OwnState> {
     }
 
     loadFile(files: File[]): void {
-        
-        for (let ind = 0; ind < files.length; ind++) {
-            let file = files[ind];
+        files.forEach((file) => {
             if (file === undefined) {
                 this.setState({
                     folderFormState: folderFormStates.ERROR,
@@ -56,10 +54,6 @@ export class FolderFormComponent extends React.Component<{}, OwnState> {
                 });
                 return;
             }
-        }
-
-        for (let ind = 0; ind < files.length; ind++) {
-            let file = files[ind];
             if (!FileUtils.validFile(file.name.toLowerCase(), validFileExtensions)) {
                 this.setState({
                     folderFormState: folderFormStates.ERROR,
@@ -67,14 +61,14 @@ export class FolderFormComponent extends React.Component<{}, OwnState> {
                 });
                 return;
             }
-        }
+        });
 
         this.setState({ folderFormState: folderFormStates.READING_FILES });
 
         FileUtils.getFilesData(files).then((filesData: ArrayBuffer[]) => {
             this.filesData = filesData;
             let fileNames: string[] = files.map((file) => file.name);
-            this.setState({ folderFormState: folderFormStates.FILES_READ , fileNames: fileNames});
+            this.setState({ folderFormState: folderFormStates.FILES_READ, fileNames: fileNames });
         });
     }
 
@@ -127,8 +121,8 @@ export class FolderFormComponent extends React.Component<{}, OwnState> {
     render() {
         return (
             <div>
-                <FilesInputComponent onFilesInput={this.loadFile}/>
-                <ButtonComponent active={this.isSendButtonActive()} onClick={this.sendFile} text="Send"/>
+                <FilesInputComponent onFilesInput={this.loadFile} />
+                <ButtonComponent active={this.isSendButtonActive()} onClick={this.sendFile} text="Send" />
                 <OneLineInformationComponent text={this.state.fileNames.join(', ')} />
                 <OneLineInformationComponent text={this.getStateInformationText()} />
             </div>

@@ -17,7 +17,7 @@ MongoClient.connect(url, function (err, database) {
 // Set-up a server, with routes and static public files.
 export const server = express();
 
-// Serve public files first.
+// Serve public files.
 server.use(express.static('public/'));
 
 // Serve routes.

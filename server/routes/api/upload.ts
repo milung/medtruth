@@ -22,7 +22,7 @@ const storageConfig = multer.diskStorage({
 });
 const storage = multer({ storage: storageConfig });
 
-// Extend the response's timeout for uploading larger files.
+// Middleware for extending the response's timeout for uploading larger files.
 const extendTimeout = (req, res, next) => {
     res.setTimeout(60000, () => {
         res.sendStatus(StatusCode.GatewayTimeout);
@@ -31,7 +31,7 @@ const extendTimeout = (req, res, next) => {
 }
 
 /*
-    Route:      OPTIONS '/_uploads'
+    Route:      OPTIONS '/upload'
     Expects:    
     --------------------------------------------
     Returns information about this endpoint.
@@ -58,7 +58,7 @@ interface UploadMessage {
 
 
 /*
-    Route:      POST '/_upload'
+    Route:      POST '/upload'
     Middleware: extendTimeout, Multer storage
     Expects:    Form-data
     --------------------------------------------
@@ -71,15 +71,17 @@ interface UploadMessage {
     err: string;
 }
 
-routerUpload.post('/', extendTimeout, storage.array('data'), async (req, res) => {
+routerUpload.post('/', extendTimeout, storage.array('data'), (req, res) => {
+    // If files are undefined, send a BadRequest.
+    if (req.files === undefined) {
+        res.sendStatus(StatusCode.BadRequest);
+    }
     // Keep track of all the files converted
     // and if any error happened, append it along the way.
-
     const files = req.files as Express.Multer.File[];
     // Upload all the files from the request to the AzureStorage.
     const uploads = files.map(async (file) => {
         try {
-
             var upload: UploadMessage = { name: file.originalname, id: null, err: null };
             // Convert and upload DICOM to Azure asynchronously.
             let conversion = Converter.toPng(file.filename);
@@ -93,7 +95,7 @@ routerUpload.post('/', extendTimeout, storage.array('data'), async (req, res) =>
                 imagePath + file.filename + '.png');
             // Await for uploads, if necessary.
             await uploadingDicom, uploadingImage;
-            // Assign the upload's id.
+            // Assign the upload's id if all successed.
             upload.id = file.filename;
         } catch (e) {
             // Assign errors for each case of exception.
@@ -110,8 +112,8 @@ routerUpload.post('/', extendTimeout, storage.array('data'), async (req, res) =>
         }
         return upload;
     });
-    // Wait for all upload promises.
-    await Promise.all(uploads).then((uploads: UploadMessage[]) => {
+    // Wait for all upload promises and send a JSON response.
+    Promise.all(uploads).then((uploads: UploadMessage[]) => {
         res.json(
             {
                 statuses: uploads.slice()
@@ -121,10 +123,10 @@ routerUpload.post('/', extendTimeout, storage.array('data'), async (req, res) =>
 });
 
 /*
-    Route:      GET '_upload:id'
+    Route:      GET 'upload/:id'
     Expects:    
     --------------------------------------------
-    Returns details about upload.
+    Returns details about upload's id.
 */
 routerUpload.get('/:id', (req, res) => {
     if (req.params.id == 12345) {

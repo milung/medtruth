@@ -1,4 +1,3 @@
-
 node_modules/*
 client/node_modules/*
 server/node_modules/*
@@ -8,8 +7,8 @@ client/.vscode/*
 server/build/*
 client/build/*
 server/yarn.lock
-erver/package-lock.json
+server/package-lock.json
 client/yarn.lock
-client/package-lock.json
+cient/package-lock.json
 server/public/*
 client/public/*

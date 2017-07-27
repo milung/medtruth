@@ -25,32 +25,116 @@ describe('<Server>', () => {
             .expect(StatusCode.NotFound);
     })
 
+    describe('<Services>', () => {
+        it('Azure Storage should be up', async (done) => {
+            let status = await AzureStorage.upload('test', 'testblob', 'HG_001_0.dcm');
+            expect(status).toBe(AzureStorage.Status.SUCCESFUL);
+            await AzureStorage.blobService.deleteBlob('test', 'testblob', (err, res) => {
+                if (err === null) done();
+            });
+        });
+    });
+
     // <API> tests.
     describe('<API>', () => {
-        it('/api respond to OPTIONS', () => {
+        it('/api responds to OPTIONS', () => {
             return req.options('/api')
                 .expect(StatusCode.OK);
         });
 
         // <Uploads> tests.
         describe('<Upload>', () => {
-            it('/upload respond to OPTIONS', () => {
+            it('/upload responds to OPTIONS', () => {
                 return req.options('/api/upload')
                     .expect(StatusCode.OK);
             });
-        });
 
-        // <Images> tests.
-        describe('<Images>', () => {
-            it('/images        respond to OPTIONS', () => {
-                return req.options('/api/images')
-                    .expect(StatusCode.OK);
+            it('/upload sends a BadRequest if no files are specified', () => {
+                return req.post('/api/upload')
+                    .expect(StatusCode.BadRequest);
             });
 
-            it('/images/:id    NotFound status with invalid id', () => {
-                return req.get('/api/images/34298148941')
-                    .expect(StatusCode.NotFound);
-            })
+            it('/upload sends a Conversion Error if invalid file', (done) => {
+                return req.post('/api/upload')
+                    .type('form')
+                    .attach('data', 'tsconfig.json')
+                    .then((res: request.Response) => {
+                        expect(res.body.statuses[0].err).toBe("Conversion Error");
+                        done();
+                    });
+            });
+
+            it('/upload sends an upload status if valid file', (done) => {
+                return req.post('/api/upload')
+                    .type('form')
+                    .attach('data', 'HG_001_0.dcm')
+                    .then((res: request.Response) => {
+                        expect(res.body.statuses[0].name).toBeDefined();
+                        expect(res.body.statuses[0].id).toBeDefined();
+                        expect(res.body.statuses[0].err).toBeNull();
+                        done();
+                    });
+            });
+
+            it('/upload sends upload statuses for more valid files', (done) => {
+                return req.post('/api/upload')
+                    .type('form')
+                    .attach('data', 'HG_001_0.dcm')
+                    .attach('data', 'HG_001_0.dcm')
+                    .attach('data', 'HG_001_0.dcm')
+                    .then((res: request.Response) => {
+                        expect(res.body.statuses[0].err).toBeNull();
+                        expect(res.body.statuses[1].err).toBeNull();
+                        expect(res.body.statuses[2].err).toBeNull();
+                        done();
+                    });
+            });
+
+            it('/upload sends upload statuses for 2 valid files and 1 invalid', (done) => {
+                return req.post('/api/upload')
+                    .type('form')
+                    .attach('data', 'HG_001_0.dcm')
+                    .attach('data', 'tsconfig.json')
+                    .attach('data', 'HG_001_0.dcm')
+                    .then((res: request.Response) => {
+                        expect(res.body.statuses[0].err).toBeNull();
+                        expect(res.body.statuses[1].err).toBe("Conversion Error");
+                        expect(res.body.statuses[2].err).toBeNull();
+                        done();
+                    });
+            });
+
+            it('/upload sends an InternalServerError if form doesn\'t contain key \'data\'', (done) => {
+                return req.post('/api/upload')
+                    .type('form')
+                    .attach('invalid', 'HG_001_0.dcm')
+                    .then((res: request.Response) => {
+                        expect(res.status).toBe(StatusCode.InternalServerError);
+                        done();
+                    });
+            });
+
+            it('/upload sends a BadRequest if an invalid request has been made', (done) => {
+                return req.post('/api/upload')
+                    .send({ something: 'invalid' })
+                    .then((res: request.Response) => {
+                        expect(res.status).toBe(StatusCode.BadRequest);
+                        done();
+                    });
+            });
         });
+    });
+
+    // <Images> tests.
+    describe('<Images>', () => {
+        it('/images        responds to OPTIONS', () => {
+            return req.options('/api/images')
+                .expect(StatusCode.OK);
+        });
+
+        it('/images/:id    NotFound status with invalid id', () => {
+            return req.get('/api/images/34298148941')
+                .expect(StatusCode.NotFound);
+        })
     });
 });

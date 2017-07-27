@@ -22,7 +22,7 @@ routerImages.options('/', (req, res) => {
 });
 
 /*
-    Route:      GET '/_images'
+    Route:      GET '/images'
     Expects:    
     --------------------------------------------
     Returns all PNG images to the client.
@@ -32,7 +32,7 @@ routerImages.get('/', (req, res) => {
 });
 
 /*
-    Route:      GET '/_images/latest'
+    Route:      GET '/images/latest'
     Expects:    JSON, containing number of latest images.
     --------------------------------------------
     Returns latest PNG images uploaded to the server.
@@ -42,7 +42,7 @@ routerImages.get('/latest', (req, res) => {
 });
 
 /*
-    Route:      GET '/_images/:id'
+    Route:      GET '/images/:id'
     Expects:    Parameter 'id'
     --------------------------------------------
     Returns a JSON object containing 'url' from the Azure Storage.
