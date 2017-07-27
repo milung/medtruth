@@ -92,7 +92,7 @@ class StudyJSON {
     patientBirthDay: number;
     studyDescription: string;
     studyID: string;
-    series: SeriesJSON[] = []
+    series: SeriesJSON[] = [];
 }
 
 class SeriesJSON {
