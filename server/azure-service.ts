@@ -60,6 +60,12 @@ export namespace AzureStorage {
 }
 export namespace AzureDatabase {
     // const accountKey = 'a6GUPQQs8Cpg70cbHT4m2xy1LRseQsuMKofjRI0RU9iSZZW5vT7HQDDUVuibdwlXw9pJIrJ53TDqy32h5r0BAw==';
+
+    export enum Status {
+        SUCCESFUL,
+        FAILED
+    }
+    
     export interface Image {
         seriesID: string,
         patientName: string,
