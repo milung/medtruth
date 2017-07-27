@@ -91,7 +91,7 @@ export namespace AzureDatabase {
      * Creates new document in the MongoDB database.
      * @param object 
      */
-    export function insertDocument(object): Promise<Status> {
+    export function insertDocument(object: Upload): Promise<Status> {
         return new Promise<Status>(async (resolve, reject) => {
             let collection = await db.collection(collectionName);
             await collection.insert(object, (error, result) => {
