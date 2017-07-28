@@ -78,7 +78,7 @@ export class UploadController {
         let json = this.parse();
 
         // Cleanup.
-        files.map((file) => {
+        files.forEach((file) => {
             fs.unlink(file.path, () => { });
             fs.unlink(imagePath + file.filename + ".png", () => {});
         });
