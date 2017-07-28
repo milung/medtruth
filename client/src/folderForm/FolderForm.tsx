@@ -1,36 +1,29 @@
 
 import * as React from 'react';
-// import * as Redux from 'redux';
-// import { connect } from 'react-redux';
-
-// import { FileFormAction, fileChanged } from './FileFormActions';
+import * as Redux from 'redux';
 import { FileUtils } from '../fileform/FileUtils';
 import { validFileExtensions } from '../constants';
 import { ApiService } from '../api';
 import { FilesInputComponent } from '../fileInput/FilesInput';
 import { ButtonComponent } from '../button/Button';
 import { OneLineInformationComponent } from '../oneLineInformation/OneLineInformation';
-
-var folderFormStates = {
-    INITIAL_STATE: 0,
-    READING_FILES: 1,
-    FILES_READ: 2,
-    UPLOADING_FILES: 3,
-    FILES_UPLOADED: 4,
-    ERROR: 5
-};
+import { connect } from 'react-redux';
+import { FilesUploadedAction, filesUploaded } from '../actions/actions';
 
 interface OwnState {
-    folderFormState: number;
+    readingFiles: boolean;
+    filesRead: boolean;
+    uploadingFiles: boolean;
+    filesUploaded: boolean;
     folderFormError: string;
     fileNames: string[];
 }
 
-// interface ConnectedDispatch {
-//     change: (valid: boolean, imageID: string) => FolderFormAction;
-// }
+interface ConnectedDispatch {
+    filesUploaded: (uploadID: number) => FilesUploadedAction;
+}
 
-export class FolderFormComponent extends React.Component<{}, OwnState> {
+export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnState> {
     private filesData: ArrayBuffer[];
 
     constructor() {
@@ -39,60 +32,78 @@ export class FolderFormComponent extends React.Component<{}, OwnState> {
         this.sendFile = this.sendFile.bind(this);
         this.filesData = [];
         this.state = {
-            folderFormState: folderFormStates.INITIAL_STATE,
+            readingFiles: false,
+            filesRead: false,
+            uploadingFiles: false,
+            filesUploaded: false,
             folderFormError: '',
             fileNames: []
         };
     }
 
     loadFile(files: File[]): void {
+        let invalidFileNames: string[] = [];
+        let fileUndefined: boolean = false;
+        let filesInvalid: boolean = false;
+
         files.forEach((file) => {
             if (file === undefined) {
-                this.setState({
-                    folderFormState: folderFormStates.ERROR,
-                    folderFormError: 'File ' + file.name + 'is undefined.'
-                });
-                return;
-            }
-            if (!FileUtils.validFile(file.name.toLowerCase(), validFileExtensions)) {
-                this.setState({
-                    folderFormState: folderFormStates.ERROR,
-                    folderFormError: 'File ' + file.name + ' has invalid extension.'
-                });
-                return;
+                fileUndefined = true;
+            } else if (!FileUtils.validFile(file.name.toLowerCase(), validFileExtensions)) {
+                filesInvalid = true;
+                invalidFileNames.push(file.name);
             }
         });
 
-        this.setState({ folderFormState: folderFormStates.READING_FILES });
+        if (fileUndefined || filesInvalid) {
+            let errorMessage: string = fileUndefined ? 'File undefined. ' : '';
+            errorMessage += filesInvalid ? 'Files have invalid extension: ' + invalidFileNames.join(', ') : '';
+            this.setState({
+                filesRead: false,
+                folderFormError: errorMessage
+            });
+            return;
+        }
 
+        this.setState({ readingFiles: true });
         FileUtils.getFilesData(files).then((filesData: ArrayBuffer[]) => {
             this.filesData = filesData;
             let fileNames: string[] = files.map((file) => file.name);
-            this.setState({ folderFormState: folderFormStates.FILES_READ, fileNames: fileNames });
+            this.setState({
+                readingFiles: false,
+                filesRead: true,
+                fileNames: fileNames,
+                folderFormError: '',
+                filesUploaded: false
+            });
         });
     }
 
-    sendFile(): void {
+    async sendFile(): Promise<void> {
         // Upload the data to the server.
-        this.setState({ folderFormState: folderFormStates.UPLOADING_FILES });
-        ApiService.upload(...this.filesData)
-            .then((resUpload) => {
-                // After that, fetch an image.
-                this.setState({
-                    folderFormState: folderFormStates.FILES_UPLOADED
-                });
-            })
-            .catch((resUploadErr) => {
-                // Error if upload to the server went wrong.
-                this.setState({
-                    folderFormState: folderFormStates.ERROR,
-                    folderFormError: 'Error (' + resUploadErr.message + ') when uploading files to server.'
-                });
+        this.setState({ uploadingFiles: true });
+        let resUpload = await ApiService.upload(...this.filesData);
+        // After that, fetch an image.
+        if (resUpload.statuses[0].err === null) {
+            this.props.filesUploaded(122333);
+            this.setState({
+                uploadingFiles: false,
+                filesUploaded: true,
+                filesRead: false,
+                folderFormError: ''
             });
+        } else {
+            // Error if upload to the server went wrong.
+            this.setState({
+                uploadingFiles: false,
+                filesUploaded: false,
+                folderFormError: 'Error (' + resUpload.statuses[0].err + ') when uploading files to server.'
+            });
+        }
     }
 
     isSendButtonActive(): boolean {
-        if (this.state.folderFormState === folderFormStates.FILES_READ) {
+        if (this.state.filesRead === true) {
             return true;
         } else {
             return false;
@@ -100,22 +111,36 @@ export class FolderFormComponent extends React.Component<{}, OwnState> {
     }
 
     getStateInformationText(): string {
-        switch (this.state.folderFormState) {
-            case folderFormStates.INITIAL_STATE:
-                return '';
-            case folderFormStates.READING_FILES:
-                return 'Reading files from local file system.';
-            case folderFormStates.FILES_READ:
-                return 'Files from local file system loaded.';
-            case folderFormStates.UPLOADING_FILES:
-                return 'Uploading files to server.';
-            case folderFormStates.FILES_UPLOADED:
-                return 'Files uploaded to server.';
-            case folderFormStates.ERROR:
-                return 'Error: ' + this.state.folderFormError;
-            default:
-                return 'Unknown state.';
+        let message: string = '';
+        if (this.state.readingFiles) {
+            message += 'Reading files from local file system. ';
         }
+
+        if (this.state.filesRead) {
+            message += 'Files from local file system loaded. ';
+        }
+
+        if (this.state.uploadingFiles) {
+            message += 'Uploading files to server. ';
+        }
+
+        if (this.state.filesUploaded) {
+            message += 'Files uploaded to server.';
+        }
+
+        return message;
+    }
+
+    getFilesNames() {
+        if (this.state.filesRead) {
+            return this.state.fileNames.join(', ');
+        } else {
+            return '';
+        }
+    }
+
+    getErrorInformation(): string {
+        return this.state.folderFormError;
     }
 
     render() {
@@ -123,18 +148,19 @@ export class FolderFormComponent extends React.Component<{}, OwnState> {
             <div>
                 <FilesInputComponent onFilesInput={this.loadFile} />
                 <ButtonComponent active={this.isSendButtonActive()} onClick={this.sendFile} text="Send" />
-                <OneLineInformationComponent text={this.state.fileNames.join(', ')} />
                 <OneLineInformationComponent text={this.getStateInformationText()} />
+                <OneLineInformationComponent text={this.getFilesNames()} />
+                <OneLineInformationComponent text={this.getErrorInformation()} />
             </div>
         );
     }
 }
 
-// function mapDispatchToProps(dispatch: Redux.Dispatch<FolderFormAction>): ConnectedDispatch {
-//     return {
-//         change: (valid: boolean, imageID: string) =>
-//             dispatch(fileChanged(valid, imageID)),
-//     };
-// }
+function mapDispatchToProps(dispatch: Redux.Dispatch<FilesUploadedAction>): ConnectedDispatch {
+    return {
+        filesUploaded: (uploadID) =>
+            dispatch(filesUploaded(uploadID)),
+    };
+}
 
-// export const FolderForm = connect(null, mapDispatchToProps)(FileFormComponent);
+export const FolderForm = connect(null, mapDispatchToProps)(FolderFormComponent);
