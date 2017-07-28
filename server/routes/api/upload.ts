@@ -83,11 +83,13 @@ export class UploadController {
             fs.unlink(imagePath + file.filename + ".png", () => { });
         });
 
+        // Grab all ChainResponses and map them to UploadStatuses.
         let statuses: UploadStatus[] = this.responses.map((upload) => {
             return { name: upload.name, id: upload.id, err: upload.err };
         });
+        // Then assign a unique_id and UploadStatuses to UploadResponse.
         let response: UploadResponse = {upload_id: json.uploadID, statuses: statuses};
-        return response
+        return response;
     }
 
     async convert(files: Express.Multer.File[]) {
