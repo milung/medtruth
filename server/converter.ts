@@ -1,7 +1,8 @@
 
 export namespace Converter {
-    const exePath   = 'dcmj2pnm';
-    const exec      = require('child_process').exec;
+    const exePath = 'dcmj2pnm';
+    //const exec = require('child_process').exec;
+    const execFile = require('child_process').execFile;
 
     export enum Status {
         SUCCESSFUL,
@@ -10,28 +11,22 @@ export namespace Converter {
 
     const convert = (dicomName: string, args: string[]): Promise<Status> => {
         return new Promise((resolve, reject) => {
-            let dicomSrcPath    = 'uploads/' + dicomName;
-            let imgSrcPath      = 'images/' + dicomName + '.png';
-            let cmd             = exePath + ' ' + dicomSrcPath + ' ' + imgSrcPath;
-
-            args.forEach((arg) => {
-                cmd = cmd + ' ' + arg;
-            });
-            exec(cmd,
-                {cwd: 'out/'},
-                (error, stdout, stderr) => {
+            let dicomSrcPath = 'uploads/' + dicomName;
+            let imgSrcPath = 'images/' + dicomName + '.png';        
+            args.unshift(imgSrcPath);
+            args.unshift(dicomSrcPath);
+            execFile(exePath, args, { cwd: 'out/' }, (error, stdout, stderr) => {
                 console.log("error");
                 console.log(error);
                 console.log(stdout);
-                console.log(stderr);  
-                console.log("dirpath "+__dirname);
-                console.log("filename "+__filename);
+                console.log(stderr);
+                console.log("dirpath " + __dirname);
+                console.log("filename " + __filename);
 
-                
-                
                 if (error === null) resolve(Status.SUCCESSFUL);
-                else                reject(Status.FAILED);
+                else reject(Status.FAILED);
             });
+
         });
     }
 
@@ -41,7 +36,9 @@ export namespace Converter {
             '--write-16-bit-png',
             '--min-max-window',
             '--no-overlays',
-            '--interpolate 3'
+            '--interpolate',
+            '3',
+
         ]);
     }
 }
