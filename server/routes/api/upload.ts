@@ -145,6 +145,9 @@ routerUpload.post('/',
 routerUpload.get('/:id', (req, res) => {
     if (req.params.id == 12345) {
         let responseJSON = jsonCreator.getUploadJSON();
+        res.json(responseJSON); }
+    else if (req.params.id == 0) {
+        let responseJSON = AzureDatabase.getLastUpload();
         res.json(responseJSON);
     } else {
         res.json({ status: "INVALID UPLOAD ID" });
@@ -193,7 +196,7 @@ routerUpload.post('/document', extendTimeout, storage.array('data'), async (req,
             patientName: "Abracadabra",
             patientBirthday: new Date(),
             series: [{
-                seriesID: "01",
+                seriesID: "04",
                 seriesDescription: "KOLENO",
                 images: ["image01", "image04", "image06"]
             }, {
@@ -205,7 +208,7 @@ routerUpload.post('/document', extendTimeout, storage.array('data'), async (req,
             patientName: "Ice King",
             patientBirthday: new Date(),
             series: [{
-                seriesID: "05",
+                seriesID: "10",
                 seriesDescription: "chrbatik",
                 images: ["image05"]
             }]
@@ -216,8 +219,9 @@ routerUpload.post('/document', extendTimeout, storage.array('data'), async (req,
     await AzureDatabase.insertDocument(upload);
 
     // Get documents based on the query
-    var query = { patientName: "Hana Hahhahah" };
-    let result = await AzureDatabase.getDocuments(query);
+    //var query = { patientName: "Hana Hahhahah" };
+    //let result = await AzureDatabase.getDocuments(query);
+    let result = await AzureDatabase.getLastUpload();
     //console.log(result);
     res.json(result);
 });
