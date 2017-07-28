@@ -48,12 +48,17 @@ const storageConfig = multer.diskStorage({
 const storage = multer({ storage: storageConfig });
 
 interface UploadResponse {
+    upload_id: number;
+    statuses: UploadStatus[];
+}
+
+interface UploadStatus {
     name: string;
     id: string;
     err: string;
 }
 
-interface ChainResponse extends UploadResponse {
+interface ChainResponse extends UploadStatus {
     filename: string;
 }
 
@@ -70,7 +75,7 @@ export class UploadController {
         let files = req.files as Express.Multer.File[];
         await this.convert(files);
         await this.upload();
-        this.parse();
+        let json = this.parse();
 
         // Cleanup.
         files.map((file) => {
@@ -78,7 +83,11 @@ export class UploadController {
             fs.unlink(imagePath + file.filename + ".png", () => { });
         });
 
-        return this.responses;
+        let statuses: UploadStatus[] = this.responses.map((upload) => {
+            return { name: upload.name, id: upload.id, err: upload.err };
+        });
+        let response: UploadResponse = {upload_id: json.uploadID, statuses: statuses};
+        return response
     }
 
     async convert(files: Express.Multer.File[]) {
@@ -188,15 +197,12 @@ export class UploadController {
 routerUpload.post('/', extendTimeout, storage.any(), async (req: express.Request, res: express.Response) => {
     // Root upload controller, that takes care of conversion, uploading and parsing.
     let upload = new UploadController();
-    let uploads = await upload.Root(req, res);
+    let response = await upload.Root(req, res);
     // Map the responses from the Root.
-    let statuses: UploadResponse[] = uploads.map((upload) => {
-        return { name: upload.name, id: upload.id, err: upload.err };
-    });
     // Return as JSON.
     res.json(
         {
-            statuses
+            ...response
         }
     );
 });
