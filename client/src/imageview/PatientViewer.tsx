@@ -76,7 +76,7 @@ export class PatientViewer extends React.Component<{}, ArrayOfPatients> {
                 </div>
             );
         } else {
-            return <div></div>
+            return <div />;
         }
     }
 };

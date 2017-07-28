@@ -198,7 +198,6 @@ routerUpload.post('/', extendTimeout, storage.any(), async (req: express.Request
     // Root upload controller, that takes care of conversion, uploading and parsing.
     let upload = new UploadController();
     let response = await upload.Root(req, res);
-    // Map the responses from the Root.
     // Return as JSON.
     res.json(
         {
