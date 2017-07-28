@@ -152,7 +152,7 @@ export class UploadController {
             }
             existingStudy.studyID = converter.getStudyInstanceUID();
             existingStudy.studyDescription = converter.getStudyDescription();
-            existingStudy.patientBirthDay = converter.getPatientDateOfBirth();
+            existingStudy.patientBirthday = converter.getPatientDateOfBirth();
             existingStudy.patientName = converter.getPatientName();
 
 
@@ -219,7 +219,8 @@ routerUpload.get('/:id', async (req, res) => {
         console.log("test json", responseJSON);
         res.json(responseJSON);
     } else if (req.params.id == 222) {
-        let responseJSON = await AzureDatabase.getLastUpload();
+        //let responseJSON = await AzureDatabase.getLastUpload();
+        let responseJSON = await AzureDatabase.getUploadDocument(1501233911290.0);
         console.log("azure json", responseJSON);
         res.json(responseJSON);
     } else {
@@ -236,39 +237,13 @@ routerUpload.get('/:id', async (req, res) => {
 */
 //routerUpload.post('/document', (req, res) => {
 routerUpload.post('/document', extendTimeout, storage.array('data'), async (req, res) => {
-    // const files = req.files as Express.Multer.File[];
-    // console.log(req.body);
-
-    // let file = files[0];
-    // console.log(file);
-    // console.log(file.buffer);
-    // let responseJSON = await AzureDatabase.insertObject(files[0]);
-    // res.json(responseJSON);
-
-
-    // let responseJSON;
-    // files.map(async (file) => {
-    //     responseJSON = AzureDatabase.insertObject(file);
-    // });
-    // res.json(responseJSON);
-
-    // let img: AzureDatabase.Image = {
-    //     seriesID: "skfalfslanfas",
-    //     patientName: "Hana Hahhahah",
-    //     imageID: "sadd297nsdjan31 239729 adskaj",
-    //     date: new Date(),
-    //     uploadDate: new Date(),
-    //     uploadID: new Date().getTime(),
-    //     thumbnails: [{ name: "00614ad28b6d7b1628cc208c4d328b99" }, { name: "ksakdahsldjsda" }]
-    // }
-
     /*
     let upload: AzureDatabase.Upload = {
         uploadID: new Date().getTime(),
         uploadDate: new Date(),
         studies: [{
             patientName: "Abracadabra",
-            patientBirthday: new Date().getMilliseconds(),
+            patientBirthday: new Date().getTime(),
             series: [{
                 seriesID: "04",
                 seriesDescription: "KOLENO",
@@ -284,7 +259,7 @@ routerUpload.post('/document', extendTimeout, storage.array('data'), async (req,
             studyID: "studyID 01"
         }, {
             patientName: "Ice King",
-            patientBirthday: new Date().getMilliseconds(),
+            patientBirthday: new Date().getTime(),
             series: [{
                 seriesID: "10",
                 seriesDescription: "chrbatik",
@@ -295,15 +270,17 @@ routerUpload.post('/document', extendTimeout, storage.array('data'), async (req,
             studyID: "studyID is 02"
         }]
     }
+    */
+    
 
     // Upload the document to MongoDB
-    await AzureDatabase.insertDocument(upload);
+    //await AzureDatabase.insertDocument(upload);
 
     // Get documents based on the query
     //var query = { patientName: "Hana Hahhahah" };
     //let result = await AzureDatabase.getDocuments(query);
-    let result = await AzureDatabase.getLastUpload();
+    let result = await AzureDatabase.getUploadDocument(1501233911290.0);
     //console.log(result);
     res.json(result);
-    */
+    
 });

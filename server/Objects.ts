@@ -11,12 +11,12 @@ export class JSONCreator {
         study1.studyID = "studyID 01";
         study1.studyDescription = "This is study01 descripotion";
         study1.patientName = "Hlavatý Tomas";
-        study1.patientBirthDay = new Date(1234567890123).getTime();
+        study1.patientBirthday = new Date(1234567890123).getTime();
 
         study2.studyID = "studyID is 02";
         study2.studyDescription = "This study is about somthing very important";
         study2.patientName = "Chudjak Kristián";
-        study2.patientBirthDay = new Date(1243567890123).getTime();
+        study2.patientBirthday = new Date(1243567890123).getTime();
 
 
         let series01 = new SeriesJSON();
@@ -89,7 +89,7 @@ export class UploadJSON {
 
 export class StudyJSON {
     patientName: string;
-    patientBirthDay: number;
+    patientBirthday: number;
     studyDescription: string;
     studyID: string;
     series: SeriesJSON[] = [];

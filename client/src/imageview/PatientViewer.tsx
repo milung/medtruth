@@ -31,10 +31,10 @@ export class PatientViewer extends React.Component<{}, ArrayOfPatients> {
         let imageId = 10;
 
         this.setState({ wait: true });
-        let resData = await ApiService.getData(222);
+        let resData = await ApiService.getData(12345);
         console.log("got data", resData);
 
-        for (let patient of resData[0].studies) {
+        for (let patient of resData.studies) {
             let tempSeries = [];
 
             for(let tmpSerie of patient.series){
@@ -78,6 +78,5 @@ export class PatientViewer extends React.Component<{}, ArrayOfPatients> {
         } else {
             return <div></div>
         }
-
     }
 };
