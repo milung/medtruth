@@ -81,13 +81,13 @@ export class JSONCreator {
 
 }
 
-class UploadJSON {
+export class UploadJSON {
     uploadID: number;
     uploadDate: number;
     studies: StudyJSON[] = [];
 }
 
-class StudyJSON {
+export class StudyJSON {
     patientName: string;
     patientBirthday: number;
     studyDescription: string;
@@ -95,7 +95,7 @@ class StudyJSON {
     series: SeriesJSON[] = [];
 }
 
-class SeriesJSON {
+export class SeriesJSON {
     seriesID: string;
     seriesDate: number;
     seriesDescription: string;

@@ -2,11 +2,14 @@
 import * as express from 'express';
 import * as multer from 'multer';
 import * as fs from 'fs';
+import * as lo from 'lodash';
 
 import { StatusCode, storagePath, imagePath } from '../../constants';
 import { AzureStorage, AzureDatabase } from '../../azure-service';
 import { Converter } from '../../converter';
 import { JSONCreator } from '../../Objects';
+import { DaikonConverter } from '../../daikon/daikon';
+import * as objects from '../../Objects';
 
 export const rootUpload = '/upload';
 export const routerUpload = express.Router();
@@ -28,20 +31,6 @@ routerUpload.options('/', (req, res) => {
     );
 });
 
-/*
-    Route:      POST '/upload'
-    Middleware: extendTimeout, Multer storage
-    Expects:    Form-data
-    --------------------------------------------
-    Converts DICOM files to the PNG and uploads both formats to the Azure storage.
-    Returns JSON, that cointains ID's of the converted files.
-*/
-interface UploadMessage {
-    name: string;
-    id: string;
-    err: string;
-}
-
 // Middleware for extending the response's timeout for uploading larger files.
 const extendTimeout = (req, res, next) => {
     res.setTimeout(60000, () => {
@@ -58,83 +47,159 @@ const storageConfig = multer.diskStorage({
 });
 const storage = multer({ storage: storageConfig });
 
-// Middleware of converting the files to an image.
-const converter = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    // If files are undefined, send a BadRequest.
-    if (req.files === undefined) {
-        res.sendStatus(StatusCode.BadRequest);
+interface UploadResponse {
+    name: string;
+    id: string;
+    err: string;
+}
+
+interface ChainResponse extends UploadResponse {
+    filename: string;
+}
+
+export class UploadController {
+    public responses: ChainResponse[] = [];
+
+    constructor() { }
+
+    Root = async (req: express.Request, res: express.Response) => {
+        // If none files were sent, respond with a BadRequest.
+        if (req.files === undefined) { res.sendStatus(StatusCode.BadRequest); }
+
+        // Convert, upload and parse the files.
+        let files = req.files as Express.Multer.File[];
+        await this.convert(files);
+        await this.upload();
+        this.parse();
+
+        // Cleanup.
+        files.map((file) => {
+            fs.unlink(file.path, () => { });
+            fs.unlink(imagePath + file.filename + ".png", () => { });
+        });
+
+        return this.responses;
     }
 
-    // Keep track of all the files converted
-    // and if any error happened, append it along the way.
-    const files = req.files as Express.Multer.File[];
-    // Upload all the files from the request to the AzureStorage.
-    const uploads = files.map(async (file) => {
-        try {
-            var upload = Object.assign({}, file, { name: file.originalname as string, id: null as string, err: null as string });
-            await Converter.toPng(upload.filename);
-        } catch (e) {
-            if (e === Converter.Status.FAILED) {
-                upload.err = "Conversion Error";
+    async convert(files: Express.Multer.File[]) {
+        // Upload all the files from the request to the AzureStorage.
+        const conversion = files.map(async (file) => {
+            try {
+                var response: ChainResponse = { name: file.originalname, id: null, err: null, filename: file.filename };
+                await Converter.toPng(file.filename);
+            } catch (e) {
+                // If anything happened during conversion, assign an error to the response.
+                response.err = "Conversion Error";
             }
-        } finally {
-            return upload;
-        }
-    });
-    // Wait for all conversions.
-    Promise.all(uploads).then((uploads) => {
-        req.params.uploads = uploads;
-        next();
-    });
-}
+            return response;
+        });
+        // Await for all conversions.
+        this.responses = await Promise.all(conversion);
+    }
 
-// Middleware of uploading the files to Azure.
-const uploader = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    // Iterate over conversions and send them to the Azure.
-    const uploads = req.params.uploads.map(async (upload) => {
-        try {
-            // If an error occured during conversion, don't send the file.
-            if (upload.err) { return; }
-            // Else upload the DICOM and PNG.
-            await AzureStorage.toDicoms(
-                upload.filename,
-                upload.path);
-            await AzureStorage.toImages(
-                upload.filename + ".png",
-                imagePath + upload.filename + ".png");
-            // Assign the upload id to this file.
-            upload.id = upload.filename;
-        } catch (e) {
-            if (e === AzureStorage.Status.FAILED) {
+    async upload() {
+        // Iterate over conversions and send them to the Azure.
+        const uploads = this.responses.map(async (upload) => {
+            try {
+                if (upload.err) return upload;
+                // Else upload the DICOM and PNG.
+                await AzureStorage.toDicoms(
+                    upload.filename,
+                    storagePath + upload.filename);
+                await AzureStorage.toImages(
+                    upload.filename + ".png",
+                    imagePath + upload.filename + ".png");
+                // Assign the upload id to this file.
+                upload.id = upload.filename;
+            } catch (e) {
+                // If anything happened during uploading, assign an error to the response.
                 upload.err = "Storage Error";
             }
-        } finally {
             return upload;
-        }
-    });
-    Promise.all(uploads).then((uploads) => {
-        req.params.uploads = uploads;
-        next();
-    });
+        });
+        // Await for all uploads.
+        this.responses = await Promise.all(uploads);
+    }
+
+    parse() {
+        // TODO: REFACTOR!!
+        let json = new objects.UploadJSON();
+        json.uploadID = new Date().getTime();
+        json.uploadDate = json.uploadID;
+
+        let parses = this.responses.forEach((parse) => {
+            if (parse.err) return;
+            let converter = new DaikonConverter(storagePath + parse.filename);
+            let studyID = converter.getStudyInstanceUID();
+            let studyFound: boolean = true;
+            let seriesFound: boolean = true;
+            let existingStudy = json.studies.find((stud) => {
+                return stud.studyID === studyID;
+            });
+
+            if (existingStudy === undefined) {
+                studyFound = false;
+                existingStudy = new objects.StudyJSON();
+            }
+            existingStudy.studyID = converter.getStudyInstanceUID();
+            existingStudy.studyDescription = converter.getStudyDescription();
+            existingStudy.patientBirthday = converter.getPatientDateOfBirth();
+            existingStudy.patientName = converter.getPatientName();
+
+
+            let seriesID = converter.getSeriesUID();
+            let existingSeries = existingStudy.series.find((seria) => {
+                return seria.seriesID === seriesID;
+            });
+
+            if (existingSeries === undefined) {
+                seriesFound = false;
+                existingSeries = new objects.SeriesJSON();
+                existingSeries.seriesID = seriesID;
+            }
+
+            existingSeries.seriesDescription = converter.getSeriesDescription();
+            existingSeries.seriesID = converter.getSeriesUID();
+            existingSeries.thumbnailImageID = parse.filename;
+            existingSeries.images.push(parse.filename);
+
+            if (!seriesFound) {
+                existingStudy.series.push(existingSeries);
+            }
+
+            if (!studyFound) {
+                json.studies.push(existingStudy);
+            }
+        });
+
+        return json;
+    }
 }
 
-routerUpload.post('/',
-    extendTimeout,
-    storage.any(),
-    converter,
-    uploader,
-    (req: any, res) => {
-        let statuses: UploadMessage[] = req.params.uploads.map((upload) => {
-            fs.unlink(upload.path, () => { });
-            fs.unlink(imagePath + upload.filename + ".png", () => { });
-            return { name: upload.name, id: upload.id, err: upload.err }
-        });
-        res.json(
-            {
-                statuses
-            }
-        );
+/*
+    Route:      POST '/upload'
+    Middleware: extendTimeout, Multer storage, Root upload controller
+    Expects:    Form-data
+    --------------------------------------------
+    Converts DICOM files to the PNG and uploads both formats to the Azure storage.
+    Returns JSON, that cointains an array of names, id's 
+    and if occured, errors of the converted files.
+*/
+routerUpload.post('/', extendTimeout, storage.any(), async (req: express.Request, res: express.Response) => {
+    // Root upload controller, that takes care of conversion, uploading and parsing.
+    let upload = new UploadController();
+    let uploads = await upload.Root(req, res);
+    // Map the responses from the Root.
+    let statuses: UploadResponse[] = uploads.map((upload) => {
+        return { name: upload.name, id: upload.id, err: upload.err };
     });
+    // Return as JSON.
+    res.json(
+        {
+            statuses
+        }
+    );
+});
 
 /*
     Route:      GET 'upload/:id'
@@ -211,4 +276,5 @@ routerUpload.post('/document', extendTimeout, storage.array('data'), async (req,
     let result = await AzureDatabase.getUploadDocument(1501233911290.0);
     //console.log(result);
     res.json(result);
+    
 });

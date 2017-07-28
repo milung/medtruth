@@ -1,9 +1,0 @@
-{
-        seriesID: "skfalfslanfas",
-        patientName: "Hana Hahhahah",
-        imageID: "sadd297nsdjan31 239729 adskaj",
-        date: new Date(),
-        uploadDate: new Date(),
-        uploadID: new Date().getTime(),
-        thumbnail: "00614ad28b6d7b1628cc208c4d328b99"
-    }
