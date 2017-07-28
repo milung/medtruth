@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 // Storage path to where the incoming files are stored.
 exports.storagePath = "uploads/";
 exports.imagePath = "images/";
@@ -7,6 +7,8 @@ exports.imagePath = "images/";
 exports.dbName = "/myproject";
 exports.dbAddress = "localhost:27017";
 exports.url = "mongodb://" + exports.dbAddress + exports.dbName;
+// Name of the collection in database
+exports.collectionName = "images";
 // HTTP status codes.
 var StatusCode;
 (function (StatusCode) {
@@ -48,3 +50,4 @@ var StatusCode;
     StatusCode.GatewayTimeout = 504;
     StatusCode.HTTPNotSupported = 505;
 })(StatusCode = exports.StatusCode || (exports.StatusCode = {}));
+//# sourceMappingURL=constants.js.map
