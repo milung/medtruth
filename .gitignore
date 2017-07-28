@@ -12,3 +12,4 @@ server/package-lock.json
 client/yarn.lock
 client/package-lock.json
 server/public/*
+server/out/*
