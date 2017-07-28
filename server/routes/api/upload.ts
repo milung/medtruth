@@ -207,9 +207,14 @@ routerUpload.post('/', extendTimeout, storage.any(), async (req: express.Request
     --------------------------------------------
     Returns details about upload's id.
 */
-routerUpload.get('/:id', (req, res) => {
+routerUpload.get('/:id', async (req, res) => {
     if (req.params.id == 12345) {
         let responseJSON = jsonCreator.getUploadJSON();
+        console.log("test json", responseJSON);
+        res.json(responseJSON);
+    } else if (req.params.id == 222) {
+        let responseJSON = await AzureDatabase.getLastUpload();
+        console.log("azure json", responseJSON);
         res.json(responseJSON);
     } else {
         res.json({ status: "INVALID UPLOAD ID" });
@@ -257,24 +262,31 @@ routerUpload.post('/document', extendTimeout, storage.array('data'), async (req,
         uploadDate: new Date(),
         studies: [{
             patientName: "Abracadabra",
-            patientBirthday: new Date(),
+            patientBirthday: new Date().getMilliseconds(),
             series: [{
-                seriesID: "01",
+                seriesID: "04",
                 seriesDescription: "KOLENO",
-                images: ["image01", "image04", "image06"]
+                images: ["image01", "image04", "image06"],
+                thumbnailImageID: "image04"
             }, {
                 seriesID: "02",
                 seriesDescription: "MOZOG",
-                images: ["image02", "image03"]
-            }]
+                images: ["image02", "image03"],
+                thumbnailImageID: "image02"
+            }],
+            studyDescription: "This is study01 descripotion",
+            studyID: "studyID 01"
         }, {
             patientName: "Ice King",
-            patientBirthday: new Date(),
+            patientBirthday: new Date().getMilliseconds(),
             series: [{
-                seriesID: "05",
+                seriesID: "10",
                 seriesDescription: "chrbatik",
-                images: ["image05"]
-            }]
+                images: ["image05"],
+                thumbnailImageID: "image05"
+            }],
+            studyDescription: "This study is about somthing very important",
+            studyID: "studyID is 02"
         }]
     }
 
@@ -282,8 +294,9 @@ routerUpload.post('/document', extendTimeout, storage.array('data'), async (req,
     await AzureDatabase.insertDocument(upload);
 
     // Get documents based on the query
-    var query = { patientName: "Hana Hahhahah" };
-    let result = await AzureDatabase.getDocuments(query);
+    //var query = { patientName: "Hana Hahhahah" };
+    //let result = await AzureDatabase.getDocuments(query);
+    let result = await AzureDatabase.getLastUpload();
     //console.log(result);
     res.json(result);
     */

@@ -1,9 +1,11 @@
 
 import * as azure from 'azure-storage';
 import * as request from 'request';
-// import * as mongo from 'mongodb';
-
 import { collectionName, StatusCode } from './constants';
+//import { db } from './server';
+
+import { MongoClient } from 'mongodb';
+import { url } from './constants';
 
 export namespace AzureStorage {
     const accountName = 'medtruth';
@@ -81,14 +83,34 @@ export namespace AzureDatabase {
 
     export interface Study {
         patientName: string,
-        patientBirthday: Date,
-        series: Series[]
+        patientBirthday: number,
+        series: Series[],
+        studyDescription: string,
+        studyID: string
     }
 
     export interface Series {
         seriesID: string,
         seriesDescription: string,
-        images: string[]                    // Array of blob references
+        images: string[],                    // Array of blob references
+        thumbnailImageID: string
+    }
+
+    let db = null;
+
+    // Initialise connection to MongoDB.
+    export function connectToDb(): Promise<string> {
+        return new Promise<string>(async (resolve, reject) => {
+            MongoClient.connect(url, function (err, database) {
+                if (err) {
+                    //console.log(err.message);
+                    reject(err.message)
+                };
+                db = database;
+                //console.log("Successfully connected to database!")
+                resolve("Successfully connected to database!");
+            });
+        });
     }
 
     /**
@@ -98,14 +120,18 @@ export namespace AzureDatabase {
     /*
     export function insertDocument(object: Upload): Promise<Status> {
         return new Promise<Status>(async (resolve, reject) => {
-            let collection = await db.collection(collectionName);
-            await collection.insert(object, (error, result) => {
-                let message = "Inserted " + result.result.n + " object, ID: " + result.insertedId;
-                console.log(result);
-                if (error) reject(Status.FAILED);
-                else resolve(Status.SUCCESFUL);
-                console.log(message);
-            })
+            let connectionResult = await connectToDb();
+            console.log(connectionResult);
+            if (db != null) {
+                let collection = await db.collection(collectionName);
+                await collection.insert(object, (error, result) => {
+                    let message = "Inserted " + result.result.n + " object, ID: " + result.insertedId;
+                    console.log(result);
+                    if (error) reject(Status.FAILED);
+                    else resolve(Status.SUCCESFUL);
+                    console.log(message);
+                })
+            }
         });
     }
 
@@ -124,9 +150,31 @@ export namespace AzureDatabase {
                 else resolve(result);
                 //console.log(result);
                 console.log("Number of found objects: " + result.length);
-                //db.close();
+                db.close();
             });
         });
     }
-    */
+
+    /**
+     * Returns JSON object of the last upload document in MongoDB.
+     */
+    export function getLastUpload(): Promise<string> {
+        console.log("Last upload");
+        return new Promise<string>(async (resolve, reject) => {
+            let connectionResult = await connectToDb();
+            console.log(connectionResult);
+            if (db != null) {
+                let collection = await db.collection(collectionName);
+                //var query = { patientName: "Hana Hahhahah" };
+                await collection.find({}).sort({ "uploadDate": -1 }).limit(1).toArray(function (err, result) {
+                    //let message = result;
+                    if (err) reject(Status.FAILED);
+                    else resolve(result);
+                    console.log(result);
+                    console.log("Number of found objects: " + result.length);
+                    db.close();
+                });
+            }
+        });
+    }
 }

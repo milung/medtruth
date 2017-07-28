@@ -1,7 +1,12 @@
 
-import { FileFormReducer } from '../fileform/FileFormReducer';
-import { createStore } from 'redux';
+import { createStore, combineReducers } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
+import { filesReducer } from '../reducers/FilesReducer';
+import { imagesReducer } from '../reducers/ImagesReducer';
 
 const ReduxDevTool = composeWithDevTools;
-export const store = createStore(FileFormReducer, ReduxDevTool());
+const rootReducer = combineReducers({
+    files: filesReducer,
+    images: imagesReducer
+});
+export const store = createStore(rootReducer, ReduxDevTool());
