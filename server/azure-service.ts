@@ -99,16 +99,16 @@ export namespace AzureDatabase {
 
     let db = null;
 
-    // Initialise connection to MongoDB.
+    /**
+     * Initialise connection to MongoDB.
+     */
     export function connectToDb(): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
             MongoClient.connect(url, function (err, database) {
                 if (err) {
-                    //console.log(err.message);
                     reject(err.message)
                 };
                 db = database;
-                //console.log("Successfully connected to database!")
                 resolve("Successfully connected to database!");
             });
         });
@@ -131,6 +131,7 @@ export namespace AzureDatabase {
                     else resolve(Status.SUCCESFUL);
                     console.log(message);
                 })
+                db.close();
             }
         });
     }
@@ -139,18 +140,22 @@ export namespace AzureDatabase {
      * Returns an array of JSON objects.
      * @param query 
      */
-    export function getDocuments(query): Promise<string> {
+    export function getUploadDocument(uploadID: number): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
-            let collection = await db.collection(collectionName);
-            //var query = { patientName: "Hana Hahhahah" };
-            await collection.find(query).toArray(function (err, result) {
-                //let message = result;
-                if (err) reject(Status.FAILED);
-                else resolve(result);
-                //console.log(result);
-                console.log("Number of found objects: " + result.length);
+            let connectionResult = await connectToDb();
+            console.log(connectionResult);
+            if (db != null) {
+                let query = {uploadID: uploadID};
+                console.log("find query", query);
+                let collection = await db.collection(collectionName);
+                await collection.find(query).toArray(function (err, result) {
+                    if (err) reject(Status.FAILED);
+                    else resolve(result[0]);
+                    console.log(result);
+                    console.log("Number of found objects: " + result.length);
+                });
                 db.close();
-            });
+            }
         });
     }
 
@@ -164,15 +169,14 @@ export namespace AzureDatabase {
             console.log(connectionResult);
             if (db != null) {
                 let collection = await db.collection(collectionName);
-                //var query = { patientName: "Hana Hahhahah" };
                 await collection.find({}).sort({ "uploadDate": -1 }).limit(1).toArray(function (err, result) {
-                    //let message = result;
                     if (err) reject(Status.FAILED);
-                    else resolve(result);
-                    console.log(result);
                     console.log("Number of found objects: " + result.length);
-                    db.close();
+                    resolve(result[0]);
+                    console.log(result);
                 });
+                
+                db.close();
             }
         });
     }
