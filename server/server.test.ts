@@ -2,10 +2,11 @@
 import * as express from 'express';
 import * as request from 'supertest';
 import * as azure from 'azure-storage';
+import * as fs from 'fs';
 
 import { AzureStorage } from './azure-service';
 import { routes } from './routes';
-import { StatusCode } from './constants';
+import { StatusCode, storagePath, imagePath } from './constants';
 
 // <Server> tests.
 describe('<Server>', () => {
@@ -109,6 +110,22 @@ describe('<Server>', () => {
                     .send({ something: 'invalid' })
                     .then((res: request.Response) => {
                         expect(res.status).toBe(StatusCode.BadRequest);
+                        done();
+                    });
+            });
+
+            it('/upload removes files after it has finished', (done) => {
+                return req.post('/api/upload')
+                    .type('form')
+                    .attach('data', 'HG_001_0.dcm')
+                    .then(async (res: request.Response) => {
+                        expect(res.status).toBe(StatusCode.OK);
+                        await fs.readdir(storagePath, (err, files) => {
+                            expect(files.length).toBe(0);
+                        });
+                        await fs.readdir(imagePath, (err, files) => {
+                            expect(files.length).toBe(0);
+                        });
                         done();
                     });
             });

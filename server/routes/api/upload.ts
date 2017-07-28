@@ -80,7 +80,7 @@ export class UploadController {
         // Cleanup.
         files.map((file) => {
             fs.unlink(file.path, () => { });
-            fs.unlink(imagePath + file.filename + ".png", () => { });
+            fs.unlink(imagePath + file.filename + ".png", () => {});
         });
 
         // Grab all ChainResponses and map them to UploadStatuses.
