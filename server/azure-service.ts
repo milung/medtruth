@@ -85,7 +85,9 @@ export namespace AzureDatabase {
     export interface Study {
         patientName: string,
         patientBirthday: number,
-        series: Series[]
+        series: Series[],
+        studyDescription: string,
+        studyID: string
     }
 
     export interface Series {
@@ -156,17 +158,22 @@ export namespace AzureDatabase {
      * Returns JSON object of the last upload document in MongoDB.
      */
     export function getLastUpload(): Promise<string> {
+        console.log("Last upload");
         return new Promise<string>(async (resolve, reject) => {
-            let collection = await db.collection(collectionName);
-            //var query = { patientName: "Hana Hahhahah" };
-            await collection.find({}).sort({"uploadDate":-1}).limit(1).toArray(function (err, result) {
-                //let message = result;
-                if (err) reject(Status.FAILED);
-                else resolve(result);
-                //console.log(result);
-                console.log("Number of found objects: " + result.length);
-                db.close();
-            });
+            let connectionResult = await connectToDb();
+            console.log(connectionResult);
+            if (db != null) {
+                let collection = await db.collection(collectionName);
+                //var query = { patientName: "Hana Hahhahah" };
+                await collection.find({}).sort({ "uploadDate": -1 }).limit(1).toArray(function (err, result) {
+                    //let message = result;
+                    if (err) reject(Status.FAILED);
+                    else resolve(result);
+                    console.log(result);
+                    console.log("Number of found objects: " + result.length);
+                    db.close();
+                });
+            }
         });
     }
 }

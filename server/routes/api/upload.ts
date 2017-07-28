@@ -124,10 +124,10 @@ routerUpload.post('/',
     converter,
     uploader,
     (req: any, res) => {
-        let statuses: UploadMessage[] = req.params.uploads.map((upload) => { 
+        let statuses: UploadMessage[] = req.params.uploads.map((upload) => {
             fs.unlink(upload.path, () => { });
             fs.unlink(imagePath + upload.filename + ".png", () => { });
-            return { name: upload.name, id: upload.id, err: upload.err } 
+            return { name: upload.name, id: upload.id, err: upload.err }
         });
         res.json(
             {
@@ -142,12 +142,14 @@ routerUpload.post('/',
     --------------------------------------------
     Returns details about upload's id.
 */
-routerUpload.get('/:id', (req, res) => {
+routerUpload.get('/:id', async (req, res) => {
     if (req.params.id == 12345) {
         let responseJSON = jsonCreator.getUploadJSON();
-        res.json(responseJSON); }
-    else if (req.params.id == 0) {
-        let responseJSON = AzureDatabase.getLastUpload();
+        console.log("test json", responseJSON);
+        res.json(responseJSON);
+    } else if (req.params.id == 222) {
+        let responseJSON = await AzureDatabase.getLastUpload();
+        console.log("azure json", responseJSON);
         res.json(responseJSON);
     } else {
         res.json({ status: "INVALID UPLOAD ID" });
@@ -205,7 +207,9 @@ routerUpload.post('/document', extendTimeout, storage.array('data'), async (req,
                 seriesDescription: "MOZOG",
                 images: ["image02", "image03"],
                 thumbnailImageID: "image02"
-            }]
+            }],
+            studyDescription: "This is study01 descripotion",
+            studyID: "studyID 01"
         }, {
             patientName: "Ice King",
             patientBirthday: new Date().getMilliseconds(),
@@ -214,7 +218,9 @@ routerUpload.post('/document', extendTimeout, storage.array('data'), async (req,
                 seriesDescription: "chrbatik",
                 images: ["image05"],
                 thumbnailImageID: "image05"
-            }]
+            }],
+            studyDescription: "This study is about somthing very important",
+            studyID: "studyID is 02"
         }]
     }
 

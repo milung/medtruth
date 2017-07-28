@@ -1,74 +1,35 @@
 
-/*
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { FileFormState } from '../fileform/FileFormReducer';
-import * as cornerstone from 'cornerstone-core';
+import imageStyle from '../styles/ComponentsStyle'
+import { ApiService } from "../api";
 
-
-// tslint:disable-next-line:no-string-literal
-global['$'] = require('jquery');
-
-var config = {
-    webWorkerPath: '/cornerstoneWADOImageLoaderWebWorker.js',
-    taskConfiguration: {
-        'decodeTask': {
-            codecsPath: '/cornerstoneWADOImageLoaderCodecs.js'
-        }
-    }
-};
-
-
-// tslint:disable-next-line:no-string-literal
-// cornerstoneWADOImageLoader.webWorkerManager.initialize(config);
-
-interface ConnectedProps {
-    imageID: string;
-    valid: boolean;
+interface ImageProps {
+    imageId: string;
+    imageName: string;
 }
 
-export class ImageViewComponent extends React.Component<ConnectedProps, {}> {
-    divElement: HTMLDivElement;
+export class ImageView extends React.Component<ImageProps, {}> {
 
-    loadAndViewImage() {
-        if (this.props.valid === false || this.props.imageID === '') {
-            this.divElement.hidden = true;
-            return;
-        }
-
-        this.divElement.hidden = false;
-
-        var element = this.divElement;
-
-        cornerstone.loadImage(this.props.imageID).then(function (image: {}) {
-            let viewport = cornerstone.getDefaultViewportForImage(element, image);
-            cornerstone.displayImage(element, image, viewport);
-        });
+    constructor(props: ImageProps){
+        super(props);
+        this.getUrl = this.getUrl.bind(this);
     }
 
-    componentDidUpdate() {
-        this.loadAndViewImage();
+    componentWillMount(){
+        this.getUrl();
     }
 
-    componentDidMount() {
-        cornerstone.enable(this.divElement);
+    async getUrl(): Promise<void> {
+        let resImage = await ApiService.getImage(this.props.imageName);
+        let img = document.getElementById(this.props.imageId) as HTMLImageElement;
+        img.src = resImage.url;
     }
-
+    
     render() {
-        return (
-            <div
-                ref={element => this.divElement = element}
-                style={{ width: 512, height: 512, top: 0, left: 0 }}
-            />
-        );
+        return <img id={this.props.imageId} style={imageStyle.img}/>;
     }
 }
 
 
-function mapStateToProps(state: FileFormState): ConnectedProps {
-    return { valid: state.file.valid, imageID: state.file.imageId };
-}
 
 
-export const ImageView = connect(mapStateToProps, null)(ImageViewComponent);
-*/

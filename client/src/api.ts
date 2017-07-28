@@ -39,7 +39,7 @@ export namespace ApiService {
             data: form,
             headers: { 'Content-Type': 'multipart/form-data' }
         });
-        return {...res.data};
+        return { ...res.data };
     }
 
     /*
@@ -62,7 +62,21 @@ export namespace ApiService {
             url: url,
             headers: {}
         });
-        return {...res.data};
+        return { ...res.data };
+    }
+
+    export async function getData(id: number) {
+        console.log("Get data");
+        const url = uriUpload + '/' + id;
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'GET',
+            url: url,
+            headers: {}
+        });
+
+        console.log("data data", res.data);
+        return { ...res.data };
     }
 
     /*  
