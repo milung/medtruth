@@ -84,14 +84,15 @@ export namespace AzureDatabase {
 
     export interface Study {
         patientName: string,
-        patientBirthday: Date,
+        patientBirthday: number,
         series: Series[]
     }
 
     export interface Series {
         seriesID: string,
         seriesDescription: string,
-        images: string[]                    // Array of blob references
+        images: string[],                    // Array of blob references
+        thumbnailImageID: string
     }
 
     let db = null;

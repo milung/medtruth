@@ -194,23 +194,26 @@ routerUpload.post('/document', extendTimeout, storage.array('data'), async (req,
         uploadDate: new Date(),
         studies: [{
             patientName: "Abracadabra",
-            patientBirthday: new Date(),
+            patientBirthday: new Date().getMilliseconds(),
             series: [{
                 seriesID: "04",
                 seriesDescription: "KOLENO",
-                images: ["image01", "image04", "image06"]
+                images: ["image01", "image04", "image06"],
+                thumbnailImageID: "image04"
             }, {
                 seriesID: "02",
                 seriesDescription: "MOZOG",
-                images: ["image02", "image03"]
+                images: ["image02", "image03"],
+                thumbnailImageID: "image02"
             }]
         }, {
             patientName: "Ice King",
-            patientBirthday: new Date(),
+            patientBirthday: new Date().getMilliseconds(),
             series: [{
                 seriesID: "10",
                 seriesDescription: "chrbatik",
-                images: ["image05"]
+                images: ["image05"],
+                thumbnailImageID: "image05"
             }]
         }]
     }
