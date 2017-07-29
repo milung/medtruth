@@ -14,9 +14,9 @@ export function filesReducer(
     switch (action.type) {
         case ActionTypeKeys.FILES_UPLOADED:
             return Object.assign(
-                {}, 
-                prevState, 
-                {lastUploadID: action.uploadID});
+                {},
+                prevState,
+                { lastUploadID: action.uploadID });
         default:
             return prevState;
     }

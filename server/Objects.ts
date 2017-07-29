@@ -14,7 +14,7 @@ export class JSONCreator {
         study1.patientBirthday = new Date(1234567890123).getTime();
 
         study2.studyID = "studyID is 02";
-        study2.studyDescription = "This study is about somthing very important";
+        study2.studyDescription = "This study is about something very important";
         study2.patientName = "Chudjak Kristián";
         study2.patientBirthday = new Date(1243567890123).getTime();
 

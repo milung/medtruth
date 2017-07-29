@@ -9,7 +9,7 @@ export default class App extends React.Component<{}, {}> {
         <div>
             <FolderForm />
             <h1>TEST TEST TEST</h1>
-            <PatientViewer />
+            <PatientViewer uploadID={-1}/>
         </div>
         );
     }

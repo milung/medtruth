@@ -83,6 +83,10 @@ export class UploadController {
             fs.unlink(imagePath + file.filename + ".png", () => {});
         });
 
+        
+        await AzureDatabase.insertDocument(json);
+
+
         // Grab all ChainResponses and map them to UploadStatuses.
         let statuses: UploadStatus[] = this.responses.map((upload) => {
             return { name: upload.name, id: upload.id, err: upload.err };
@@ -154,7 +158,7 @@ export class UploadController {
             }
             existingStudy.studyID = converter.getStudyInstanceUID();
             existingStudy.studyDescription = converter.getStudyDescription();
-            existingStudy.patientBirthday = converter.getPatientDateOfBirth();
+            existingStudy.patientBirthday = converter.getPatientDateOfBirth() === null ? -1 : converter.getPatientDateOfBirth().getTime();
             existingStudy.patientName = converter.getPatientName();
 
 
@@ -215,17 +219,16 @@ routerUpload.post('/', extendTimeout, storage.any(), async (req: express.Request
     Returns details about upload's id.
 */
 routerUpload.get('/:id', async (req, res) => {
-    if (req.params.id == 12345) {
-        let responseJSON = jsonCreator.getUploadJSON();
-        console.log("test json", responseJSON);
-        res.json(responseJSON);
-    } else if (req.params.id == 222) {
-        //let responseJSON = await AzureDatabase.getLastUpload();
-        let responseJSON = await AzureDatabase.getUploadDocument(1501233911290.0);
-        console.log("azure json", responseJSON);
-        res.json(responseJSON);
-    } else {
-        res.json({ status: "INVALID UPLOAD ID" });
+    let id = req.params.id;
+    if(id != undefined){
+        let responseJSON = await AzureDatabase.getUploadDocument(id);
+        if(responseJSON === undefined){
+            res.sendStatus(StatusCode.NotFound);
+        }else{
+            res.json(responseJSON);
+        }
+    }else{
+    res.sendStatus(StatusCode.BadRequest);
     }
 });
 

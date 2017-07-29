@@ -6,6 +6,7 @@ import { collectionName, StatusCode } from './constants';
 
 import { MongoClient } from 'mongodb';
 import { url } from './constants';
+import { UploadJSON } from "./Objects";
 
 export namespace AzureStorage {
     const accountName = 'medtruth';
@@ -117,8 +118,8 @@ export namespace AzureDatabase {
      * Creates new document in the MongoDB database.
      * @param object 
      */
-    /*
-    export function insertDocument(object: Upload): Promise<Status> {
+    
+    export function insertDocument(object: UploadJSON): Promise<Status> {
         return new Promise<Status>(async (resolve, reject) => {
             let connectionResult = await connectToDb();
             console.log(connectionResult);
@@ -145,13 +146,12 @@ export namespace AzureDatabase {
             let connectionResult = await connectToDb();
             console.log(connectionResult);
             if (db != null) {
-                let query = {uploadID: uploadID};
+                let query = {uploadID: Number(uploadID)};
                 console.log("find query", query);
                 let collection = await db.collection(collectionName);
                 await collection.find(query).toArray(function (err, result) {
                     if (err) reject(Status.FAILED);
                     else resolve(result[0]);
-                    console.log(result);
                     console.log("Number of found objects: " + result.length);
                 });
                 db.close();
@@ -173,7 +173,6 @@ export namespace AzureDatabase {
                     if (err) reject(Status.FAILED);
                     console.log("Number of found objects: " + result.length);
                     resolve(result[0]);
-                    console.log(result);
                 });
                 
                 db.close();

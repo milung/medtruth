@@ -22,7 +22,7 @@ export class ImageView extends React.Component<ImageProps, {}> {
     async getUrl(): Promise<void> {
         let resImage = await ApiService.getImage(this.props.imageName);
         let img = document.getElementById(this.props.imageId) as HTMLImageElement;
-        img.src = resImage.url;
+        img.src = resImage === null ? "" : resImage.url;
     }
     
     render() {

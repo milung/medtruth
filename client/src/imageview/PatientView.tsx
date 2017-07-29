@@ -20,6 +20,7 @@ export class PatientView extends React.Component<PatientProps, {}> {
     }
 
     private convertDate(milisecond: number): string {
+        if(milisecond == -1) return "Date not specified."
         var d = new Date(milisecond);
         var datestring = ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" +
             d.getFullYear();
