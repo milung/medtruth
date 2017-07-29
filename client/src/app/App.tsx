@@ -8,7 +8,6 @@ export default class App extends React.Component<{}, {}> {
         return (
         <div>
             <FolderForm />
-            <h1>TEST TEST TEST</h1>
             <PatientViewer uploadID={-1}/>
         </div>
         );
