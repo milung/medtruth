@@ -27,9 +27,11 @@ export class DaikonConverter {
     getSeriesUID(): string {
         return this.nullCheck(this.dataView.getSeriesInstanceUID());
     }
+
     getImageNumber(): string {
         return this.nullCheck(this.dataView.getImageNumber());
     }
+
     getPatientName(): string {
         return this.nullCheck(this.dataView.getPatientName());
     }
@@ -76,8 +78,8 @@ export class DaikonConverter {
 
     private getVal(val) {
         var value = daikon.Image.getSingleValueSafely(
-            this.dataView.getTag(val[0], val[1]),
-            0);
+            this.dataView.getTag(val[0], val[1]), 0
+        );
         return value;
     }
 
