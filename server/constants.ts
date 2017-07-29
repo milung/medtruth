@@ -1,13 +1,7 @@
 
-<<<<<<< HEAD
 // Storage path to where are the incoming files stored.
 export const storagePath = "out/uploads/";
 export const imagePath = "out/images/";
-=======
-// Storage path to where the incoming files are stored.
-export const storagePath = "uploads/";
-export const imagePath = "images/";
->>>>>>> 3f9417df51a544080c18dacafc41b8e4d5d9123e
 
 // Path to MongoDB.
 export const dbName = "/myproject";
