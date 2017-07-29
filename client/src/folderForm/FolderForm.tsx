@@ -1,13 +1,14 @@
 
 import * as React from 'react';
 import * as Redux from 'redux';
+import { connect } from 'react-redux';
+
 import { FileUtils } from '../fileform/FileUtils';
 import { validFileExtensions } from '../constants';
 import { ApiService } from '../api';
 import { FilesInputComponent } from '../fileInput/FilesInput';
 import { ButtonComponent } from '../button/Button';
 import { OneLineInformationComponent } from '../oneLineInformation/OneLineInformation';
-import { connect } from 'react-redux';
 import { FilesUploadedAction, filesUploaded } from '../actions/actions';
 
 interface OwnState {

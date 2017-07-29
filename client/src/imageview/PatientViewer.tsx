@@ -1,17 +1,17 @@
 import * as React from 'react';
-import { PatientProps } from "./PatientView";
 import Grid from 'material-ui/Grid';
+
+import { PatientProps } from './PatientView';
 import seriesStyle from '../styles/ComponentsStyle';
-import { PatientView } from "./PatientView";
-import { ApiService } from "../api";
+import { PatientView } from './PatientView';
+import { ApiService } from '../api';
 
 interface ArrayOfPatients {
-    wait: boolean
-    patientList: PatientProps[]
+    wait: boolean;
+    patientList: PatientProps[];
 }
 
 export class PatientViewer extends React.Component<{}, ArrayOfPatients> {
-
     tempPatint: PatientProps = null;
 
     constructor() {
@@ -19,7 +19,7 @@ export class PatientViewer extends React.Component<{}, ArrayOfPatients> {
         this.state = {
             wait: false,
             patientList: []
-        }
+        };
     }
 
     componentWillMount() {
@@ -32,19 +32,19 @@ export class PatientViewer extends React.Component<{}, ArrayOfPatients> {
 
         this.setState({ wait: true });
         let resData = await ApiService.getData(12345);
-        console.log("got data", resData);
+        console.log('got data', resData);
 
         for (let patient of resData.studies) {
             let tempSeries = [];
 
-            for(let tmpSerie of patient.series){
+            for (let tmpSerie of patient.series) {
                 let serie = {
                     seriesID: tmpSerie.seriesID,
                     seriesDescription: tmpSerie.seriesDescription,
                     src: tmpSerie.thumbnailImageID,
                     imageId: imageId
-                }
-                tempSeries.push(serie)
+                };
+                tempSeries.push(serie);
                 imageId++;
             }
             this.tempPatint = {
@@ -53,7 +53,7 @@ export class PatientViewer extends React.Component<{}, ArrayOfPatients> {
                 dateOfBirth: patient.patientBirthday,
                 studyDescription: patient.studyDescription,                
                 series: tempSeries
-            }
+            };
             this.state.patientList.push(this.tempPatint);
             console.log(this.state.patientList);
             patId++;
@@ -66,7 +66,7 @@ export class PatientViewer extends React.Component<{}, ArrayOfPatients> {
             return (
                 <div>
 
-                    <Grid container gutter={16}>
+                    <Grid container={true} gutter={16}>
                         {this.state.patientList.map(value =>
                             <Grid item xs={12} sm={12} md={12} style={seriesStyle.seriesStyle} key={value.patientId}>
                                 <PatientView {...value} />
