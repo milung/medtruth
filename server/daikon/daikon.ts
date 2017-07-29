@@ -72,7 +72,7 @@ export class DaikonConverter {
         return this.nullCheck(this.getVal(this.TAG_PHYSICIANS_NAME));
     }
 
-    getPatientDateOfBirth(): number {
+    getPatientDateOfBirth(): Date {
         return this.nullCheck(this.getVal(this.TAG_PATIENT_DATE_OF_BIRTH));
     }
 

@@ -23,6 +23,9 @@ export namespace ApiService {
     }
 
     interface UploadResponse {
+        error: boolean;
+        errorMessage: string;
+        upload_id: number;
         statuses: UploadStatus[];
     }
 
@@ -33,13 +36,18 @@ export namespace ApiService {
             form.append('data', new Blob([d], { type: 'application/octet-stream' }));
         });
 
-        let res: axios.AxiosResponse = await axios.default({
-            method: 'POST',
-            url: url,
-            data: form,
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        return { ...res.data };
+        let res: axios.AxiosResponse;
+        try {
+            res = await axios.default({
+                method: 'POST',
+                url: url,
+                data: form,
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            return { ...res.data, error: false };
+        } catch (e) {
+            return { upload_id: 0, statuses: null, error: true, errorMessage: 'Network Error :)' };
+        }
     }
 
     /*

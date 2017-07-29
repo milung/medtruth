@@ -85,8 +85,8 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
         this.setState({ uploadingFiles: true });
         let resUpload = await ApiService.upload(...this.filesData);
         // After that, fetch an image.
-        if (resUpload.statuses[0].err === null) {
-            this.props.filesUploaded(122333);
+        if (resUpload.error === false) {
+            this.props.filesUploaded(resUpload.upload_id);
             this.setState({
                 uploadingFiles: false,
                 filesUploaded: true,
@@ -98,7 +98,7 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
             this.setState({
                 uploadingFiles: false,
                 filesUploaded: false,
-                folderFormError: 'Error (' + resUpload.statuses[0].err + ') when uploading files to server.'
+                folderFormError: 'Error (' + resUpload.errorMessage + ') when uploading files to server.'
             });
         }
     }

@@ -40,6 +40,7 @@
     "react-redux": "^5.0.5",
     "react-scripts-ts": "2.4.0",
     "redux": "^3.7.2",
+    "reselect": "^3.0.1",
     "sinon": "^2.3.8",
     "ts-jest": "^20.0.7",
     "uglify-js": "^2.8.1"
