@@ -3,6 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "description": "Web application for analyzing med pictures.",
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(tsx?|jsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "json",
+      "jsx"
+    ]
+  },
   "dependencies": {
     "@types/jest": "^20.0.2",
     "@types/node": "^8.0.12",
@@ -19,6 +32,7 @@
     "jest": "^20.0.4",
     "lint-staged": "^4.0.1",
     "lodash": "^4.17.4",
+    "material-ui": "next",
     "nodemon": "^1.11.0",
     "prettier": "^1.5.2",
     "react": "^15.6.1",
@@ -26,7 +40,9 @@
     "react-redux": "^5.0.5",
     "react-scripts-ts": "2.4.0",
     "redux": "^3.7.2",
+    "reselect": "^3.0.1",
     "sinon": "^2.3.8",
+    "ts-jest": "^20.0.7",
     "uglify-js": "^2.8.1"
   },
   "devDependencies": {
@@ -40,8 +56,8 @@
   },
   "scripts": {
     "start": "react-scripts-ts start",
-    "build": "react-scripts-ts build",
-    "test": "react-scripts-ts test --env=jsdom",
+    "build": "react-scripts-ts build && robocopy build/ ../server/public /MIR",
+    "test": "jest",
     "eject": "react-scripts-ts eject"
   }
 }

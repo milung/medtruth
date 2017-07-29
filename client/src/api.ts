@@ -2,7 +2,7 @@
 import * as axios from 'axios';
 
 export namespace ApiService {
-    const apiEndpoint = 'http://medtruth.azurewebsites.net/api';
+    const apiEndpoint = 'http://localhost:8080/api';
     const uriUpload = apiEndpoint + '/upload';
     const uriImages = apiEndpoint + '/images';
 
@@ -21,7 +21,11 @@ export namespace ApiService {
         id: string;
         err: string;
     }
+
     interface UploadResponse {
+        error: boolean;
+        errorMessage: string;
+        upload_id: number;
         statuses: UploadStatus[];
     }
 
@@ -32,13 +36,18 @@ export namespace ApiService {
             form.append('data', new Blob([d], { type: 'application/octet-stream' }));
         });
 
-        let res: axios.AxiosResponse = await axios.default({
-            method: 'POST',
-            url: url,
-            data: form,
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        return {...res.data};
+        let res: axios.AxiosResponse;
+        try {
+            res = await axios.default({
+                method: 'POST',
+                url: url,
+                data: form,
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            return { ...res.data, error: false };
+        } catch (e) {
+            return { upload_id: 0, statuses: null, error: true, errorMessage: 'Network Error :)' };
+        }
     }
 
     /*
@@ -61,7 +70,21 @@ export namespace ApiService {
             url: url,
             headers: {}
         });
-        return {...res.data};
+        return { ...res.data };
+    }
+
+    export async function getData(id: number) {
+        console.log("Get data");
+        const url = uriUpload + '/' + id;
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'GET',
+            url: url,
+            headers: {}
+        });
+
+        console.log("data data", res.data);
+        return { ...res.data };
     }
 
     /*  

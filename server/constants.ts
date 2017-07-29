@@ -1,7 +1,22 @@
 
+<<<<<<< HEAD
 // Storage path to where are the incoming files stored.
 export const storagePath = "out/uploads/";
 export const imagePath = "out/images/";
+=======
+// Storage path to where the incoming files are stored.
+export const storagePath = "uploads/";
+export const imagePath = "images/";
+>>>>>>> 3f9417df51a544080c18dacafc41b8e4d5d9123e
+
+// Path to MongoDB.
+export const dbName = "/myproject";
+export const dbAddress = "localhost:27017";
+//export const url = "mongodb://" + dbAddress + dbName;
+export const url = "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true";
+
+// Name of the collection in database
+export const collectionName = "images";        
 
 // HTTP status codes.
 export namespace StatusCode {

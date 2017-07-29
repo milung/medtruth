@@ -2,10 +2,11 @@
 import * as express from 'express';
 import * as request from 'supertest';
 import * as azure from 'azure-storage';
+import * as fs from 'fs';
 
 import { AzureStorage } from './azure-service';
 import { routes } from './routes';
-import { StatusCode } from './constants';
+import { StatusCode, storagePath, imagePath } from './constants';
 
 // <Server> tests.
 describe('<Server>', () => {
@@ -104,16 +105,6 @@ describe('<Server>', () => {
                     });
             });
 
-            it('/upload sends an InternalServerError if form doesn\'t contain key \'data\'', (done) => {
-                return req.post('/api/upload')
-                    .type('form')
-                    .attach('invalid', 'HG_001_0.dcm')
-                    .then((res: request.Response) => {
-                        expect(res.status).toBe(StatusCode.InternalServerError);
-                        done();
-                    });
-            });
-
             it('/upload sends a BadRequest if an invalid request has been made', (done) => {
                 return req.post('/api/upload')
                     .send({ something: 'invalid' })
@@ -122,19 +113,38 @@ describe('<Server>', () => {
                         done();
                     });
             });
-        });
-    });
 
-    // <Images> tests.
-    describe('<Images>', () => {
-        it('/images        responds to OPTIONS', () => {
-            return req.options('/api/images')
-                .expect(StatusCode.OK);
+            it('/upload removes files after it has finished', (done) => {
+                return req.post('/api/upload')
+                    .type('form')
+                    .attach('data', 'HG_001_0.dcm')
+                    .then(async (res: request.Response) => {
+                        expect(res.status).toBe(StatusCode.OK);
+                        // We expect that both storagePath and imagePath contain .keep file.
+                        await fs.readdir(storagePath, (err, files) => {
+                            expect(files.length).toBe(1);
+                            expect(files).toContainEqual('.keep');
+                        });
+                        await fs.readdir(imagePath, (err, files) => {
+                            expect(files.length).toBe(1);
+                            expect(files).toContainEqual('.keep');
+                        });
+                        done();
+                    });
+            });
         });
 
-        it('/images/:id    NotFound status with invalid id', () => {
-            return req.get('/api/images/34298148941')
-                .expect(StatusCode.NotFound);
-        })
+        // <Images> tests.
+        describe('<Images>', () => {
+            it('/images        responds to OPTIONS', () => {
+                return req.options('/api/images')
+                    .expect(StatusCode.OK);
+            });
+
+            it('/images/:id    NotFound status with invalid id', () => {
+                return req.get('/api/images/34298148941')
+                    .expect(StatusCode.NotFound);
+            })
+        });
     });
 });
