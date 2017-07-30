@@ -5,7 +5,7 @@ export interface FilesState {
 }
 
 const initialState: FilesState = {
-    lastUploadID: 0
+    lastUploadID: -1
 };
 
 export function filesReducer(

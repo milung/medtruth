@@ -13,13 +13,11 @@ interface ArrayOfPatients {
     patientList: PatientProps[];
 }
 
-interface OwnProps {
+interface ConnectedState {
     uploadID: number;
 }
 
-class PatientViewerComponent extends React.Component<OwnProps, ArrayOfPatients> {
-
-    tempPatint: PatientProps = null;
+class PatientViewerComponent extends React.Component<ConnectedState, ArrayOfPatients> {
 
     constructor() {
         super();
@@ -33,6 +31,10 @@ class PatientViewerComponent extends React.Component<OwnProps, ArrayOfPatients> 
         if (nextProps.uploadID !== this.props.uploadID) {
             this.receiveData(nextProps.uploadID);
         }
+    }
+
+    componentDidMount() {
+        this.receiveData(this.props.uploadID);
     }
 
     async receiveData(uploadID): Promise<void> {
@@ -58,14 +60,14 @@ class PatientViewerComponent extends React.Component<OwnProps, ArrayOfPatients> 
                 tempSeries.push(serie);
                 imageId++;
             }
-            this.tempPatint = {
+            let tempPatint: PatientProps = {
                 patientId: patId,
                 patientName: patient.patientName,
                 dateOfBirth: patient.patientBirthday,
                 studyDescription: patient.studyDescription,
                 series: tempSeries
             }
-            patients.push(this.tempPatint);
+            patients.push(tempPatint);
             patId++;
         }
         this.setState(Object.assign({}, { wait: false, patientList: patients }));
@@ -89,9 +91,9 @@ class PatientViewerComponent extends React.Component<OwnProps, ArrayOfPatients> 
             return <div />;
         }
     }
-};
+}
 
-function mapStateToProps(state: State, props: OwnProps): OwnProps {    
+function mapStateToProps(state: State): ConnectedState {    
     console.log('uploadid: ' + state.files.lastUploadID);
     
     return { uploadID: state.files.lastUploadID };

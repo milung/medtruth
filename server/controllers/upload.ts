@@ -4,6 +4,7 @@ import * as fs from 'fs';
 
 import { Converter } from '../converter';
 import { AzureStorage } from '../azure-service';
+import { AzureDatabase } from '../azure-service';
 import * as objects from '../Objects';
 import { DaikonConverter } from '../daikon/daikon';
 import { StatusCode, storagePath, imagePath } from '../constants'; 
@@ -41,6 +42,8 @@ export class UploadController {
         await this.convert(files);
         await this.upload();
         let json = this.parse();
+
+        await AzureDatabase.insertDocument(json);
 
         // Cleanup.
         files.forEach((file) => {
@@ -119,7 +122,7 @@ export class UploadController {
             }
             existingStudy.studyID = converter.getStudyInstanceUID();
             existingStudy.studyDescription = converter.getStudyDescription();
-            existingStudy.patientBirthday = converter.getPatientDateOfBirth();
+            existingStudy.patientBirthday = -1;
             existingStudy.patientName = converter.getPatientName();
 
 
