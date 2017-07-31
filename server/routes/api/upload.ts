@@ -88,11 +88,11 @@ routerUpload.get('/:id', async (req, res) => {
         } else {
             res.json(responseJSON);
         }
-    }else{
+    } else {
         let responseJSON = await AzureDatabase.getLastUpload();
         if(responseJSON === undefined){
             res.sendStatus(StatusCode.NotFound);
-        }else{
+        } else {
             res.json(responseJSON);
         }
     }

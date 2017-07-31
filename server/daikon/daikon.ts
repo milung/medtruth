@@ -12,12 +12,10 @@ export class DaikonConverter {
     TAG_STUDY_ID = [0x0020, 0x0010];
     TAG_SERIES_DATE = [0x0008, 0x0021];
 
-
     constructor(filePath: string) {
         let buffer: Buffer = fs.readFileSync(filePath);
         this.dataView = daikon.Series.parseImage(new DataView((buffer.buffer)));
     }
-
 
     nullCheck(data: any) {
         if (data === null || data === undefined) return null;
@@ -82,5 +80,4 @@ export class DaikonConverter {
         );
         return value;
     }
-
 }

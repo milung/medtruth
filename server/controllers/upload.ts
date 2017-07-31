@@ -33,7 +33,7 @@ export class UploadController {
     Root = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
         let files = req.files as Express.Multer.File[];
 
-        // If none or zero files were sent, respond with a BadRequest.
+        // If none or zero files were sent, send a null response.
         if (files === undefined) { next(); return null; }
         if (files.length === 0) { next(); return null; }
 
@@ -41,7 +41,6 @@ export class UploadController {
         await this.convert(files);
         await this.upload();
         let json = this.parse();
-
         await AzureDatabase.insertDocument(json);
 
         // Cleanup.

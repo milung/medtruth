@@ -17,6 +17,7 @@ interface ConnectedDispatch {
     change: (valid: boolean, imageID: string) => FileFormAction;
 }
 
+
 export class FileFormComponent extends React.Component<ConnectedDispatch, OwnState> {
     constructor() {
         super();
