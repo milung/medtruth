@@ -18,14 +18,12 @@ export class JSONCreator {
         study2.patientName = "Chudjak Kristián";
         study2.patientBirthday = new Date(1243567890123).getTime();
 
-
         let series01 = new SeriesJSON();
         let series02 = new SeriesJSON();
         let series03 = new SeriesJSON();
         let series04 = new SeriesJSON();
         let series05 = new SeriesJSON();
         let series06 = new SeriesJSON();
-
 
         this.setSeries(series01, "SeriesID01",
             "seriesDescription: Head scan or something.",
@@ -51,7 +49,6 @@ export class JSONCreator {
             "seriesDescription This is a scan of another scan. SCANCEPTION !",
             "image06");
 
-
         study1.series.push(series01);
         study1.series.push(series02);
         study1.series.push(series03);
@@ -61,7 +58,6 @@ export class JSONCreator {
 
         uploadJSON.studies.push(study1);
         uploadJSON.studies.push(study2);
-        
 
         return (uploadJSON);
     }
