@@ -75,15 +75,15 @@ routerUpload.post('/',
 */
 routerUpload.get('/:id', async (req, res) => {
     let id = req.params.id;
-    if(id != undefined){
+    if (id != undefined){
         let responseJSON = await AzureDatabase.getUploadDocument(id);
-        if(responseJSON === undefined){
+        if (responseJSON === undefined) {
             res.sendStatus(StatusCode.NotFound);
-        }else{
+        } else {
             res.json(responseJSON);
         }
-    }else{
-    res.sendStatus(StatusCode.BadRequest);
+    } else {
+        res.sendStatus(StatusCode.BadRequest);
     }
 });
 

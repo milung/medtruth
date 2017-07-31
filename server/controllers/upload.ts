@@ -3,7 +3,7 @@ import * as express from 'express';
 import * as fs from 'fs';
 
 import { Converter } from '../converter';
-import { AzureStorage } from '../azure-service';
+import { AzureStorage, AzureDatabase } from '../azure-service';
 import * as objects from '../Objects';
 import { DaikonConverter } from '../daikon/daikon';
 import { StatusCode, storagePath, imagePath } from '../constants'; 
@@ -42,6 +42,8 @@ export class UploadController {
         await this.upload();
         let json = this.parse();
 
+        await AzureDatabase.insertDocument(json);
+
         // Cleanup.
         files.forEach((file) => {
             fs.unlink(file.path, () => { });
@@ -61,7 +63,12 @@ export class UploadController {
         // Upload all the files from the request to the AzureStorage.
         const conversion = files.map(async (file) => {
             try {
-                var response: ChainStatus = { name: file.originalname, id: null, err: null, filename: file.filename };
+                var response: ChainStatus = { 
+                    name: file.originalname, 
+                    id: null, 
+                    err: null, 
+                    filename: file.filename 
+                };
                 await Converter.toPng(file.filename);
             } catch (e) {
                 // If anything happened during conversion, assign an error to the response.
