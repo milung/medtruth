@@ -74,16 +74,27 @@ routerUpload.post('/',
     Returns details about upload's id.
 */
 routerUpload.get('/:id', async (req, res) => {
-    let id = req.params.id;
-    if (id != undefined){
+    let id = Number.parseInt(req.params.id);
+
+    if (id === undefined) {
+        res.sendStatus(StatusCode.BadRequest);
+        return;
+    }
+
+    if (id != -1) {
         let responseJSON = await AzureDatabase.getUploadDocument(id);
         if (responseJSON === undefined) {
             res.sendStatus(StatusCode.NotFound);
         } else {
             res.json(responseJSON);
         }
-    } else {
-        res.sendStatus(StatusCode.BadRequest);
+    }else{
+        let responseJSON = await AzureDatabase.getLastUpload();
+        if(responseJSON === undefined){
+            res.sendStatus(StatusCode.NotFound);
+        }else{
+            res.json(responseJSON);
+        }
     }
 });
 

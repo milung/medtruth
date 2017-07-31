@@ -126,7 +126,7 @@ export class UploadController {
             }
             existingStudy.studyID = converter.getStudyInstanceUID();
             existingStudy.studyDescription = converter.getStudyDescription();
-            existingStudy.patientBirthday = converter.getPatientDateOfBirth();
+            existingStudy.patientBirthday = -1;
             existingStudy.patientName = converter.getPatientName();
 
 
