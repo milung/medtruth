@@ -1,7 +1,8 @@
 
 import * as React from 'react';
-import imageStyle from '../styles/ComponentsStyle'
-import { ApiService } from "../api";
+import imageStyle from '../styles/ComponentsStyle';
+
+import { ApiService } from '../api';
 
 interface ImageProps {
     imageId: string;
@@ -9,13 +10,12 @@ interface ImageProps {
 }
 
 export class ImageView extends React.Component<ImageProps, {}> {
-
-    constructor(props: ImageProps){
+    constructor(props: ImageProps) {
         super(props);
         this.getUrl = this.getUrl.bind(this);
     }
 
-    componentWillMount(){
+    componentWillMount() {
         this.getUrl();
     }
 
@@ -29,7 +29,3 @@ export class ImageView extends React.Component<ImageProps, {}> {
         return <img id={this.props.imageId} style={imageStyle.img}/>;
     }
 }
-
-
-
-

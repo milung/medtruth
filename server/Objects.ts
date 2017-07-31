@@ -9,7 +9,7 @@ export class JSONCreator {
         let study2 = new StudyJSON();
 
         study1.studyID = "studyID 01";
-        study1.studyDescription = "This is study01 descripotion";
+        study1.studyDescription = "This is study01 description";
         study1.patientName = "Hlavatý Tomas";
         study1.patientBirthday = new Date(1234567890123).getTime();
 
@@ -18,14 +18,12 @@ export class JSONCreator {
         study2.patientName = "Chudjak Kristián";
         study2.patientBirthday = new Date(1243567890123).getTime();
 
-
         let series01 = new SeriesJSON();
         let series02 = new SeriesJSON();
         let series03 = new SeriesJSON();
         let series04 = new SeriesJSON();
         let series05 = new SeriesJSON();
         let series06 = new SeriesJSON();
-
 
         this.setSeries(series01, "SeriesID01",
             "seriesDescription: Head scan or something.",
@@ -40,17 +38,16 @@ export class JSONCreator {
             "image01");
 
         this.setSeries(series04, "SeriesID04",
-            "seriesDescription: Who are we? Why our we here? What is our purpose?",
+            "seriesDescription: Who are we? Why are we here? What is our purpose?",
             "image02");
 
         this.setSeries(series05, "SeriesID05",
-            "seriesDescription: This is supose to be a description, but im too lazy to write a proper one.",
+            "seriesDescription: This is supposed to be a description, but im too lazy to write a proper one.",
             "image05");
 
         this.setSeries(series06, "SeriesID06",
             "seriesDescription This is a scan of another scan. SCANCEPTION !",
             "image06");
-
 
         study1.series.push(series01);
         study1.series.push(series02);
@@ -61,7 +58,6 @@ export class JSONCreator {
 
         uploadJSON.studies.push(study1);
         uploadJSON.studies.push(study2);
-        
 
         return (uploadJSON);
     }

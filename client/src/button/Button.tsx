@@ -9,11 +9,8 @@ interface ButtonProps {
 export class ButtonComponent extends React.Component<ButtonProps, {}> {
     render() {
         return (
-            <button
-                    onClick={this.props.onClick}
-                    disabled={!this.props.active}
-            >
-            {this.props.text}
+            <button onClick={this.props.onClick} disabled={!this.props.active}>
+                {this.props.text}
             </button>
         );
     }

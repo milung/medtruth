@@ -5,7 +5,6 @@ import { collectionName, StatusCode } from './constants';
 //import { db } from './server';
 
 import { MongoClient } from 'mongodb';
-import { url } from './constants';
 import { UploadJSON } from "./Objects";
 
 export namespace AzureStorage {
@@ -61,8 +60,12 @@ export namespace AzureStorage {
     }
 }
 export namespace AzureDatabase {
-    // const accountKey = 'a6GUPQQs8Cpg70cbHT4m2xy1LRseQsuMKofjRI0RU9iSZZW5vT7HQDDUVuibdwlXw9pJIrJ53TDqy32h5r0BAw==';
-    
+    export const localAddress = "localhost:27017";
+    export const localName = "/myproject";
+    // export const url = "mongodb://" + localAddress + localName;
+    export const url = "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true";
+
+
     export enum Status {
         SUCCESFUL,
         FAILED

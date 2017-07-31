@@ -50,10 +50,6 @@ describe('<Server>', () => {
                     .expect(StatusCode.OK);
             });
 
-            it('/upload sends a BadRequest if no files are specified', () => {
-                return req.post('/api/upload')
-                    .expect(StatusCode.BadRequest);
-            });
 
             it('/upload sends a Conversion Error if invalid file', (done) => {
                 return req.post('/api/upload')
@@ -101,15 +97,6 @@ describe('<Server>', () => {
                         expect(res.body.statuses[0].err).toBeNull();
                         expect(res.body.statuses[1].err).toBe("Conversion Error");
                         expect(res.body.statuses[2].err).toBeNull();
-                        done();
-                    });
-            });
-
-            it('/upload sends a BadRequest if an invalid request has been made', (done) => {
-                return req.post('/api/upload')
-                    .send({ something: 'invalid' })
-                    .then((res: request.Response) => {
-                        expect(res.status).toBe(StatusCode.BadRequest);
                         done();
                     });
             });

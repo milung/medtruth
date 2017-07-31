@@ -1,39 +1,41 @@
 import * as React from 'react';
-import { PatientProps } from "./PatientView";
 import Grid from 'material-ui/Grid';
+
+import { PatientProps } from './PatientView';
 import seriesStyle from '../styles/ComponentsStyle';
-import { PatientView } from "./PatientView";
-import { ApiService } from "../api";
-import { connect } from "react-redux";
-import { State } from "../app/store";
+import { PatientView } from './PatientView';
+import { ApiService } from '../api';
+import { connect } from 'react-redux';
+import { State } from '../app/store';
 
 interface ArrayOfPatients {
-    wait: boolean
-    patientList: PatientProps[]
+    wait: boolean;
+    patientList: PatientProps[];
 }
 
-interface OwnProps {
-    uploadID: number
+interface ConnectedState {
+    uploadID: number;
 }
 
-class PatientViewerComponent extends React.Component<OwnProps, ArrayOfPatients> {
-
-    tempPatint: PatientProps = null;
+class PatientViewerComponent extends React.Component<ConnectedState, ArrayOfPatients> {
 
     constructor() {
         super();
         this.state = {
             wait: false,
             patientList: []
+        };
+    }
+
+    componentWillUpdate(nextProps, nextState) {
+        if (nextProps.uploadID !== this.props.uploadID) {
+            this.receiveData(nextProps.uploadID);
         }
     }
 
-    componentWillUpdate(nextProps, nextState){
-    if (nextProps.uploadID !== this.props.uploadID) {
-        this.receiveData(nextProps.uploadID);
+    componentDidMount() {
+        this.receiveData(this.props.uploadID);
     }
-}
-
 
     async receiveData(uploadID): Promise<void> {
         let patId = 10;
@@ -42,7 +44,7 @@ class PatientViewerComponent extends React.Component<OwnProps, ArrayOfPatients> 
         this.setState({ wait: true });
 
         let resData = await ApiService.getData(uploadID);
-        console.log("got data", resData);
+        console.log('got data', resData);
         let patients = [];
 
         for (let patient of resData.studies) {
@@ -54,21 +56,21 @@ class PatientViewerComponent extends React.Component<OwnProps, ArrayOfPatients> 
                     seriesDescription: tmpSerie.seriesDescription,
                     src: tmpSerie.thumbnailImageID,
                     imageId: imageId
-                }
-                tempSeries.push(serie)
+                };
+                tempSeries.push(serie);
                 imageId++;
             }
-            this.tempPatint = {
+            let tempPatint: PatientProps = {
                 patientId: patId,
                 patientName: patient.patientName,
                 dateOfBirth: patient.patientBirthday,
                 studyDescription: patient.studyDescription,
                 series: tempSeries
             }
-            patients.push(this.tempPatint);
+            patients.push(tempPatint);
             patId++;
         }
-        this.setState(Object.assign({},{ wait: false, patientList: patients }));
+        this.setState(Object.assign({}, { wait: false, patientList: patients }));
     }
 
     render() {
@@ -76,7 +78,7 @@ class PatientViewerComponent extends React.Component<OwnProps, ArrayOfPatients> 
             return (
                 <div>
 
-                    <Grid container gutter={16}>
+                    <Grid container={true} gutter={16}>
                         {this.state.patientList.map(value =>
                             <Grid item xs={12} sm={12} md={12} style={seriesStyle.seriesStyle} key={value.patientId}>
                                 <PatientView {...value} />
@@ -89,10 +91,10 @@ class PatientViewerComponent extends React.Component<OwnProps, ArrayOfPatients> 
             return <div />;
         }
     }
-};
+}
 
-function mapStateToProps(state: State, props: OwnProps): OwnProps {    
-    console.log("uploadid: "+state.files.lastUploadID);
+function mapStateToProps(state: State): ConnectedState {    
+    console.log('uploadid: ' + state.files.lastUploadID);
     
     return { uploadID: state.files.lastUploadID };
 }

@@ -12,12 +12,10 @@ export class DaikonConverter {
     TAG_STUDY_ID = [0x0020, 0x0010];
     TAG_SERIES_DATE = [0x0008, 0x0021];
 
-
     constructor(filePath: string) {
         let buffer: Buffer = fs.readFileSync(filePath);
         this.dataView = daikon.Series.parseImage(new DataView((buffer.buffer)));
     }
-
 
     nullCheck(data: any) {
         if (data === null || data === undefined) return null;
@@ -27,9 +25,11 @@ export class DaikonConverter {
     getSeriesUID(): string {
         return this.nullCheck(this.dataView.getSeriesInstanceUID());
     }
+
     getImageNumber(): string {
         return this.nullCheck(this.dataView.getImageNumber());
     }
+
     getPatientName(): string {
         return this.nullCheck(this.dataView.getPatientName());
     }
@@ -70,15 +70,14 @@ export class DaikonConverter {
         return this.nullCheck(this.getVal(this.TAG_PHYSICIANS_NAME));
     }
 
-    getPatientDateOfBirth(): Date {
+    getPatientDateOfBirth(): number {
         return this.nullCheck(this.getVal(this.TAG_PATIENT_DATE_OF_BIRTH));
     }
 
     private getVal(val) {
         var value = daikon.Image.getSingleValueSafely(
-            this.dataView.getTag(val[0], val[1]),
-            0);
+            this.dataView.getTag(val[0], val[1]), 0
+        );
         return value;
     }
-
 }

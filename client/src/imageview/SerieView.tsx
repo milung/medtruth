@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { ImageView } from "./ImageView";
 import Card, { CardContent, CardMedia } from 'material-ui/Card';
 import Typography from 'material-ui/Typography';
+
+import { ImageView } from './ImageView';
 
 export interface SeriesProps {
     seriesID: string;
@@ -11,10 +12,10 @@ export interface SeriesProps {
 }
 
 export class SerieView extends React.Component<SeriesProps, {}> {
-
     constructor(props: SeriesProps) {
         super(props);
     }
+
     render() {
         return (
             <div>
