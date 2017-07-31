@@ -6,8 +6,8 @@ export const imagePath = "images/";
 // Path to MongoDB.
 export const dbName = "/myproject";
 export const dbAddress = "localhost:27017";
-//export const url = "mongodb://" + dbAddress + dbName;
-export const url = "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true";
+export const url = "mongodb://" + dbAddress + dbName;
+//export const url = "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true";
 
 // Name of the collection in database
 export const collectionName = "images";        

@@ -74,6 +74,11 @@ export class DaikonConverter {
         return this.nullCheck(this.getVal(this.TAG_PATIENT_DATE_OF_BIRTH));
     }
 
+    getImagePosition(): number {
+        console.log("position", this.dataView.getImagePosition());
+        return this.nullCheck(this.dataView.getImagePosition());
+    }
+
     private getVal(val) {
         var value = daikon.Image.getSingleValueSafely(
             this.dataView.getTag(val[0], val[1]), 0

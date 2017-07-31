@@ -9,7 +9,7 @@ export class JSONCreator {
         let study2 = new StudyJSON();
 
         study1.studyID = "studyID 01";
-        study1.studyDescription = "This is study01 descripotion";
+        study1.studyDescription = "This is study01 description";
         study1.patientName = "Hlavatý Tomas";
         study1.patientBirthday = new Date(1234567890123).getTime();
 
@@ -40,11 +40,11 @@ export class JSONCreator {
             "image01");
 
         this.setSeries(series04, "SeriesID04",
-            "seriesDescription: Who are we? Why our we here? What is our purpose?",
+            "seriesDescription: Who are we? Why are we here? What is our purpose?",
             "image02");
 
         this.setSeries(series05, "SeriesID05",
-            "seriesDescription: This is supose to be a description, but im too lazy to write a proper one.",
+            "seriesDescription: This is supposed to be a description, but im too lazy to write a proper one.",
             "image05");
 
         this.setSeries(series06, "SeriesID06",
