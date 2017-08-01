@@ -1,14 +1,13 @@
 import * as React from 'react';
 import Card, { CardContent, CardMedia } from 'material-ui/Card';
 import Typography from 'material-ui/Typography';
-
 import { ImageView } from './ImageView';
 
 export interface SeriesProps {
     seriesID: string;
     seriesDescription: string;
-    src: string; 
-    imageId: string;    
+    src: string;
+    imageID: string;
 }
 
 export class SerieView extends React.Component<SeriesProps, {}> {
@@ -19,16 +18,16 @@ export class SerieView extends React.Component<SeriesProps, {}> {
     render() {
         return (
             <div>
-                <Card >
-                    <CardMedia>
-                        <ImageView imageName={this.props.src}  imageId={this.props.imageId}/>
+                <Card>
+                    <CardMedia style={{border: "3px solid white"}}>
+                        <ImageView imageName={this.props.src} imageID={this.props.imageID}/>
                     </CardMedia>
                     <CardContent>
-                        <Typography  type="body2" component="p">
+                        <Typography type="body2" component="p">
                             {this.props.seriesDescription}
                         </Typography>
                     </CardContent>
-                </Card>                
+                </Card>
             </div>
         );
     }

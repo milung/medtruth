@@ -74,11 +74,23 @@ routerUpload.post('/',
 */
 routerUpload.get('/:id', async (req, res) => {
     let id = Number.parseInt(req.params.id);
-    //res.json(jsonCreator.getUploadJSON())
-    
-        if (id === undefined) {
-            res.sendStatus(StatusCode.BadRequest);
-            return;
+
+    // if (id === undefined) {
+    //     res.sendStatus(StatusCode.BadRequest);
+    //     return;
+    // }
+
+
+    // if (id === 12345) {//undefined
+    //     let responseJSON = jsonCreator.getUploadJSON();
+    //    console.log("test json", responseJSON);
+    //    res.json(responseJSON);}
+    if (id != -1) {
+        let responseJSON = await AzureDatabase.getUploadDocument(id);
+        if (responseJSON === undefined) {
+            res.sendStatus(StatusCode.NotFound);
+        } else {
+            res.json(responseJSON);
         }
     
         if (id != -1) {
@@ -96,7 +108,7 @@ routerUpload.get('/:id', async (req, res) => {
                 res.json(responseJSON);
             }
         }
-        
+    }
 });
 
 /*
@@ -106,52 +118,9 @@ routerUpload.get('/:id', async (req, res) => {
     --------------------------------------------
     Returns details about upload.
 */
-//routerUpload.post('/document', (req, res) => {
 routerUpload.post('/document', extendTimeout, storage.array('data'), async (req, res) => {
-    /*
-    let upload: AzureDatabase.Upload = {
-        uploadID: new Date().getTime(),
-        uploadDate: new Date(),
-        studies: [{
-            patientName: "Abracadabra",
-            patientBirthday: new Date().getTime(),
-            series: [{
-                seriesID: "04",
-                seriesDescription: "KOLENO",
-                images: ["image01", "image04", "image06"],
-                thumbnailImageID: "image04"
-            }, {
-                seriesID: "02",
-                seriesDescription: "MOZOG",
-                images: ["image02", "image03"],
-                thumbnailImageID: "image02"
-            }],
-            studyDescription: "This is study01 descripotion",
-            studyID: "studyID 01"
-        }, {
-            patientName: "Ice King",
-            patientBirthday: new Date().getTime(),
-            series: [{
-                seriesID: "10",
-                seriesDescription: "chrbatik",
-                images: ["image05"],
-                thumbnailImageID: "image05"
-            }],
-            studyDescription: "This study is about somthing very important",
-            studyID: "studyID is 02"
-        }]
-    }
-    */
 
-
-    // Upload the document to MongoDB
-    //await AzureDatabase.insertDocument(upload);
-
-    // Get documents based on the query
-    //var query = { patientName: "Hana Hahhahah" };
-    //let result = await AzureDatabase.getDocuments(query);
-    let result = await AzureDatabase.getUploadDocument(1501233911290.0);
-    //console.log(result);
+    let result = await AzureDatabase.insertToAttributesCollection({hello: 'meh', date: new Date()});
     res.json(result);
 
 });

@@ -52,11 +52,9 @@ export class UploadController {
 
         await this.upload();
         console.log('[Parsing]');
-
         let json = await this.parse();
-        await AzureDatabase.insertDocument(json);
-        console.log('[Deleting]');
-
+        console.log('[insertToImagesCollection]');
+        await AzureDatabase.insertToImagesCollection(json);
 
         // Cleanup.
         files.forEach((file) => {
@@ -119,14 +117,12 @@ export class UploadController {
         this.responses = await Promise.all(uploads);
     }
 
-
-
     async parse() {
         // TODO: Refactor!
         let json = new objects.UploadJSON();
         json.uploadID = new Date().getTime();
-        json.uploadDate = json.uploadID;
-        let studiesArray: Image[][][] = [];
+        json.uploadDate = new Date();
+        let studiesArray: Image[][][] = [];   
 
         let parses = this.responses.forEach((parse) => {
             if (parse.err) return;
@@ -166,7 +162,6 @@ export class UploadController {
             studiesArray[studyID][seriesID].push({ imageNumber: Number(converter.getImageNumber()), imageID: parse.filename });
 
             existingSeries.images.push(parse.filename);
-            console.log("pushed image number " + converter.getImageNumber(), parse.filename);
 
             if (!seriesFound) {
                 existingStudy.series.push(existingSeries);
@@ -178,11 +173,8 @@ export class UploadController {
         });
 
         for (var study in studiesArray) {
-            console.log(study);
             for (var series in studiesArray[study]) {
-                console.log("series ", series);
                 let images = studiesArray[study][series];
-                console.log(images);
                 images.sort((a: Image, b: Image) => {
                     if (a.imageNumber < b.imageNumber) return -1;
                     if (a.imageNumber > b.imageNumber) return 1;
@@ -201,11 +193,9 @@ export class UploadController {
                     return seria.seriesID === series;
                 }).thumbnailImageID = middle.imageID;
 
-                console.log(images);
             }
         }
 
-        console.log("thumbnail", json.studies[0].series[0].thumbnailImageID);
         return json;
     }
 
