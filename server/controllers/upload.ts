@@ -46,7 +46,7 @@ export class UploadController {
         await this.convert(files);
         await this.upload();
         let json = this.parse();
-        await AzureDatabase.insertDocument(json);
+        await AzureDatabase.insertToImagesCollection(json);
 
         // Cleanup.
         files.forEach((file) => {
@@ -113,7 +113,7 @@ export class UploadController {
         // TODO: Refactor!
         let json = new objects.UploadJSON();
         json.uploadID = new Date().getTime();
-        json.uploadDate = json.uploadID;
+        json.uploadDate = new Date();
         let studiesArray: Image[][][] = [];   
 
         let parses = this.responses.forEach((parse) => {

@@ -1,7 +1,7 @@
 
 import * as azure from 'azure-storage';
 import * as request from 'request';
-import { collectionName, StatusCode } from './constants';
+import { StatusCode } from './constants';
 //import { db } from './server';
 
 import { MongoClient } from 'mongodb';
@@ -62,9 +62,8 @@ export namespace AzureStorage {
 export namespace AzureDatabase {
     export const localAddress = "localhost:27017";
     export const localName = "/myproject";
-    // export const url = "mongodb://" + localAddress + localName;
-    export const url = "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true";
-
+    export const url = "mongodb://" + localAddress + localName;
+    //export const url = "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true";
 
     export enum Status {
         SUCCESFUL,
@@ -122,7 +121,7 @@ export namespace AzureDatabase {
      * @param object 
      */
     
-    export function insertDocument(object: UploadJSON): Promise<Status> {
+    export function insertDocument(object, collectionName: string): Promise<Status> {
         return new Promise<Status>(async (resolve, reject) => {
             let connectionResult = await connectToDb();
             console.log(connectionResult);
@@ -140,6 +139,14 @@ export namespace AzureDatabase {
         });
     }
 
+    export function insertToImagesCollection(object): Promise<Status> {
+        return insertDocument(object, 'images'); 
+    }
+
+    export function insertToAttributesCollection(object): Promise<Status> {
+        return insertDocument(object, 'attributes'); 
+    }
+
     /**
      * Returns an array of JSON objects.
      * @param query 
@@ -151,7 +158,7 @@ export namespace AzureDatabase {
             if (db != null) {
                 let query = {uploadID: Number(uploadID)};
                 console.log("find query", query);
-                let collection = await db.collection(collectionName);
+                let collection = await db.collection('images');
                 await collection.find(query).toArray(function (err, result) {
                     if (err) reject(Status.FAILED);
                     else resolve(result[0]);
@@ -171,7 +178,7 @@ export namespace AzureDatabase {
             let connectionResult = await connectToDb();
             console.log(connectionResult);
             if (db != null) {
-                let collection = await db.collection(collectionName);
+                let collection = await db.collection('images');
                 await collection.find({}).sort({ "uploadDate": -1 }).limit(1).toArray(function (err, result) {
                     if (err) reject(Status.FAILED);
                     console.log("Number of found objects: " + result.length);

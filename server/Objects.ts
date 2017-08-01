@@ -4,7 +4,7 @@ export class JSONCreator {
     getUploadJSON() {
         let uploadJSON = new UploadJSON();
         uploadJSON.uploadID = 12345;
-        uploadJSON.uploadDate = new Date().getTime();
+        uploadJSON.uploadDate = new Date();
         let study1 = new StudyJSON();
         let study2 = new StudyJSON();
 
@@ -79,7 +79,7 @@ export class JSONCreator {
 
 export class UploadJSON {
     uploadID: number;
-    uploadDate: number;
+    uploadDate: Date;
     studies: StudyJSON[] = [];
 }
 
