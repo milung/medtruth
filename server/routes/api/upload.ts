@@ -8,7 +8,6 @@ import { UploadController } from '../../controllers/upload';
 import { StatusCode, storagePath, imagePath } from '../../constants';
 import { AzureStorage, AzureDatabase } from '../../azure-service';
 import { JSONCreator } from '../../Objects';
-
 export const rootUpload = '/upload';
 export const routerUpload = express.Router();
 
@@ -16,7 +15,7 @@ let jsonCreator: JSONCreator = new JSONCreator();
 
 // Middleware for extending the response's timeout for uploading larger files.
 const extendTimeout = (req, res, next) => {
-    res.setTimeout(60000, () => {
+    res.setTimeout(180000, () => {
         res.sendStatus(StatusCode.GatewayTimeout);
     });
     next();
@@ -54,9 +53,9 @@ routerUpload.options('/', (req, res) => {
     Returns JSON, that cointains an array of names, id's 
     and if occured, errors of the converted files.
 */
-routerUpload.post('/', 
-    extendTimeout, 
-    storage.any(), 
+routerUpload.post('/',
+    extendTimeout,
+    storage.any(),
     new UploadController().Root,
     async (req: express.Request, res: express.Response) => {
         res.json(
@@ -75,27 +74,29 @@ routerUpload.post('/',
 */
 routerUpload.get('/:id', async (req, res) => {
     let id = Number.parseInt(req.params.id);
-
-    if (id === undefined) {
-        res.sendStatus(StatusCode.BadRequest);
-        return;
-    }
-
-    if (id != -1) {
-        let responseJSON = await AzureDatabase.getUploadDocument(id);
-        if (responseJSON === undefined) {
-            res.sendStatus(StatusCode.NotFound);
-        } else {
-            res.json(responseJSON);
+    //res.json(jsonCreator.getUploadJSON())
+    
+        if (id === undefined) {
+            res.sendStatus(StatusCode.BadRequest);
+            return;
         }
-    } else {
-        let responseJSON = await AzureDatabase.getLastUpload();
-        if(responseJSON === undefined){
-            res.sendStatus(StatusCode.NotFound);
+    
+        if (id != -1) {
+            let responseJSON = await AzureDatabase.getUploadDocument(id);
+            if (responseJSON === undefined) {
+                res.sendStatus(StatusCode.NotFound);
+            } else {
+                res.json(responseJSON);
+            }
         } else {
-            res.json(responseJSON);
+            let responseJSON = await AzureDatabase.getLastUpload();
+            if(responseJSON === undefined){
+                res.sendStatus(StatusCode.NotFound);
+            } else {
+                res.json(responseJSON);
+            }
         }
-    }
+        
 });
 
 /*
@@ -141,7 +142,7 @@ routerUpload.post('/document', extendTimeout, storage.array('data'), async (req,
         }]
     }
     */
-    
+
 
     // Upload the document to MongoDB
     //await AzureDatabase.insertDocument(upload);
@@ -152,5 +153,5 @@ routerUpload.post('/document', extendTimeout, storage.array('data'), async (req,
     let result = await AzureDatabase.getUploadDocument(1501233911290.0);
     //console.log(result);
     res.json(result);
-    
+
 });

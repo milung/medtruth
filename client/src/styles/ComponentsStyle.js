@@ -12,6 +12,6 @@ export default {
     },
 
     cardMedia: {
-        maxHeight: '10px'        
+        maxHeight: '10px'
     }
 }

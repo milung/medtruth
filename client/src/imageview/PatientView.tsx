@@ -23,7 +23,7 @@ export class PatientView extends React.Component<PatientProps, {}> {
     render() {
         return (
             <div>
-                <Card >
+                <Card>
                     <CardContent>
                         <Typography type="body2" component="p">
                             Patient name: {this.props.patientName}

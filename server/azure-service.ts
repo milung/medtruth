@@ -62,9 +62,9 @@ export namespace AzureStorage {
 export namespace AzureDatabase {
     export const localAddress = "localhost:27017";
     export const localName = "/myproject";
-    // export const url = "mongodb://" + localAddress + localName;
+    //export const localName = "/medtruth";
+    //export const url = "mongodb://" + localAddress + localName;
     export const url = "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true";
-
 
     export enum Status {
         SUCCESFUL,
@@ -121,7 +121,7 @@ export namespace AzureDatabase {
      * Creates new document in the MongoDB database.
      * @param object 
      */
-    
+
     export function insertDocument(object: UploadJSON): Promise<Status> {
         return new Promise<Status>(async (resolve, reject) => {
             let connectionResult = await connectToDb();
@@ -136,6 +136,8 @@ export namespace AzureDatabase {
                     console.log(message);
                 })
                 db.close();
+            } else{
+                reject(Status.FAILED);
             }
         });
     }
@@ -149,7 +151,7 @@ export namespace AzureDatabase {
             let connectionResult = await connectToDb();
             console.log(connectionResult);
             if (db != null) {
-                let query = {uploadID: Number(uploadID)};
+                let query = { uploadID: Number(uploadID) };
                 console.log("find query", query);
                 let collection = await db.collection(collectionName);
                 await collection.find(query).toArray(function (err, result) {
@@ -158,6 +160,8 @@ export namespace AzureDatabase {
                     console.log("Number of found objects: " + result.length);
                 });
                 db.close();
+            } else{
+                reject(Status.FAILED);
             }
         });
     }
@@ -177,8 +181,10 @@ export namespace AzureDatabase {
                     console.log("Number of found objects: " + result.length);
                     resolve(result[0]);
                 });
-                
+
                 db.close();
+            } else{
+                reject(Status.FAILED);
             }
         });
     }
