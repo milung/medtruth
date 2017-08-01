@@ -108,7 +108,6 @@ export class UploadController {
         this.responses = await Promise.all(uploads);
     }
 
-
     parse() {
         // TODO: Refactor!
         let json = new objects.UploadJSON();
@@ -154,7 +153,6 @@ export class UploadController {
             studiesArray[studyID][seriesID].push({ imageNumber: Number(converter.getImageNumber()), imageID: parse.filename });
            
             existingSeries.images.push(parse.filename);
-            console.log("pushed image number " + converter.getImageNumber(), parse.filename);
 
             if (!seriesFound) {
                 existingStudy.series.push(existingSeries);
@@ -166,11 +164,8 @@ export class UploadController {
         });
 
         for (var study in studiesArray) {
-            console.log(study);
             for (var series in studiesArray[study]) {
-                console.log("series ", series);
                 let images = studiesArray[study][series];
-                console.log(images);
                 images.sort((a: Image, b: Image) => {
                     if (a.imageNumber < b.imageNumber) return -1;
                     if (a.imageNumber > b.imageNumber) return 1;
@@ -179,7 +174,6 @@ export class UploadController {
                 // In case of even numbers, for example 4, Math.round would give 3rd element as the middle one
                 // Math.floor would return the 2nd element 
                 var middle = images[Math.floor((images.length - 1) / 2)];
-                console.log("middle " + middle.imageNumber, middle.imageID);
 
                 json.studies.find((stud) => {
                     return stud.studyID === study;
@@ -187,11 +181,9 @@ export class UploadController {
                     return seria.seriesID === series;
                 }).thumbnailImageID = middle.imageID;
 
-                console.log(images);
             }
         }
 
-        console.log("thumbnail", json.studies[0].series[0].thumbnailImageID);
         return json;
     }
 }
