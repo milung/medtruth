@@ -55,7 +55,7 @@ class PatientViewerComponent extends React.Component<ConnectedState, ArrayOfPati
                     seriesID: tmpSerie.seriesID,
                     seriesDescription: tmpSerie.seriesDescription,
                     src: tmpSerie.thumbnailImageID,
-                    imageId: imageId
+                    imageID: imageId
                 };
                 tempSeries.push(serie);
                 imageId++;
@@ -66,7 +66,7 @@ class PatientViewerComponent extends React.Component<ConnectedState, ArrayOfPati
                 dateOfBirth: patient.patientBirthday,
                 studyDescription: patient.studyDescription,
                 series: tempSeries
-            }
+            };
             patients.push(tempPatint);
             patId++;
         }
@@ -76,8 +76,7 @@ class PatientViewerComponent extends React.Component<ConnectedState, ArrayOfPati
     render() {
         if (!this.state.wait) {
             return (
-                <div>
-
+                <div >
                     <Grid container={true} gutter={16}>
                         {this.state.patientList.map(value =>
                             <Grid item xs={12} sm={12} md={12} style={seriesStyle.seriesStyle} key={value.patientId}>
@@ -93,9 +92,9 @@ class PatientViewerComponent extends React.Component<ConnectedState, ArrayOfPati
     }
 }
 
-function mapStateToProps(state: State): ConnectedState {    
+function mapStateToProps(state: State): ConnectedState {
     console.log('uploadid: ' + state.files.lastUploadID);
-    
+
     return { uploadID: state.files.lastUploadID };
 }
 

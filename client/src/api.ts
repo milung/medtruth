@@ -89,6 +89,22 @@ export namespace ApiService {
         return { ...res.data };
     }
 
+    export async function postAttributes(id: number, data) {
+        console.log("Post attributes data");
+        const url = uriUpload + '/' + id + '/assign';
+
+    
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'PUT',
+            url: url,
+            headers: {},
+            data: data
+        });
+
+        console.log("data data", res.data);
+        return { ...res.data };
+    }
+
     /*  
         TODO:
         /_images/latest
