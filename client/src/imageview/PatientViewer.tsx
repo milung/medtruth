@@ -77,7 +77,6 @@ class PatientViewerComponent extends React.Component<ConnectedState, ArrayOfPati
         if (!this.state.wait) {
             return (
                 <div style={{ float: 'left' }}>
-
                     <Grid container={true} gutter={16}>
                         {this.state.patientList.map(value =>
                             <Grid item xs={12} sm={12} md={12} style={seriesStyle.seriesStyle} key={value.patientId}>

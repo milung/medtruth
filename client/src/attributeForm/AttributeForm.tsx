@@ -1,27 +1,31 @@
-
 import * as React from 'react';
-//import { TextField } from 'C:/Users/USER/Desktop/31.07.2017/SDA-GroundTruth/client/src/attributeForm/TextFields.tsx';
-import { TextFields } from './TextFields';
 import Grid from 'material-ui/Grid';
 
 export class AttributeForm extends React.Component<{}, {}> {
 
+    constructor() {
+        super();
+        this.handleClick = this.handleClick.bind(this);
+    }
 
-  render() {
+    handleClick() {
+        console.log("Assign was clicked!");
+    }
 
-    return (
-      <div>
-        <Grid item xs={12} sm={12} md={12}>
-          {"Key"}
-          <TextFields />
-          <p/>
-          {"Value"}
-          <TextFields />
-          <p/>
-          <button type="submit">Assign</button>
-          <p/>
-        </Grid>
-      </div>
-    );
-  }
+    render() {
+        return (
+            <div>
+                <Grid item xs={12} sm={12} md={12}>
+                    {"Key"}
+                    <input id="key" type="text" />
+                    <p />
+                    {"Value"}
+                    <input id="value" type="text" />
+                    <p />
+                    <button type="submit" onClick={this.handleClick.bind(this)}>Assign</button>
+                    <p />
+                </Grid>
+            </div>
+        );
+    }
 }
