@@ -69,35 +69,6 @@ export namespace AzureDatabase {
         SUCCESFUL,
         FAILED
     }
-    export interface Image {
-        seriesID: string,
-        patientName: string,
-        imageID: string,        // ID of the image in the series
-        date: Date,             // When the image was created
-        uploadDate: Date,
-        uploadID: number,
-        thumbnails: object[]       // Blob reference
-    }
-    export interface Upload {
-        uploadID: number,
-        uploadDate: Date,
-        studies: Study[]
-    }
-
-    export interface Study {
-        patientName: string,
-        patientBirthday: number,
-        series: Series[],
-        studyDescription: string,
-        studyID: string
-    }
-
-    export interface Series {
-        seriesID: string,
-        seriesDescription: string,
-        images: string[],                    // Array of blob references
-        thumbnailImageID: string
-    }
 
     let db = null;
 
@@ -184,7 +155,6 @@ export namespace AzureDatabase {
                     console.log("Number of found objects: " + result.length);
                     resolve(result[0]);
                 });
-                
                 db.close();
             }
         });
