@@ -53,13 +53,18 @@ export class UploadController {
         await this.upload();
         console.log('[Parsing]');
         let json = await this.parse();
-        console.log('[insertToImagesCollection]');
+        console.log('[Parsing] OK ✔️');
+        console.log('[InsertToImagesCollection]');
         await AzureDatabase.insertToImagesCollection(json);
-
+        console.log('[InsertToImagesCollection] OK ✔️');
+        console.log("[Deleting files]");
         // Cleanup.
         files.forEach((file) => {
+            console.log("[Deleting files] file: " + file.path);
             fs.unlink(file.path, () => { });
+            console.log("[Deleting files] image: " + file.filename);
             fs.unlink(imagePath + file.filename + ".png", () => { });
+            console.log("[Deleting files] file: "+file.filename+" OK ✔️");
         });
 
         // Grab all ChainStatuses and map them to UploadStatuses.
@@ -99,16 +104,22 @@ export class UploadController {
             try {
                 if (upload.err) return upload;
                 // Else upload the DICOM and PNG.
+                console.log('[Uploading] dicom: ' + upload.filename);
+
                 await AzureStorage.toDicoms(
                     upload.filename,
                     storagePath + upload.filename);
+                console.log('[Uploading] png: ' + upload.filename);
                 await AzureStorage.toImages(
                     upload.filename + ".png",
                     imagePath + upload.filename + ".png");
                 // Assign the upload id to this file.
                 upload.id = upload.filename;
+                console.log('[Uploading] file: ' + upload.filename + ' OK ✔️');
             } catch (e) {
                 // If anything happened during uploading, assign an error to the response.
+                console.log('[Uploading] file: ' + upload.filename + ' FAIL ❌');
+                console.log(e);
                 upload.err = "Storage Error";
             }
             return upload;
@@ -122,7 +133,7 @@ export class UploadController {
         let json = new objects.UploadJSON();
         json.uploadID = new Date().getTime();
         json.uploadDate = new Date();
-        let studiesArray: Image[][][] = [];   
+        let studiesArray: Image[][][] = [];
 
         let parses = this.responses.forEach((parse) => {
             if (parse.err) return;
@@ -183,9 +194,7 @@ export class UploadController {
                 // In case of even numbers, for example 4, Math.round would give 3rd element as the middle one
                 // Math.floor would return the 2nd element 
                 var middle = images[Math.floor((images.length - 1) / 2)];
-                console.log("middle " + middle.imageNumber, middle.imageID);
                 await this.createThumbnail(middle.imageID);
-                console.log("thumbnaild created");
 
                 json.studies.find((stud) => {
                     return stud.studyID === study;
@@ -202,32 +211,29 @@ export class UploadController {
 
     createThumbnail(imageID) {
         return new Promise<string>((resolve, reject) => {
-
             console.log('[Create Thumbnail]');
-
             jimp.read(imagePath + imageID + ".png", async function (err, image) {
                 // do stuff with the image (if no exception) 
-                console.log("[convert] " + imageID);
                 let thumbnail = imagePath + imageID + '_.png';
                 if (err === null) {
-                    console.log("[resizing]");
                     image.background(0x000000FF)
-                    .contain(300, 300)
-                    .write(thumbnail, async (err, image) => {
+                        .contain(300, 300)
+                        .write(thumbnail, async (err, image) => {
                             if (err === null) {
-                                console.log("[thumbnail] uploading to azure store");
+                                console.log("[Create Thumbnail] uploading to azure " + imageID + '_.png');
                                 await AzureStorage.toImages(imageID + '_.png', thumbnail);
                                 fs.unlink(thumbnail, () => { });
-                                console.log("png 300 x 300 DONE");
+                                console.log("[Create Thumbnail] DONE for: " + imageID + '_.png');
                                 resolve("OK")
                             } else {
-                                console.log("[png300x300] Upload to azure fail");
+                                console.log("[Create Thumbnail] FAIL for: " + imageID + '_.png');
+                                console.log(err);
                                 reject("NO OK")
                             }
                         });
 
                 } else {
-                    console.log("[ERROR] png 300 x 300");
+                    console.log("[Create Thumbnail] Error");
                     console.log(err);
                     reject("NOT OK")
                 }

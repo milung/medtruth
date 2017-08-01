@@ -12,19 +12,20 @@ export namespace Converter {
     const convert = (dicomName: string, args: string[]): Promise<Status> => {
         return new Promise((resolve, reject) => {
             let dicomSrcPath = 'uploads/' + dicomName;
-            let imgSrcPath = 'images/' + dicomName + '.png';        
+            let imgSrcPath = 'images/' + dicomName + '.png';
             args.unshift(imgSrcPath);
             args.unshift(dicomSrcPath);
             execFile(exePath, args, { cwd: 'out/' }, (error, stdout, stderr) => {
-                console.log("error");
-                console.log(error);
-                console.log(stdout);
-                console.log(stderr);
-                console.log("dirpath " + __dirname);
-                console.log("filename " + __filename);
-
-                if (error === null) resolve(Status.SUCCESSFUL);
-                else reject(Status.FAILED);
+                if (error === null) {
+                    console.log("[Converting] " + dicomName + " OK ✔️");
+                    resolve(Status.SUCCESSFUL);
+                }
+                else {
+                     console.log("[Converting] " + dicomName + " FAIL ❌");
+                     console.log(error);
+                     
+                    reject(Status.FAILED);
+                }
             });
 
         });

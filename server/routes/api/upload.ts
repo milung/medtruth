@@ -85,6 +85,7 @@ routerUpload.get('/:id', async (req, res) => {
     //     let responseJSON = jsonCreator.getUploadJSON();
     //    console.log("test json", responseJSON);
     //    res.json(responseJSON);}
+
     if (id != -1) {
         let responseJSON = await AzureDatabase.getUploadDocument(id);
         if (responseJSON === undefined) {
@@ -92,23 +93,16 @@ routerUpload.get('/:id', async (req, res) => {
         } else {
             res.json(responseJSON);
         }
-    
-        if (id != -1) {
-            let responseJSON = await AzureDatabase.getUploadDocument(id);
-            if (responseJSON === undefined) {
-                res.sendStatus(StatusCode.NotFound);
-            } else {
-                res.json(responseJSON);
-            }
+    } else {
+        let responseJSON = await AzureDatabase.getLastUpload();
+        if (responseJSON === undefined) {
+
+            res.sendStatus(StatusCode.NotFound);
         } else {
-            let responseJSON = await AzureDatabase.getLastUpload();
-            if(responseJSON === undefined){
-                res.sendStatus(StatusCode.NotFound);
-            } else {
-                res.json(responseJSON);
-            }
+            res.json(responseJSON);
         }
     }
+
 });
 
 /*
@@ -120,7 +114,7 @@ routerUpload.get('/:id', async (req, res) => {
 */
 routerUpload.post('/document', extendTimeout, storage.array('data'), async (req, res) => {
 
-    let result = await AzureDatabase.insertToAttributesCollection({hello: 'meh', date: new Date()});
+    let result = await AzureDatabase.insertToAttributesCollection({ hello: 'meh', date: new Date() });
     res.json(result);
 
 });
