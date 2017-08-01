@@ -8,10 +8,7 @@ export default {
 
     img: {
         maxWidth: '100%',
-        maxHeight: '100%'
-    },
-
-    cardMedia: {
-        maxHeight: '10px'        
+        maxHeight: '100%',
+        //padding: '2px'
     }
 }
