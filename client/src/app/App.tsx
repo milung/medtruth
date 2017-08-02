@@ -1,8 +1,6 @@
 
 import * as React from 'react';
-//import { FolderForm } from '../folderForm/FolderForm';
-//import { PatientViewer } from '../imageview/PatientViewer';
-import { AttributeForm } from "../attributeForm/AttributeForm";
+import { AttributeForm } from '../attributeForm/AttributeForm';
 import Grid from 'material-ui/Grid';
 import { Content } from "../components/content";
 

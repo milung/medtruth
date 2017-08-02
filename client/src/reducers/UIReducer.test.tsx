@@ -59,6 +59,7 @@ describe('UIReducer', () => {
         };
 
         let uiState: UIState = {
+            isBlownUpShowed: false,
             blownUpThumbnailId: '',
             selections: {
                 images: new Set<string>(),
@@ -76,6 +77,7 @@ describe('UIReducer', () => {
         };
 
         let uiState: UIState = {
+            isBlownUpShowed: false,
             blownUpThumbnailId: '',
             selections: {
                 images: new Set<string>(['aaaaa']),

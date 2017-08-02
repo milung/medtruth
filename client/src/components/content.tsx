@@ -4,6 +4,7 @@ import { PatientViewer } from "../imageview/PatientViewer";
 import { BlowUpComponent } from "./blowup";
 import { connect } from "react-redux";
 import { State } from "../app/store";
+import { SelectionStatus } from "../selectionStatus/SelectionStatus";
 
 interface OwnProps {
 }
@@ -26,6 +27,7 @@ class ContentComponent extends React.Component<OwnProps & ConnectedState, OwnSta
                 <div>
                     <FolderForm />
                     <PatientViewer />
+                     <SelectionStatus />
                 </div>
             );
         }
