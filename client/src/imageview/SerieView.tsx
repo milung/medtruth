@@ -13,6 +13,11 @@ export interface SeriesProps {
 export class SerieView extends React.Component<SeriesProps, {}> {
     constructor(props: SeriesProps) {
         super(props);
+        this.handleClick = this.handleClick.bind(this);
+    }
+
+    handleClick() {
+
     }
 
     render() {

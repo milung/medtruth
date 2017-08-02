@@ -37,7 +37,6 @@ export class AttributeForm extends React.Component<{}, {}> {
                         <TextField
                             id="value"
                             label="Value"
-                            type="number"
                             margin="normal"
                             style={{ width: '100%' }}
                         />
