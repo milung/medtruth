@@ -35,13 +35,17 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
 
     render() {
         let borderStyle;
-        this.props.seriesSelected ? borderStyle = "3px solid LightSeaGreen" : borderStyle = "3px solid white";
+        this.props.seriesSelected ? borderStyle = '3px solid LightSeaGreen' : borderStyle = '3px solid white';
          
         return (
             <div>
                 <Card seriesID={this.props.seriesID} style={{border: borderStyle}}>
                     <CardMedia>
-                        <ImageViewComponent imageName={this.props.src} imageID={this.props.imageID} handler={this.handleImageClick.bind(this)} />
+                        <ImageViewComponent 
+                            imageName={this.props.src} 
+                            imageID={this.props.imageID} 
+                            handler={this.handleImageClick.bind(this)} 
+                        />
                     </CardMedia>
                     <CardContent>
                         <Typography type="body2" component="p">
@@ -61,7 +65,7 @@ function mapStateToProps(state: State, props: SeriesProps): SeriesProps & Connec
         src: props.src,
         imageID: props.imageID,
         seriesSelected: state.ui.selections.series.has(props.seriesID)
-    }
+    };
 }
 
 function mapDispatchToProps(dispatch: Redux.Dispatch<SeriesSelectedAction>): ConnectedDispatch {

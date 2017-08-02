@@ -73,7 +73,6 @@ export class JSONCreator {
         series.images.push("04f518349c32cfcbe820527cee910abb");
         series.images.push("052bd8d959567911ba4ae06ed8267f9b");
     }
-
 }
 
 export class UploadJSON {

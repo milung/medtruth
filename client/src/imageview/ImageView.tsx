@@ -24,7 +24,7 @@ export class ImageViewComponent extends React.Component<ImageProps, {}> {
     }
 
     async getUrl(): Promise<void> {
-        let resImage = await ApiService.getImage(this.props.imageName+"_");
+        let resImage = await ApiService.getImage(this.props.imageName + "_");
         let img = document.getElementById(this.props.imageID) as HTMLImageElement;
         img.src = resImage === null ? "" : resImage.url;
     }
@@ -33,7 +33,15 @@ export class ImageViewComponent extends React.Component<ImageProps, {}> {
         console.log("double click!");
     }
 
+    keyPressed(event) {
+        console.log(event.keyCode)
+        this.setState(Object.assign({}, this.state, { open: false }))
+    }
+
     render() {
-        return <img id={this.props.imageID} style={imageStyle.img} onClick={this.props.handler} onDoubleClick={this.handleDoubleClick.bind(this)}/>;
+        
+        return <img id={this.props.imageID} style={imageStyle.img} 
+        onClick={this.props.handler} 
+        onDoubleClick={this.handleDoubleClick.bind(this)}/>;
     }
 }

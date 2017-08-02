@@ -61,15 +61,14 @@ export namespace AzureStorage {
     }
 }
 export namespace AzureDatabase {
-    export const localAddress = "localhost:27017";
-    export const localName = "/medtruth";
+    export const localAddress = "localhost:27017/";
+    export const localName = "medtruth";
     export const url = "mongodb://" + localAddress + localName;
     //export const url = "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true";
 
     export enum Status {
         SUCCESFUL,
-        FAILED,
-        CONN_FAILED,
+        FAILED
     }
 
     interface Connection {
@@ -80,10 +79,10 @@ export namespace AzureDatabase {
     /**
      * Initialize connection to MongoDB.
      */
-    function connect(): Promise<Db> {
+    export function connect(): Promise<Db> {
         return new Promise<Db>(async (resolve, reject) => {
             MongoClient.connect(url, function (err, database) {
-                if (err) reject(Status.CONN_FAILED)
+                if (err) reject(null)
                 else resolve(database);
             });
         });
@@ -102,7 +101,7 @@ export namespace AzureDatabase {
     }
 
     // Close the database only if it's not null.
-    function close(db: Db): void {
+    export function close(db: Db): void {
         if (db) db.close();
     }
 
@@ -150,7 +149,7 @@ export namespace AzureDatabase {
                 let result: AttributeQuery = await conn.collection.findOne(query);
                 // If we found an equal image ID, we update the attribute contents.
                 if (result) {
-                    // Merge the queries and new attributes. If the keys are the same,
+                    // Merge the result with new attributes. If the keys are the same,
                     // only the values will be overwritten.
                     // Else it creates a new key with a value.
                     let updatedAttributes = _({}).merge(
@@ -171,6 +170,27 @@ export namespace AzureDatabase {
                 }
             } catch (e) {
                 reject(Status.FAILED);
+            } finally {
+                close(conn.db);
+            }
+        });
+    }
+
+    export function getAttributes(id): Promise<AttributeQuery> {
+        return new Promise<AttributeQuery>(async (resolve, reject) => {
+            try {
+                var conn = await connectToAttributes();
+
+                // First we look for an equal image ID.
+                let query = { imageID: id };
+                let result: AttributeQuery = await conn.collection.findOne(query);
+                // If we found an equal image ID, we update the attribute contents.
+                if (result) {
+                    resolve(result);
+                }
+                else resolve({} as AttributeQuery);
+            } catch (e) {
+                reject({});
             } finally {
                 close(conn.db);
             }

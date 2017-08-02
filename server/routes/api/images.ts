@@ -85,3 +85,9 @@ routerImages.put('/:id/assign', json(), async (req, res) => {
     let result = await AzureDatabase.putToAttributes(id, ...attributes);
     res.json(result);
 });
+
+routerImages.get('/:id/assign', async (req, res) => {
+    let id = req.params.id;
+    let result = await AzureDatabase.getAttributes(id);
+    res.json(result);
+})

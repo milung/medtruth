@@ -47,6 +47,7 @@
     "@types/supertest": "^2.0.2",
     "jest": "^20.0.4",
     "supertest": "^3.0.0",
+    "tcp-ping": "^0.1.1",
     "ts-jest": "^20.0.7",
     "typescript": "^2.4.1"
   },
