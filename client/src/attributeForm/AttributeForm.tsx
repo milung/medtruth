@@ -31,8 +31,7 @@ export class AttributeForm extends React.Component<{}, State> {
     }
 
     handleClick() {
-        console.log("Assign was clicked!");
-        console.log("Fields", this.state.keyFieldValue + ": " + this.state.valueFieldValue);
+        console.log("Assign; Fields", this.state.keyFieldValue + ": " + this.state.valueFieldValue);
     }
 
     handleKeyFieldChange(e) {
