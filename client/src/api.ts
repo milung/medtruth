@@ -91,7 +91,7 @@ export namespace ApiService {
         return { ...res.data };
     }
 
-        /*
+    /*
         Route:      PUT '/images/:id/assign'
         Expects:    Updates or creates new attributes to an image.
         -------------------------------------------
@@ -113,5 +113,23 @@ export namespace ApiService {
         });
 
         return { ...res.data };
+    }
+
+    /*
+        Route:      GET '/images/:id/assign'
+        Expects:    Receives attributes from an image id.
+        -------------------------------------------
+        Returns the state of an image's attributes.
+    */
+    export async function getAttributes(id: number) {
+        const url = uriImages + '/' + id + '/assign';
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'GET',
+            url: url,
+            headers: {}
+        });
+
+        return { ...res.data }; 
     }
 }

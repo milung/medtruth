@@ -176,6 +176,27 @@ export namespace AzureDatabase {
         });
     }
 
+    export function getAttributes(id): Promise<AttributeQuery> {
+        return new Promise<AttributeQuery>(async (resolve, reject) => {
+            try {
+                var conn = await connectToAttributes();
+
+                // First we look for an equal image ID.
+                let query = { imageID: id };
+                let result: AttributeQuery = await conn.collection.findOne(query);
+                // If we found an equal image ID, we update the attribute contents.
+                if (result) {
+                    resolve(result);
+                }
+                else resolve({} as AttributeQuery);
+            } catch (e) {
+                reject({});
+            } finally {
+                close(conn.db);
+            }
+        });
+    }
+
     /**
      * Returns Upload document with a specific ID.
      * @param uploadID
