@@ -12,21 +12,27 @@ interface ConnectedDispatch {
     selectedImage: (imageName: string) => ImageSelectedAction;
 }
 
-interface OwnProps{
+interface OwnProps {
     imageID: string;
     imageName: string;
+}
+
+interface OwnState {
+    open: boolean
 }
 
 interface ConnectedState {
     imageSelected: boolean;
 }
 
-class ImageViewComponent extends React.Component<ConnectedDispatch & OwnProps & ConnectedState, {}> {
+
+
+class ImageViewComponent extends React.Component<ConnectedDispatch & OwnProps & ConnectedState, OwnState> {
     constructor(props) {
         super(props);
         this.getUrl = this.getUrl.bind(this);
         this.handleClick = this.handleClick.bind(this);
-        this.state = { imageSelected: false };
+        this.state = { open: false };
     }
 
     componentWillMount() {
@@ -34,17 +40,24 @@ class ImageViewComponent extends React.Component<ConnectedDispatch & OwnProps & 
     }
 
     async getUrl(): Promise<void> {
-        let resImage = await ApiService.getImage(this.props.imageName+"_");
+        let resImage = await ApiService.getImage(this.props.imageName + "_");
         let img = document.getElementById(this.props.imageID) as HTMLImageElement;
         img.src = resImage === null ? "" : resImage.url;
     }
 
     handleClick() {
-        console.log("blob ID", this.props.imageName);
-        
-        console.log("state before", this.props.imageSelected);
+        console.log("on click");
+        this.setState(Object.assign({}, this.state, { open: true }))
+        //console.log("blob ID", this.props.imageName);
+
+        //console.log("state before", this.props.imageSelected);
         //this.setState(this.props);
         this.props.selectedImage(this.props.imageName);
+    }
+
+    onDoubleClick() {
+        console.log("double click");
+        
     }
 
     componentWillUpdate() {
@@ -55,10 +68,22 @@ class ImageViewComponent extends React.Component<ConnectedDispatch & OwnProps & 
         console.log("border style", borderStyle);
     }
 
+    keyPressed(event) {
+        console.log(event.keyCode)
+        this.setState(Object.assign({}, this.state, { open: false }))
+    }
+
     render() {
-        return <img id={this.props.imageID} style={imageStyle.img} onClick={this.handleClick.bind(this)} />;
+        return <div >
+            <img id={this.props.imageID} style={imageStyle.img}
+                onClick={this.handleClick.bind(this)}
+                onDoubleClick={this.onDoubleClick.bind(this)}
+                
+            />
+        </div >;
     }
 }
+
 
 
 function mapStateToProps(state: State, props: OwnProps): OwnProps & ConnectedState {

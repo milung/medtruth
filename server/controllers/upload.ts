@@ -55,7 +55,8 @@ export class UploadController {
         let json = await this.parse();
         console.log('[insertToImagesCollection]');
         await AzureDatabase.insertToImagesCollection(json);
-
+        console.log('[Removing files]');
+        
         // Cleanup.
         files.forEach((file) => {
             fs.unlink(file.path, () => { });

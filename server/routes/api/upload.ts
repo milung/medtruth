@@ -74,7 +74,8 @@ routerUpload.post('/',
 */
 routerUpload.get('/:id', async (req, res) => {
     let id = Number.parseInt(req.params.id);
-
+    console.log("uploadid: "+id);
+    
     if (id === undefined) {
         res.sendStatus(StatusCode.BadRequest);
         return;
