@@ -74,7 +74,6 @@ export class JSONCreator {
         series.images.push("image06");
 
     }
-
 }
 
 export class UploadJSON {
