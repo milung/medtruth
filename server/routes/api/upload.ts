@@ -75,31 +75,30 @@ routerUpload.post('/',
 routerUpload.get('/:id', async (req, res) => {
     let id = Number.parseInt(req.params.id);
 
-    if (id === undefined) {
-        res.sendStatus(StatusCode.BadRequest);
-        return;
+    if (id === 12345) {//undefined
+        let responseJSON = jsonCreator.getUploadJSON();
+        console.log("test json", responseJSON.studies[0].series[0]);
+        res.json(responseJSON);
     }
 
+    // if (id === undefined) {
+    //     res.sendStatus(StatusCode.BadRequest);
+    //     return;
+    // }
 
-    // if (id === 12345) {//undefined
-    //     let responseJSON = jsonCreator.getUploadJSON();
-    //    console.log("test json", responseJSON);
-    //    res.json(responseJSON);}
-
-
-    if (id != -1) {
-        let responseJSON = await AzureDatabase.getUploadDocument(id);
-        if (responseJSON === undefined) {
-            res.sendStatus(StatusCode.NotFound);
-        } else {
-            res.json(responseJSON);
-        }
-    } else {
-        let responseJSON = await AzureDatabase.getLastUpload();
-        if (responseJSON === undefined) {
-            res.sendStatus(StatusCode.NotFound);
-        } else {
-            res.json(responseJSON);
-        }
-    }
+    // if (id != -1) {
+    //     let responseJSON = await AzureDatabase.getUploadDocument(id);
+    //     if (responseJSON === undefined) {
+    //         res.sendStatus(StatusCode.NotFound);
+    //     } else {
+    //         res.json(responseJSON);
+    //     }
+    // } else {
+    //     let responseJSON = await AzureDatabase.getLastUpload();
+    //     if (responseJSON === undefined) {
+    //         res.sendStatus(StatusCode.NotFound);
+    //     } else {
+    //         res.json(responseJSON);
+    //     }
+    // }
 });

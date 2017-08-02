@@ -27,27 +27,27 @@ export class JSONCreator {
 
         this.setSeries(series01, "SeriesID01",
             "seriesDescription: Head scan or something.",
-            "image04");
+            "04b1f296878b9b0e2f1e2662be692ccb");
 
         this.setSeries(series02, "SeriesID02",
             "seriesDescription: Don't know what this thing is LOL",
-            "image03");
+            "04914d21ab3880895f3c4e75f7ecf377");
 
         this.setSeries(series03, "SeriesID03",
             "seriesDescription: Scan of some part of the body.",
-            "image01");
+            "04b1f296878b9b0e2f1e2662be692ccb");
 
         this.setSeries(series04, "SeriesID04",
             "seriesDescription: Who are we? Why are we here? What is our purpose?",
-            "image02");
+            "04c899278a1b0cad90d8a2ff286f4e63");
 
         this.setSeries(series05, "SeriesID05",
             "seriesDescription: This is supposed to be a description, but im too lazy to write a proper one.",
-            "image05");
+            "04f518349c32cfcbe820527cee910abb");
 
         this.setSeries(series06, "SeriesID06",
             "seriesDescription This is a scan of another scan. SCANCEPTION !",
-            "image06");
+            "052bd8d959567911ba4ae06ed8267f9b");
 
         study1.series.push(series01);
         study1.series.push(series02);
@@ -66,13 +66,12 @@ export class JSONCreator {
         series.seriesID = seriesID;
         series.seriesDescription = seriesDescription;
         series.thumbnailImageID = thumbnail;
-        series.images.push("image01");
-        series.images.push("image02");
-        series.images.push("image03");
-        series.images.push("image04");
-        series.images.push("image05");
-        series.images.push("image06");
-
+        series.images.push("04556da2ce2edd91fe3ca5c1f335524b");
+        series.images.push("04914d21ab3880895f3c4e75f7ecf377");
+        series.images.push("04b1f296878b9b0e2f1e2662be692ccb");
+        series.images.push("04c899278a1b0cad90d8a2ff286f4e63");
+        series.images.push("04f518349c32cfcbe820527cee910abb");
+        series.images.push("052bd8d959567911ba4ae06ed8267f9b");
     }
 
 }
