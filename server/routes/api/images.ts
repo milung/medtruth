@@ -82,6 +82,6 @@ interface Attribute {
 routerImages.put('/:id/assign', json(), async (req, res) => {
     let id = req.params.id;
     let attributes: Attribute[] = req.body.attributes;
-    await AzureDatabase.putToAttributes(id, ...attributes);
-    res.sendStatus(StatusCode.OK);
+    let result = await AzureDatabase.putToAttributes(id, ...attributes);
+    res.json(result);
 });

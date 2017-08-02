@@ -52,7 +52,7 @@ export namespace ApiService {
 
     /*
         Route:      GET '/images/:id'
-        Expects:    Upload ID as a parameter.
+        Expects:    Image ID as a parameter.
         -------------------------------------------
         Retreive images from the server.
 
@@ -73,8 +73,13 @@ export namespace ApiService {
         return { ...res.data };
     }
 
+    /*
+        Route:      GET '/upload/:id'
+        Expects:    Upload ID as a parameter.
+        -------------------------------------------
+        Retreive information about upload's id.
+    */
     export async function getData(id: number) {
-        console.log("Get data");
         const url = uriUpload + '/' + id;
 
         let res: axios.AxiosResponse = await axios.default({
@@ -83,28 +88,30 @@ export namespace ApiService {
             headers: {}
         });
 
-        console.log("data data", res.data);
         return { ...res.data };
     }
 
-    export async function postAttributes(id: number, data) {
-        console.log("Post attributes data");
-        const url = uriUpload + '/' + id + '/assign';
+        /*
+        Route:      PUT '/images/:id/assign'
+        Expects:    Updates or creates new attributes to an image.
+        -------------------------------------------
+        Returns the state of an image's attributes.
+    */
+    interface Attribute {
+        key: string;
+        value: number;
+    }
 
-    
+    export async function putAttributes(id: number, ...attributes: Attribute[]) {
+        const url = uriImages + '/' + id + '/assign';
+
         let res: axios.AxiosResponse = await axios.default({
             method: 'PUT',
             url: url,
-            headers: {},
-            data: data
+            headers: { 'Content-Type': 'application/json' },
+            data: { attributes }
         });
 
-        console.log("data data", res.data);
         return { ...res.data };
     }
-
-    /*  
-        TODO:
-        /_images/latest
-    */
 }

@@ -62,15 +62,19 @@ export namespace AzureStorage {
 }
 export namespace AzureDatabase {
     export const localAddress = "localhost:27017";
-    export const localName = "/myproject";
-    //export const localName = "/medtruth";
-    //export const url = "mongodb://" + localAddress + localName;
-    export const url = "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true";
+    export const localName = "/medtruth";
+    export const url = "mongodb://" + localAddress + localName;
+    //export const url = "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true";
 
     export enum Status {
         SUCCESFUL,
         FAILED,
         CONN_FAILED,
+    }
+
+    interface Connection {
+        db: Db,
+        collection: Collection
     }
 
     /**
@@ -83,11 +87,6 @@ export namespace AzureDatabase {
                 else resolve(database);
             });
         });
-    }
-
-    interface Connection {
-        db: Db,
-        collection: Collection
     }
 
     async function connectToImages(): Promise<Connection> {
@@ -142,8 +141,8 @@ export namespace AzureDatabase {
         attributes: Attribute[];
     }
 
-    export function putToAttributes(id, ...attributes: Attribute[]): Promise<Status> {
-        return new Promise<Status>(async (resolve, reject) => {
+    export function putToAttributes(id, ...attributes: Attribute[]): Promise<AttributeQuery> {
+        return new Promise<AttributeQuery>(async (resolve, reject) => {
             try {
                 var conn = await connectToAttributes();
                 // First we look for an equal image ID.
@@ -157,15 +156,19 @@ export namespace AzureDatabase {
                     let updatedAttributes = _({}).merge(
                         _(result.attributes).groupBy('key').value(),
                         _(attributes)       .groupBy('key').value()
-                    ).values().flatten().value();
+                    ).values().flatten().value() as Attribute[];
                     // Updates the result query.
-                    var updatedResult = { imageID: id, attributes: updatedAttributes };
+                    let updatedResult: AttributeQuery = { imageID: id, attributes: updatedAttributes };
                     await conn.collection.updateOne(result, updatedResult);
-                    // If the query does not exist, we create a brand new one.
+                    // Returns the updated result.
+                    resolve(updatedResult);
+                // If the query does not exist, we create a brand new one.
                 } else {
-                    await conn.collection.insertOne({ imageID: id, attributes });
+                    let newResult = { imageID: id, attributes };
+                    await conn.collection.insertOne(newResult);
+                    // Returns the new result.
+                    resolve(newResult);
                 }
-                resolve(Status.SUCCESFUL);
             } catch (e) {
                 reject(Status.FAILED);
             } finally {

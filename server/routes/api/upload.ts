@@ -110,17 +110,3 @@ routerUpload.get('/:id', async (req, res) => {
         }
     }
 });
-
-/*
-    Mock route for testing the upload to MongoDB
-    Route:      POST 'upload/document'
-    Expects:    
-    --------------------------------------------
-    Returns details about upload.
-*/
-routerUpload.post('/document', extendTimeout, storage.array('data'), async (req, res) => {
-
-    let result = await AzureDatabase.insertToAttributesCollection({hello: 'meh', date: new Date()});
-    res.json(result);
-
-});
