@@ -22,8 +22,7 @@ export class AttributeForm extends React.Component<{}, {}> {
         console.log("Assign was clicked!");
     }
 
-<<<<<<< HEAD
-    return (
+    return () {
       <div >
         {/* <Paper> */}
         <Grid item xs={12} sm={12} md={12}>
@@ -49,24 +48,5 @@ export class AttributeForm extends React.Component<{}, {}> {
         </Grid>
         {/* </Paper> */}
       </div>
-    );
   }
-=======
-    render() {
-        return (
-            <div>
-                <Grid item xs={12} sm={12} md={12}>
-                    {"Key"}
-                    <input id="key" type="text" />
-                    <p />
-                    {"Value"}
-                    <input id="value" type="text" />
-                    <p />
-                    <button type="submit" onClick={this.handleClick.bind(this)}>Assign</button>
-                    <p />
-                </Grid>
-            </div>
-        );
-    }
->>>>>>> 8af75b47788cea9bf2017b9cdc970409bba8e3a1
 }

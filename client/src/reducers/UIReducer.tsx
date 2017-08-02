@@ -58,11 +58,15 @@ export function uiReducer(
 
 function addRemoveFromSet(selectedBefore: Set<string>, selected: string): Set<string> {
     let set: Set<string> = new Set(selectedBefore);
+    console.log(set);
     if (selectedBefore.has(selected)) {
         set.delete(selected);
+        console.log("deleted", selected);
     } else {
         set.add(selected);
+        console.log("added", selected);
     }
+    console.log(set);
     return set;
 }
 
