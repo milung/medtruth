@@ -102,7 +102,7 @@ export namespace ApiService {
         value: number;
     }
 
-    export async function putAttributes(id: number, ...attributes: Attribute[]) {
+    export async function putAttributes(id: string, ...attributes: Attribute[]) {
         const url = uriImages + '/' + id + '/assign';
 
         let res: axios.AxiosResponse = await axios.default({
