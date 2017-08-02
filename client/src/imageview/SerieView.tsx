@@ -25,6 +25,7 @@ export interface ConnectedState {
 class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch & ConnectedState, {}> {
     constructor(props) {
         super(props);
+        this.handleImageClick = this.handleImageClick.bind(this);
         console.log("seria sa vykreslila s propsami", this.props);
     }
 
@@ -44,7 +45,7 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
                         <ImageViewComponent 
                             imageName={this.props.src} 
                             imageID={this.props.imageID} 
-                            handler={this.handleImageClick.bind(this)} 
+                            handler={this.handleImageClick} 
                         />
                     </CardMedia>
                     <CardContent>

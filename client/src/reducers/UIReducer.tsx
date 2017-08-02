@@ -53,6 +53,11 @@ export function uiReducer(
             newState.selections = Object.assign({}, prevState.selections);
             newState.selections.series = seriesIdsSet;
             return newState;
+        case ActionTypeKeys.SERIES_ALL_UNSELECTED:
+            newState = Object.assign({}, prevState);
+            newState.selections = Object.assign({}, prevState.selections);
+            newState.selections.series = new Set<string>();
+            return newState;
         // case ActionTypeKeys.IMAGES_SELECTED:
         //     imageIdsSet = addRemoveSetFromSet(
         //         prevState.selections.images,

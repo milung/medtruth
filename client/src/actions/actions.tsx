@@ -6,6 +6,7 @@ export enum ActionTypeKeys {
     // IMAGES_SELECTED = 'IMAGES_SELECTED',
     IMAGE_SELECTED = 'IMAGE_SELECTED',
     SERIES_SELECTED = 'SERIES_SELECTED',
+    SERIES_ALL_UNSELECTED = 'SERIES_ALL_UNSELECTED',
     IMAGE_ANNOTATION_ADDED = 'IMAGE_ANNOTATION_ADDED',
     OTHER_ACTION = 'OTHER_ACTION'
 }
@@ -42,6 +43,10 @@ export interface ImageAnnotationAddedAction {
 export interface SeriesSelectedAction {
     type: ActionTypeKeys.SERIES_SELECTED;
     id: string;
+}
+
+export interface SeriesAllUnselectedAction {
+    type: ActionTypeKeys.SERIES_ALL_UNSELECTED;
 }
 
 export interface OtherAction {
@@ -82,6 +87,10 @@ export const seriesSelected = (id: string): SeriesSelectedAction => ({
     id
 });
 
+export const seriesAllUnselected = (): SeriesAllUnselectedAction => ({
+    type: ActionTypeKeys.SERIES_ALL_UNSELECTED,
+});
+
 export type ActionType = 
     | FilesUploadedAction
     | ThumbnailBlownUpAction
@@ -89,6 +98,7 @@ export type ActionType =
     // | ImagesSelectedAction
     | ImageSelectedAction
     | SeriesSelectedAction
+    | SeriesAllUnselectedAction
     | ImageAnnotationAddedAction
     | OtherAction;
     

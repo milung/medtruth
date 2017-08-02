@@ -1,38 +1,65 @@
 
 import * as React from 'react';
-import { connect } from 'react-redux';
+import { connect, Dispatch } from 'react-redux';
+import Snackbar from 'material-ui/Snackbar';
+
 import { State } from '../app/store';
+import { SeriesAllUnselectedAction, seriesAllUnselected } from '../actions/actions';
 
 export interface ConnectedState {
-    imagesSize: number;
+    images: Set<string>;
 }
 
-export class SelectionStatusComponent extends React.Component<ConnectedState, {}> {
+export interface ConnectedDispatch {
+    unselectAll: () => SeriesAllUnselectedAction;
+}
+
+export class SelectionStatusComponent extends React.Component<ConnectedState & ConnectedDispatch, {}> {
+    constructor(props) {
+        super(props);
+        this.unselectAll = this.unselectAll.bind(this);
+    }
+
     render() {
-        let display = this.props.imagesSize === 0 ? 'none' : 'block';
+        let display = this.props.images.size === 0 ? false : true;
+        let selected = 'Selected ' + this.props.images.size + ' images';
+        let action = 'UNSELECT';
         return (
-            // tslint:disable-next-line:jsx-alignment
-            <div style={
-                {display: display, 
-                backgroundColor: '#37f226', 
-                position: 'fixed',
-                bottom: '0px',
-                height: 'auto',
-                width: '100%',
-                maxWidth: 'inherit'}}
-            >
-                <p style={{ color: 'white', fontFamily: 'Roboto' }}>
-                    Selected: {this.props.imagesSize}
-                </p>
-            </div>
+            <Snackbar
+                open={display} 
+                action={<button
+                            type="submit"
+                            role="button"
+                            style={{
+                                color: '#f44336', 
+                                fontWeight: 'bold', 
+                                background: 'none', 
+                                outline: 'none', 
+                                border: 'none', 
+                                cursor: 'pointer'}} 
+                            onClick={this.unselectAll}>
+                            {action}
+                        </button>}
+                message={selected} 
+            />
         );
     }
-};
+
+    private unselectAll(e: object): void {
+        this.props.unselectAll();
+    }
+}
 
 function mapStateToProps(state: State): ConnectedState {
     return {
-        imagesSize: state.ui.selections.series.size
+        images: state.ui.selections.series
     };
 }
 
-export const SelectionStatus = connect(mapStateToProps, null)(SelectionStatusComponent);
+function mapDispatchToProps(dispatch: Dispatch<SeriesAllUnselectedAction>): ConnectedDispatch {
+    return {
+        unselectAll: () => dispatch(seriesAllUnselected())
+    };
+}
+
+export const SelectionStatus = connect(mapStateToProps, mapDispatchToProps)(SelectionStatusComponent);

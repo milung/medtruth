@@ -6,6 +6,9 @@ import { AttributeForm } from '../attributeForm/AttributeForm';
 import { SelectionStatus } from '../selectionStatus/SelectionStatus';
 import Grid from 'material-ui/Grid';
 
+var injectTapEventPlugin = require('react-tap-event-plugin');
+injectTapEventPlugin();
+
 export default class App extends React.Component<{}, {}> {
     render() {
         return (
