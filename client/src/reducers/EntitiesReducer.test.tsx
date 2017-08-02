@@ -15,8 +15,11 @@ describe('EntitiesReducer', () => {
         // then
         expect(state).toEqual({
             images: {
-                byId: new Map()
-            }
+                byId: new Map<string, ImageEntity>()
+            }/*,
+            series: {
+                byId: new Map<string, SeriesEntity>()
+            }*/
         });
     });
 
@@ -41,7 +44,10 @@ describe('EntitiesReducer', () => {
         let entitiesState: EntitiesState = {
             images: {
                 byId: new Map([[imageEntity.imageId, imageEntity]])
-            }
+            }/*,
+            series: {
+                byId: new Map<string, SeriesEntity>()
+            }*/
         };
 
         // when
@@ -74,7 +80,10 @@ describe('EntitiesReducer', () => {
         let entitiesState: EntitiesState = {
             images: {
                 byId: new Map()
-            }
+            }/*,
+            series: {
+                byId: new Map<string, SeriesEntity>()
+            }*/
         };
 
         // when
@@ -89,4 +98,117 @@ describe('EntitiesReducer', () => {
             value: 0.5
         });
     });
+
+    /*it('should handle UploadDataDownloadedAction', () => {
+
+        // given
+        let annotation: ImageAnnotation = {
+            imageId: 'image1',
+            key: 'key1',
+            value: 0.5
+        };
+
+        let imageAnnotationAddedAction: ImageAnnotationAddedAction = {
+            type: ActionTypeKeys.IMAGE_ANNOTATION_ADDED,
+            annotation
+        };
+
+        let entitiesState: EntitiesState = {
+            images: {
+                byId: new Map()
+            },
+            series: {
+                byId: new Map<string, SeriesEntity>()
+            }
+        };
+
+        // when
+        let state: EntitiesState = entitiesReducer(entitiesState, imageAnnotationAddedAction);
+
+        // then
+        expect(
+            state.images.byId.get(annotation.imageId).annotations[0]
+        ).toEqual({
+            imageId: 'image1',
+            key: 'key1',
+            value: 0.5
+        });
+    });*/
 });
+
+/*class UploadJSONCreator {
+    getUploadJSON() {
+        let uploadJSON = new UploadJSON();
+        uploadJSON.uploadID = 12345;
+        uploadJSON.uploadDate = new Date();
+        let study1 = new StudyJSON();
+        let study2 = new StudyJSON();
+
+        study1.studyID = 'studyID 01';
+        study1.studyDescription = 'This is study01 description';
+        study1.patientName = 'Hlavatý Tomas';
+        study1.patientBirthday = new Date(1234567890123).getTime();
+
+        study2.studyID = 'studyID is 02';
+        study2.studyDescription = 'This study is about something very important';
+        study2.patientName = 'Chudjak Kristián';
+        study2.patientBirthday = new Date(1243567890123).getTime();
+
+        let series01 = new SeriesJSON();
+        let series02 = new SeriesJSON();
+        let series03 = new SeriesJSON();
+        let series04 = new SeriesJSON();
+        let series05 = new SeriesJSON();
+        let series06 = new SeriesJSON();
+
+        this.setSeries(series01, 'SeriesID01',
+                       'seriesDescription: Head scan or something.',
+                       '04b1f296878b9b0e2f1e2662be692ccb');
+
+        this.setSeries(series02, 'SeriesID02',
+                       'seriesDescription: Don\'t know what this thing is LOL',
+                       '04914d21ab3880895f3c4e75f7ecf377');
+
+        this.setSeries(series03, 'SeriesID03',
+                       'seriesDescription: Scan of some part of the body.',
+                       '04b1f296878b9b0e2f1e2662be692ccb');
+
+        this.setSeries(series04, 'SeriesID04',
+                       'seriesDescription: Who are we? Why are we here? What is our purpose?',
+                       '04c899278a1b0cad90d8a2ff286f4e63');
+
+        this.setSeries(series05, 'SeriesID05',
+                       'seriesDescription: This is supposed to be a description,' +
+                       'but im too lazy to write a proper one.',
+                       '04f518349c32cfcbe820527cee910abb');
+
+        this.setSeries(series06, 'SeriesID06',
+                       'seriesDescription This is a scan of another scan. SCANCEPTION !',
+                       '052bd8d959567911ba4ae06ed8267f9b');
+
+        study1.series.push(series01);
+        study1.series.push(series02);
+        study1.series.push(series03);
+        study1.series.push(series04);
+        study2.series.push(series05);
+        study2.series.push(series06);
+
+        uploadJSON.studies.push(study1);
+        uploadJSON.studies.push(study2);
+
+        return (uploadJSON);
+    }
+
+    setSeries(series: SeriesJSON, seriesID: string, seriesDescription: string, thumbnail: string) {
+        series.seriesID = seriesID;
+        series.seriesDescription = seriesDescription;
+        series.thumbnailImageID = thumbnail;
+        series.images.push('04556da2ce2edd91fe3ca5c1f335524b');
+        series.images.push('04914d21ab3880895f3c4e75f7ecf377');
+        series.images.push('04b1f296878b9b0e2f1e2662be692ccb');
+        series.images.push('04c899278a1b0cad90d8a2ff286f4e63');
+        series.images.push('04f518349c32cfcbe820527cee910abb');
+        series.images.push('052bd8d959567911ba4ae06ed8267f9b');
+    }
+
+}*/

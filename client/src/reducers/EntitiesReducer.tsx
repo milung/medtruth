@@ -4,6 +4,9 @@ export interface EntitiesState {
     images: {
         byId: Map<string, ImageEntity>
     };
+    /*series: {
+        byId: Map<string, SeriesEntity>
+    };*/
 }
 
 export interface ImageEntity {
@@ -11,10 +14,18 @@ export interface ImageEntity {
     annotations: ImageAnnotation[];
 }
 
+/*export interface SeriesEntity {
+    seriesId: string;
+    images: string[];
+}*/
+
 const initialState: EntitiesState = {
     images: {
         byId: new Map<string, ImageEntity>()
-    }
+    }/*,
+    series: {
+        byId: new Map<string, SeriesEntity>()
+    }*/
 };
 
 export function entitiesReducer(

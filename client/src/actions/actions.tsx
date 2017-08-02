@@ -7,6 +7,7 @@ export enum ActionTypeKeys {
     IMAGE_SELECTED = 'IMAGE_SELECTED',
     SERIES_SELECTED = 'SERIES_SELECTED',
     IMAGE_ANNOTATION_ADDED = 'IMAGE_ANNOTATION_ADDED',
+    UPLOAD_DATA_DOWNLOADED = 'UPLOAD_DATA_DOWNLOADED',
     OTHER_ACTION = 'OTHER_ACTION'
 }
 
@@ -44,6 +45,10 @@ export interface SeriesSelectedAction {
     id: string;
 }
 
+export interface UploadDataDownloadedAction {
+    type: ActionTypeKeys.UPLOAD_DATA_DOWNLOADED;
+    upload: UploadJSON; 
+}
 export interface OtherAction {
     type: ActionTypeKeys.OTHER_ACTION;
 }
@@ -82,6 +87,11 @@ export const seriesSelected = (id: string): SeriesSelectedAction => ({
     id
 });
 
+export const uploadDataDowloaded = (upload: UploadJSON): UploadDataDownloadedAction => ({
+    type: ActionTypeKeys.UPLOAD_DATA_DOWNLOADED,
+    upload
+});
+
 export type ActionType = 
     | FilesUploadedAction
     | ThumbnailBlownUpAction
@@ -90,10 +100,33 @@ export type ActionType =
     | ImageSelectedAction
     | SeriesSelectedAction
     | ImageAnnotationAddedAction
+    | UploadDataDownloadedAction
     | OtherAction;
     
 export interface ImageAnnotation {
     imageId: string;
     key: string;
     value: number;
+}
+
+export class UploadJSON {
+    uploadID: number;
+    uploadDate: Date;
+    studies: StudyJSON[] = [];
+}
+
+export class StudyJSON {
+    patientName: string;
+    patientBirthday: number;
+    studyDescription: string;
+    studyID: string;
+    series: SeriesJSON[] = [];
+}
+
+export class SeriesJSON {
+    seriesID: string;
+    seriesDate: number;
+    seriesDescription: string;
+    thumbnailImageID: string;
+    images: string[] = [];
 }
