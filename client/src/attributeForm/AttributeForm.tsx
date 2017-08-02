@@ -9,7 +9,7 @@ import { AttributeList } from "./AttributeList";
 let line1 = { atribute: "ruka", value: 2 };
 let line2 = { atribute: "ruka", value: 2 };
 let line3 = { atribute: "ruka", value: 2 };
-let testData=[line1,line2,line3];
+let testData = [line1, line2, line3];
 
 export class AttributeForm extends React.Component<{}, {}> {
 
@@ -22,31 +22,32 @@ export class AttributeForm extends React.Component<{}, {}> {
         console.log("Assign was clicked!");
     }
 
-    return () {
-      <div >
-        {/* <Paper> */}
-        <Grid item xs={12} sm={12} md={12}>
-          <div>
-          <TextField
-            id="key"
-            label="Key"
-            margin="normal"
-            style={{ width: '100%' }}
-          />
-          <TextField
-            id="value"
-            label="Value"
-            type="number"
-            margin="normal"
-            style={{ width: '100%' }}
-          />
-          <p />          
-          <Button type="submit" raised color="primary" style={{float:"right"}}>Assign</Button>
-          </div> 
+    render() {
+        return (
+            <div >
+                {/* <Paper> */}
+                <Grid item xs={12} sm={12} md={12}>
+                    <div>
+                        <TextField
+                            id="key"
+                            label="Key"
+                            margin="normal"
+                            style={{ width: '100%' }}
+                        />
+                        <TextField
+                            id="value"
+                            label="Value"
+                            type="number"
+                            margin="normal"
+                            style={{ width: '100%' }}
+                        />
+                        <p />
+                        <Button type="submit" raised color="primary" style={{ float: "right" }}>Assign</Button>
+                    </div>
 
-          <AttributeList listItems={testData} />         
-        </Grid>
-        {/* </Paper> */}
-      </div>
-  }
+                    <AttributeList listItems={testData} />
+                </Grid>
+                {/* </Paper> */}
+            </div>);
+    }
 }
