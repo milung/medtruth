@@ -34,9 +34,10 @@ class ImageViewComponent extends React.Component<ConnectedDispatch & OwnProps & 
     }
 
     async getUrl(): Promise<void> {
-        let resImage = await ApiService.getImage(this.props.imageName);
+        let resImage = await ApiService.getImage(this.props.imageName+"_");
         let img = document.getElementById(this.props.imageID) as HTMLImageElement;
         img.src = resImage === null ? "" : resImage.url;
+
     }
 
     handleClick() {
