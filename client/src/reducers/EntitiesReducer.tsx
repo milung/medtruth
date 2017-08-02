@@ -10,7 +10,7 @@ export interface ImageEntity {
 }
 
 const initialState: EntitiesState = {
-    images: new Map()
+    images: new Map<string, ImageEntity>()
 };
 
 export function entitiesReducer(

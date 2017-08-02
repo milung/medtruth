@@ -3,7 +3,7 @@ export enum ActionTypeKeys {
     FILES_UPLOADED = 'FILES_UPLOADED',
     THUMBNAIL_BLOWN_UP = 'THUMBNAIL_BLOWN_UP',
     THUMBNAIL_BLOWN_DOWN = 'THUMBNAIL_BLOWN_DOWN',
-    //IMAGES_SELECTED = 'IMAGES_SELECTED',
+    // IMAGES_SELECTED = 'IMAGES_SELECTED',
     IMAGE_SELECTED = 'IMAGE_SELECTED',
     SERIES_SELECTED = 'SERIES_SELECTED',
     IMAGE_ANNOTATION_ADDED = 'IMAGE_ANNOTATION_ADDED',
@@ -86,7 +86,7 @@ export type ActionType =
     | FilesUploadedAction
     | ThumbnailBlownUpAction
     | ThumbnailBlownDownAction
-    //| ImagesSelectedAction
+    // | ImagesSelectedAction
     | ImageSelectedAction
     | SeriesSelectedAction
     | ImageAnnotationAddedAction
