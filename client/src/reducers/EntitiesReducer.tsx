@@ -1,7 +1,9 @@
 import { ActionType, ActionTypeKeys, ImageAnnotation } from '../actions/actions';
 
 export interface EntitiesState {
-    images: Map<string, ImageEntity>;
+    images: {
+        byId: Map<string, ImageEntity>
+    };
 }
 
 export interface ImageEntity {
@@ -10,7 +12,9 @@ export interface ImageEntity {
 }
 
 const initialState: EntitiesState = {
-    images: new Map<string, ImageEntity>()
+    images: {
+        byId: new Map<string, ImageEntity>()
+    }
 };
 
 export function entitiesReducer(
@@ -19,9 +23,10 @@ export function entitiesReducer(
     switch (action.type) {
         case ActionTypeKeys.IMAGE_ANNOTATION_ADDED:
             let newState = { ...prevState };
-            newState.images = new Map(prevState.images);
+            newState.images = { ...prevState.images };
+            newState.images.byId = new Map(prevState.images.byId);
             let imageAnnotation: ImageAnnotation = action.annotation;
-            let imageEntity: ImageEntity = newState.images.get(imageAnnotation.imageId);
+            let imageEntity: ImageEntity = newState.images.byId.get(imageAnnotation.imageId);
             let newImageEntity: ImageEntity;
             if (imageEntity === undefined) {
                 newImageEntity = {
@@ -29,11 +34,11 @@ export function entitiesReducer(
                     annotations: []
                 };
             } else {
-                newImageEntity = {...imageEntity};
+                newImageEntity = { ...imageEntity };
                 newImageEntity.annotations = [...imageEntity.annotations];
             }
             newImageEntity.annotations.push(imageAnnotation);
-            newState.images.set(newImageEntity.imageId, newImageEntity);
+            newState.images.byId.set(newImageEntity.imageId, newImageEntity);
             return newState;
         default:
             return prevState;

@@ -94,6 +94,6 @@ export type ActionType =
     
 export interface ImageAnnotation {
     imageId: string;
-    text: string;
+    key: string;
     value: number;
 }
