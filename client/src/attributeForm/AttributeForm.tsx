@@ -88,7 +88,7 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
         return (
             <div >
                 {/* <Paper> */}
-                <Grid item xs={12} sm={12} md={12}>
+                <Grid style={{position: 'fixed'}} item xs={12} sm={12} md={12}>
                     <div>
                         <TextField
                             required
