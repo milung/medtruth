@@ -3,9 +3,10 @@ import * as Redux from 'redux';
 import Card, { CardContent, CardMedia } from 'material-ui/Card';
 import Typography from 'material-ui/Typography';
 import { ImageViewComponent } from "./ImageView";
-import { SeriesSelectedAction, seriesSelected } from "../actions/actions";
+import { SeriesSelectedAction, seriesSelected, thumbnailBlownUp, ThumbnailBlownUpAction } from "../actions/actions";
 import { connect } from "react-redux";
 import { State } from "../app/store";
+
 
 export interface SeriesProps {
     seriesID: string;
@@ -16,22 +17,31 @@ export interface SeriesProps {
 
 export interface ConnectedDispatch {
     selectedSeries: (seriesID: string) => SeriesSelectedAction;
+    blowUp: (imageID: string) => ThumbnailBlownUpAction;
 }
 
 export interface ConnectedState {
     seriesSelected: boolean;
+    
 }
 
 class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch & ConnectedState, {}> {
     constructor(props) {
         super(props);
+<<<<<<< HEAD
         this.handleImageClick = this.handleImageClick.bind(this);
         console.log("seria sa vykreslila s propsami", this.props);
+=======
+>>>>>>> 2c458103264c1b4e928f444e24e060df944c2795
     }
 
     handleImageClick() {
         console.log("clicked on " + this.props.seriesID);
         this.props.selectedSeries(this.props.seriesID);
+    }
+    
+    imageBlownUp(){
+
     }
 
     render() {
@@ -40,12 +50,17 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
          
         return (
             <div>
-                <Card seriesID={this.props.seriesID} style={{border: borderStyle}}>
+                <Card  style={{border: borderStyle}}>
                     <CardMedia>
                         <ImageViewComponent 
                             imageName={this.props.src} 
                             imageID={this.props.imageID} 
+<<<<<<< HEAD
                             handler={this.handleImageClick} 
+=======
+                            handler={this.handleImageClick.bind(this)} 
+                            blowUp={this.props.blowUp}
+>>>>>>> 2c458103264c1b4e928f444e24e060df944c2795
                         />
                     </CardMedia>
                     <CardContent>
@@ -72,6 +87,8 @@ function mapStateToProps(state: State, props: SeriesProps): SeriesProps & Connec
 function mapDispatchToProps(dispatch: Redux.Dispatch<SeriesSelectedAction>): ConnectedDispatch {
     return {
         selectedSeries: (seriesID: string) => dispatch(seriesSelected(seriesID)),
+        blowUp: (imageID: string) => dispatch(thumbnailBlownUp(imageID))
+
     }
 }
 

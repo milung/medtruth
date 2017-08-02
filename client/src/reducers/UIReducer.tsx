@@ -2,6 +2,7 @@
 import { ActionTypeKeys, ActionType } from '../actions/actions';
 
 export interface UIState {
+    isBlownUpShowed: boolean;
     blownUpThumbnailId: string;
     selections: {
         images: Set<string>;
@@ -10,6 +11,7 @@ export interface UIState {
 }
 
 const initialState: UIState = {
+    isBlownUpShowed: false,
     blownUpThumbnailId: '',
     selections: {
         images: new Set<string>(),
@@ -26,6 +28,7 @@ export function uiReducer(
                 {},
                 prevState,
                 {
+                    isBlownUpShowed: true,
                     blownUpThumbnailId: action.thumbnailId
                 });
         case ActionTypeKeys.THUMBNAIL_BLOWN_DOWN:
@@ -33,6 +36,7 @@ export function uiReducer(
                 {},
                 prevState,
                 {
+                    isBlownUpShowed: false,
                     blownUpThumbnailId: ''
                 });
         case ActionTypeKeys.IMAGE_SELECTED:
