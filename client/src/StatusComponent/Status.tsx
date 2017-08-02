@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 import * as Redux from 'redux';
 import Card, { CardContent, CardMedia } from 'material-ui/Card';
@@ -7,7 +8,7 @@ import { SeriesSelectedAction, seriesSelected } from "../actions/actions";
 import { connect } from "react-redux";
 import { State } from "../app/store";
 
-export interface SeriesProps {
+export interface StatusProps {
     seriesID: string;
     seriesDescription: string;
     src: string;
@@ -22,7 +23,7 @@ export interface ConnectedState {
     seriesSelected: boolean;
 }
 
-class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch & ConnectedState, {}> {
+class StatusComponent extends React.Component<StatusProps & ConnectedDispatch & ConnectedState, {}> {
     constructor(props) {
         super(props);
         console.log("seria sa vykreslila s propsami", this.props);

@@ -4,9 +4,10 @@ import * as request from 'supertest';
 import * as azure from 'azure-storage';
 import * as fs from 'fs';
 
-import { AzureStorage } from './azure-service';
+import { AzureStorage, AzureDatabase } from './azure-service';
 import { routes } from './routes';
 import { StatusCode, storagePath, imagePath } from './constants';
+import { Db } from "mongodb";
 
 // <Server> tests.
 describe('<Server>', () => {
@@ -31,8 +32,16 @@ describe('<Server>', () => {
             let status = await AzureStorage.upload('test', 'testblob', 'HG_001_0.dcm');
             expect(status).toBe(AzureStorage.Status.SUCCESFUL);
             await AzureStorage.blobService.deleteBlob('test', 'testblob', (err, res) => {
-                if (err === null) done();
+                expect(err).toBeNull();
+                done();
             });
+        });
+
+        it('Azure Database should be up', async (done) => {
+            let conn = await AzureDatabase.connect();
+            expect(conn instanceof Db).toBeTruthy();
+            AzureDatabase.close(conn);
+            done();
         });
     });
 
@@ -123,15 +132,15 @@ describe('<Server>', () => {
 
         // <Images> tests.
         describe('<Images>', () => {
-            it('/images        responds to OPTIONS', () => {
+            it('/images             responds to OPTIONS', () => {
                 return req.options('/api/images')
                     .expect(StatusCode.OK);
             });
 
-            it('/images/:id    NotFound status with invalid id', () => {
+            it('/images/:id         NotFound status with invalid id', () => {
                 return req.get('/api/images/34298148941')
                     .expect(StatusCode.NotFound);
-            })
+            });
         });
     });
 });

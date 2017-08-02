@@ -3,8 +3,9 @@ export enum ActionTypeKeys {
     FILES_UPLOADED = 'FILES_UPLOADED',
     THUMBNAIL_BLOWN_UP = 'THUMBNAIL_BLOWN_UP',
     THUMBNAIL_BLOWN_DOWN = 'THUMBNAIL_BLOWN_DOWN',
-    IMAGES_SELECTED = 'IMAGES_SELECTED',
+    // IMAGES_SELECTED = 'IMAGES_SELECTED',
     IMAGE_SELECTED = 'IMAGE_SELECTED',
+    SERIES_SELECTED = 'SERIES_SELECTED',
     IMAGE_ANNOTATION_ADDED = 'IMAGE_ANNOTATION_ADDED',
     OTHER_ACTION = 'OTHER_ACTION'
 }
@@ -23,10 +24,10 @@ export interface ThumbnailBlownDownAction {
     type: ActionTypeKeys.THUMBNAIL_BLOWN_DOWN;
 }
 
-export interface ImagesSelectedAction {
-    type: ActionTypeKeys.IMAGES_SELECTED;
-    ids: string[];
-}
+// export interface ImagesSelectedAction {
+//     type: ActionTypeKeys.IMAGES_SELECTED;
+//     ids: string[];
+// }
 
 export interface ImageSelectedAction {
     type: ActionTypeKeys.IMAGE_SELECTED;
@@ -36,6 +37,11 @@ export interface ImageSelectedAction {
 export interface ImageAnnotationAddedAction {
     type: ActionTypeKeys.IMAGE_ANNOTATION_ADDED;
     annotation: ImageAnnotation;
+}
+
+export interface SeriesSelectedAction {
+    type: ActionTypeKeys.SERIES_SELECTED;
+    id: string;
 }
 
 export interface OtherAction {
@@ -56,10 +62,10 @@ export const thumbnailBlownDown = (): ThumbnailBlownDownAction => ({
     type: ActionTypeKeys.THUMBNAIL_BLOWN_DOWN,
 });
 
-export const selectedImages = (ids: string[]): ImagesSelectedAction => ({
-    type: ActionTypeKeys.IMAGES_SELECTED,
-    ids
-});
+// export const selectedImages = (ids: string[]): ImagesSelectedAction => ({
+//     type: ActionTypeKeys.IMAGES_SELECTED,
+//     ids
+// });
 
 export const selectedImage = (id: string): ImageSelectedAction => ({
     type: ActionTypeKeys.IMAGE_SELECTED,
@@ -71,17 +77,23 @@ export const imageAnnotationAdded = (annotation: ImageAnnotation): ImageAnnotati
     annotation
 });
 
+export const seriesSelected = (id: string): SeriesSelectedAction => ({
+    type: ActionTypeKeys.SERIES_SELECTED,
+    id
+});
+
 export type ActionType = 
     | FilesUploadedAction
     | ThumbnailBlownUpAction
     | ThumbnailBlownDownAction
-    | ImagesSelectedAction
+    // | ImagesSelectedAction
     | ImageSelectedAction
+    | SeriesSelectedAction
     | ImageAnnotationAddedAction
     | OtherAction;
     
 export interface ImageAnnotation {
     imageId: string;
-    text: string;
+    key: string;
     value: number;
 }

@@ -81,13 +81,6 @@ routerUpload.get('/:id', async (req, res) => {
         return;
     }
 
-
-    // if (id === 12345) {//undefined
-    //     let responseJSON = jsonCreator.getUploadJSON();
-    //    console.log("test json", responseJSON);
-    //    res.json(responseJSON);}
-
-
     if (id != -1) {
         let responseJSON = await AzureDatabase.getUploadDocument(id);
         if (responseJSON === undefined) {
