@@ -5,6 +5,7 @@ export interface UIState {
     blownUpThumbnailId: string;
     selections: {
         images: Set<string>;
+        series: Set<string>;
     };
 }
 
@@ -12,6 +13,7 @@ const initialState: UIState = {
     blownUpThumbnailId: '',
     selections: {
         images: new Set<string>(),
+        series: new Set<string>()
     }
 };
 
@@ -41,6 +43,15 @@ export function uiReducer(
             let newState = Object.assign({}, prevState);
             newState.selections = Object.assign({}, prevState.selections);
             newState.selections.images = imageIdsSet;
+            return newState;
+        case ActionTypeKeys.SERIES_SELECTED:
+            let seriesIdsSet: Set<string> = addRemoveFromSet(
+                prevState.selections.series,
+                action.id
+            );
+            newState = Object.assign({}, prevState);
+            newState.selections = Object.assign({}, prevState.selections);
+            newState.selections.series = seriesIdsSet;
             return newState;
         // case ActionTypeKeys.IMAGES_SELECTED:
         //     imageIdsSet = addRemoveSetFromSet(
