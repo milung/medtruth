@@ -1,6 +1,7 @@
 
 import * as express from 'express';
 import * as fs from 'fs';
+import * as jimp from 'jimp';
 
 import { Converter } from '../converter';
 import { AzureStorage, AzureDatabase } from '../azure-service';
@@ -33,6 +34,7 @@ export class UploadController {
         this.convert = this.convert.bind(this);
         this.upload = this.upload.bind(this);
         this.parse = this.parse.bind(this);
+        this.createThumbnail = this.createThumbnail.bind(this);
     }
 
     Root = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -43,9 +45,15 @@ export class UploadController {
         if (files.length === 0) { next(); return null; }
 
         // Convert, upload and parse the files.
+        console.log('[Converting]');
+
         await this.convert(files);
+        console.log('[Uploading]');
+
         await this.upload();
-        let json = this.parse();
+        console.log('[Parsing]');
+        let json = await this.parse();
+        console.log('[insertToImagesCollection]');
         await AzureDatabase.insertToImagesCollection(json);
 
         // Cleanup.
@@ -61,6 +69,7 @@ export class UploadController {
         // Then assign a unique_id and UploadStatuses.
         req.params.statuses = { upload_id: json.uploadID, statuses: statuses };
         next();
+        console.log("[END]");
     }
 
     async convert(files: Express.Multer.File[]) {
@@ -108,8 +117,7 @@ export class UploadController {
         this.responses = await Promise.all(uploads);
     }
 
-
-    parse() {
+    async parse() {
         // TODO: Refactor!
         let json = new objects.UploadJSON();
         json.uploadID = new Date().getTime();
@@ -152,9 +160,8 @@ export class UploadController {
             existingSeries.seriesID = converter.getSeriesUID();
 
             studiesArray[studyID][seriesID].push({ imageNumber: Number(converter.getImageNumber()), imageID: parse.filename });
-           
+
             existingSeries.images.push(parse.filename);
-            console.log("pushed image number " + converter.getImageNumber(), parse.filename);
 
             if (!seriesFound) {
                 existingStudy.series.push(existingSeries);
@@ -166,11 +173,8 @@ export class UploadController {
         });
 
         for (var study in studiesArray) {
-            console.log(study);
             for (var series in studiesArray[study]) {
-                console.log("series ", series);
                 let images = studiesArray[study][series];
-                console.log(images);
                 images.sort((a: Image, b: Image) => {
                     if (a.imageNumber < b.imageNumber) return -1;
                     if (a.imageNumber > b.imageNumber) return 1;
@@ -180,6 +184,8 @@ export class UploadController {
                 // Math.floor would return the 2nd element 
                 var middle = images[Math.floor((images.length - 1) / 2)];
                 console.log("middle " + middle.imageNumber, middle.imageID);
+                await this.createThumbnail(middle.imageID);
+                console.log("thumbnaild created");
 
                 json.studies.find((stud) => {
                     return stud.studyID === study;
@@ -187,11 +193,46 @@ export class UploadController {
                     return seria.seriesID === series;
                 }).thumbnailImageID = middle.imageID;
 
-                console.log(images);
             }
         }
 
-        console.log("thumbnail", json.studies[0].series[0].thumbnailImageID);
         return json;
     }
+
+
+    createThumbnail(imageID) {
+        return new Promise<string>((resolve, reject) => {
+
+            console.log('[Create Thumbnail]');
+
+            jimp.read(imagePath + imageID + ".png", async function (err, image) {
+                // do stuff with the image (if no exception) 
+                console.log("[convert] " + imageID);
+                let thumbnail = imagePath + imageID + '_.png';
+                if (err === null) {
+                    console.log("[resizing]");
+                    image.background(0x000000FF)
+                    .contain(300, 300)
+                    .write(thumbnail, async (err, image) => {
+                            if (err === null) {
+                                console.log("[thumbnail] uploading to azure store");
+                                await AzureStorage.toImages(imageID + '_.png', thumbnail);
+                                fs.unlink(thumbnail, () => { });
+                                console.log("png 300 x 300 DONE");
+                                resolve("OK")
+                            } else {
+                                console.log("[png300x300] Upload to azure fail");
+                                reject("NO OK")
+                            }
+                        });
+
+                } else {
+                    console.log("[ERROR] png 300 x 300");
+                    console.log(err);
+                    reject("NOT OK")
+                }
+            });
+        });
+    }
+
 }

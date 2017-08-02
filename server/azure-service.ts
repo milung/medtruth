@@ -2,9 +2,10 @@
 import * as azure from 'azure-storage';
 import * as request from 'request';
 import { StatusCode } from './constants';
+import * as _ from 'lodash';
 //import { db } from './server';
 
-import { MongoClient } from 'mongodb';
+import { MongoClient, Db, Collection } from 'mongodb';
 import { UploadJSON } from "./Objects";
 
 export namespace AzureStorage {
@@ -62,60 +63,115 @@ export namespace AzureStorage {
 export namespace AzureDatabase {
     export const localAddress = "localhost:27017";
     export const localName = "/myproject";
-    export const url = "mongodb://" + localAddress + localName;
-    //export const url = "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true";
+    //export const localName = "/medtruth";
+    //export const url = "mongodb://" + localAddress + localName;
+    export const url = "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true";
 
     export enum Status {
         SUCCESFUL,
-        FAILED
+        FAILED,
+        CONN_FAILED,
     }
 
-    let db = null;
-
     /**
-     * Initialise connection to MongoDB.
+     * Initialize connection to MongoDB.
      */
-    export function connectToDb(): Promise<string> {
-        return new Promise<string>(async (resolve, reject) => {
+    function connect(): Promise<Db> {
+        return new Promise<Db>(async (resolve, reject) => {
             MongoClient.connect(url, function (err, database) {
-                if (err) {
-                    reject(err.message)
-                };
-                db = database;
-                resolve("Successfully connected to database!");
+                if (err) reject(Status.CONN_FAILED)
+                else resolve(database);
             });
         });
     }
 
+    interface Connection {
+        db: Db,
+        collection: Collection
+    }
+
+    async function connectToImages(): Promise<Connection> {
+        let db = await connect();
+        let collection = await db.collection('images');
+        return { db: db, collection: collection };
+    }
+
+    async function connectToAttributes(): Promise<Connection> {
+        let db = await connect();
+        let collection = await db.collection('attributes');
+        return { db: db, collection: collection };
+    }
+
+    // Close the database only if it's not null.
+    function close(db: Db): void {
+        if (db) db.close();
+    }
+
     /**
      * Creates new document in the MongoDB database.
-     * @param object 
+     * @param object
      */
-    
     export function insertDocument(object, collectionName: string): Promise<Status> {
         return new Promise<Status>(async (resolve, reject) => {
-            let connectionResult = await connectToDb();
-            console.log(connectionResult);
-            if (db != null) {
+            try {
+                var db = await connect();
                 let collection = await db.collection(collectionName);
                 await collection.insert(object, (error, result) => {
-                    let message = "Inserted " + result.result.n + " object, ID: " + result.insertedId;
-                    console.log(result);
                     if (error) reject(Status.FAILED);
                     else resolve(Status.SUCCESFUL);
-                    console.log(message);
-                })
-                db.close();
+                });
+            } catch (e) {
+                reject(Status.FAILED);
+            } finally {
+                close(db);
             }
         });
     }
 
     export function insertToImagesCollection(object): Promise<Status> {
-        return insertDocument(object, 'images'); 
+        return insertDocument(object, 'images');
     }
 
-    export function insertToAttributesCollection(object): Promise<Status> {
-        return insertDocument(object, 'attributes'); 
+    interface Attribute {
+        key: string;
+        value: number;
+    }
+
+    interface AttributeQuery {
+        imageID: string;
+        attributes: Attribute[];
+    }
+
+    export function putToAttributes(id, ...attributes: Attribute[]): Promise<Status> {
+        return new Promise<Status>(async (resolve, reject) => {
+            try {
+                var conn = await connectToAttributes();
+                // First we look for an equal image ID.
+                let query = { imageID: id };
+                let result: AttributeQuery = await conn.collection.findOne(query);
+                // If we found an equal image ID, we update the attribute contents.
+                if (result) {
+                    // Merge the queries and new attributes. If the keys are the same,
+                    // only the values will be overwritten.
+                    // Else it creates a new key with a value.
+                    let updatedAttributes = _({}).merge(
+                        _(result.attributes).groupBy('key').value(),
+                        _(attributes)       .groupBy('key').value()
+                    ).values().flatten().value();
+                    // Updates the result query.
+                    var updatedResult = { imageID: id, attributes: updatedAttributes };
+                    await conn.collection.updateOne(result, updatedResult);
+                    // If the query does not exist, we create a brand new one.
+                } else {
+                    await conn.collection.insertOne({ imageID: id, attributes });
+                }
+                resolve(Status.SUCCESFUL);
+            } catch (e) {
+                reject(Status.FAILED);
+            } finally {
+                close(conn.db);
+            }
+        });
     }
 
     /**
@@ -124,18 +180,17 @@ export namespace AzureDatabase {
      */
     export function getUploadDocument(uploadID: number): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
-            let connectionResult = await connectToDb();
-            console.log(connectionResult);
-            if (db != null) {
-                let query = {uploadID: Number(uploadID)};
-                console.log("find query", query);
-                let collection = await db.collection('images');
-                await collection.find(query).toArray(function (err, result) {
-                    if (err) reject(Status.FAILED);
-                    else resolve(result[0]);
-                    console.log("Number of found objects: " + result.length);
-                });
-                db.close();
+            try {
+                var conn = await connectToImages();
+                
+                let query = { uploadID: Number(uploadID) };
+                let result = await conn.collection.findOne(query);
+                if (result) resolve(result);
+                else        reject(Status.FAILED);
+            } catch (e) {
+                reject(Status.FAILED);
+            } finally {
+                close(conn.db);
             }
         });
     }
@@ -144,18 +199,18 @@ export namespace AzureDatabase {
      * Returns JSON object of the last upload document in MongoDB.
      */
     export function getLastUpload(): Promise<string> {
-        console.log("Last upload");
         return new Promise<string>(async (resolve, reject) => {
-            let connectionResult = await connectToDb();
-            console.log(connectionResult);
-            if (db != null) {
-                let collection = await db.collection('images');
-                await collection.find({}).sort({ "uploadDate": -1 }).limit(1).toArray(function (err, result) {
-                    if (err) reject(Status.FAILED);
-                    console.log("Number of found objects: " + result.length);
-                    resolve(result[0]);
+            try {
+                var conn = await connectToImages();
+
+                await conn.collection.find({}).sort({ "uploadDate": -1 }).limit(1).toArray((err, result) => {
+                    if (err)    reject(Status.FAILED);
+                                resolve(result[0]);
                 });
-                db.close();
+            } catch (e) {
+                reject(Status.FAILED);
+            } finally {
+                close(conn.db);
             }
         });
     }

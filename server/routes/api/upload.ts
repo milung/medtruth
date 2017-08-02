@@ -8,7 +8,6 @@ import { UploadController } from '../../controllers/upload';
 import { StatusCode, storagePath, imagePath } from '../../constants';
 import { AzureStorage, AzureDatabase } from '../../azure-service';
 import { JSONCreator } from '../../Objects';
-
 export const rootUpload = '/upload';
 export const routerUpload = express.Router();
 
@@ -16,7 +15,7 @@ let jsonCreator: JSONCreator = new JSONCreator();
 
 // Middleware for extending the response's timeout for uploading larger files.
 const extendTimeout = (req, res, next) => {
-    res.setTimeout(60000, () => {
+    res.setTimeout(180000, () => {
         res.sendStatus(StatusCode.GatewayTimeout);
     });
     next();
@@ -54,9 +53,9 @@ routerUpload.options('/', (req, res) => {
     Returns JSON, that cointains an array of names, id's 
     and if occured, errors of the converted files.
 */
-routerUpload.post('/', 
-    extendTimeout, 
-    storage.any(), 
+routerUpload.post('/',
+    extendTimeout,
+    storage.any(),
     new UploadController().Root,
     async (req: express.Request, res: express.Response) => {
         res.json(
@@ -93,12 +92,21 @@ routerUpload.get('/:id', async (req, res) => {
         } else {
             res.json(responseJSON);
         }
-    } else {
-        let responseJSON = await AzureDatabase.getLastUpload();
-        if(responseJSON === undefined){
-            res.sendStatus(StatusCode.NotFound);
+    
+        if (id != -1) {
+            let responseJSON = await AzureDatabase.getUploadDocument(id);
+            if (responseJSON === undefined) {
+                res.sendStatus(StatusCode.NotFound);
+            } else {
+                res.json(responseJSON);
+            }
         } else {
-            res.json(responseJSON);
+            let responseJSON = await AzureDatabase.getLastUpload();
+            if(responseJSON === undefined){
+                res.sendStatus(StatusCode.NotFound);
+            } else {
+                res.json(responseJSON);
+            }
         }
     }
 });
@@ -114,5 +122,5 @@ routerUpload.post('/document', extendTimeout, storage.array('data'), async (req,
 
     let result = await AzureDatabase.insertToAttributesCollection({hello: 'meh', date: new Date()});
     res.json(result);
-    
+
 });

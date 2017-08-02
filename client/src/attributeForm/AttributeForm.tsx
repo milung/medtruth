@@ -1,7 +1,4 @@
-
 import * as React from 'react';
-//import { TextField } from 'C:/Users/USER/Desktop/31.07.2017/SDA-GroundTruth/client/src/attributeForm/TextFields.tsx';
-//import { TextFields } from './TextFields';
 import Grid from 'material-ui/Grid';
 import TextField from 'material-ui/TextField';
 import Button from 'material-ui/Button';
@@ -16,9 +13,16 @@ let testData=[line1,line2,line3];
 
 export class AttributeForm extends React.Component<{}, {}> {
 
+    constructor() {
+        super();
+        this.handleClick = this.handleClick.bind(this);
+    }
 
-  render() {
+    handleClick() {
+        console.log("Assign was clicked!");
+    }
 
+<<<<<<< HEAD
     return (
       <div >
         {/* <Paper> */}
@@ -47,4 +51,22 @@ export class AttributeForm extends React.Component<{}, {}> {
       </div>
     );
   }
+=======
+    render() {
+        return (
+            <div>
+                <Grid item xs={12} sm={12} md={12}>
+                    {"Key"}
+                    <input id="key" type="text" />
+                    <p />
+                    {"Value"}
+                    <input id="value" type="text" />
+                    <p />
+                    <button type="submit" onClick={this.handleClick.bind(this)}>Assign</button>
+                    <p />
+                </Grid>
+            </div>
+        );
+    }
+>>>>>>> 8af75b47788cea9bf2017b9cdc970409bba8e3a1
 }

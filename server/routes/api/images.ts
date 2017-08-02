@@ -1,7 +1,8 @@
 
 import { Router } from 'express';
 import { StatusCode } from '../../constants';
-import { AzureStorage } from '../../azure-service';
+import { AzureStorage, AzureDatabase } from '../../azure-service';
+import { json } from 'body-parser';
 
 export const rootImages = '/images';
 export const routerImages = Router();
@@ -65,4 +66,22 @@ routerImages.get('/:id', async (req, res) => {
             url: url
         }
     );
+});
+
+/*
+    Route:      PUT '/images/:id/assign'
+    Expects:    JSON, containing key-value pairs.
+    --------------------------------------------
+    Updates, or creates new attributes for an image.
+*/
+interface Attribute {
+    key: string;
+    value: number;
+}
+
+routerImages.put('/:id/assign', json(), async (req, res) => {
+    let id = req.params.id;
+    let attributes: Attribute[] = req.body.attributes;
+    await AzureDatabase.putToAttributes(id, ...attributes);
+    res.sendStatus(StatusCode.OK);
 });

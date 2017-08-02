@@ -3,7 +3,6 @@ import * as express from 'express';
 import { routes } from './routes';
 import { StatusCode } from './constants';
 
-
 // Set-up a server, with routes and static public files.
 export const server = express();
 

@@ -9,7 +9,6 @@ export default class App extends React.Component<{}, {}> {
     render() {
         return (
         <div>
-            
             <Grid container={true}>
                 <Grid item xs={9} sm={9} md={9}>
                     <FolderForm />
@@ -18,7 +17,6 @@ export default class App extends React.Component<{}, {}> {
                 <Grid item xs={3} sm={3} md={3}>
                     <AttributeForm />
                 </Grid>
-                
             </Grid>
         </div>
         );

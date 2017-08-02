@@ -20,7 +20,7 @@ export class SerieView extends React.Component<SeriesProps, {}> {
             <div>
                 <Card>
                     <CardMedia style={{border: "3px solid white"}}>
-                        <ImageView imageName={this.props.src} imageID={this.props.imageID} />
+                        <ImageView imageName={this.props.src} imageID={this.props.imageID}/>
                     </CardMedia>
                     <CardContent>
                         <Typography type="body2" component="p">
