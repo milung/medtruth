@@ -123,6 +123,7 @@ export namespace AzureDatabase {
         imageID: string;
         attributes: Attribute[];
     }
+    
     export function insertToAttributesCollection(id, ...attributes: Attribute[]): Promise<Status> {
         return new Promise<Status>(async (resolve, reject) => {
             try {
@@ -156,8 +157,8 @@ export namespace AzureDatabase {
     }
 
     /**
-     * Returns an array of JSON objects.
-     * @param query 
+     * Returns Upload document with a specific ID.
+     * @param uploadID
      */
     export function getUploadDocument(uploadID: number): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
@@ -176,7 +177,7 @@ export namespace AzureDatabase {
     }
 
     /**
-     * Returns JSON object of the last upload document in MongoDB.
+     * Returns JSON object of the last Upload document in MongoDB.
      */
     export function getLastUpload(): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
