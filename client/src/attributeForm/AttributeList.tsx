@@ -25,8 +25,8 @@ export class AttributeList extends React.Component<listOfAttributes, {}> {
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell>Dessert </TableCell>
-                            <TableCell numeric>Calories</TableCell>
+                            <TableCell>Key </TableCell>
+                            <TableCell numeric>Value</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
