@@ -5,7 +5,7 @@ import { StatusCode } from './constants';
 import * as _ from 'lodash';
 //import { db } from './server';
 
-import { MongoClient, Db } from 'mongodb';
+import { MongoClient, Db, Collection } from 'mongodb';
 import { UploadJSON } from "./Objects";
 
 export namespace AzureStorage {
@@ -68,12 +68,8 @@ export namespace AzureDatabase {
 
     export enum Status {
         SUCCESFUL,
-        FAILED
-    }
-
-    // Close the database only if it's not null.
-    function close(ref: Db): void {
-        if (ref) ref.close();
+        FAILED,
+        CONN_FAILED,
     }
 
     /**
@@ -82,15 +78,37 @@ export namespace AzureDatabase {
     function connect(): Promise<Db> {
         return new Promise<Db>(async (resolve, reject) => {
             MongoClient.connect(url, function (err, database) {
-                if (err) reject(null)
+                if (err) reject(Status.CONN_FAILED)
                 else resolve(database);
             });
         });
     }
 
+    interface Connection {
+        db: Db,
+        collection: Collection
+    }
+
+    async function connectToImages(): Promise<Connection> {
+        let db = await connect();
+        let collection = await db.collection('images');
+        return { db: db, collection: collection };
+    }
+
+    async function connectToAttributes(): Promise<Connection> {
+        let db = await connect();
+        let collection = await db.collection('attributes');
+        return { db: db, collection: collection };
+    }
+
+    // Close the database only if it's not null.
+    function close(db: Db): void {
+        if (db) db.close();
+    }
+
     /**
      * Creates new document in the MongoDB database.
-     * @param object 
+     * @param object
      */
     export function insertDocument(object, collectionName: string): Promise<Status> {
         return new Promise<Status>(async (resolve, reject) => {
@@ -122,14 +140,14 @@ export namespace AzureDatabase {
         imageID: string;
         attributes: Attribute[];
     }
-    export function insertToAttributesCollection(id, ...attributes: Attribute[]): Promise<Status> {
+
+    export function putToAttributes(id, ...attributes: Attribute[]): Promise<Status> {
         return new Promise<Status>(async (resolve, reject) => {
             try {
-                var db = await connect();
-                let collection = await db.collection('attributes');
+                var conn = await connectToAttributes();
                 // First we look for an equal image ID.
                 let query = { imageID: id };
-                let result: AttributeQuery = await collection.findOne(query);
+                let result: AttributeQuery = await conn.collection.findOne(query);
                 // If we found an equal image ID, we update the attribute contents.
                 if (result) {
                     // Merge the queries and new attributes. If the keys are the same,
@@ -140,16 +158,17 @@ export namespace AzureDatabase {
                         _(attributes)       .groupBy('key').value()
                     ).values().flatten().value();
                     // Updates the result query.
-                    await collection.updateOne(result, { imageID: id, attributes: updatedAttributes });
-                // If the query does not exist, we create a brand new one.
+                    var updatedResult = { imageID: id, attributes: updatedAttributes };
+                    await conn.collection.updateOne(result, updatedResult);
+                    // If the query does not exist, we create a brand new one.
                 } else {
-                    await collection.insertOne({ imageID: id, attributes });
+                    await conn.collection.insertOne({ imageID: id, attributes });
                 }
                 resolve(Status.SUCCESFUL);
             } catch (e) {
                 reject(Status.FAILED);
             } finally {
-                close(db);
+                close(conn.db);
             }
         });
     }
@@ -161,15 +180,16 @@ export namespace AzureDatabase {
     export function getUploadDocument(uploadID: number): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
             try {
-                var db = await connect();
+                var conn = await connectToImages();
+                
                 let query = { uploadID: Number(uploadID) };
-                let collection = await db.collection('images');
-                let result = await collection.findOne(query);
-                resolve(result);
+                let result = await conn.collection.findOne(query);
+                if (result) resolve(result);
+                else        reject(Status.FAILED);
             } catch (e) {
                 reject(Status.FAILED);
             } finally {
-                close(db);
+                close(conn.db);
             }
         });
     }
@@ -180,16 +200,16 @@ export namespace AzureDatabase {
     export function getLastUpload(): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
             try {
-                var db = await connect();
-                let collection = await db.collection('images');
-                await collection.find({}).sort({ "uploadDate": -1 }).limit(1).toArray(function (err, result) {
-                    if (err) reject(Status.FAILED);
-                    resolve(result[0]);
+                var conn = await connectToImages();
+
+                await conn.collection.find({}).sort({ "uploadDate": -1 }).limit(1).toArray((err, result) => {
+                    if (err)    reject(Status.FAILED);
+                                resolve(result[0]);
                 });
             } catch (e) {
                 reject(Status.FAILED);
             } finally {
-                close(db);
+                close(conn.db);
             }
         });
     }
