@@ -28,7 +28,7 @@ export function uiReducer(
                 {},
                 prevState,
                 {
-                    isBlownShowed: true,
+                    isBlownUpShowed: true,
                     blownUpThumbnailId: action.thumbnailId
                 });
         case ActionTypeKeys.THUMBNAIL_BLOWN_DOWN:
@@ -36,7 +36,7 @@ export function uiReducer(
                 {},
                 prevState,
                 {
-                    isBlowShowed: false,
+                    isBlownUpShowed: false,
                     blownUpThumbnailId: ''
                 });
         case ActionTypeKeys.IMAGE_SELECTED:

@@ -7,6 +7,7 @@ interface ImageProps{
     imageID: string;
     imageName: string;
     handler: (...args: any[]) => void;
+    blowUp: (imageID: string) => void;
 }
 export class ImageViewComponent extends React.Component<ImageProps, {}> {
     constructor(props) {
@@ -31,6 +32,7 @@ export class ImageViewComponent extends React.Component<ImageProps, {}> {
 
     handleDoubleClick() {
         console.log("double click!");
+        this.props.blowUp(this.props.imageName);
     }
 
     keyPressed(event) {
