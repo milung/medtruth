@@ -31,7 +31,7 @@ export class SelectionStatusComponent extends React.Component<ConnectedState & C
                             type="submit"
                             role="button"
                             style={{
-                                color: '#f44336', 
+                                color: '#e53c76', 
                                 fontWeight: 'bold', 
                                 background: 'none', 
                                 outline: 'none', 
