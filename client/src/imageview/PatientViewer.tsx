@@ -43,7 +43,7 @@ class PatientViewerComponent extends React.Component<ConnectedState, ArrayOfPati
 
         this.setState({ wait: true });
 
-        let resData = await ApiService.getData(uploadID);
+        let resData = await ApiService.getData(uploadID/*12345*/);
         console.log('got data', resData);
         let patients = [];
 

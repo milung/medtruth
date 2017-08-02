@@ -37,12 +37,13 @@ class ImageViewComponent extends React.Component<ConnectedDispatch & OwnProps & 
         let resImage = await ApiService.getImage(this.props.imageName+"_");
         let img = document.getElementById(this.props.imageID) as HTMLImageElement;
         img.src = resImage === null ? "" : resImage.url;
-
     }
 
     handleClick() {
         console.log("blob ID", this.props.imageName);
+        
         console.log("state before", this.props.imageSelected);
+        //this.setState(this.props);
         this.props.selectedImage(this.props.imageName);
     }
 
