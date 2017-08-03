@@ -3,11 +3,11 @@ import * as React from 'react';
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
 // import Paper from 'material-ui/Paper';
 
-interface listItem {
-    atribute: string;
+export interface listItem {
+    attribute: string;
     value: number;
 };
-interface listOfAttributes {
+export interface listOfAttributes {
     listItems: listItem[];
 };
 
@@ -34,7 +34,7 @@ export class AttributeList extends React.Component<listOfAttributes, {}> {
                             return (
                                 <TableRow key={i}>
                                     <TableCell>
-                                        {item.atribute}
+                                        {item.attribute}
                                     </TableCell>
                                     <TableCell numeric>
                                         {item.value}

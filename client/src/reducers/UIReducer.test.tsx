@@ -9,6 +9,7 @@ describe('UIReducer', () => {
     it('should return initial state', () => {
         expect(uiReducer(undefined, otherAction)).toEqual({
             blownUpThumbnailId: '',
+            isBlownUpShowed: false,
             selections: {
                 images: new Set<string>(),
                 series: new Set<string>()
