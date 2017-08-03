@@ -3,7 +3,7 @@ import * as Redux from 'redux';
 import Grid from 'material-ui/Grid';
 
 import { PatientProps } from './PatientView';
-import seriesStyle from '../styles/ComponentsStyle';
+import { imageStyle } from '../styles/ComponentsStyle';
 import { PatientView } from './PatientView';
 import { ApiService } from '../api';
 import { connect } from 'react-redux';
@@ -86,7 +86,7 @@ class PatientViewerComponent extends React.Component<ConnectedState & ConnectedD
                 <div >
                     <Grid container={true} gutter={16}>
                         {this.state.patientList.map(value =>
-                            <Grid item xs={12} sm={12} md={12} style={seriesStyle.seriesStyle} key={value.patientId}>
+                            <Grid item xs={12} sm={12} md={12} style={imageStyle.seriesStyle} key={value.patientId}>
                                 <PatientView {...value} />
                             </Grid>
                         )}

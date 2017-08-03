@@ -1,12 +1,15 @@
 
-export default {
-     contentCenter:{
-        wordWrap: 'break-word',
-    },
+type position = 'absolute' | 'fixed';
+let pos: position = 'fixed';
+
+export const imageStyle = {
     seriesStyle: {
         //maxWidth: '20%',
         //maxHeight: '15%',
         //borderStyle: 'solid'
+    },
+     contentCenter:{
+        wordWrap: 'break-word',
     },
 
     img: {
@@ -29,9 +32,20 @@ export default {
     wrapper: {
         textAlign: 'center',
         marginTop: '10px',
+        display: 'block'
     },
     image: {
         maxWidth: '100%',
         maxHeight: '100%'
+    },
+    backgroundDiv: {
+        position: pos,
+        top: 0,
+        left: 0,
+        background: "rgba(0, 0, 0, 0.6)",
+        zIndex: 5,
+        width: '74%',
+        height: '100%',
+        display: 'none'
     }
 }
