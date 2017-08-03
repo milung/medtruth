@@ -7,8 +7,6 @@ import { entitiesReducer } from '../reducers/EntitiesReducer';
 //import { freeze } from 'redux-freeze';
 import { EntitiesState } from '../reducers/EntitiesReducer';
 
-const ReduxDevTool = composeWithDevTools;
-
 const rootReducer = combineReducers({
     entities: entitiesReducer,
     files: filesReducer,
@@ -21,6 +19,10 @@ export interface State {
     entities: EntitiesState;
 }
 
-export const store = createStore(rootReducer, ReduxDevTool(
+const composeEnhancers = composeWithDevTools({
+  serialize: true
+});
+
+export const store = createStore(rootReducer, composeEnhancers(
     //applyMiddleware(freeze)
 ));
