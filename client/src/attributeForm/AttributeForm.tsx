@@ -124,6 +124,14 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
             inputIncorrect = true;
         }
 
+        var attributeList;
+        //var nothingIsSelected = true;
+        if (this.props.series.length != 0) {
+            console.log("SOMETHING IS SELECTED");
+            attributeList = <AttributeList listItems={this.listItems}/>
+            //nothingIsSelected = false;
+        }
+
         console.log("RENDER");
         if (!this.state.wait) {
             return (
@@ -154,7 +162,7 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
                             <Button disabled={inputIncorrect} id="assignButton" type="submit" raised color="primary" onClick={this.handleClick.bind(this)} style={{ float: "right" }}>Assign</Button>
                         </div>
 
-                        <AttributeList listItems={this.listItems} />
+                        {attributeList}
                     </Grid>
                     {/* </Paper> */}
                 </div>);
