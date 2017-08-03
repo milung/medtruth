@@ -5,7 +5,7 @@ import { filesReducer, FilesState } from '../reducers/FilesReducer';
 import { UIState, uiReducer } from '../reducers/UIReducer';
 import { entitiesReducer } from '../reducers/EntitiesReducer';
 //import { freeze } from 'redux-freeze';
-//import { EntitiesState } from '../reducers/EntitiesReducer';
+import { EntitiesState } from '../reducers/EntitiesReducer';
 
 const ReduxDevTool = composeWithDevTools;
 
@@ -18,6 +18,7 @@ const rootReducer = combineReducers({
 export interface State {
     files: FilesState;
     ui: UIState;
+    entities: EntitiesState;
 }
 
 export const store = createStore(rootReducer, ReduxDevTool(
