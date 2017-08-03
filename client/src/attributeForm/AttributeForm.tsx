@@ -78,10 +78,16 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
 
         let resData;
         //for (var img of Array.from(this.props.series.values())) {
-        for (var img of this.props.images) {
-            console.log("IMAGE", img);
-            this.props.addedImageAnnotation({ imageId: img, key: this.state.keyFieldValue, value: Number(this.state.valueFieldValue) });
-            resData = await ApiService.putAttributes(img, { key: this.state.keyFieldValue, value: Number(this.state.valueFieldValue) })
+        // for (var img of this.props.images) {
+        //     console.log("IMAGE", img);
+        //     this.props.addedImageAnnotation({ imageId: img, key: this.state.keyFieldValue, value: Number(this.state.valueFieldValue) });
+        //     resData = await ApiService.putAttributes(img, { key: this.state.keyFieldValue, value: Number(this.state.valueFieldValue) })
+        //     console.log("resData", resData);
+        // }
+        for (var series of this.props.series) {
+            console.log("SERIES", series);
+            this.props.addedImageAnnotation({ imageId: series, key: this.state.keyFieldValue, value: Number(this.state.valueFieldValue) });
+            resData = await ApiService.putAttributes(series, { key: this.state.keyFieldValue, value: Number(this.state.valueFieldValue) })
             console.log("resData", resData);
         }
 
