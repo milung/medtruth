@@ -5,8 +5,8 @@ export interface UIState {
     isBlownUpShowed: boolean;
     blownUpThumbnailId: string;
     selections: {
-        images: Set<string>;
-        series: Set<string>;
+        images: string[];
+        series: string[]
     };
 }
 
@@ -14,8 +14,8 @@ const initialState: UIState = {
     isBlownUpShowed: false,
     blownUpThumbnailId: '',
     selections: {
-        images: new Set<string>(),
-        series: new Set<string>()
+        images: [],
+        series: []
     }
 };
 
@@ -40,27 +40,27 @@ export function uiReducer(
                     blownUpThumbnailId: ''
                 });
         case ActionTypeKeys.IMAGE_SELECTED:
-            let imageIdsSet: Set<string> = addRemoveFromSet(
+            let imageIdsArray: string[] = addRemoveFromArray(
                 prevState.selections.images,
                 action.id
             );
             let newState = Object.assign({}, prevState);
             newState.selections = Object.assign({}, prevState.selections);
-            newState.selections.images = imageIdsSet;
+            newState.selections.images = imageIdsArray;
             return newState;
         case ActionTypeKeys.SERIES_SELECTED:
-            let seriesIdsSet: Set<string> = addRemoveFromSet(
+            let seriesIdsArray: string[] = addRemoveFromArray(
                 prevState.selections.series,
                 action.id
             );
             newState = Object.assign({}, prevState);
             newState.selections = Object.assign({}, prevState.selections);
-            newState.selections.series = seriesIdsSet;
+            newState.selections.series = seriesIdsArray;
             return newState;
         case ActionTypeKeys.SERIES_ALL_UNSELECTED:
             newState = Object.assign({}, prevState);
             newState.selections = Object.assign({}, prevState.selections);
-            newState.selections.series = new Set<string>();
+            newState.selections.series = [];
             return newState;
         // case ActionTypeKeys.IMAGES_SELECTED:
         //     imageIdsSet = addRemoveSetFromSet(
@@ -76,12 +76,13 @@ export function uiReducer(
     }
 }
 
-function addRemoveFromSet(selectedBefore: Set<string>, selected: string): Set<string> {
-    let set: Set<string> = new Set(selectedBefore);
-    if (selectedBefore.has(selected)) {
-        set.delete(selected);
+function addRemoveFromArray(selectedBefore: string[], selected: string): string[] {
+    let array: string[];
+    let index: number = selectedBefore.indexOf(selected);
+    if ( index !== -1) {
+        array = [...selectedBefore.slice(0, index), ...selectedBefore.slice(index + 1)];
     } else {
-        set.add(selected);
+        array = [selected, ...selectedBefore];
     }
-    return set;
+    return array;
 }

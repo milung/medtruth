@@ -1,6 +1,6 @@
 
 import * as React from 'react';
-import imageStyle from '../styles/ComponentsStyle';
+import {imageStyle} from '../styles/ComponentsStyle';
 import { ApiService } from "../api";
 
 interface ImageProps{
@@ -20,14 +20,14 @@ export class ImageViewComponent extends React.Component<ImageProps, {}> {
         this.state = { imageSelected: false };
     }
 
-    componentWillMount() {
+    componentDidMount() {
         this.getUrl();
     }
 
     async getUrl(): Promise<void> {
         let resImage = await ApiService.getImage(this.props.imageName + "_");
         let img = document.getElementById(this.props.imageID) as HTMLImageElement;
-        img.src = resImage === null ? "" : resImage.url;
+        if(img != null)img.src = resImage === null ? "" : resImage.url;
     }
 
     handleDoubleClick() {

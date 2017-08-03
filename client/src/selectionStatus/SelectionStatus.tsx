@@ -7,7 +7,7 @@ import { State } from '../app/store';
 import { SeriesAllUnselectedAction, seriesAllUnselected } from '../actions/actions';
 
 export interface ConnectedState {
-    images: Set<string>;
+    images: string[];
 }
 
 export interface ConnectedDispatch {
@@ -21,8 +21,8 @@ export class SelectionStatusComponent extends React.Component<ConnectedState & C
     }
 
     render() {
-        let display = this.props.images.size === 0 ? false : true;
-        let selected = 'Selected ' + this.props.images.size + ' images';
+        let display = this.props.images.length === 0 ? false : true;
+        let selected = 'Selected ' + this.props.images.length + ' images';
         let action = 'UNSELECT';
         return (
             <Snackbar

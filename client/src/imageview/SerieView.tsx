@@ -2,10 +2,12 @@ import * as React from 'react';
 import * as Redux from 'redux';
 import Card, { CardContent, CardMedia } from 'material-ui/Card';
 import Typography from 'material-ui/Typography';
-import { ImageViewComponent } from './ImageView';
-import { SeriesSelectedAction, seriesSelected, thumbnailBlownUp, ThumbnailBlownUpAction } from '../actions/actions';
-import { connect } from 'react-redux';
-import { State } from '../app/store';
+import { ImageViewComponent } from "./ImageView";
+import { SeriesSelectedAction, seriesSelected, thumbnailBlownUp, ThumbnailBlownUpAction } from "../actions/actions";
+import { connect } from "react-redux";
+import { State } from "../app/store";
+import {imageStyle} from '../styles/ComponentsStyle';
+
 
 export interface SeriesProps {
     seriesID: string;
@@ -55,7 +57,7 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
                             blowUp={this.props.blowUp}
                         />
                     </CardMedia>
-                    <CardContent>
+                  <CardContent style={imageStyle.contentCenter}>
                         <Typography type="body2" component="p">
                             {this.props.seriesDescription}
                         </Typography>
@@ -72,7 +74,7 @@ function mapStateToProps(state: State, props: SeriesProps): SeriesProps & Connec
         seriesDescription: props.seriesDescription,
         src: props.src,
         imageID: props.imageID,
-        seriesSelected: state.ui.selections.series.has(props.seriesID)
+        seriesSelected: state.ui.selections.series.indexOf(props.seriesID) !== -1
     };
 }
 

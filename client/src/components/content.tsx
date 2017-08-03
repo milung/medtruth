@@ -19,20 +19,20 @@ interface ConnectedState {
 }
 
 class ContentComponent extends React.Component<OwnProps & ConnectedState, OwnState> {
-    
+
     render() {
-        if (this.props.showBlowUp) {
-            return <BlowUp />
-        } else {
-            return (
+        return (
+            <div>
+                <BlowUp />
                 <div>
                     <PatientViewer />
                     <SelectionStatus />
                 </div>
-            );
-        }
+            </div>
+        );
     }
 }
+
 
 function mapStateToProps(state: State): ConnectedState {
     return {
