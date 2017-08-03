@@ -129,14 +129,17 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
 
         var attributeList;
         if (this.props.series.length != 0) {
-            console.log("SOMETHING IS SELECTED");
             if (this.state.seriesData.length != 0) {
                 attributeList = <AttributeList listItems={this.state.seriesData} />
                 console.log(this.state.seriesData);
             } else {
                 console.log("NO ATTRIBUTES");
             }
+        } else {
+            console.log("NOTHING IS SELECTED");
+            inputIncorrect = true;
         }
+        console.log("input incorrect", inputIncorrect);
 
         console.log("RENDER");
         if (!this.state.wait) {
