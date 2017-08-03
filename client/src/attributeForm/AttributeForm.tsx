@@ -52,7 +52,7 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
         for (var img in this.props.images) {
             resData += await ApiService.putAttributes(img, {key: this.state.keyFieldValue, value: Number(this.state.valueFieldValue)})
         }
-        console.log(resData);
+        console.log("resData", resData);
     }
 
     handleKeyFieldChange(e) {
