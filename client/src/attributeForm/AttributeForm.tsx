@@ -11,10 +11,10 @@ import { ImageAnnotation, ImageAnnotationAddedAction, imageAnnotationAdded } fro
 import { ApiService } from "../api";
 // import Paper from 'material-ui/Paper';
 
-let line1 = { attribute: "ruka", value: 2 };
-let line2 = { attribute: "ruka", value: 2 };
-let line3 = { attribute: "ruka", value: 2 };
-let testData = [line1, line2, line3];
+// let line1 = { attribute: "ruka", value: 2 };
+// let line2 = { attribute: "ruka", value: 2 };
+// let line3 = { attribute: "ruka", value: 2 };
+// let testData = [line1, line2, line3];
 
 export interface OwnState {
     keyFieldValue: string,
@@ -53,24 +53,24 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
     // }
 
     async receiveAttributes(id): Promise<void> {
-    this.setState({ wait: true });
-    let resData = await ApiService.getAttributes(id);
+        this.setState({ wait: true });
+        let resData = await ApiService.getAttributes(id);
 
-    console.log('got data', resData);
-
-    for (let data of resData.attributes) {
-      let tempData: listItem = {
-        attribute: data.key,
-        value: data.value
-      }
-      console.log('key: ', data.key);
-      console.log('value: ', tempData);
-      this.listItems.push(tempData);
+        console.log('got data', resData);
+        this.listItems = [];
+        for (let data of resData.attributes) {
+            let tempData: listItem = {
+                attribute: data.key,
+                value: data.value
+            }
+            console.log('key: ', data.key);
+            console.log('value: ', tempData);
+            this.listItems.push(tempData);
+        }
+        console.log("listItems: ", this.listItems);
+        this.setState({ wait: false });
+        //this.setState(Object.assign({}, { wait: false, patientList: patients }));
     }
-    console.log("listItems: ", this.listItems);
-    this.setState({ wait: false });
-    //this.setState(Object.assign({}, { wait: false, patientList: patients }));
-  }
 
     async handleClick(): Promise<void> {
         console.log("Assign; Fields", this.state.keyFieldValue + ": " + this.state.valueFieldValue);
@@ -91,6 +91,10 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
             resData = await ApiService.putAttributes(img, { key: this.state.keyFieldValue, value: Number(this.state.valueFieldValue) })
             console.log("resData", resData);
         }
+        console.log("Get last value: ", this.getLastValue(Array.from(this.props.series)));
+        await this.receiveAttributes(this.getLastValue(Array.from(this.props.series)));
+        
+
     }
 
     handleKeyFieldChange(e) {
@@ -101,29 +105,35 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
         });
     }
 
-    handleValueFieldChange(e) {
-        this.setState({
-            valueFieldValue: e.target.value
-        }, () => {
-            console.log("new value", this.state.valueFieldValue);
-        });
+    getLastValue(set) {
+        var value;
+        for (value of set);
+        return value;
     }
 
-    render() {
-        var inputIncorrect;
+handleValueFieldChange(e) {
+    this.setState({
+        valueFieldValue: e.target.value
+    }, () => {
+        console.log("new value", this.state.valueFieldValue);
+    });
+}
 
-        // Check if value field is in between 0 and 1
-        let valueNumber = Number(this.state.valueFieldValue);
-        (valueNumber >= 0 && valueNumber <= 1) ? inputIncorrect = false : inputIncorrect = true;
+render() {
+    var inputIncorrect;
 
-        // Check if key field is empty
-        let keyValue = this.state.keyFieldValue;
-        if (keyValue == null || keyValue.trim() == "") {
-            inputIncorrect = true;
-        }
+    // Check if value field is in between 0 and 1
+    let valueNumber = Number(this.state.valueFieldValue);
+    (valueNumber >= 0 && valueNumber <= 1) ? inputIncorrect = false : inputIncorrect = true;
 
-        console.log("RENDER");  
-        if (!this.state.wait) { 
+    // Check if key field is empty
+    let keyValue = this.state.keyFieldValue;
+    if (keyValue == null || keyValue.trim() == "") {
+        inputIncorrect = true;
+    }
+
+    console.log("RENDER");
+    if (!this.state.wait) {
         return (
             <div >
                 {/* <Paper> */}
@@ -152,14 +162,14 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
                         <Button disabled={inputIncorrect} id="assignButton" type="submit" raised color="primary" onClick={this.handleClick.bind(this)} style={{ float: "right" }}>Assign</Button>
                     </div>
 
-                    <AttributeList listItems={testData/*this.listItems*/} />
+                    <AttributeList listItems={this.listItems} />
                 </Grid>
                 {/* </Paper> */}
             </div>);
-        }else {
-           return  <div />
-        }
+    } else {
+        return <div />
     }
+}
 }
 
 
