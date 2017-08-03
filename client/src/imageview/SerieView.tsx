@@ -74,7 +74,7 @@ function mapStateToProps(state: State, props: SeriesProps): SeriesProps & Connec
         seriesDescription: props.seriesDescription,
         src: props.src,
         imageID: props.imageID,
-        seriesSelected: state.ui.selections.series.has(props.seriesID)
+        seriesSelected: state.ui.selections.series.indexOf(props.seriesID) !== -1
     };
 }
 
