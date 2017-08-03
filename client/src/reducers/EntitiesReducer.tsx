@@ -73,6 +73,8 @@ const processUploadDataDownloadedAction =
         let newState = { ...prevState };
         newState.images = { ...prevState.images };
         newState.images.byId = new Map(prevState.images.byId);
+        newState.series = { ...prevState.series };
+        newState.series.byId = new Map(prevState.series.byId);
         let upload: UploadJSON = action.upload;
         for (let study of upload.studies) {
             for (let series of study.series) {
