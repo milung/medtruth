@@ -1,5 +1,8 @@
 
 export default {
+     contentCenter:{
+        wordWrap: 'break-word',
+    },
     seriesStyle: {
         //maxWidth: '20%',
         //maxHeight: '15%',
