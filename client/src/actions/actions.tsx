@@ -6,6 +6,7 @@ export enum ActionTypeKeys {
     // IMAGES_SELECTED = 'IMAGES_SELECTED',
     IMAGE_SELECTED = 'IMAGE_SELECTED',
     SERIES_SELECTED = 'SERIES_SELECTED',
+    SERIES_ALL_UNSELECTED = 'SERIES_ALL_UNSELECTED',
     IMAGE_ANNOTATION_ADDED = 'IMAGE_ANNOTATION_ADDED',
     UPLOAD_DATA_DOWNLOADED = 'UPLOAD_DATA_DOWNLOADED',
     OTHER_ACTION = 'OTHER_ACTION'
@@ -43,6 +44,10 @@ export interface ImageAnnotationAddedAction {
 export interface SeriesSelectedAction {
     type: ActionTypeKeys.SERIES_SELECTED;
     id: string;
+}
+
+export interface SeriesAllUnselectedAction {
+    type: ActionTypeKeys.SERIES_ALL_UNSELECTED;
 }
 
 export interface UploadDataDownloadedAction {
@@ -87,6 +92,10 @@ export const seriesSelected = (id: string): SeriesSelectedAction => ({
     id
 });
 
+export const seriesAllUnselected = (): SeriesAllUnselectedAction => ({
+    type: ActionTypeKeys.SERIES_ALL_UNSELECTED
+});
+
 export const uploadDataDowloaded = (upload: UploadJSON): UploadDataDownloadedAction => ({
     type: ActionTypeKeys.UPLOAD_DATA_DOWNLOADED,
     upload
@@ -99,6 +108,7 @@ export type ActionType =
     // | ImagesSelectedAction
     | ImageSelectedAction
     | SeriesSelectedAction
+    | SeriesAllUnselectedAction
     | ImageAnnotationAddedAction
     | UploadDataDownloadedAction
     | OtherAction;

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { FolderForm } from "../folderForm/FolderForm";
 import { PatientViewer } from "../imageview/PatientViewer";
-import { BlowUpComponent } from "./blowup";
+import { BlowUp } from "./blowup";
 import { connect } from "react-redux";
 import { State } from "../app/store";
 import { SelectionStatus } from "../selectionStatus/SelectionStatus";
@@ -19,15 +19,16 @@ interface ConnectedState {
 }
 
 class ContentComponent extends React.Component<OwnProps & ConnectedState, OwnState> {
+    
     render() {
         if (this.props.showBlowUp) {
-            return <BlowUpComponent />
+            return <BlowUp />
         } else {
             return (
                 <div>
                     <FolderForm />
                     <PatientViewer />
-                     <SelectionStatus />
+                    <SelectionStatus />
                 </div>
             );
         }

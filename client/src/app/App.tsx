@@ -5,6 +5,9 @@ import Grid from 'material-ui/Grid';
 import { Content } from "../components/content";
 
 
+var injectTapEventPlugin = require('react-tap-event-plugin');
+injectTapEventPlugin();
+
 export default class App extends React.Component<{}, {}> {
     render() {
         return (

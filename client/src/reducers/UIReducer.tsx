@@ -28,7 +28,7 @@ export function uiReducer(
                 {},
                 prevState,
                 {
-                    isBlownShowed: true,
+                    isBlownUpShowed: true,
                     blownUpThumbnailId: action.thumbnailId
                 });
         case ActionTypeKeys.THUMBNAIL_BLOWN_DOWN:
@@ -36,7 +36,7 @@ export function uiReducer(
                 {},
                 prevState,
                 {
-                    isBlowShowed: false,
+                    isBlownUpShowed: false,
                     blownUpThumbnailId: ''
                 });
         case ActionTypeKeys.IMAGE_SELECTED:
@@ -56,6 +56,11 @@ export function uiReducer(
             newState = Object.assign({}, prevState);
             newState.selections = Object.assign({}, prevState.selections);
             newState.selections.series = seriesIdsSet;
+            return newState;
+        case ActionTypeKeys.SERIES_ALL_UNSELECTED:
+            newState = Object.assign({}, prevState);
+            newState.selections = Object.assign({}, prevState.selections);
+            newState.selections.series = new Set<string>();
             return newState;
         // case ActionTypeKeys.IMAGES_SELECTED:
         //     imageIdsSet = addRemoveSetFromSet(
