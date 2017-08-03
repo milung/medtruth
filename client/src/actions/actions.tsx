@@ -54,6 +54,7 @@ export interface UploadDataDownloadedAction {
     type: ActionTypeKeys.UPLOAD_DATA_DOWNLOADED;
     upload: UploadJSON; 
 }
+
 export interface OtherAction {
     type: ActionTypeKeys.OTHER_ACTION;
 }

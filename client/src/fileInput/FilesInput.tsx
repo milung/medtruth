@@ -12,7 +12,7 @@ export class FilesInputComponent extends React.Component<FilesInputProps, {}> {
         };
 
         return (
-            <input type="file" onChange={handleFilesInputChangeEvent} multiple={true} />
+                <input multiple={true} type="file" name="myfile" onChange={handleFilesInputChangeEvent} />
         );
     }
 }

@@ -38,7 +38,7 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
         this.props.selectedSeries(this.props.seriesID);
     }
     
-    imageBlownUp(){
+    imageBlownUp() {
 
     }
 
@@ -66,7 +66,7 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
             </div>
         );
     }
-};
+}
 
 function mapStateToProps(state: State, props: SeriesProps): SeriesProps & ConnectedState {
     return {

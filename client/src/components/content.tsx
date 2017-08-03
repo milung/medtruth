@@ -25,7 +25,6 @@ class ContentComponent extends React.Component<OwnProps & ConnectedState, OwnSta
             <div>
                 <BlowUp />
                 <div>
-                    <FolderForm />
                     <PatientViewer />
                     <SelectionStatus />
                 </div>

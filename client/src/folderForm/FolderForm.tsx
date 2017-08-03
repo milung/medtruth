@@ -7,9 +7,10 @@ import { FileUtils } from '../fileform/FileUtils';
 import { validFileExtensions } from '../constants';
 import { ApiService } from '../api';
 import { FilesInputComponent } from '../fileInput/FilesInput';
-import { ButtonComponent } from '../button/Button';
-import { OneLineInformationComponent } from '../oneLineInformation/OneLineInformation';
+//import { ButtonComponent } from '../button/Button';
+//import { OneLineInformationComponent } from '../oneLineInformation/OneLineInformation';
 import { FilesUploadedAction, filesUploaded } from '../actions/actions';
+import { Tab } from 'material-ui';
 
 interface OwnState {
     readingFiles: boolean;
@@ -42,7 +43,7 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
         };
     }
 
-    loadFile(files: File[]): void {
+    loadFile(files: File[]) {
         let invalidFileNames: string[] = [];
         let fileUndefined: boolean = false;
         let filesInvalid: boolean = false;
@@ -67,7 +68,7 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
         }
 
         this.setState({ readingFiles: true });
-        FileUtils.getFilesData(files).then((filesData: ArrayBuffer[]) => {
+        FileUtils.getFilesData(files).then(async (filesData: ArrayBuffer[]) => {
             this.filesData = filesData;
             let fileNames: string[] = files.map((file) => file.name);
             this.setState({
@@ -77,6 +78,7 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
                 folderFormError: '',
                 filesUploaded: false
             });
+            await this.sendFile();
         });
     }
 
@@ -146,13 +148,7 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
 
     render() {
         return (
-            <div>
-                <FilesInputComponent onFilesInput={this.loadFile} />
-                <ButtonComponent active={this.isSendButtonActive()} onClick={this.sendFile} text="Send" />
-                <OneLineInformationComponent text={this.getStateInformationText()} />
-                <OneLineInformationComponent text={this.getFilesNames()} />
-                <OneLineInformationComponent text={this.getErrorInformation()} />
-            </div>
+            <FilesInputComponent onFilesInput={this.loadFile} />
         );
     }
 }
