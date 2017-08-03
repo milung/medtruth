@@ -4,21 +4,22 @@ import Grid from 'material-ui/Grid';
 import TextField from 'material-ui/TextField';
 import Button from 'material-ui/Button';
 //import Card, { CardContent } from 'material-ui/Card';
-import { AttributeList } from "./AttributeList";
+import { AttributeList, listItem } from "./AttributeList";
 import { connect } from "react-redux";
 import { State } from "../app/store";
 import { ImageAnnotation, ImageAnnotationAddedAction, imageAnnotationAdded } from "../actions/actions";
 import { ApiService } from "../api";
 // import Paper from 'material-ui/Paper';
 
-let line1 = { atribute: "ruka", value: 2 };
-let line2 = { atribute: "ruka", value: 2 };
-let line3 = { atribute: "ruka", value: 2 };
+let line1 = { attribute: "ruka", value: 2 };
+let line2 = { attribute: "ruka", value: 2 };
+let line3 = { attribute: "ruka", value: 2 };
 let testData = [line1, line2, line3];
 
 export interface OwnState {
     keyFieldValue: string,
-    valueFieldValue: string
+    valueFieldValue: string,
+    wait: boolean
 }
 
 export interface ConnectedState {
@@ -32,17 +33,44 @@ export interface ConnectedDispatch {
 
 export class AttributeFormComponent extends React.Component<ConnectedDispatch & ConnectedState, OwnState> {
 
+    public listItems = [];
+
     constructor(props) {
         super(props);
 
         this.state = {
             keyFieldValue: '',
-            valueFieldValue: ''
+            valueFieldValue: '',
+            wait: false
         }
         this.handleClick = this.handleClick.bind(this);
         this.handleKeyFieldChange = this.handleKeyFieldChange.bind(this);
         this.handleValueFieldChange = this.handleValueFieldChange.bind(this);
     }
+
+    // componentDidMount() {
+    // this.receiveAttributes(this.props.seriesID/*'image06'*/);
+    // }
+
+    async receiveAttributes(id): Promise<void> {
+    this.setState({ wait: true });
+    let resData = await ApiService.getAttributes(id);
+
+    console.log('got data', resData);
+
+    for (let data of resData.attributes) {
+      let tempData: listItem = {
+        attribute: data.key,
+        value: data.value
+      }
+      console.log('key: ', data.key);
+      console.log('value: ', tempData);
+      this.listItems.push(tempData);
+    }
+    console.log("listItems: ", this.listItems);
+    this.setState({ wait: false });
+    //this.setState(Object.assign({}, { wait: false, patientList: patients }));
+  }
 
     async handleClick(): Promise<void> {
         console.log("Assign; Fields", this.state.keyFieldValue + ": " + this.state.valueFieldValue);
@@ -94,7 +122,8 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
             inputIncorrect = true;
         }
 
-        console.log("RENDER");
+        console.log("RENDER");  
+        if (!this.state.wait) { 
         return (
             <div >
                 {/* <Paper> */}
@@ -123,15 +152,19 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
                         <Button disabled={inputIncorrect} id="assignButton" type="submit" raised color="primary" onClick={this.handleClick.bind(this)} style={{ float: "right" }}>Assign</Button>
                     </div>
 
-                    <AttributeList listItems={testData} />
+                    <AttributeList listItems={testData/*this.listItems*/} />
                 </Grid>
                 {/* </Paper> */}
             </div>);
+        }else {
+           return  <div />
+        }
     }
 }
 
 
 function mapStateToProps(state: State): ConnectedState {
+    console.log('serie ID- po kliknuti: ' + state.ui.selections.series.size);
     return {
         images: state.ui.selections.images,
         series: state.ui.selections.series
