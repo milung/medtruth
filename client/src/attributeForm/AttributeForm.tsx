@@ -22,7 +22,8 @@ export interface OwnState {
 }
 
 export interface ConnectedState {
-    images: string[];
+    images: Set<string>;
+    series: Set<string>
 }
 
 export interface ConnectedDispatch {
@@ -45,14 +46,23 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
 
     async handleClick(): Promise<void> {
         console.log("Assign; Fields", this.state.keyFieldValue + ": " + this.state.valueFieldValue);
-        this.props.addedImageAnnotation({imageId: 'blabla', key: this.state.keyFieldValue, value: Number(this.state.keyFieldValue)});
+        this.props.addedImageAnnotation({ imageId: 'blabla', key: this.state.keyFieldValue, value: Number(this.state.keyFieldValue) });
         console.log("images", this.props.images);
+        console.log("series", this.props.series);
 
         let resData;
-        for (var img in this.props.images) {
-            resData += await ApiService.putAttributes(img, {key: this.state.keyFieldValue, value: Number(this.state.valueFieldValue)})
+        //for (var img in this.props.images) {
+        // for (var img in this.props.series) {
+        //     console.log(img);
+        //     resData = await ApiService.putAttributes(img, { key: this.state.keyFieldValue, value: Number(this.state.valueFieldValue) })
+        //     console.log("resData", resData);
+        // }
+
+        for (var img of Array.from(this.props.series.values())) {
+            console.log(img);
+            resData = await ApiService.putAttributes(img, { key: this.state.keyFieldValue, value: Number(this.state.valueFieldValue) })
+            console.log("resData", resData);
         }
-        console.log("resData", resData);
     }
 
     handleKeyFieldChange(e) {
@@ -73,7 +83,7 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
 
     render() {
         var inputIncorrect;
-        
+
         // Check if value field is in between 0 and 1
         let valueNumber = Number(this.state.valueFieldValue);
         (valueNumber >= 0 && valueNumber <= 1) ? inputIncorrect = false : inputIncorrect = true;
@@ -84,11 +94,11 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
             inputIncorrect = true;
         }
 
-        console.log("RENDER");   
+        console.log("RENDER");
         return (
             <div >
                 {/* <Paper> */}
-                <Grid style={{position: 'fixed'}} item xs={12} sm={12} md={12}>
+                <Grid style={{ position: 'fixed' }} item xs={12} sm={12} md={12}>
                     <div>
                         <TextField
                             required
@@ -123,8 +133,9 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
 
 function mapStateToProps(state: State): ConnectedState {
     return {
-        //images: state.ui.selections.images
-        images: null
+        images: state.ui.selections.images,
+        series: state.ui.selections.series
+        //images: null
     };
 }
 
