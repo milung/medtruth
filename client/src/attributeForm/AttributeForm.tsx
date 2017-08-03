@@ -74,7 +74,6 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
 
     async handleClick(): Promise<void> {
         console.log("Assign; Fields", this.state.keyFieldValue + ": " + this.state.valueFieldValue);
-        this.props.addedImageAnnotation({ imageId: 'blabla', key: this.state.keyFieldValue, value: Number(this.state.keyFieldValue) });
         console.log("images", this.props.images);
         console.log("series", this.props.series);
 
@@ -88,6 +87,7 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
 
         for (var img of Array.from(this.props.series.values())) {
             console.log(img);
+            this.props.addedImageAnnotation({ imageId: img, key: this.state.keyFieldValue, value: Number(this.state.keyFieldValue) });
             resData = await ApiService.putAttributes(img, { key: this.state.keyFieldValue, value: Number(this.state.valueFieldValue) })
             console.log("resData", resData);
         }
@@ -168,7 +168,6 @@ function mapStateToProps(state: State): ConnectedState {
     return {
         images: state.ui.selections.images,
         series: state.ui.selections.series
-        //images: null
     };
 }
 
