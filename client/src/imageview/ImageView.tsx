@@ -20,7 +20,7 @@ export class ImageViewComponent extends React.Component<ImageProps, {}> {
         this.state = { imageSelected: false };
     }
 
-    componentWillMount() {
+    componentDidMount() {
         this.getUrl();
     }
 
