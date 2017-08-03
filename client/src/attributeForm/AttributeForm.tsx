@@ -9,17 +9,12 @@ import { connect } from "react-redux";
 import { State } from "../app/store";
 import { ImageAnnotation, ImageAnnotationAddedAction, imageAnnotationAdded } from "../actions/actions";
 import { ApiService } from "../api";
-// import Paper from 'material-ui/Paper';
-
-// let line1 = { attribute: "ruka", value: 2 };
-// let line2 = { attribute: "ruka", value: 2 };
-// let line3 = { attribute: "ruka", value: 2 };
-// let testData = [line1, line2, line3];
 
 export interface OwnState {
     keyFieldValue: string,
     valueFieldValue: string,
-    wait: boolean
+    wait: boolean,
+    seriesData: listItem[]
 }
 export interface ConnectedState {
     images: string[];
@@ -29,10 +24,7 @@ export interface ConnectedState {
 export interface ConnectedDispatch {
     addedImageAnnotation: (annotation: ImageAnnotation) => ImageAnnotationAddedAction;
 }
-
 export class AttributeFormComponent extends React.Component<ConnectedDispatch & ConnectedState, OwnState> {
-
-    public listItems = [];
 
     constructor(props) {
         super(props);
@@ -40,35 +32,46 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
         this.state = {
             keyFieldValue: '',
             valueFieldValue: '',
-            wait: false
+            wait: false,
+            seriesData: []
         }
         this.handleClick = this.handleClick.bind(this);
         this.handleKeyFieldChange = this.handleKeyFieldChange.bind(this);
         this.handleValueFieldChange = this.handleValueFieldChange.bind(this);
     }
 
-    // componentDidMount() {
-    // this.receiveAttributes(this.props.seriesID/*'image06'*/);
-    // }
+    componentWillUpdate(nextProps, nextState) {
+        console.log('nextProps.series: ', nextProps.series);
+        console.log('this.props.series', this.props.series);
+        if (nextProps.series !== this.props.series) {
+            if (nextProps.series.length != 0) {
+                this.receiveAttributes(getLastValue(nextProps.series));
+            }
+        }
+    }
 
     async receiveAttributes(id): Promise<void> {
         this.setState({ wait: true });
         let resData = await ApiService.getAttributes(id);
 
         console.log('got data', resData);
-        this.listItems = [];
-        for (let data of resData.attributes) {
-            let tempData: listItem = {
-                attribute: data.key,
-                value: data.value
+        if (resData.attributes) {
+            var listItems = [];
+            for (let data of resData.attributes) {
+                let tempData: listItem = {
+                    attribute: data.key,
+                    value: data.value
+                }
+                listItems.push(tempData);
             }
-            // console.log('key: ', data.key);
-            // console.log('value: ', tempData);
-            this.listItems.push(tempData);
+            console.log("listItems: ", listItems);
+            this.setState({ seriesData: listItems });
+        } else {
+            console.log("EMPTY RES DATA");
+            this.setState({ seriesData: [] });
         }
-        console.log("listItems: ", this.listItems);
         this.setState({ wait: false });
-        //this.setState(Object.assign({}, { wait: false, patientList: patients }));
+
     }
 
     async handleClick(): Promise<void> {
@@ -125,25 +128,27 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
         }
 
         var attributeList;
-        //var nothingIsSelected = true;
         if (this.props.series.length != 0) {
             console.log("SOMETHING IS SELECTED");
-            attributeList = <AttributeList listItems={this.listItems}/>
-            //nothingIsSelected = false;
+            if (this.state.seriesData.length != 0) {
+                attributeList = <AttributeList listItems={this.state.seriesData} />
+                console.log(this.state.seriesData);
+            } else {
+                console.log("NO ATTRIBUTES");
+            }
         }
 
         console.log("RENDER");
         if (!this.state.wait) {
             return (
                 <div >
-                    {/* <Paper> */}
                     <Grid style={{ position: 'fixed' }} item xs={12} sm={12} md={12}>
                         <div>
                             <TextField
                                 required
                                 error={inputIncorrect}
                                 id="keyField"
-                                label="Key"
+                                label="Label"
                                 margin="normal"
                                 style={{ width: '100%' }}
                                 value={this.state.keyFieldValue}
@@ -164,7 +169,6 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
 
                         {attributeList}
                     </Grid>
-                    {/* </Paper> */}
                 </div>);
         } else {
             return <div />
@@ -173,10 +177,7 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
 }
 
 function mapStateToProps(state: State): ConnectedState {
-    console.log('serie ID- po kliknuti: ' + state.ui.selections.series.length);
     console.log('series', state.ui.selections.series);
-    console.log('last value', getLastValue(state.ui.selections.series));
-
     let imagesFromState: string[] = [];
     if (state.ui.selections.series.length != 0 && state.entities.series.byId.get(getLastValue(state.ui.selections.series)) != null) {
         imagesFromState = state.entities.series.byId.get(getLastValue(state.ui.selections.series)).images;
@@ -184,9 +185,6 @@ function mapStateToProps(state: State): ConnectedState {
     }
 
     return {
-        //images: state.entities.series.byId.get(getLastValue(Array.from(state.ui.selections.series))).images,
-        //images: state.entities.series.byId.get(getLastValue(state.ui.selections.series)).images,
-        //images: state.ui.selections.images,
         images: imagesFromState,
         series: state.ui.selections.series
     };
