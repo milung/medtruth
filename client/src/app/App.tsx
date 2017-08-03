@@ -2,8 +2,7 @@
 import * as React from 'react';
 import { AttributeForm } from '../attributeForm/AttributeForm';
 import Grid from 'material-ui/Grid';
-import { Content } from "../components/content";
-
+import { Content } from '../components/content';
 
 var injectTapEventPlugin = require('react-tap-event-plugin');
 injectTapEventPlugin();

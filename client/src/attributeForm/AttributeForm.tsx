@@ -101,6 +101,7 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
                             onChange={this.handleKeyFieldChange}
                         />
                         <TextField
+                            required
                             error={inputIncorrect}
                             id="valueField"
                             label="Value"
@@ -110,7 +111,15 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
                             onChange={this.handleValueFieldChange}
                         />
                         <p />
-                        <Button disabled={inputIncorrect} id="assignButton" type="submit" raised color="primary" onClick={this.handleClick.bind(this)} style={{ float: "right" }}>Assign</Button>
+                        <Button 
+                            disabled={inputIncorrect} 
+                            id="assignButton" 
+                            type="submit" 
+                            raised 
+                            color="primary" 
+                            onClick={this.handleClick} 
+                            style={{ float: "right" }}>Assign
+                        </Button>
                     </div>
 
                     <AttributeList listItems={testData} />
@@ -120,10 +129,9 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
     }
 }
 
-
 function mapStateToProps(state: State): ConnectedState {
     return {
-        //images: state.ui.selections.images
+        // images: state.ui.selections.images
         images: null
     };
 }

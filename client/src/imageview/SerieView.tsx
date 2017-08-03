@@ -7,7 +7,6 @@ import { SeriesSelectedAction, seriesSelected, thumbnailBlownUp, ThumbnailBlownU
 import { connect } from 'react-redux';
 import { State } from '../app/store';
 
-
 export interface SeriesProps {
     seriesID: string;
     seriesDescription: string;
@@ -65,7 +64,7 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
             </div>
         );
     }
-};
+}
 
 function mapStateToProps(state: State, props: SeriesProps): SeriesProps & ConnectedState {
     return {
