@@ -26,7 +26,6 @@ class ContentComponent extends React.Component<OwnProps & ConnectedState, OwnSta
         } else {
             return (
                 <div>
-                    <FolderForm />
                     <PatientViewer />
                     <SelectionStatus />
                 </div>

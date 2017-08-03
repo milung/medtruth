@@ -14,7 +14,7 @@
     "noImplicitThis": true,
     "noImplicitAny": false,
     "suppressImplicitAnyIndexErrors": true,
-    "noUnusedLocals": true
+    "noUnusedLocals": false
   },
   "exclude": [
     "node_modules",
