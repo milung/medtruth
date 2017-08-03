@@ -8,4 +8,3 @@ export const getLastFilesUploadID = (state: State): number => {
 export const getBlownUpThumbnailId = (state: State): string => {
     return state.ui.blownUpThumbnailId;
 };
-
