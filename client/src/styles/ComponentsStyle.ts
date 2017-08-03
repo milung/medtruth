@@ -1,6 +1,9 @@
 
 type position = 'absolute' | 'fixed';
-let pos: position = 'fixed';
+type overflow = 'auto' | 'initial';
+
+let posFixed: position = 'fixed';
+let overflowAuto: overflow = 'auto';
 
 export const imageStyle = {
     seriesStyle: {
@@ -27,11 +30,11 @@ export const imageStyle = {
         padding: 5,
         textAlign: 'center',
         display: 'inline-block',
-        position: 'relative'
+        position: 'relative',
+        margin: '15px'
     },
     wrapper: {
         textAlign: 'center',
-        marginTop: '10px',
         display: 'block'
     },
     image: {
@@ -39,13 +42,14 @@ export const imageStyle = {
         maxHeight: '100%'
     },
     backgroundDiv: {
-        position: pos,
+        position: posFixed,
         top: 0,
         left: 0,
         background: "rgba(0, 0, 0, 0.6)",
         zIndex: 5,
-        width: '74%',
+        width: '75%',
         height: '100%',
-        display: 'none'
+        display: 'none',
+        overflow: overflowAuto
     }
 }

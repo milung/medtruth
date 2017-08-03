@@ -39,16 +39,20 @@ export class UploadController {
 
     Root = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
         let files = req.files as Express.Multer.File[];
-
+        
         // If none or zero files were sent, send a null response.
         if (files === undefined) { next(); return null; }
         if (files.length === 0) { next(); return null; }
 
         // Convert, upload and parse the files.
 
+        console.log("[Convert]");
         await this.convert(files);
+        console.log("[Upload]");
         await this.upload();
+        console.log("[Parse]");
         let json = await this.parse();
+        console.log("[insertToImagesCollection]");
         await AzureDatabase.insertToImagesCollection(json);
         console.log('[Removing files]');
         
