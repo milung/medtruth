@@ -8,6 +8,9 @@ export const imageStyle = {
         //maxHeight: '15%',
         //borderStyle: 'solid'
     },
+     contentCenter:{
+        wordWrap: 'break-word',
+    },
 
     img: {
         maxWidth: '100%',

@@ -9,9 +9,10 @@ describe('UIReducer', () => {
     it('should return initial state', () => {
         expect(uiReducer(undefined, otherAction)).toEqual({
             blownUpThumbnailId: '',
+            isBlownUpShowed: false,
             selections: {
-                images: new Set<string>(),
-                series: new Set<string>()
+                images: [],
+                series: []
             }
         });
     });
@@ -22,7 +23,7 @@ describe('UIReducer', () => {
             id: 'aaaaa'
         };
 
-        expect(uiReducer(undefined, imageSelectedAction).selections.images.has('aaaaa')).toBeTruthy();
+        expect(uiReducer(undefined, imageSelectedAction).selections.images.indexOf('aaaaa') !== -1).toBeTruthy();
     });
 
     it('should handle ImageSelectedAction (deselect image)', () => {
@@ -35,12 +36,12 @@ describe('UIReducer', () => {
             isBlownUpShowed: false,
             blownUpThumbnailId: '',
             selections: {
-                images: new Set<string>(['aaaaa']),
-                series: new Set<string>()
+                images: ['aaaaa'],
+                series: []
             }
         };
 
-        expect(uiReducer(uiState, imageSelectedAction).selections.images.size).toBe(0);
+        expect(uiReducer(uiState, imageSelectedAction).selections.images.length).toBe(0);
     });
 
     it('should handle SeriesSelectedAction (select series)', () => {
@@ -49,7 +50,7 @@ describe('UIReducer', () => {
             id: 'abcd1234'
         };
 
-        expect(uiReducer(undefined, seriesSelectedAction).selections.series.has('abcd1234')).toBeTruthy();
+        expect(uiReducer(undefined, seriesSelectedAction).selections.series.indexOf('abcd1234') !== -1).toBeTruthy();
     });
 
     it('should handle SeriesSelectedAction (deselect series)', () => {
@@ -62,12 +63,12 @@ describe('UIReducer', () => {
             isBlownUpShowed: false,
             blownUpThumbnailId: '',
             selections: {
-                images: new Set<string>(),
-                series: new Set<string>(['abcd1234'])
+                images: [],
+                series: ['abcd1234']
             }
         };
 
-        expect(uiReducer(uiState, seriesSelectedAction).selections.series.size).toBe(0);
+        expect(uiReducer(uiState, seriesSelectedAction).selections.series.length).toBe(0);
     });
 
     it('SeriesSelectedAction should not change selected images set', () => {
@@ -80,12 +81,12 @@ describe('UIReducer', () => {
             isBlownUpShowed: false,
             blownUpThumbnailId: '',
             selections: {
-                images: new Set<string>(['aaaaa']),
-                series: new Set<string>(['abcd1234'])
+                images: ['aaaaa'],
+                series: ['abcd1234']
             }
         };
 
-        expect(uiReducer(uiState, seriesSelectedAction).selections.images.has('aaaaa')).toBeTruthy();
+        expect(uiReducer(uiState, seriesSelectedAction).selections.images.indexOf('aaaaa') !== -1).toBeTruthy();
     });
 
 });

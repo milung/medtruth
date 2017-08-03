@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as Redux from 'redux';
 import Grid from 'material-ui/Grid';
 
 import { PatientProps } from './PatientView';
@@ -7,6 +8,7 @@ import { PatientView } from './PatientView';
 import { ApiService } from '../api';
 import { connect } from 'react-redux';
 import { State } from '../app/store';
+import { UploadJSON, UploadDataDownloadedAction, uploadDataDowloaded } from '../actions/actions';
 
 interface ArrayOfPatients {
     wait: boolean;
@@ -17,7 +19,11 @@ interface ConnectedState {
     uploadID: number;
 }
 
-class PatientViewerComponent extends React.Component<ConnectedState, ArrayOfPatients> {
+interface ConnectedDispatch {
+    uploadedDataDownloaded: (upload: UploadJSON) => UploadDataDownloadedAction;
+}
+
+class PatientViewerComponent extends React.Component<ConnectedState & ConnectedDispatch, ArrayOfPatients> {
 
     constructor() {
         super();
@@ -44,6 +50,7 @@ class PatientViewerComponent extends React.Component<ConnectedState, ArrayOfPati
         this.setState({ wait: true });
 
         let resData = await ApiService.getData(uploadID/*12345*/);
+        this.props.uploadedDataDownloaded(resData);
         console.log('got data', resData);
         let patients = [];
 
@@ -98,4 +105,10 @@ function mapStateToProps(state: State): ConnectedState {
     return { uploadID: state.files.lastUploadID };
 }
 
-export const PatientViewer = connect(mapStateToProps, null)(PatientViewerComponent);
+function mapDispatchToProps(dispatch: Redux.Dispatch<UploadDataDownloadedAction>): ConnectedDispatch {
+    return ({
+        uploadedDataDownloaded: (upload: UploadJSON) => dispatch(uploadDataDowloaded(upload))
+    });
+}
+
+export const PatientViewer = connect(mapStateToProps, mapDispatchToProps)(PatientViewerComponent);

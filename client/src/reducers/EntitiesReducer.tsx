@@ -1,31 +1,35 @@
-import { ActionType, ActionTypeKeys, ImageAnnotation } from '../actions/actions';
+import {
+    ActionType, ActionTypeKeys, ImageAnnotation,
+    ImageAnnotationAddedAction, UploadDataDownloadedAction, UploadJSON
+} from '../actions/actions';
 
 export interface EntitiesState {
     images: {
         byId: Map<string, ImageEntity>
     };
-    /*series: {
+    series: {
         byId: Map<string, SeriesEntity>
-    };*/
+    };
 }
 
 export interface ImageEntity {
+    seriesId: string;
     imageId: string;
     annotations: ImageAnnotation[];
 }
 
-/*export interface SeriesEntity {
+export interface SeriesEntity {
     seriesId: string;
     images: string[];
-}*/
+}
 
 const initialState: EntitiesState = {
     images: {
         byId: new Map<string, ImageEntity>()
-    }/*,
+    },
     series: {
         byId: new Map<string, SeriesEntity>()
-    }*/
+    }
 };
 
 export function entitiesReducer(
@@ -33,25 +37,58 @@ export function entitiesReducer(
     action: ActionType): EntitiesState {
     switch (action.type) {
         case ActionTypeKeys.IMAGE_ANNOTATION_ADDED:
-            let newState = { ...prevState };
-            newState.images = { ...prevState.images };
-            newState.images.byId = new Map(prevState.images.byId);
-            let imageAnnotation: ImageAnnotation = action.annotation;
-            let imageEntity: ImageEntity = newState.images.byId.get(imageAnnotation.imageId);
-            let newImageEntity: ImageEntity;
-            if (imageEntity === undefined) {
-                newImageEntity = {
-                    imageId: imageAnnotation.imageId,
-                    annotations: []
-                };
-            } else {
-                newImageEntity = { ...imageEntity };
-                newImageEntity.annotations = [...imageEntity.annotations];
-            }
-            newImageEntity.annotations.push(imageAnnotation);
-            newState.images.byId.set(newImageEntity.imageId, newImageEntity);
-            return newState;
+            return processImageAnnotationAddedAction(prevState, action);
+        case ActionTypeKeys.UPLOAD_DATA_DOWNLOADED:
+            return processUploadDataDownloadedAction(prevState, action);
         default:
             return prevState;
     }
 }
+
+const processImageAnnotationAddedAction =
+    (prevState: EntitiesState, action: ImageAnnotationAddedAction): EntitiesState => {
+        let newState = { ...prevState };
+        newState.images = { ...prevState.images };
+        newState.images.byId = new Map(prevState.images.byId);
+        let imageAnnotation: ImageAnnotation = action.annotation;
+        let imageEntity: ImageEntity = newState.images.byId.get(imageAnnotation.imageId);
+        let newImageEntity: ImageEntity;
+        if (imageEntity === undefined) {
+            newImageEntity = {
+                seriesId: undefined,
+                imageId: imageAnnotation.imageId,
+                annotations: []
+            };
+        } else {
+            newImageEntity = { ...imageEntity };
+            newImageEntity.annotations = [...imageEntity.annotations];
+        }
+        newImageEntity.annotations.push(imageAnnotation);
+        newState.images.byId.set(newImageEntity.imageId, newImageEntity);
+        return newState;
+    };
+
+const processUploadDataDownloadedAction =
+    (prevState: EntitiesState, action: UploadDataDownloadedAction): EntitiesState => {
+        let newState = { ...prevState };
+        newState.images = { ...prevState.images };
+        newState.images.byId = new Map(prevState.images.byId);
+        newState.series = { ...prevState.series };
+        newState.series.byId = new Map(prevState.series.byId);
+        let upload: UploadJSON = action.upload;
+        for (let study of upload.studies) {
+            for (let series of study.series) {
+                for (let imageId of series.images) {
+                    newState.images.byId.set(
+                        imageId,
+                        { imageId, annotations: [], seriesId: series.seriesID }
+                    );
+                }
+                newState.series.byId.set(
+                    series.seriesID,
+                    {seriesId: series.seriesID, images: series.images}
+                );
+            }
+        }
+        return newState;
+    };
