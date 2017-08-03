@@ -11,10 +11,10 @@ import { ImageAnnotation, ImageAnnotationAddedAction, imageAnnotationAdded } fro
 import { ApiService } from "../api";
 // import Paper from 'material-ui/Paper';
 
-let line1 = { attribute: "ruka", value: 2 };
-let line2 = { attribute: "ruka", value: 2 };
-let line3 = { attribute: "ruka", value: 2 };
-let testData = [line1, line2, line3];
+// let line1 = { attribute: "ruka", value: 2 };
+// let line2 = { attribute: "ruka", value: 2 };
+// let line3 = { attribute: "ruka", value: 2 };
+// let testData = [line1, line2, line3];
 
 export interface OwnState {
     keyFieldValue: string,
@@ -56,7 +56,7 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
         let resData = await ApiService.getAttributes(id);
 
         console.log('got data', resData);
-
+        this.listItems = [];
         for (let data of resData.attributes) {
             let tempData: listItem = {
                 attribute: data.key,
@@ -90,19 +90,15 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
             resData = await ApiService.putAttributes(img, { key: this.state.keyFieldValue, value: Number(this.state.valueFieldValue) })
             console.log("resData", resData);
         }
-        
+
         this.setState({
             keyFieldValue: '',
             valueFieldValue: ''
         });
 
         console.log("last value of array", this.getLastValue(Array.from(this.props.series)));
-    }
-
-    getLastValue(set) {
-        var value;
-        for (value of set);
-        return value;
+        console.log("Get last value: ", this.getLastValue(Array.from(this.props.series)));
+        await this.receiveAttributes(this.getLastValue(Array.from(this.props.series)));
     }
 
     handleKeyFieldChange(e) {
@@ -113,65 +109,71 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
         });
     }
 
-    handleValueFieldChange(e) {
-        this.setState({
-            valueFieldValue: e.target.value
-        }, () => {
-            console.log("new value", this.state.valueFieldValue);
-        });
+    getLastValue(set) {
+        var value;
+        for (value of set);
+        return value;
     }
 
-    render() {
-        var inputIncorrect;
+handleValueFieldChange(e) {
+    this.setState({
+        valueFieldValue: e.target.value
+    }, () => {
+        console.log("new value", this.state.valueFieldValue);
+    });
+}
 
-        // Check if value field is in between 0 and 1
-        let valueNumber = Number(this.state.valueFieldValue);
-        (valueNumber >= 0 && valueNumber <= 1) ? inputIncorrect = false : inputIncorrect = true;
+render() {
+    var inputIncorrect;
 
-        // Check if key field is empty
-        let keyValue = this.state.keyFieldValue;
-        if (keyValue == null || keyValue.trim() == "") {
-            inputIncorrect = true;
-        }
+    // Check if value field is in between 0 and 1
+    let valueNumber = Number(this.state.valueFieldValue);
+    (valueNumber >= 0 && valueNumber <= 1) ? inputIncorrect = false : inputIncorrect = true;
 
-        console.log("RENDER");
-        if (!this.state.wait) {
-            return (
-                <div >
-                    {/* <Paper> */}
-                    <Grid style={{ position: 'fixed' }} item xs={12} sm={12} md={12}>
-                        <div>
-                            <TextField
-                                required
-                                error={inputIncorrect}
-                                id="keyField"
-                                label="Key"
-                                margin="normal"
-                                style={{ width: '100%' }}
-                                value={this.state.keyFieldValue}
-                                onChange={this.handleKeyFieldChange}
-                            />
-                            <TextField
-                                error={inputIncorrect}
-                                id="valueField"
-                                label="Value"
-                                margin="normal"
-                                style={{ width: '100%' }}
-                                value={this.state.valueFieldValue}
-                                onChange={this.handleValueFieldChange}
-                            />
-                            <p />
-                            <Button disabled={inputIncorrect} id="assignButton" type="submit" raised color="primary" onClick={this.handleClick.bind(this)} style={{ float: "right" }}>Assign</Button>
-                        </div>
-
-                        <AttributeList listItems={testData/*this.listItems*/} />
-                    </Grid>
-                    {/* </Paper> */}
-                </div>);
-        } else {
-            return <div />
-        }
+    // Check if key field is empty
+    let keyValue = this.state.keyFieldValue;
+    if (keyValue == null || keyValue.trim() == "") {
+        inputIncorrect = true;
     }
+
+    console.log("RENDER");
+    if (!this.state.wait) {
+        return (
+            <div >
+                {/* <Paper> */}
+                <Grid style={{ position: 'fixed' }} item xs={12} sm={12} md={12}>
+                    <div>
+                        <TextField
+                            required
+                            error={inputIncorrect}
+                            id="keyField"
+                            label="Key"
+                            margin="normal"
+                            style={{ width: '100%' }}
+                            value={this.state.keyFieldValue}
+                            onChange={this.handleKeyFieldChange}
+                        />
+                        <TextField
+                            error={inputIncorrect}
+                            id="valueField"
+                            label="Value"
+                            margin="normal"
+                            style={{ width: '100%' }}
+                            value={this.state.valueFieldValue}
+                            onChange={this.handleValueFieldChange}
+                        />
+                        <p />
+                        <Button disabled={inputIncorrect} id="assignButton" type="submit" raised color="primary" onClick={this.handleClick.bind(this)} style={{ float: "right" }}>Assign</Button>
+                    </div>
+
+                    <AttributeList listItems={this.listItems} />
+                </Grid>
+                {/* </Paper> */}
+            </div>);
+    } else {
+        return <div />
+    }
+}
 }
 
 
