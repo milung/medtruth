@@ -34,6 +34,7 @@ export class BlowUpComponent extends React.Component<OwnProps & ConnectedState &
         super();
         this.state = { imageURL: "", imageLoaded: false, fetchingStarted: false }
         this.setImageURL = this.setImageURL.bind(this);
+        this.myOnKeyDown = this.myOnKeyDown.bind(this);
     }
 
     onExitClick() {
@@ -60,6 +61,25 @@ export class BlowUpComponent extends React.Component<OwnProps & ConnectedState &
             this.setState(Object.assign({}, this.state,
                 { imageURL: "", imageLoaded: false, fetchingStarted: false }));
         }
+    }
+
+    myOnKeyDown(event: KeyboardEvent) {
+        if(this.props.showBlowUp){
+           if(event.keyCode == 27){
+               this.onExitClick();
+           }
+           
+            
+        }
+
+    }
+
+    componentWillMount() {
+        window.addEventListener('keydown', this.myOnKeyDown);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('keydown', this.myOnKeyDown);
     }
 
     render() {
