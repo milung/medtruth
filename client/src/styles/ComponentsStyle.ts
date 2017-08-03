@@ -50,6 +50,7 @@ export const imageStyle = {
         width: '75%',
         height: '100%',
         display: 'none',
+        paddingTop: '70px',
         overflow: overflowAuto
     }
 }

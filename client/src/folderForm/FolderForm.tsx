@@ -10,7 +10,7 @@ import { FilesInputComponent } from '../fileInput/FilesInput';
 //import { ButtonComponent } from '../button/Button';
 //import { OneLineInformationComponent } from '../oneLineInformation/OneLineInformation';
 import { FilesUploadedAction, filesUploaded } from '../actions/actions';
-import { Tab } from 'material-ui';
+import { Button } from 'material-ui';
 
 interface OwnState {
     readingFiles: boolean;
@@ -44,6 +44,7 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
     }
 
     loadFile(files: File[]) {
+        if (files === undefined) { return; }
         let invalidFileNames: string[] = [];
         let fileUndefined: boolean = false;
         let filesInvalid: boolean = false;
@@ -148,7 +149,10 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
 
     render() {
         return (
-            <FilesInputComponent onFilesInput={this.loadFile} />
+            <div>
+                <FilesInputComponent onFilesInput={this.loadFile} />
+                <label htmlFor="file">UPLOAD</label>
+            </div>
         );
     }
 }
