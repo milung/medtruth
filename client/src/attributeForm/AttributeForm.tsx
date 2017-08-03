@@ -22,9 +22,8 @@ export interface OwnState {
     wait: boolean
 }
 export interface ConnectedState {
-    //images: string[];
-    images: Set<string>;
-    series: Set<string>
+    images: string[];
+    series: string[];
 }
 
 export interface ConnectedDispatch {
@@ -77,45 +76,32 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
         console.log("images", this.props.images);
         console.log("series", this.props.series);
 
-        // let resData;
-        // //for (var img in this.props.images) {
-        // // for (var img in this.props.series) {
-        // //     console.log(img);
-        // //     resData = await ApiService.putAttributes(img, { key: this.state.keyFieldValue, value: Number(this.state.valueFieldValue) })
-        // //     console.log("resData", resData);
-        // // }
+        let resData;
+        //for (var img of Array.from(this.props.series.values())) {
+        for (var img of this.props.images) {
+            console.log("IMAGE", img);
+            this.props.addedImageAnnotation({ imageId: img, key: this.state.keyFieldValue, value: Number(this.state.valueFieldValue) });
+            resData = await ApiService.putAttributes(img, { key: this.state.keyFieldValue, value: Number(this.state.valueFieldValue) })
+            console.log("resData", resData);
+        }
 
-        // for (var img of Array.from(this.props.series.values())) {
-        // //for (var img in this.props.images) {
-        //     console.log(img);
-        //     this.props.addedImageAnnotation({ imageId: img, key: this.state.keyFieldValue, value: Number(this.state.keyFieldValue) });
-        //     resData = await ApiService.putAttributes(img, { key: this.state.keyFieldValue, value: Number(this.state.valueFieldValue) })
-        //     console.log("resData", resData);
-        // }
+        this.setState({
+            keyFieldValue: '',
+            valueFieldValue: ''
+        });
 
-        // this.setState({
-        //     keyFieldValue: '',
-        //     valueFieldValue: ''
-        // });
-
-        // console.log("last value of array", getLastValue(Array.from(this.props.series)));
-        // console.log("Get last value: ", getLastValue(Array.from(this.props.series)));
-        // await this.receiveAttributes(getLastValue(Array.from(this.props.series)));
+        await this.receiveAttributes(getLastValue(Array.from(this.props.series)));
     }
 
     handleKeyFieldChange(e) {
         this.setState({
             keyFieldValue: e.target.value
-        }, () => {
-            console.log("new key", this.state.keyFieldValue);
         });
     }
 
     handleValueFieldChange(e) {
         this.setState({
             valueFieldValue: e.target.value
-        }, () => {
-            console.log("new value", this.state.valueFieldValue);
         });
     }
 
@@ -172,17 +158,22 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
     }
 }
 
-
 function mapStateToProps(state: State): ConnectedState {
-    console.log('serie ID- po kliknuti: ' + state.ui.selections.series.size);
+    console.log('serie ID- po kliknuti: ' + state.ui.selections.series.length);
     console.log('series', state.ui.selections.series);
-    console.log('array last value', getLastValue(Array.from(state.ui.selections.series)));
     console.log('last value', getLastValue(state.ui.selections.series));
-    
+
+    let imagesFromState: string[] = [];
+    if (state.ui.selections.series.length != 0 && state.entities.series.byId.get(getLastValue(state.ui.selections.series)) != null) {
+        imagesFromState = state.entities.series.byId.get(getLastValue(state.ui.selections.series)).images;
+        console.log("empty series");
+    }
+
     return {
         //images: state.entities.series.byId.get(getLastValue(Array.from(state.ui.selections.series))).images,
         //images: state.entities.series.byId.get(getLastValue(state.ui.selections.series)).images,
-        images: state.ui.selections.images,
+        //images: state.ui.selections.images,
+        images: imagesFromState,
         series: state.ui.selections.series
     };
 }
