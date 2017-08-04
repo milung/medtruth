@@ -9,6 +9,7 @@ import { connect } from "react-redux";
 import { State } from "../app/store";
 import { ImageAnnotation, ImageAnnotationAddedAction, imageAnnotationAdded } from "../actions/actions";
 import { ApiService } from "../api";
+import Paper from 'material-ui/Paper';
 
 export interface OwnState {
     keyFieldValue: string,
@@ -140,18 +141,22 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
             inputIncorrect = true;
         }
         console.log("input incorrect", inputIncorrect);
- 
+
+        //display: "block", marginRight: 0, marginBottom: 5
+        //style={{ position: 'fixed', padding: 10, overflow: 'auto' }} 
+        console.log("padding right");
         if (!this.state.wait) {
             return (
                 <div >
-                    <Grid style={{ position: 'fixed' }} item xs={12} sm={12} md={12}>
+                    <Grid style={{ position: 'fixed', paddingRight: 10}} item xs={12} sm={12} md={12}>
+                        <Paper style={{ padding: 10}}>
                         <div>
                             <TextField
                                 required
                                 error={inputIncorrect}
                                 id="keyField"
                                 label="Label"
-                                margin="normal"
+                                margin="dense"
                                 style={{ width: '100%' }}
                                 value={this.state.keyFieldValue}
                                 onChange={this.handleKeyFieldChange}
@@ -160,17 +165,16 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
                                 error={inputIncorrect}
                                 id="valueField"
                                 label="Value"
-                                margin="normal"
-                                style={{ width: '100%' }}
+                                margin="dense"
+                                style={{ width: '50%' }}
                                 value={this.state.valueFieldValue}
                                 onChange={this.handleValueFieldChange}
                             />
-                            <p />
-                            <Button disabled={inputIncorrect} id="assignButton" type="submit" raised color="primary" onClick={this.handleClick.bind(this)} style={{ display: "block", marginRight: 0}}>Assign</Button>
+                            <Button disabled={inputIncorrect} id="assignButton" type="submit" raised color="primary" onClick={this.handleClick.bind(this)} style={{ float: "right", marginTop: 20, marginBottom: 20}}>Assign</Button>
                         </div>
-                        <div>
+                        </Paper>
                             {attributeList}
-                        </div>
+                        
                     </Grid>
                 </div>);
         } else {
