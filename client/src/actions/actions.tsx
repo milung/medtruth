@@ -120,24 +120,24 @@ export interface ImageAnnotation {
     value: number;
 }
 
-export class UploadJSON {
+export interface UploadJSON {
     uploadID: number;
     uploadDate: Date;
-    studies: StudyJSON[] = [];
+    studies: StudyJSON[];
 }
 
-export class StudyJSON {
+export interface StudyJSON {
     patientName: string;
     patientBirthday: number;
     studyDescription: string;
     studyID: string;
-    series: SeriesJSON[] = [];
+    series: SeriesJSON[];
 }
 
-export class SeriesJSON {
+export interface SeriesJSON {
     seriesID: string;
     seriesDate: number;
     seriesDescription: string;
     thumbnailImageID: string;
-    images: string[] = [];
+    images: string[];
 }

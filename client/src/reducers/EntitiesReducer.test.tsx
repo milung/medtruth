@@ -1,5 +1,7 @@
-import { ActionTypeKeys, OtherAction, ImageAnnotationAddedAction,
-     ImageAnnotation, SeriesJSON, StudyJSON, UploadJSON, UploadDataDownloadedAction } from '../actions/actions';
+import {
+    ActionTypeKeys, OtherAction, ImageAnnotationAddedAction,
+    ImageAnnotation, SeriesJSON, StudyJSON, UploadJSON, UploadDataDownloadedAction
+} from '../actions/actions';
 import { entitiesReducer, EntitiesState, ImageEntity, SeriesEntity } from './EntitiesReducer';
 
 describe('EntitiesReducer', () => {
@@ -10,11 +12,13 @@ describe('EntitiesReducer', () => {
             type: ActionTypeKeys.OTHER_ACTION
         };
 
+        let prevState: EntitiesState = undefined;
+
         // when
-        let state: EntitiesState = entitiesReducer(undefined, otherAction);
+        let newState: EntitiesState = entitiesReducer(prevState, otherAction);
 
         // then
-        expect(state).toEqual({
+        expect(newState).toEqual({
             images: {
                 byId: new Map<string, ImageEntity>()
             },
@@ -43,7 +47,7 @@ describe('EntitiesReducer', () => {
             annotations: []
         };
 
-        let entitiesState: EntitiesState = {
+        let prevState: EntitiesState = {
             images: {
                 byId: new Map([[imageEntity.imageId, imageEntity]])
             },
@@ -53,11 +57,11 @@ describe('EntitiesReducer', () => {
         };
 
         // when
-        let state: EntitiesState = entitiesReducer(entitiesState, imageAnnotationAddedAction);
+        let newState: EntitiesState = entitiesReducer(prevState, imageAnnotationAddedAction);
 
         // then
         expect(
-            state.images.byId.get(imageEntity.imageId).annotations[0]
+            newState.images.byId.get(imageEntity.imageId).annotations[0]
         ).toEqual({
             imageId: 'image1',
             key: 'key1',
@@ -79,9 +83,9 @@ describe('EntitiesReducer', () => {
             annotation
         };
 
-        let entitiesState: EntitiesState = {
+        let prevState: EntitiesState = {
             images: {
-                byId: new Map()
+                byId: new Map<string, ImageEntity>()
             },
             series: {
                 byId: new Map<string, SeriesEntity>()
@@ -89,11 +93,11 @@ describe('EntitiesReducer', () => {
         };
 
         // when
-        let state: EntitiesState = entitiesReducer(entitiesState, imageAnnotationAddedAction);
+        let newState: EntitiesState = entitiesReducer(prevState, imageAnnotationAddedAction);
 
         // then
         expect(
-            state.images.byId.get(annotation.imageId).annotations[0]
+            newState.images.byId.get(annotation.imageId).annotations[0]
         ).toEqual({
             imageId: 'image1',
             key: 'key1',
@@ -101,18 +105,17 @@ describe('EntitiesReducer', () => {
         });
     });
 
-    it('should handle UploadDataDownloadedAction (save images entities)', () => {
+    it('should handle UploadDataDownloadedAction (save image entities, series entities)', () => {
 
         // given
-        let jsonCreator: UploadJSONCreator = new UploadJSONCreator();
-        let upload: UploadJSON = jsonCreator.getUploadJSON();
+        let upload: UploadJSON = getUploadJSON();
 
         let action: UploadDataDownloadedAction = {
             type: ActionTypeKeys.UPLOAD_DATA_DOWNLOADED,
             upload
         };
 
-        let entitiesState: EntitiesState = {
+        let prevState: EntitiesState = {
             images: {
                 byId: new Map<string, ImageEntity>()
             },
@@ -122,83 +125,78 @@ describe('EntitiesReducer', () => {
         };
 
         // when
-        let state: EntitiesState = entitiesReducer(entitiesState, action);
+        let newState: EntitiesState = entitiesReducer(prevState, action);
 
         // then
         expect(
-            state.images.byId.size
-        ).toBe(3);
-    });
+            newState.images.byId.get('04556da2ce2edd91fe3ca5c1f335524b')
+        ).toEqual({
+            seriesId: 'seriesId1',
+            imageId: '04556da2ce2edd91fe3ca5c1f335524b',
+            annotations: []
+        });
 
-    it('should handle UploadDataDownloadedAction (save series entities)', () => {
-        // given
-        let jsonCreator: UploadJSONCreator = new UploadJSONCreator();
-        let upload: UploadJSON = jsonCreator.getUploadJSON();
-
-        let action: UploadDataDownloadedAction = {
-            type: ActionTypeKeys.UPLOAD_DATA_DOWNLOADED,
-            upload
-        };
-
-        let entitiesState: EntitiesState = {
-            images: {
-                byId: new Map<string, ImageEntity>()
-            },
-            series: {
-                byId: new Map<string, SeriesEntity>()
-            }
-        };
-
-        // when
-        let state: EntitiesState = entitiesReducer(entitiesState, action);
-
-        // then
         expect(
-            state.series.byId.size
-        ).toBe(2);
+            newState.images.byId.get('04c899278a1b0cad90d8a2ff286f4e63')
+        ).toEqual({
+            seriesId: 'seriesId1',
+            imageId: '04c899278a1b0cad90d8a2ff286f4e63',
+            annotations: []
+        });
+
+        expect(
+            newState.images.byId.get('04f518349c32cfcbe820527cee910abb')
+        ).toEqual({
+            seriesId: 'seriesId2',
+            imageId: '04f518349c32cfcbe820527cee910abb',
+            annotations: []
+        });
+
+        expect(
+            newState.series.byId.get('seriesId1')
+        ).toEqual({
+            seriesId: 'seriesId1',
+            seriesDescription: 'series description 1',
+            thumbnailImageID: '04b1f296878b9b0e2f1e2662be692ccb',
+            seriesDate: 1000000,
+            images: ['04556da2ce2edd91fe3ca5c1f335524b', '04c899278a1b0cad90d8a2ff286f4e63']
+        });
     });
 });
 
-class UploadJSONCreator {
-    getUploadJSON() {
-        let uploadJSON = new UploadJSON();
-        uploadJSON.uploadID = 12345;
-        uploadJSON.uploadDate = new Date();
-        let study1 = new StudyJSON();
+const getUploadJSON = (): UploadJSON => {
+    let imageId1: string = '04556da2ce2edd91fe3ca5c1f335524b';
+    let imageId2: string = '04c899278a1b0cad90d8a2ff286f4e63';
+    let imageId3: string = '04f518349c32cfcbe820527cee910abb';
 
-        study1.studyID = 'studyID 01';
-        study1.studyDescription = 'This is study01 description';
-        study1.patientName = 'Hlavatý Tomas';
-        study1.patientBirthday = new Date(1234567890123).getTime();
+    let series1: SeriesJSON = {
+        seriesID: 'seriesId1',
+        seriesDescription: 'series description 1',
+        thumbnailImageID: '04b1f296878b9b0e2f1e2662be692ccb',
+        seriesDate: 1000000,
+        images: [imageId1, imageId2]
+    };
 
-        let series01 = new SeriesJSON();
-        let series02 = new SeriesJSON();
-        
+    let series2: SeriesJSON = {
+        seriesID: 'seriesId2',
+        seriesDescription: 'series description 2',
+        thumbnailImageID: '04b1f296878b9b0e2f1e2662be692ccb',
+        seriesDate: 1000000,
+        images: [imageId3]
+    };
 
-        this.setSeries(series01, 'SeriesID01',
-                       'seriesDescription: Head scan or something.',
-                       '04b1f296878b9b0e2f1e2662be692ccb');
+    let study1: StudyJSON = {
+        patientName: 'patient name',
+        studyDescription: 'study description',
+        studyID: 'studyId',
+        patientBirthday: 1000000,
+        series: [series1, series2]
+    };
 
-        this.setSeries(series02, 'SeriesID02',
-                       'seriesDescription: Don\'t know what this thing is LOL',
-                       '04914d21ab3880895f3c4e75f7ecf377');
-
-        series01.images.push('04556da2ce2edd91fe3ca5c1f335524b');
-        series02.images.push('04c899278a1b0cad90d8a2ff286f4e63');
-        series02.images.push('04f518349c32cfcbe820527cee910abb');
-
-        study1.series.push(series01);
-        study1.series.push(series02);
-
-        uploadJSON.studies.push(study1);
-
-        return (uploadJSON);
-    }
-
-    setSeries(series: SeriesJSON, seriesID: string, seriesDescription: string, thumbnail: string) {
-        series.seriesID = seriesID;
-        series.seriesDescription = seriesDescription;
-        series.thumbnailImageID = thumbnail;
-    }
-
-}
+    let upload: UploadJSON = {
+        uploadID: 12345,
+        uploadDate: undefined,
+        studies: [study1]
+    };
+    return upload;
+};
