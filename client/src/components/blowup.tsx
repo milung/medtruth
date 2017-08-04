@@ -67,7 +67,7 @@ export class BlowUpComponent extends React.Component<OwnProps & ConnectedState &
         let style = Object.assign({}, imageStyle.backgroundDiv);
         this.props.showBlowUp ? style.display = 'block' : style.display = 'none';
         // set progress or loaded image
-        let circularProgress = <CircularProgress size={50} />
+        let circularProgress = <CircularProgress size={50} />;
         let image = <img style={imageStyle.image} src={this.state.imageURL} />;
         let content = this.state.imageLoaded ? image : circularProgress;
 
