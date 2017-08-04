@@ -8,6 +8,7 @@ interface FilesInputProps {
 export class FilesInputComponent extends React.Component<FilesInputProps, {}> {
     render() {
         var handleFilesInputChangeEvent = (e: any) => {
+            if (e.target.files.length === 0) { return; }
             this.props.onFilesInput(Array.from(e.target.files));
         };
 

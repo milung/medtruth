@@ -7,7 +7,7 @@ import { StatusCode } from './constants';
 export const server = express();
 
 // Serve public files.
-server.use(express.static('public/'));
+server.use(express.static(__dirname + '/public'));
 
 // Serve routes.
 server.use(routes);
