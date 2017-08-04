@@ -7,7 +7,7 @@ import { StatusCode } from './constants';
 export const server = express();
 
 // Serve public files.
-server.use(express.static(__dirname + '/public'));
+server.use(express.static('public/'));
 
 // Serve routes.
 server.use(routes);
@@ -23,7 +23,9 @@ server.use((req, res, next) => {
 })
 
 // Listen and serve.
-const port = 8080;
-server.listen(process.env.PORT || port, () => {
+const port = process.argv[2] === 'production'
+            ? 80
+            : 8080;
+server.listen(port, () => {
     console.log("Listening on port", port);
 });

@@ -8,7 +8,8 @@ describe('<FilesInputComponent />', () => {
         // given
         let mockFunction = jest.fn();
         const props = {
-            onFilesInput: mockFunction
+            onFilesInput: mockFunction,
+            disabled: false
         };
 
         // when then
@@ -19,7 +20,8 @@ describe('<FilesInputComponent />', () => {
         // given
         let mockFunction = jest.fn();
         const props = {
-            onFilesInput: mockFunction
+            onFilesInput: mockFunction,
+            disabled: false
         };
 
         // when 
@@ -33,7 +35,8 @@ describe('<FilesInputComponent />', () => {
         // given 
         let mockFunction = jest.fn();
         const props = {
-            onFilesInput: mockFunction
+            onFilesInput: mockFunction,
+            disabled: false
         };
         const wrapper = shallow(<FilesInputComponent {...props} />);
 

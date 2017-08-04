@@ -42,7 +42,7 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
         this.timer = setTimeout(() => {
             console.log("clicked on " + this.props.seriesID);
             this.props.selectedSeries(this.props.seriesID);
-        }, 250);
+        }, 100);
     }
 
     handleDoubleClick() {

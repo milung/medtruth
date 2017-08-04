@@ -150,11 +150,11 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
 
     render() {
         let uploading = this.state.uploadingFiles 
-        ? <CircularProgress mode="indeterminate" size={20} className={{color: '#F44336'}}/> 
-        : <label htmlFor="file">UPLOAD</label>;
+        ? <CircularProgress mode="indeterminate" color="#F44336" size={20}/> 
+        : 'UPLOAD';
         return (
-            <div>
-                <FilesInputComponent onFilesInput={this.loadFile} />
+            <div style={{display: 'block'}}>
+                <FilesInputComponent disabled={this.state.uploadingFiles} onFilesInput={this.loadFile} />
                 {uploading}
             </div>
         );
