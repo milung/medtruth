@@ -140,8 +140,7 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
             inputIncorrect = true;
         }
         console.log("input incorrect", inputIncorrect);
-
-        console.log("RENDER");
+ 
         if (!this.state.wait) {
             return (
                 <div >
@@ -167,10 +166,11 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
                                 onChange={this.handleValueFieldChange}
                             />
                             <p />
-                            <Button disabled={inputIncorrect} id="assignButton" type="submit" raised color="primary" onClick={this.handleClick.bind(this)} style={{ float: "right" }}>Assign</Button>
+                            <Button disabled={inputIncorrect} id="assignButton" type="submit" raised color="primary" onClick={this.handleClick.bind(this)} style={{ display: "block", marginRight: 0}}>Assign</Button>
                         </div>
-
-                        {attributeList}
+                        <div>
+                            {attributeList}
+                        </div>
                     </Grid>
                 </div>);
         } else {

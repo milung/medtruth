@@ -11,6 +11,8 @@ import { FilesInputComponent } from '../fileInput/FilesInput';
 //import { OneLineInformationComponent } from '../oneLineInformation/OneLineInformation';
 import { FilesUploadedAction, filesUploaded } from '../actions/actions';
 import { Button } from 'material-ui';
+import { CircularProgress } from 'material-ui';
+import { red } from 'material-ui/colors/red';
 
 interface OwnState {
     readingFiles: boolean;
@@ -44,7 +46,6 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
     }
 
     loadFile(files: File[]) {
-        if (files === undefined) { return; }
         let invalidFileNames: string[] = [];
         let fileUndefined: boolean = false;
         let filesInvalid: boolean = false;
@@ -148,10 +149,13 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
     }
 
     render() {
+        let uploading = this.state.uploadingFiles 
+        ? <CircularProgress mode="indeterminate" color="#F44336" size={20}/> 
+        : 'UPLOAD';
         return (
-            <div>
-                <FilesInputComponent onFilesInput={this.loadFile} />
-                <label htmlFor="file">UPLOAD</label>
+            <div style={{display: 'block'}}>
+                <FilesInputComponent disabled={this.state.uploadingFiles} onFilesInput={this.loadFile} />
+                {uploading}
             </div>
         );
     }

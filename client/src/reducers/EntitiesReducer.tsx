@@ -20,6 +20,9 @@ export interface ImageEntity {
 
 export interface SeriesEntity {
     seriesId: string;
+    seriesDate: number;
+    seriesDescription: string;
+    thumbnailImageID: string;
     images: string[];
 }
 
@@ -86,7 +89,13 @@ const processUploadDataDownloadedAction =
                 }
                 newState.series.byId.set(
                     series.seriesID,
-                    {seriesId: series.seriesID, images: series.images}
+                    {
+                        seriesId: series.seriesID, 
+                        images: series.images, 
+                        seriesDate: series.seriesDate,
+                        seriesDescription: series.seriesDescription,
+                        thumbnailImageID: series.thumbnailImageID
+                    }
                 );
             }
         }

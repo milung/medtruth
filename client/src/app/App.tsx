@@ -4,7 +4,7 @@ import { AttributeForm } from '../attributeForm/AttributeForm';
 import Grid from 'material-ui/Grid';
 import { AppBar, Tabs, Tab } from 'material-ui';
 import { Content } from '../components/content';
-import { FolderForm } from "../folderForm/FolderForm";
+import { FolderForm } from '../folderForm/FolderForm';
 import { FlatButton } from 'material-ui';
 
 var injectTapEventPlugin = require('react-tap-event-plugin');
@@ -17,7 +17,7 @@ export default class App extends React.Component<{}, {}> {
                 <AppBar style={{ backgroundColor: '#212121' }}>
                     <Tabs index={false} onChange={() => { }}>
                         <Tab label={'Medtruth'} style={{ fontStyle: 'bold', color: '#F44336' }}/>
-                        <Tab label={<FolderForm />} />
+                        <Tab label={<label htmlFor="file"><FolderForm /></label>} />
                     </Tabs>
                 </AppBar>
                 <div style={{ paddingTop: '50px', margin: '0 auto' }}>
