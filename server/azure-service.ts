@@ -54,6 +54,7 @@ export namespace AzureStorage {
             let sasUrl = blobService.getUrl(containerImages, image, token);
             request(sasUrl, (err, res) => {
                 if (err) reject(Status.FAILED);
+                if (res == null) reject(Status.FAILED);
                 if (res.statusCode === StatusCode.OK) resolve(sasUrl)
                 reject(Status.FAILED);
             })

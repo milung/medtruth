@@ -39,7 +39,7 @@ export class UploadController {
 
     Root = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
         let files = req.files as Express.Multer.File[];
-        
+
         // If none or zero files were sent, send a null response.
         if (files === undefined) { next(); return null; }
         if (files.length === 0) { next(); return null; }
@@ -55,7 +55,7 @@ export class UploadController {
         console.log("[insertToImagesCollection]");
         await AzureDatabase.insertToImagesCollection(json);
         console.log('[Removing files]');
-        
+
         // Cleanup.
         files.forEach((file) => {
             fs.unlink(file.path, () => { });
@@ -98,9 +98,11 @@ export class UploadController {
             try {
                 if (upload.err) return upload;
                 // Else upload the DICOM and PNG.
+                /*
                 await AzureStorage.toDicoms(
                     upload.filename,
                     storagePath + upload.filename);
+                */
                 await AzureStorage.toImages(
                     upload.filename + ".png",
                     imagePath + upload.filename + ".png");
@@ -121,7 +123,7 @@ export class UploadController {
         let json = new objects.UploadJSON();
         json.uploadID = new Date().getTime();
         json.uploadDate = new Date();
-        let studiesArray: Image[][][] = [];   
+        let studiesArray: Image[][][] = [];
 
         let parses = this.responses.forEach((parse) => {
             if (parse.err) return;
@@ -206,8 +208,8 @@ export class UploadController {
                 let thumbnail = imagePath + imageID + '_.png';
                 if (err === null) {
                     image.background(0x000000FF)
-                    .contain(300, 300)
-                    .write(thumbnail, async (err, image) => {
+                        .contain(300, 300)
+                        .write(thumbnail, async (err, image) => {
                             if (err === null) {
                                 await AzureStorage.toImages(imageID + '_.png', thumbnail);
                                 fs.unlink(thumbnail, () => { });

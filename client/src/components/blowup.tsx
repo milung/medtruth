@@ -34,6 +34,7 @@ export class BlowUpComponent extends React.Component<OwnProps & ConnectedState &
         super();
         this.state = { imageURL: "", imageLoaded: false, fetchingStarted: false }
         this.setImageURL = this.setImageURL.bind(this);
+        this.myOnKeyDown = this.myOnKeyDown.bind(this);
     }
 
     onExitClick() {
@@ -62,13 +63,32 @@ export class BlowUpComponent extends React.Component<OwnProps & ConnectedState &
         }
     }
 
+    myOnKeyDown(event: KeyboardEvent) {
+        if(this.props.showBlowUp){
+           if(event.keyCode == 27){
+               this.onExitClick();
+           }
+           
+            
+        }
+
+    }
+
+    componentWillMount() {
+        window.addEventListener('keydown', this.myOnKeyDown);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('keydown', this.myOnKeyDown);
+    }
+
     render() {
 
         let style = Object.assign({}, imageStyle.backgroundDiv);
         this.props.showBlowUp ? style.display = 'block' : style.display = 'none';
         // set progress or loaded image
         let circularProgress = <CircularProgress size={50} />
-        let image = <img style={imageStyle.image} src={this.state.imageURL} />;
+        let image: any = <img style={imageStyle.image} src={this.state.imageURL} />;
         let content = this.state.imageLoaded ? image : circularProgress;
 
         return (
