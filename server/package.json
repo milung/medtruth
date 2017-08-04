@@ -52,7 +52,7 @@
     "typescript": "^2.4.1"
   },
   "scripts": {
-    "start:prod": "node out/server.js production",
+    "start:prod": "node out/server.js",
     "start": "node out/server.js",
     "build": "tsc",
     "test": "cls && jest",
