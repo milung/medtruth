@@ -52,18 +52,10 @@ export class UploadController {
         await this.upload();
         console.log("[Parse]");
         let json = await this.parse();
-<<<<<<< HEAD
-        console.log('[Parsing] OK ✔️');
-        console.log('[InsertToImagesCollection]');
-        await AzureDatabase.insertToImagesCollection(json);
-        console.log('[InsertToImagesCollection] OK ✔️');
-        console.log("[Deleting files]");
-=======
         console.log("[insertToImagesCollection]");
         await AzureDatabase.insertToImagesCollection(json);
         console.log('[Removing files]');
 
->>>>>>> 3d76b881b5a04a450798d29306abec8ff962573a
         // Cleanup.
         files.forEach((file) => {
             console.log("[Deleting files] file: " + file.path);
@@ -215,12 +207,7 @@ export class UploadController {
 
     createThumbnail(imageID) {
         return new Promise<string>((resolve, reject) => {
-<<<<<<< HEAD
             console.log('[Create Thumbnail]');
-=======
-
-
->>>>>>> 3d76b881b5a04a450798d29306abec8ff962573a
             jimp.read(imagePath + imageID + ".png", async function (err, image) {
                 // do stuff with the image (if no exception) 
                 let thumbnail = imagePath + imageID + '_.png';
@@ -229,31 +216,17 @@ export class UploadController {
                         .contain(300, 300)
                         .write(thumbnail, async (err, image) => {
                             if (err === null) {
-<<<<<<< HEAD
-                                console.log("[Create Thumbnail] uploading to azure " + imageID + '_.png');
-                                await AzureStorage.toImages(imageID + '_.png', thumbnail);
-                                fs.unlink(thumbnail, () => { });
-                                console.log("[Create Thumbnail] DONE for: " + imageID + '_.png');
-                                resolve("OK")
-                            } else {
-                                console.log("[Create Thumbnail] FAIL for: " + imageID + '_.png');
-                                console.log(err);
-=======
                                 await AzureStorage.toImages(imageID + '_.png', thumbnail);
                                 fs.unlink(thumbnail, () => { });
                                 resolve("OK")
                             } else {
->>>>>>> 3d76b881b5a04a450798d29306abec8ff962573a
                                 reject("NO OK")
                             }
                         });
 
                 } else {
-<<<<<<< HEAD
                     console.log("[Create Thumbnail] Error");
                     console.log(err);
-=======
->>>>>>> 3d76b881b5a04a450798d29306abec8ff962573a
                     reject("NOT OK")
                 }
             });
