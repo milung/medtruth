@@ -59,7 +59,7 @@
   },
   "scripts": {
     "start": "react-scripts-ts start",
-    "build": "react-scripts-ts build && xcopy build\\* ..\\server\\public\\ /i /e /y",
+    "build": "react-scripts-ts build",
     "test": "cls && jest",
     "eject": "react-scripts-ts eject"
   }
