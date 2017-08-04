@@ -45,19 +45,25 @@ export class UploadController {
         if (files.length === 0) { next(); return null; }
 
         // Convert, upload and parse the files.
-        console.log('[Converting]');
 
+        console.log("[Convert]");
         await this.convert(files);
-        console.log('[Uploading]');
-
+        console.log("[Upload]");
         await this.upload();
-        console.log('[Parsing]');
+        console.log("[Parse]");
         let json = await this.parse();
+<<<<<<< HEAD
         console.log('[Parsing] OK ✔️');
         console.log('[InsertToImagesCollection]');
         await AzureDatabase.insertToImagesCollection(json);
         console.log('[InsertToImagesCollection] OK ✔️');
         console.log("[Deleting files]");
+=======
+        console.log("[insertToImagesCollection]");
+        await AzureDatabase.insertToImagesCollection(json);
+        console.log('[Removing files]');
+
+>>>>>>> 3d76b881b5a04a450798d29306abec8ff962573a
         // Cleanup.
         files.forEach((file) => {
             console.log("[Deleting files] file: " + file.path);
@@ -74,7 +80,6 @@ export class UploadController {
         // Then assign a unique_id and UploadStatuses.
         req.params.statuses = { upload_id: json.uploadID, statuses: statuses };
         next();
-        console.log("[END]");
     }
 
     async convert(files: Express.Multer.File[]) {
@@ -104,12 +109,11 @@ export class UploadController {
             try {
                 if (upload.err) return upload;
                 // Else upload the DICOM and PNG.
-                console.log('[Uploading] dicom: ' + upload.filename);
-
+                /*
                 await AzureStorage.toDicoms(
                     upload.filename,
                     storagePath + upload.filename);
-                console.log('[Uploading] png: ' + upload.filename);
+                */
                 await AzureStorage.toImages(
                     upload.filename + ".png",
                     imagePath + upload.filename + ".png");
@@ -211,7 +215,12 @@ export class UploadController {
 
     createThumbnail(imageID) {
         return new Promise<string>((resolve, reject) => {
+<<<<<<< HEAD
             console.log('[Create Thumbnail]');
+=======
+
+
+>>>>>>> 3d76b881b5a04a450798d29306abec8ff962573a
             jimp.read(imagePath + imageID + ".png", async function (err, image) {
                 // do stuff with the image (if no exception) 
                 let thumbnail = imagePath + imageID + '_.png';
@@ -220,6 +229,7 @@ export class UploadController {
                         .contain(300, 300)
                         .write(thumbnail, async (err, image) => {
                             if (err === null) {
+<<<<<<< HEAD
                                 console.log("[Create Thumbnail] uploading to azure " + imageID + '_.png');
                                 await AzureStorage.toImages(imageID + '_.png', thumbnail);
                                 fs.unlink(thumbnail, () => { });
@@ -228,13 +238,22 @@ export class UploadController {
                             } else {
                                 console.log("[Create Thumbnail] FAIL for: " + imageID + '_.png');
                                 console.log(err);
+=======
+                                await AzureStorage.toImages(imageID + '_.png', thumbnail);
+                                fs.unlink(thumbnail, () => { });
+                                resolve("OK")
+                            } else {
+>>>>>>> 3d76b881b5a04a450798d29306abec8ff962573a
                                 reject("NO OK")
                             }
                         });
 
                 } else {
+<<<<<<< HEAD
                     console.log("[Create Thumbnail] Error");
                     console.log(err);
+=======
+>>>>>>> 3d76b881b5a04a450798d29306abec8ff962573a
                     reject("NOT OK")
                 }
             });

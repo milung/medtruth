@@ -1,5 +1,5 @@
 import { uiReducer, UIState } from './UIReducer';
-import { OtherAction, ActionTypeKeys, ImageSelectedAction } from '../actions/actions';
+import { OtherAction, ActionTypeKeys, ImageSelectedAction, SeriesSelectedAction } from '../actions/actions';
 
 describe('UIReducer', () => {
     let otherAction: OtherAction = {
@@ -9,8 +9,10 @@ describe('UIReducer', () => {
     it('should return initial state', () => {
         expect(uiReducer(undefined, otherAction)).toEqual({
             blownUpThumbnailId: '',
+            isBlownUpShowed: false,
             selections: {
-                images: new Set<string>(),
+                images: [],
+                series: []
             }
         });
     });
@@ -21,7 +23,7 @@ describe('UIReducer', () => {
             id: 'aaaaa'
         };
 
-        expect(uiReducer(undefined, imageSelectedAction).selections.images.has('aaaaa')).toBeTruthy();
+        expect(uiReducer(undefined, imageSelectedAction).selections.images.indexOf('aaaaa') !== -1).toBeTruthy();
     });
 
     it('should handle ImageSelectedAction (deselect image)', () => {
@@ -31,13 +33,60 @@ describe('UIReducer', () => {
         };
 
         let uiState: UIState = {
+            isBlownUpShowed: false,
             blownUpThumbnailId: '',
             selections: {
-                images: new Set<string>(['aaaaa']),
+                images: ['aaaaa'],
+                series: []
             }
         };
 
-        expect(uiReducer(uiState, imageSelectedAction).selections.images.size).toBe(0);
+        expect(uiReducer(uiState, imageSelectedAction).selections.images.length).toBe(0);
+    });
+
+    it('should handle SeriesSelectedAction (select series)', () => {
+        let seriesSelectedAction: SeriesSelectedAction = {
+            type: ActionTypeKeys.SERIES_SELECTED,
+            id: 'abcd1234'
+        };
+
+        expect(uiReducer(undefined, seriesSelectedAction).selections.series.indexOf('abcd1234') !== -1).toBeTruthy();
+    });
+
+    it('should handle SeriesSelectedAction (deselect series)', () => {
+        let seriesSelectedAction: SeriesSelectedAction = {
+            type: ActionTypeKeys.SERIES_SELECTED,
+            id: 'abcd1234'
+        };
+
+        let uiState: UIState = {
+            isBlownUpShowed: false,
+            blownUpThumbnailId: '',
+            selections: {
+                images: [],
+                series: ['abcd1234']
+            }
+        };
+
+        expect(uiReducer(uiState, seriesSelectedAction).selections.series.length).toBe(0);
+    });
+
+    it('SeriesSelectedAction should not change selected images set', () => {
+        let seriesSelectedAction: SeriesSelectedAction = {
+            type: ActionTypeKeys.SERIES_SELECTED,
+            id: 'abcd1234'
+        };
+
+        let uiState: UIState = {
+            isBlownUpShowed: false,
+            blownUpThumbnailId: '',
+            selections: {
+                images: ['aaaaa'],
+                series: ['abcd1234']
+            }
+        };
+
+        expect(uiReducer(uiState, seriesSelectedAction).selections.images.indexOf('aaaaa') !== -1).toBeTruthy();
     });
 
 });

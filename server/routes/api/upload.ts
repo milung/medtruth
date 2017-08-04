@@ -74,17 +74,12 @@ routerUpload.post('/',
 */
 routerUpload.get('/:id', async (req, res) => {
     let id = Number.parseInt(req.params.id);
-
-    // if (id === undefined) {
-    //     res.sendStatus(StatusCode.BadRequest);
-    //     return;
-    // }
-
-
-    // if (id === 12345) {//undefined
-    //     let responseJSON = jsonCreator.getUploadJSON();
-    //    console.log("test json", responseJSON);
-    //    res.json(responseJSON);}
+    console.log("uploadid: "+id);
+    
+    if (id === undefined) {
+        res.sendStatus(StatusCode.BadRequest);
+        return;
+    }
 
     if (id != -1) {
         let responseJSON = await AzureDatabase.getUploadDocument(id);
@@ -96,7 +91,6 @@ routerUpload.get('/:id', async (req, res) => {
     } else {
         let responseJSON = await AzureDatabase.getLastUpload();
         if (responseJSON === undefined) {
-
             res.sendStatus(StatusCode.NotFound);
         } else {
             res.json(responseJSON);
@@ -105,16 +99,3 @@ routerUpload.get('/:id', async (req, res) => {
 
 });
 
-/*
-    Mock route for testing the upload to MongoDB
-    Route:      POST 'upload/document'
-    Expects:    
-    --------------------------------------------
-    Returns details about upload.
-*/
-routerUpload.post('/document', extendTimeout, storage.array('data'), async (req, res) => {
-
-    let result = await AzureDatabase.insertToAttributesCollection({ hello: 'meh', date: new Date() });
-    res.json(result);
-
-});

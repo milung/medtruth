@@ -2,16 +2,20 @@
 import { ActionTypeKeys, ActionType } from '../actions/actions';
 
 export interface UIState {
+    isBlownUpShowed: boolean;
     blownUpThumbnailId: string;
     selections: {
-        images: Set<string>;
+        images: string[];
+        series: string[]
     };
 }
 
 const initialState: UIState = {
+    isBlownUpShowed: false,
     blownUpThumbnailId: '',
     selections: {
-        images: new Set<string>(),
+        images: [],
+        series: []
     }
 };
 
@@ -24,6 +28,7 @@ export function uiReducer(
                 {},
                 prevState,
                 {
+                    isBlownUpShowed: true,
                     blownUpThumbnailId: action.thumbnailId
                 });
         case ActionTypeKeys.THUMBNAIL_BLOWN_DOWN:
@@ -31,16 +36,31 @@ export function uiReducer(
                 {},
                 prevState,
                 {
+                    isBlownUpShowed: false,
                     blownUpThumbnailId: ''
                 });
         case ActionTypeKeys.IMAGE_SELECTED:
-            let imageIdsSet: Set<string> = addRemoveFromSet(
+            let imageIdsArray: string[] = addRemoveFromArray(
                 prevState.selections.images,
                 action.id
             );
             let newState = Object.assign({}, prevState);
             newState.selections = Object.assign({}, prevState.selections);
-            newState.selections.images = imageIdsSet;
+            newState.selections.images = imageIdsArray;
+            return newState;
+        case ActionTypeKeys.SERIES_SELECTED:
+            let seriesIdsArray: string[] = addRemoveFromArray(
+                prevState.selections.series,
+                action.id
+            );
+            newState = Object.assign({}, prevState);
+            newState.selections = Object.assign({}, prevState.selections);
+            newState.selections.series = seriesIdsArray;
+            return newState;
+        case ActionTypeKeys.SERIES_ALL_UNSELECTED:
+            newState = Object.assign({}, prevState);
+            newState.selections = Object.assign({}, prevState.selections);
+            newState.selections.series = [];
             return newState;
         // case ActionTypeKeys.IMAGES_SELECTED:
         //     imageIdsSet = addRemoveSetFromSet(
@@ -56,52 +76,13 @@ export function uiReducer(
     }
 }
 
-function addRemoveFromSet(selectedBefore: Set<string>, selected: string): Set<string> {
-    let set: Set<string> = new Set(selectedBefore);
-    if (selectedBefore.has(selected)) {
-        set.delete(selected);
+function addRemoveFromArray(selectedBefore: string[], selected: string): string[] {
+    let array: string[];
+    let index: number = selectedBefore.indexOf(selected);
+    if ( index !== -1) {
+        array = [...selectedBefore.slice(0, index), ...selectedBefore.slice(index + 1)];
     } else {
-        set.add(selected);
+        array = [selected, ...selectedBefore];
     }
-    return set;
+    return array;
 }
-
-// function addRemoveSetFromSet(selectedBefore: Set<string>, selected: Set<string>): Set<string> {
-//     return setDifference(
-//         setUnion(selectedBefore, selected),
-//         setIntersection(selectedBefore, selected)
-//     );
-// }
-
-// function setUnion<T>(...sets: Set<T>[]): Set<T> {
-//     let union = new Set<T>();
-//     sets.forEach(set => set.forEach(element => union.add(element)));
-//     return union;
-// }
-
-// function setIntersection<T>(...sets: Set<T>[]): Set<T> {
-//     return sets.reduce(
-//         (A, B) => {
-//             let X = new Set();
-//             B.forEach((v => {
-//                 if (A.has(v)) {
-//                     X.add(v);
-//                 }
-//             }));
-//             return X;
-//         });
-// }
-
-// function setDifference<T>(...sets: Set<T>[]): Set<T> {
-//     return sets.reduce(
-//         ((A, B) => {
-//             let X = new Set(A);
-//             B.forEach(v => {
-//                 if (X.has(v)) {
-//                     X.delete(v);
-//                 }
-//             });
-//             return X;
-//         })
-//     );
-// }

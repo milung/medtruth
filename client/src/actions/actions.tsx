@@ -3,9 +3,12 @@ export enum ActionTypeKeys {
     FILES_UPLOADED = 'FILES_UPLOADED',
     THUMBNAIL_BLOWN_UP = 'THUMBNAIL_BLOWN_UP',
     THUMBNAIL_BLOWN_DOWN = 'THUMBNAIL_BLOWN_DOWN',
-    IMAGES_SELECTED = 'IMAGES_SELECTED',
+    // IMAGES_SELECTED = 'IMAGES_SELECTED',
     IMAGE_SELECTED = 'IMAGE_SELECTED',
+    SERIES_SELECTED = 'SERIES_SELECTED',
+    SERIES_ALL_UNSELECTED = 'SERIES_ALL_UNSELECTED',
     IMAGE_ANNOTATION_ADDED = 'IMAGE_ANNOTATION_ADDED',
+    UPLOAD_DATA_DOWNLOADED = 'UPLOAD_DATA_DOWNLOADED',
     OTHER_ACTION = 'OTHER_ACTION'
 }
 
@@ -23,10 +26,10 @@ export interface ThumbnailBlownDownAction {
     type: ActionTypeKeys.THUMBNAIL_BLOWN_DOWN;
 }
 
-export interface ImagesSelectedAction {
-    type: ActionTypeKeys.IMAGES_SELECTED;
-    ids: string[];
-}
+// export interface ImagesSelectedAction {
+//     type: ActionTypeKeys.IMAGES_SELECTED;
+//     ids: string[];
+// }
 
 export interface ImageSelectedAction {
     type: ActionTypeKeys.IMAGE_SELECTED;
@@ -36,6 +39,20 @@ export interface ImageSelectedAction {
 export interface ImageAnnotationAddedAction {
     type: ActionTypeKeys.IMAGE_ANNOTATION_ADDED;
     annotation: ImageAnnotation;
+}
+
+export interface SeriesSelectedAction {
+    type: ActionTypeKeys.SERIES_SELECTED;
+    id: string;
+}
+
+export interface SeriesAllUnselectedAction {
+    type: ActionTypeKeys.SERIES_ALL_UNSELECTED;
+}
+
+export interface UploadDataDownloadedAction {
+    type: ActionTypeKeys.UPLOAD_DATA_DOWNLOADED;
+    upload: UploadJSON; 
 }
 
 export interface OtherAction {
@@ -56,10 +73,10 @@ export const thumbnailBlownDown = (): ThumbnailBlownDownAction => ({
     type: ActionTypeKeys.THUMBNAIL_BLOWN_DOWN,
 });
 
-export const selectedImages = (ids: string[]): ImagesSelectedAction => ({
-    type: ActionTypeKeys.IMAGES_SELECTED,
-    ids
-});
+// export const selectedImages = (ids: string[]): ImagesSelectedAction => ({
+//     type: ActionTypeKeys.IMAGES_SELECTED,
+//     ids
+// });
 
 export const selectedImage = (id: string): ImageSelectedAction => ({
     type: ActionTypeKeys.IMAGE_SELECTED,
@@ -71,17 +88,56 @@ export const imageAnnotationAdded = (annotation: ImageAnnotation): ImageAnnotati
     annotation
 });
 
+export const seriesSelected = (id: string): SeriesSelectedAction => ({
+    type: ActionTypeKeys.SERIES_SELECTED,
+    id
+});
+
+export const seriesAllUnselected = (): SeriesAllUnselectedAction => ({
+    type: ActionTypeKeys.SERIES_ALL_UNSELECTED
+});
+
+export const uploadDataDowloaded = (upload: UploadJSON): UploadDataDownloadedAction => ({
+    type: ActionTypeKeys.UPLOAD_DATA_DOWNLOADED,
+    upload
+});
+
 export type ActionType = 
     | FilesUploadedAction
     | ThumbnailBlownUpAction
     | ThumbnailBlownDownAction
-    | ImagesSelectedAction
+    // | ImagesSelectedAction
     | ImageSelectedAction
+    | SeriesSelectedAction
+    | SeriesAllUnselectedAction
     | ImageAnnotationAddedAction
+    | UploadDataDownloadedAction
     | OtherAction;
     
 export interface ImageAnnotation {
     imageId: string;
-    text: string;
+    key: string;
     value: number;
+}
+
+export class UploadJSON {
+    uploadID: number;
+    uploadDate: Date;
+    studies: StudyJSON[] = [];
+}
+
+export class StudyJSON {
+    patientName: string;
+    patientBirthday: number;
+    studyDescription: string;
+    studyID: string;
+    series: SeriesJSON[] = [];
+}
+
+export class SeriesJSON {
+    seriesID: string;
+    seriesDate: number;
+    seriesDescription: string;
+    thumbnailImageID: string;
+    images: string[] = [];
 }

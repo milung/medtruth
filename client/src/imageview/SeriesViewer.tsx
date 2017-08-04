@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Grid from 'material-ui/Grid';
-import seriesStyle from '../styles/ComponentsStyle';
+import {imageStyle} from '../styles/ComponentsStyle';
 
 import { SerieView, SeriesProps } from './SerieView';
 
@@ -21,7 +21,7 @@ export class SeriesViewer extends React.Component<ArrayOfSeries, {}> {
             <div>
                 <Grid container={true} gutter={16}>
                     {seriesData.map(value =>
-                        <Grid item={true} xs={6} sm={3} md={2} style={seriesStyle.seriesStyle} key={value.seriesID}>
+                        <Grid item={true} xs={6} sm={3} md={2} style={imageStyle.seriesStyle} key={value.seriesID}>
                             <SerieView {...value} />
                         </Grid>
                         )}

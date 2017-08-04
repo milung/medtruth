@@ -1,79 +1,51 @@
 
 import * as React from 'react';
-import * as Redux from 'redux';
-import imageStyle from '../styles/ComponentsStyle';
-import { ApiService } from '../api';
-import { ImageSelectedAction, selectedImage } from "../actions/actions";
-import { connect } from "react-redux";
-import { State } from "../app/store";
+import {imageStyle} from '../styles/ComponentsStyle';
+import { ApiService } from "../api";
 
-
-interface ConnectedDispatch {
-    selectedImage: (imageName: string) => ImageSelectedAction;
-}
-
-interface OwnProps{
+interface ImageProps{
     imageID: string;
     imageName: string;
+    handler: (...args: any[]) => void;
+    blowUp: (imageID: string) => void;
+    handleDouble: () => void;
 }
-
-interface ConnectedState {
-    imageSelected: boolean;
-}
-
-class ImageViewComponent extends React.Component<ConnectedDispatch & OwnProps & ConnectedState, {}> {
+export class ImageViewComponent extends React.Component<ImageProps, {}> {
     constructor(props) {
         super(props);
+        console.log("image sa vykreslil");
+        console.log(this.props);
+        
+        this.handleDoubleClick = this.handleDoubleClick.bind(this);
         this.getUrl = this.getUrl.bind(this);
-        this.handleClick = this.handleClick.bind(this);
         this.state = { imageSelected: false };
     }
 
-    componentWillMount() {
+    componentDidMount() {
         this.getUrl();
     }
 
     async getUrl(): Promise<void> {
-        let resImage = await ApiService.getImage(this.props.imageName+"_");
+        let resImage = await ApiService.getImage(this.props.imageName + "_");
         let img = document.getElementById(this.props.imageID) as HTMLImageElement;
-        img.src = resImage === null ? "" : resImage.url;
-
+        if(img != null)img.src = resImage === null ? "" : resImage.url;
     }
 
-    handleClick() {
-        console.log("blob ID", this.props.imageName);
-        console.log("state before", this.props.imageSelected);
-        this.props.selectedImage(this.props.imageName);
+    handleDoubleClick() {
+        this.props.handleDouble();
+        console.log("double click!");
+        this.props.blowUp(this.props.imageName);
     }
 
-    componentWillUpdate() {
-        console.log("state right after", this.props.imageSelected);
-        let borderStyle;
-        this.props.imageSelected ? borderStyle = "3px solid LightSeaGreen" : borderStyle = "3px solid white";
-        document.getElementById(this.props.imageID).parentElement.style.border = borderStyle;
-        console.log("border style", borderStyle);
+    keyPressed(event) {
+        console.log(event.keyCode)
+        this.setState(Object.assign({}, this.state, { open: false }))
     }
 
     render() {
-        return <img id={this.props.imageID} style={imageStyle.img} onClick={this.handleClick.bind(this)} />;
+        
+        return <img id={this.props.imageID} style={imageStyle.img} 
+        onClick={this.props.handler} 
+        onDoubleClick={this.handleDoubleClick.bind(this)}/>;
     }
 }
-
-
-function mapStateToProps(state: State, props: OwnProps): OwnProps & ConnectedState {
-    //console.log('uploadid: ' + state.files.lastUploadID);
-    return {
-        imageID: props.imageID,
-        imageName: props.imageName,
-        imageSelected: state.ui.selections.images.has(props.imageName)
-    }
-}
-
-function mapDispatchToProps(dispatch: Redux.Dispatch<ImageSelectedAction>): ConnectedDispatch {
-    return {
-        selectedImage: (imageName: string) =>
-            dispatch(selectedImage(imageName)),
-    };
-}
-
-export const ImageView = connect(mapStateToProps, mapDispatchToProps)(ImageViewComponent);
