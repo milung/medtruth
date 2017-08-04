@@ -105,63 +105,84 @@ describe('EntitiesReducer', () => {
         });
     });
 
-    it('should handle UploadDataDownloadedAction (save image entities, series entities)', () => {
+    it('should handle UploadDataDownloadedAction' +
+        // tslint:disable-next-line:align
+        '(remove old entities from store, save new image entities and series entities)', () => {
+            // given
+            let upload: UploadJSON = getUploadJSON();
 
-        // given
-        let upload: UploadJSON = getUploadJSON();
+            let action: UploadDataDownloadedAction = {
+                type: ActionTypeKeys.UPLOAD_DATA_DOWNLOADED,
+                upload
+            };
 
-        let action: UploadDataDownloadedAction = {
-            type: ActionTypeKeys.UPLOAD_DATA_DOWNLOADED,
-            upload
-        };
+            let oldImageEntity: ImageEntity = {
+                imageId: 'oldImageId',
+                seriesId: 'oldSeriesId',
+                annotations: []
+            };
 
-        let prevState: EntitiesState = {
-            images: {
-                byId: new Map<string, ImageEntity>()
-            },
-            series: {
-                byId: new Map<string, SeriesEntity>()
-            }
-        };
+            let oldSeriesEntity: SeriesEntity = {
+                seriesId: 'oldSseriesId',
+                seriesDate: undefined,
+                images: ['oldImageId'],
+                seriesDescription: 'series desc',
+                thumbnailImageID: 'oldImageId'
+            };
 
-        // when
-        let newState: EntitiesState = entitiesReducer(prevState, action);
+            let prevState: EntitiesState = {
+                images: {
+                    byId: new Map<string, ImageEntity>([[oldImageEntity.imageId, oldImageEntity]])
+                },
+                series: {
+                    byId: new Map<string, SeriesEntity>([[oldSeriesEntity.seriesId, oldSeriesEntity]])
+                }
+            };
 
-        // then
-        expect(
-            newState.images.byId.get('04556da2ce2edd91fe3ca5c1f335524b')
-        ).toEqual({
-            seriesId: 'seriesId1',
-            imageId: '04556da2ce2edd91fe3ca5c1f335524b',
-            annotations: []
+            // when
+            let newState: EntitiesState = entitiesReducer(prevState, action);
+
+            // then
+            // new entities created
+            expect(
+                newState.images.byId.get('04556da2ce2edd91fe3ca5c1f335524b')
+            ).toEqual({
+                seriesId: 'seriesId1',
+                imageId: '04556da2ce2edd91fe3ca5c1f335524b',
+                annotations: []
+            });
+
+            expect(
+                newState.images.byId.get('04c899278a1b0cad90d8a2ff286f4e63')
+            ).toEqual({
+                seriesId: 'seriesId1',
+                imageId: '04c899278a1b0cad90d8a2ff286f4e63',
+                annotations: []
+            });
+
+            expect(
+                newState.images.byId.get('04f518349c32cfcbe820527cee910abb')
+            ).toEqual({
+                seriesId: 'seriesId2',
+                imageId: '04f518349c32cfcbe820527cee910abb',
+                annotations: []
+            });
+
+            expect(
+                newState.series.byId.get('seriesId1')
+            ).toEqual({
+                seriesId: 'seriesId1',
+                seriesDescription: 'series description 1',
+                thumbnailImageID: '04b1f296878b9b0e2f1e2662be692ccb',
+                seriesDate: 1000000,
+                images: ['04556da2ce2edd91fe3ca5c1f335524b', '04c899278a1b0cad90d8a2ff286f4e63']
+            });
+
+            // old entities removed
+            expect(newState.series.byId.has('oldSeriesId')).toBeFalsy();
+            expect(newState.images.byId.has('oldImageId')).toBeFalsy();
+
         });
-
-        expect(
-            newState.images.byId.get('04c899278a1b0cad90d8a2ff286f4e63')
-        ).toEqual({
-            seriesId: 'seriesId1',
-            imageId: '04c899278a1b0cad90d8a2ff286f4e63',
-            annotations: []
-        });
-
-        expect(
-            newState.images.byId.get('04f518349c32cfcbe820527cee910abb')
-        ).toEqual({
-            seriesId: 'seriesId2',
-            imageId: '04f518349c32cfcbe820527cee910abb',
-            annotations: []
-        });
-
-        expect(
-            newState.series.byId.get('seriesId1')
-        ).toEqual({
-            seriesId: 'seriesId1',
-            seriesDescription: 'series description 1',
-            thumbnailImageID: '04b1f296878b9b0e2f1e2662be692ccb',
-            seriesDate: 1000000,
-            images: ['04556da2ce2edd91fe3ca5c1f335524b', '04c899278a1b0cad90d8a2ff286f4e63']
-        });
-    });
 });
 
 const getUploadJSON = (): UploadJSON => {

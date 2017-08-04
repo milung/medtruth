@@ -75,9 +75,9 @@ const processUploadDataDownloadedAction =
     (prevState: EntitiesState, action: UploadDataDownloadedAction): EntitiesState => {
         let newState = { ...prevState };
         newState.images = { ...prevState.images };
-        newState.images.byId = new Map(prevState.images.byId);
+        newState.images.byId = new Map<string, ImageEntity>();
         newState.series = { ...prevState.series };
-        newState.series.byId = new Map(prevState.series.byId);
+        newState.series.byId = new Map<string, SeriesEntity>();
         let upload: UploadJSON = action.upload;
         for (let study of upload.studies) {
             for (let series of study.series) {
