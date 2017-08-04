@@ -1,7 +1,7 @@
 import * as React from 'react';
 //import { TextField } from 'C:/Users/USER/Desktop/31.07.2017/SDA-GroundTruth/client/src/attributeForm/TextFields.tsx';
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
-// import Paper from 'material-ui/Paper';
+import Paper from 'material-ui/Paper';
 
 export interface listItem {
     attribute: string;
@@ -21,7 +21,7 @@ export class AttributeList extends React.Component<listOfAttributes, {}> {
     render() {
         return (
             <div>
-                {/* <Paper> */}
+                <Paper style={{maxHeight: '60vh', overflow: 'auto', width: 'inherit'}}>
                 <Table>
                     <TableHead>
                         <TableRow>
@@ -44,7 +44,7 @@ export class AttributeList extends React.Component<listOfAttributes, {}> {
                         })}
                     </TableBody>
                 </Table>
-                {/* </Paper> */}
+                </Paper>
             </div>
         );
     }
