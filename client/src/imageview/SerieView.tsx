@@ -7,6 +7,8 @@ import { SeriesSelectedAction, seriesSelected, thumbnailBlownUp, ThumbnailBlownU
 import { connect } from "react-redux";
 import { State } from "../app/store";
 import { imageStyle } from '../styles/ComponentsStyle';
+import Icon from 'material-ui/Icon';
+//import FontIcon from 'material-ui/Icon'
 
 
 export interface SeriesProps {
@@ -25,12 +27,12 @@ export interface ConnectedState {
     seriesSelected: boolean;
 
 }
-
 class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch & ConnectedState, {}> {
     constructor(props) {
         super(props);
         this.handleImageClick = this.handleImageClick.bind(this);
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
+        this.displayAlbum = this.displayAlbum.bind(this);
 
         console.log("seria sa vykreslila s propsami", this.props);
     }
@@ -49,12 +51,17 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
         clearTimeout(this.timer);
     }
 
+    displayAlbum(){
+        alert('Iam in gallery');
+    }
+
     render() {
         let borderStyle;
         this.props.seriesSelected ? borderStyle = '3px solid LightSeaGreen' : borderStyle = '3px solid white';
 
         return (
             <div>
+                
                 <Card style={{ border: borderStyle }}>
                     <CardMedia>
                         <ImageViewComponent
@@ -70,6 +77,7 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
                             {this.props.seriesDescription}
                         </Typography>
                     </CardContent>
+                    <a><img src={require('../icons/icon1.png')} style={{ float: "right", marginBottom:"5", marginRight:"5"}} onClick={this.displayAlbum}/></a>
                 </Card>
             </div>
         );
