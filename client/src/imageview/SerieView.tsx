@@ -31,8 +31,6 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
         super(props);
         this.handleImageClick = this.handleImageClick.bind(this);
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
-
-        console.log("seria sa vykreslila s propsami", this.props);
     }
 
     private timer = null;

@@ -13,8 +13,6 @@ interface ImageProps{
 export class ImageViewComponent extends React.Component<ImageProps, {}> {
     constructor(props) {
         super(props);
-        console.log("image sa vykreslil");
-        console.log(this.props);
         
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
         this.getUrl = this.getUrl.bind(this);

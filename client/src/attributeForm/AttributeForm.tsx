@@ -131,7 +131,7 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
         var attributeList;
         if (this.props.series.length != 0) {
             if (this.state.seriesData.length != 0) {
-                attributeList = <AttributeList listItems={this.state.seriesData} />
+                attributeList = <AttributeList listItems={this.state.seriesData} selection={this.props.series}/>
                 console.log(this.state.seriesData);
             } else {
                 console.log("NO ATTRIBUTES");
@@ -140,11 +140,10 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
             console.log("NOTHING IS SELECTED");
             inputIncorrect = true;
         }
-        console.log("input incorrect", inputIncorrect);
 
         //display: "block", marginRight: 0, marginBottom: 5
         //style={{ position: 'fixed', padding: 10, overflow: 'auto' }} 
-        console.log("padding right");
+
         if (!this.state.wait) {
             return (
                 <div >
