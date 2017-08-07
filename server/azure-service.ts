@@ -65,9 +65,12 @@ export namespace AzureDatabase {
     export const localAddress = "localhost:27017/";
     export const localName = "medtruth";
 
-    export const url = process.argv[2] === 'production'
-    ? "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true"
-    : "mongodb://" + localAddress + localName;
+    export const url = process.argv[2] === 'local'
+    ? "mongodb://" + localAddress + localName :
+    "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true";
+    
+    console.log(url);
+    
 
     export enum Status {
         SUCCESFUL,
