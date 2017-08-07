@@ -53,7 +53,7 @@
   },
   "scripts": {
     "start:prod": "node out/server.js production",
-    "start": "node out/server.js",
+    "start": "node out/server.js local",
     "build": "tsc",
     "test": "cls && jest",
     "debug": "node --inspect-brk=5858 out/server.js"
