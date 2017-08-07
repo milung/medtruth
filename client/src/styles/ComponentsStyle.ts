@@ -18,6 +18,10 @@ export const imageStyle = {
     img: {
         maxWidth: '100%',
         maxHeight: '100%',
+        align: 'middle',
+        display: 'block',
+        margin: 'auto',
+              
         //padding: '2px'
     },
     iconButtonStyle: {

@@ -5,6 +5,8 @@ import { BlowUp } from "./blowup";
 import { connect } from "react-redux";
 import { State } from "../app/store";
 import { SelectionStatus } from "../selectionStatus/SelectionStatus";
+import { ImageViewerComponent } from "../gallery/ImageViewer";
+
 
 interface OwnProps {
 }
@@ -25,7 +27,13 @@ class ContentComponent extends React.Component<OwnProps & ConnectedState, OwnSta
             <div>
                 <BlowUp />
                 <div>
+                    
                     <PatientViewer />
+
+                    ======GALERIA components\content.tsx=====
+                    <ImageViewerComponent  />       
+                    ==================      
+
                     <SelectionStatus />
                 </div>
             </div>
