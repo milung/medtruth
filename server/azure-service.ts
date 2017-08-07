@@ -69,6 +69,8 @@ export namespace AzureDatabase {
     ? "mongodb://" + localAddress + localName :
     "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true";
     
+    console.log(url);
+    
 
     export enum Status {
         SUCCESFUL,
