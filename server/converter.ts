@@ -1,5 +1,8 @@
 
 export namespace Converter {
+    let dicomPath = 'uploads/';
+    let imagePath = 'images/';
+
     const exePath = 'dcmj2pnm';
     //const exec = require('child_process').exec;
     const execFile = require('child_process').execFile;
@@ -11,8 +14,8 @@ export namespace Converter {
 
     const convert = (dicomName: string, args: string[]): Promise<Status> => {
         return new Promise((resolve, reject) => {
-            let dicomSrcPath = 'uploads/' + dicomName;
-            let imgSrcPath = 'images/' + dicomName + '.png';
+            let dicomSrcPath = dicomPath + dicomName;
+            let imgSrcPath = imagePath + dicomName + '.png';
             args.unshift(imgSrcPath);
             args.unshift(dicomSrcPath);
             execFile(exePath, args, { cwd: 'out/' }, (error, stdout, stderr) => {
@@ -21,9 +24,15 @@ export namespace Converter {
                     resolve(Status.SUCCESSFUL);
                 }
                 else {
-                     console.log("[Converting] " + dicomName + " FAIL ❌");
-                     console.log(error);
-                     
+                    console.log("[Converting] " + dicomName + " FAIL ❌");
+                    console.log(error);
+                    console.log("stdout");
+                    console.log(stdout);
+                    console.log("stderr");
+                    console.log(stderr);
+
+
+
                     reject(Status.FAILED);
                 }
             });

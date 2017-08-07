@@ -62,15 +62,12 @@ export function uiReducer(
             newState.selections = Object.assign({}, prevState.selections);
             newState.selections.series = [];
             return newState;
-        // case ActionTypeKeys.IMAGES_SELECTED:
-        //     imageIdsSet = addRemoveSetFromSet(
-        //         prevState.selections.images,
-        //         new Set(action.ids)
-        //     );
-        //     newState = Object.assign({}, prevState);
-        //     newState.selections = Object.assign({}, prevState.selections);
-        //     newState.selections.images = imageIdsSet;
-        //     return newState;
+        case ActionTypeKeys.UPLOAD_DATA_DOWNLOADED:
+            newState = Object.assign({}, prevState);
+            newState.selections = Object.assign({}, prevState.selections);
+            newState.selections.series = [];
+            newState.selections.images = [];
+            return newState;
         default:
             return prevState;
     }
@@ -79,7 +76,7 @@ export function uiReducer(
 function addRemoveFromArray(selectedBefore: string[], selected: string): string[] {
     let array: string[];
     let index: number = selectedBefore.indexOf(selected);
-    if ( index !== -1) {
+    if (index !== -1) {
         array = [...selectedBefore.slice(0, index), ...selectedBefore.slice(index + 1)];
     } else {
         array = [selected, ...selectedBefore];

@@ -5,7 +5,7 @@ import { StatusCode } from './constants';
 import * as _ from 'lodash';
 //import { db } from './server';
 
-import { MongoClient, Db, Collection } from 'mongodb';
+import { MongoClient, Db, Collection, BulkWriteOpResultObject } from 'mongodb';
 import { UploadJSON } from "./Objects";
 
 export namespace AzureStorage {
@@ -100,6 +100,12 @@ export namespace AzureDatabase {
         return { db: db, collection: collection };
     }
 
+    async function connectToLabels(): Promise<Connection> {
+        let db = await connect();
+        let collection = await db.collection('labels');
+        return { db: db, collection: collection };
+    }
+
     // Close the database only if it's not null.
     export function close(db: Db): void {
         if (db) db.close();
@@ -161,7 +167,7 @@ export namespace AzureDatabase {
                     await conn.collection.updateOne(result, updatedResult);
                     // Returns the updated result.
                     resolve(updatedResult);
-                // If the query does not exist, we create a brand new one.
+                    // If the query does not exist, we create a brand new one.
                 } else {
                     let newResult = { imageID: id, attributes };
                     await conn.collection.insertOne(newResult);
@@ -205,7 +211,7 @@ export namespace AzureDatabase {
         return new Promise<string>(async (resolve, reject) => {
             try {
                 var conn = await connectToImages();
-                
+
                 let query = { uploadID: Number(uploadID) };
                 let result = await conn.collection.findOne(query);
                 if (result) resolve(result);
@@ -230,6 +236,34 @@ export namespace AzureDatabase {
                     if (err)    reject(Status.FAILED);
                                 resolve(result[0]);
                 });
+            } catch (e) {
+                reject(Status.FAILED);
+            } finally {
+                close(conn.db);
+            }
+        });
+    }
+
+    export function putToLabels(...attributes: Attribute[]): Promise<Status> {
+        return new Promise<Status>(async (resolve, reject) => {
+            try {
+                var conn = await connectToLabels();
+
+                let updateObjects: {}[] = attributes.map(attribute => {
+                    return {
+                        updateOne: {
+                            filter: { label: attribute.key },
+                            update: { label: attribute.key, $inc: { count: 1 } },
+                            upsert: true
+                        }
+                    }
+                });
+                let result: BulkWriteOpResultObject = await conn.collection.bulkWrite(updateObjects);
+                if (result.matchedCount + result.upsertedCount === attributes.length) {
+                    resolve(Status.SUCCESFUL);
+                } else {
+                    reject(Status.FAILED);
+                }
             } catch (e) {
                 reject(Status.FAILED);
             } finally {

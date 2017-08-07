@@ -168,7 +168,10 @@ export class UploadController {
 
             studiesArray[studyID][seriesID].push({ imageNumber: Number(converter.getImageNumber()), imageID: parse.filename });
 
-            existingSeries.images.push(parse.filename);
+            existingSeries.images.push({
+                imageID: parse.filename,
+                imageNumber: Number(converter.getImageNumber())
+            });
 
             if (!seriesFound) {
                 existingStudy.series.push(existingSeries);
