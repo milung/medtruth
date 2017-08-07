@@ -19,17 +19,18 @@ export class AttributeList extends React.Component<listOfAttributes, {}> {
     }
 
     render() {
+        console.log("overflow auto changed");
         return (
             <div>
-                <Paper style={{maxHeight: '60vh', overflow: 'auto', width: 'inherit'}}>
-                <Table>
+                <Paper style={{maxHeight: '65vh', overflowY: 'auto', width: '100%'}}>
+                <Table bodyStyle={{height: 'inherit', overflowX: 'auto'}}>
                     <TableHead>
                         <TableRow>
                             <TableCell>Label </TableCell>
                             <TableCell numeric>Value</TableCell>
                         </TableRow>
                     </TableHead>
-                    <TableBody>
+                    <TableBody >
                         {this.props.listItems.map((item, i) => {
                             return (
                                 <TableRow key={i}>
