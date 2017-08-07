@@ -6,6 +6,7 @@ export namespace ApiService {
     //const apiEndpoint = 'http://localhost:8080/api';
     const uriUpload = apiEndpoint + '/upload';
     const uriImages = apiEndpoint + '/images';
+    const uriLabels = apiEndpoint + '/labels';
 
     /*
         Route:      POST '/upload'
@@ -124,6 +125,18 @@ export namespace ApiService {
     */
     export async function getAttributes(id: number) {
         const url = uriImages + '/' + id + '/assign';
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'GET',
+            url: url,
+            headers: {}
+        });
+
+        return { ...res.data }; 
+    }
+
+    export async function getLabels() {
+        const url = uriLabels;
 
         let res: axios.AxiosResponse = await axios.default({
             method: 'GET',

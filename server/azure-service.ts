@@ -62,9 +62,10 @@ export namespace AzureStorage {
     }
 }
 export namespace AzureDatabase {
-    export const localAddress = "localhost:27017/";
+    //export const localAddress = "localhost:27017/";
+    export const url = "mongodb://localhost:27017/";
     export const localName = "medtruth";
-    export const url = "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true";
+    //export const url = "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true";
 
     export enum Status {
         SUCCESFUL,
@@ -160,7 +161,7 @@ export namespace AzureDatabase {
                     // Else it creates a new key with a value.
                     let updatedAttributes = _({}).merge(
                         _(result.attributes).groupBy('key').value(),
-                        _(attributes)       .groupBy('key').value()
+                        _(attributes).groupBy('key').value()
                     ).values().flatten().value() as Attribute[];
                     // Updates the result query.
                     let updatedResult: AttributeQuery = { imageID: id, attributes: updatedAttributes };
@@ -215,7 +216,7 @@ export namespace AzureDatabase {
                 let query = { uploadID: Number(uploadID) };
                 let result = await conn.collection.findOne(query);
                 if (result) resolve(result);
-                else        reject(Status.FAILED);
+                else reject(Status.FAILED);
             } catch (e) {
                 reject(Status.FAILED);
             } finally {
@@ -233,8 +234,8 @@ export namespace AzureDatabase {
                 var conn = await connectToImages();
 
                 await conn.collection.find({}).sort({ "uploadDate": -1 }).limit(1).toArray((err, result) => {
-                    if (err)    reject(Status.FAILED);
-                                resolve(result[0]);
+                    if (err) reject(Status.FAILED);
+                    resolve(result[0]);
                 });
             } catch (e) {
                 reject(Status.FAILED);
@@ -252,15 +253,46 @@ export namespace AzureDatabase {
                 let updateObjects: {}[] = attributes.map(attribute => {
                     return {
                         updateOne: {
-                            filter: { label: attribute.key },
-                            update: { label: attribute.key, $inc: { count: 1 } },
-                            upsert: true
+                            "filter": {
+                                "label": attribute.key
+                            },
+                            "update": {
+                                "label": attribute.key,
+                                "$inc": { "count": 1 }
+                            },
+                            "upsert": true
                         }
                     }
                 });
+
                 let result: BulkWriteOpResultObject = await conn.collection.bulkWrite(updateObjects);
-                if (result.matchedCount + result.upsertedCount === attributes.length) {
-                    resolve(Status.SUCCESFUL);
+                resolve(Status.SUCCESFUL);
+
+            } catch (e) {
+                reject(Status.FAILED);
+            } finally {
+                close(conn.db);
+            }
+        });
+    }
+
+    interface Label {
+        label: string;
+        count: number;
+    }
+
+    export function getLabels(): Promise<string[]> {
+        return new Promise<string[]>(async (resolve, reject) => {
+            try {
+                var conn = await connectToLabels();
+
+                let labels: string[] = await conn.collection
+                    .find({ count: { $gt: 0 } })
+                    .map((lab: Label) => { lab.label })
+                    .toArray();
+
+                if (labels) {
+                    resolve(labels);
                 } else {
                     reject(Status.FAILED);
                 }
