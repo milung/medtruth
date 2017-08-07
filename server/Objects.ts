@@ -66,12 +66,12 @@ export class JSONCreator {
         series.seriesID = seriesID;
         series.seriesDescription = seriesDescription;
         series.thumbnailImageID = thumbnail;
-        series.images.push("04556da2ce2edd91fe3ca5c1f335524b");
-        series.images.push("04914d21ab3880895f3c4e75f7ecf377");
-        series.images.push("04b1f296878b9b0e2f1e2662be692ccb");
-        series.images.push("04c899278a1b0cad90d8a2ff286f4e63");
-        series.images.push("04f518349c32cfcbe820527cee910abb");
-        series.images.push("052bd8d959567911ba4ae06ed8267f9b");
+        // series.images.push("04556da2ce2edd91fe3ca5c1f335524b", 2);
+        // series.images.push("04914d21ab3880895f3c4e75f7ecf377", 1);
+        // series.images.push("04b1f296878b9b0e2f1e2662be692ccb", 4);
+        // series.images.push("04c899278a1b0cad90d8a2ff286f4e63", 3);
+        // series.images.push("04f518349c32cfcbe820527cee910abb", 6);
+        // series.images.push("052bd8d959567911ba4ae06ed8267f9b", 5);
     }
 }
 
@@ -94,5 +94,10 @@ export class SeriesJSON {
     seriesDate: number;
     seriesDescription: string;
     thumbnailImageID: string;
-    images: string[] = [];
+    images: ImageJSON[] = [];
+}
+
+export class ImageJSON {
+    imageID: string;
+    imageNumber: number;
 }
