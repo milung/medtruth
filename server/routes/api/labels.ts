@@ -1,6 +1,7 @@
 
 import { Router } from "express";
 import { AzureDatabase } from "../../azure-service";
+import { json } from "body-parser";
 
 export const rootLabels = '/labels';
 export const routerLabels = Router();
@@ -10,14 +11,14 @@ routerLabels.get('/', async (req, res) => {
     res.json(result);
 });
 
+// routerLabels.post('/', json(), async (req, res) => {
+//     let labels: string[] = req.body.labels;
+//     let result: any = await AzureDatabase.putToLabels(labels);
+//     res.json(result);
+// });
 
-interface Attribute {
-    key: string;
-    value: number;
-}
-
-routerLabels.post('/', async (req, res) => {
-    let attributes: Attribute[] = [{key: 'mozog', value: 1}, {key: 'mozog', value: 1}, {key: 'mozog', value: 1}];
-    let result: any = await AzureDatabase.putToLabels(...attributes);
-    res.json(result);
-});
+// routerLabels.delete('/', json(), async (req, res) => {
+//     let labels: string[] = req.body.labels;
+//     let result: any = await AzureDatabase.removeFromLabels(...labels);
+//     res.json(result);
+// });

@@ -166,12 +166,18 @@ export namespace AzureDatabase {
                     // Updates the result query.
                     let updatedResult: AttributeQuery = { imageID: id, attributes: updatedAttributes };
                     await conn.collection.updateOne(result, updatedResult);
+                    await putToLabels(
+                        _(attributes.map(attr => attr.key))
+                        .difference(result.attributes.map(attr => attr.key))
+                        .value()
+                    );
                     // Returns the updated result.
                     resolve(updatedResult);
                     // If the query does not exist, we create a brand new one.
                 } else {
                     let newResult = { imageID: id, attributes };
                     await conn.collection.insertOne(newResult);
+                    await putToLabels(attributes.map(attr => attr.key));
                     // Returns the new result.
                     resolve(newResult);
                 }
@@ -182,6 +188,42 @@ export namespace AzureDatabase {
             }
         });
     }
+
+    // export function removeFromAttributes(id, ...attributes: Attribute[]): Promise<AttributeQuery> {
+    //     return new Promise<AttributeQuery>(async (resolve, reject) => {
+    //         try {
+    //             var conn = await connectToAttributes();
+    //             let query = { imageID: id };
+    //             let result: AttributeQuery = await conn.collection.findOne(query);
+                
+    //             if (result) {
+    //                 let keys: Set<string> = new Set(attributes.map(attr => attr.key));
+    //                 let newAttributes: Attribute[] = _(result.attributes).filter(attr => !keys.has(attr.key)).value();
+    //                 // Updates the result query.
+    //                 let updatedResult: AttributeQuery = { imageID: id, attributes: newAttributes };
+    //                 await conn.collection.updateOne(result, updatedResult);
+    //                 await removeFromLabels(
+    //                     _(attributes.map(attr => attr.key))
+    //                     .difference(result.attributes.map(attr => attr.key))
+    //                     .value()
+    //                 );
+    //                 // Returns the updated result.
+    //                 resolve(updatedResult);
+    //                 // If the query does not exist, we create a brand new one.
+    //             } else {
+    //                 let newResult = { imageID: id, attributes };
+    //                 await conn.collection.insertOne(newResult);
+    //                 await putToLabels(attributes.map(attr => attr.key));
+    //                 // Returns the new result.
+    //                 resolve(newResult);
+    //             }
+    //         } catch (e) {
+    //             reject(Status.FAILED);
+    //         } finally {
+    //             close(conn.db);
+    //         }
+    //     });
+    // }
 
     export function getAttributes(id): Promise<AttributeQuery> {
         return new Promise<AttributeQuery>(async (resolve, reject) => {
@@ -245,29 +287,24 @@ export namespace AzureDatabase {
         });
     }
 
-    export function putToLabels(...attributes: Attribute[]): Promise<Status> {
+    export function removeFromLabels(...labels: string[]): Promise<Status> {
         return new Promise<Status>(async (resolve, reject) => {
             try {
                 var conn = await connectToLabels();
-
-                let updateObjects: {}[] = attributes.map(attribute => {
+                let updateObjects: {}[] = labels.map(label => {
                     return {
                         updateOne: {
-                            "filter": {
-                                "label": attribute.key
+                            filter: {
+                                label,
                             },
-                            "update": {
-                                "label": attribute.key,
-                                "$inc": { "count": 1 }
-                            },
-                            "upsert": true
+                            update: {
+                                $inc: { count: -1 }
+                            }
                         }
                     }
                 });
-
                 let result: BulkWriteOpResultObject = await conn.collection.bulkWrite(updateObjects);
                 resolve(Status.SUCCESFUL);
-
             } catch (e) {
                 reject(Status.FAILED);
             } finally {
@@ -276,9 +313,37 @@ export namespace AzureDatabase {
         });
     }
 
-    interface Label {
-        label: string;
-        count: number;
+    export function putToLabels(labels: string[]): Promise<Status> {
+        return new Promise<Status>(async (resolve, reject) => {
+
+            if (!labels || labels.length === 0) {
+                resolve(Status.SUCCESFUL);
+                return;
+            }
+
+            try {
+                var conn = await connectToLabels();
+                let updateObjects: {}[] = labels.map(label => {
+                    return {
+                        updateOne: {
+                            filter: {
+                                label
+                            },
+                            update: {
+                                $inc: { count: 1 }
+                            },
+                            upsert: true
+                        }
+                    }
+                });
+                let result: BulkWriteOpResultObject = await conn.collection.bulkWrite(updateObjects);
+                resolve(Status.SUCCESFUL);
+            } catch (e) {
+                reject(Status.FAILED);
+            } finally {
+                close(conn.db);
+            }
+        });
     }
 
     export function getLabels(): Promise<string[]> {
@@ -286,9 +351,9 @@ export namespace AzureDatabase {
             try {
                 var conn = await connectToLabels();
 
-                let labels: string[] = await conn.collection
+                let labels = await conn.collection
                     .find({ count: { $gt: 0 } })
-                    .map((lab: Label) => { lab.label })
+                    .map(lab => lab.label)
                     .toArray();
 
                 if (labels) {
