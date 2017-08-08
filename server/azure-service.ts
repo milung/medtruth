@@ -5,7 +5,7 @@ import { StatusCode } from './constants';
 import * as _ from 'lodash';
 //import { db } from './server';
 
-import { MongoClient, Db, Collection, BulkWriteOpResultObject } from 'mongodb';
+import { MongoClient, Db, Collection, BulkWriteOpResultObject, FindAndModifyWriteOpResultObject } from 'mongodb';
 import { UploadJSON } from "./Objects";
 
 export namespace AzureStorage {
@@ -168,8 +168,8 @@ export namespace AzureDatabase {
                     await conn.collection.updateOne(result, updatedResult);
                     await putToLabels(
                         _(attributes.map(attr => attr.key))
-                        .difference(result.attributes.map(attr => attr.key))
-                        .value()
+                            .difference(result.attributes.map(attr => attr.key))
+                            .value()
                     );
                     // Returns the updated result.
                     resolve(updatedResult);
@@ -189,41 +189,50 @@ export namespace AzureDatabase {
         });
     }
 
-    // export function removeFromAttributes(id, ...attributes: Attribute[]): Promise<AttributeQuery> {
-    //     return new Promise<AttributeQuery>(async (resolve, reject) => {
-    //         try {
-    //             var conn = await connectToAttributes();
-    //             let query = { imageID: id };
-    //             let result: AttributeQuery = await conn.collection.findOne(query);
-                
-    //             if (result) {
-    //                 let keys: Set<string> = new Set(attributes.map(attr => attr.key));
-    //                 let newAttributes: Attribute[] = _(result.attributes).filter(attr => !keys.has(attr.key)).value();
-    //                 // Updates the result query.
-    //                 let updatedResult: AttributeQuery = { imageID: id, attributes: newAttributes };
-    //                 await conn.collection.updateOne(result, updatedResult);
-    //                 await removeFromLabels(
-    //                     _(attributes.map(attr => attr.key))
-    //                     .difference(result.attributes.map(attr => attr.key))
-    //                     .value()
-    //                 );
-    //                 // Returns the updated result.
-    //                 resolve(updatedResult);
-    //                 // If the query does not exist, we create a brand new one.
-    //             } else {
-    //                 let newResult = { imageID: id, attributes };
-    //                 await conn.collection.insertOne(newResult);
-    //                 await putToLabels(attributes.map(attr => attr.key));
-    //                 // Returns the new result.
-    //                 resolve(newResult);
-    //             }
-    //         } catch (e) {
-    //             reject(Status.FAILED);
-    //         } finally {
-    //             close(conn.db);
-    //         }
-    //     });
-    // }
+    export function removeFromAttributes(id, ...attributes: Attribute[]): Promise<Status> {
+        return new Promise<Status>(async (resolve, reject) => {
+            try {
+                var conn = await connectToAttributes();
+
+                let filter = { imageID: id };
+                let labelsToRemove: string[] = attributes.map(attr => attr.key);
+                let update = {
+                    $pull: {
+                        attributes: {
+                            key: {
+                                $in: labelsToRemove
+                            }
+                        }
+                    }
+                };
+                let options = {
+                    returnOriginal: true
+                };
+                let result: FindAndModifyWriteOpResultObject<any>
+                    = await conn.collection.findOneAndUpdate(filter, update, options);
+
+                if (!result.ok) {
+                    reject(Status.FAILED);
+                    return;
+                }
+
+                if (result.value === undefined) {
+                    resolve(Status.SUCCESFUL);
+                    return;
+                }
+
+                let originalLabels = result.value.attributes.map(attr => attr.key);
+                let removedLabels: string[] = _(originalLabels).intersection(labelsToRemove).value();
+                removeFromLabels(removedLabels);
+                resolve(Status.SUCCESFUL);
+            
+            } catch (e) {
+                reject(Status.FAILED);
+            } finally {
+                close(conn.db);
+            }
+        });
+    }
 
     export function getAttributes(id): Promise<AttributeQuery> {
         return new Promise<AttributeQuery>(async (resolve, reject) => {
@@ -287,7 +296,7 @@ export namespace AzureDatabase {
         });
     }
 
-    export function removeFromLabels(...labels: string[]): Promise<Status> {
+    export function removeFromLabels(labels: string[]): Promise<Status> {
         return new Promise<Status>(async (resolve, reject) => {
             try {
                 var conn = await connectToLabels();
@@ -323,7 +332,7 @@ export namespace AzureDatabase {
 
             try {
                 var conn = await connectToLabels();
-                let updateObjects: {}[] = labels.map(label => {
+                let updateObjects = labels.map(label => {
                     return {
                         updateOne: {
                             filter: {

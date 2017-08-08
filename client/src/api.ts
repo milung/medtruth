@@ -30,6 +30,11 @@ export namespace ApiService {
         statuses: UploadStatus[];
     }
 
+    export enum Status {
+        SUCCESFUL,
+        FAILED
+    }
+
     export async function upload(...data: any[]): Promise<UploadResponse> {
         const url = uriUpload;
         let form = new FormData();
@@ -131,7 +136,20 @@ export namespace ApiService {
             headers: {}
         });
 
-        return { ...res.data }; 
+        return { ...res.data };
+    }
+
+    export async function deleteAttributes(id: string, ...attributes: Attribute[]) {
+        const url = uriImages + '/' + id + '/assign';
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'DELETE',
+            url: url,
+            headers: { 'Content-Type': 'application/json' },
+            data: { attributes }
+        });
+
+        return res.status === Status.SUCCESFUL ? true : false;
     }
 
     export async function getLabels() {
@@ -143,6 +161,6 @@ export namespace ApiService {
             headers: {}
         });
 
-        return { ...res.data }; 
+        return { ...res.data };
     }
 }

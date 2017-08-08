@@ -92,10 +92,10 @@ routerImages.get('/:id/assign', async (req, res) => {
     res.json(result);
 });
 
-// routerImages.delete('/:id/assign', json(), async (req, res) => {
-//     let id = req.params.id;
-//     let attributes: Attribute[] = req.body.attributes;
-//     let result = await AzureDatabase.removeFromAttributes(id, ...attributes);
-//     res.json(result);
-// });
+routerImages.delete('/:id/assign', json(), async (req, res) => {
+    let id = req.params.id;
+    let attributes: Attribute[] = req.body.attributes;
+    let status: AzureDatabase.Status = await AzureDatabase.removeFromAttributes(id, ...attributes);
+    res.sendStatus(status);
+});
 
