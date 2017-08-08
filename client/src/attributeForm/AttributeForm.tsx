@@ -4,7 +4,7 @@ import Grid from 'material-ui/Grid';
 import TextField from 'material-ui/TextField';
 import Button from 'material-ui/Button';
 // import Card, { CardContent } from 'material-ui/Card';
-import { AttributeList, listItem } from './AttributeList';
+import { AttributeList, ListItem } from './AttributeList';
 import { connect } from 'react-redux';
 import { State } from '../app/store';
 import { ImageAnnotation, ImageAnnotationAddedAction, imageAnnotationAdded } from '../actions/actions';
@@ -15,7 +15,7 @@ export interface OwnState {
     keyFieldValue: string;
     valueFieldValue: string;
     wait: boolean;
-    seriesData: listItem[];
+    seriesData: ListItem[];
 }
 export interface ConnectedState {
     images: string[];
@@ -59,7 +59,7 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
         if (resData.attributes) {
             var listItems = [];
             for (let data of resData.attributes) {
-                let tempData: listItem = {
+                let tempData: ListItem = {
                     attribute: data.key,
                     value: data.value
                 };
@@ -74,22 +74,21 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
     }
 
     async handleClick(): Promise<void> {
-        console.log("images", this.props.images);
-        console.log("series", this.props.series);
+        console.log('images', this.props.images);
+        console.log('series', this.props.series);
 
         let resData;
         // for (var img of this.props.images) {
         for (var series of this.props.series) {
-            console.log("SERIES", series);
-            this.props.addedImageAnnotation({ 
-                imageId: series, 
-                key: this.state.keyFieldValue, 
-                value: Number(this.state.valueFieldValue) 
+            this.props.addedImageAnnotation({
+                imageId: series,
+                key: this.state.keyFieldValue,
+                value: Number(this.state.valueFieldValue)
             });
-            resData = await ApiService.putAttributes(series, { 
-                key: this.state.keyFieldValue, 
-                value: Number(this.state.valueFieldValue) 
-            })
+            resData = await ApiService.putAttributes(series, {
+                key: this.state.keyFieldValue,
+                value: Number(this.state.valueFieldValue)
+            });
         }
 
         this.setState({
@@ -121,63 +120,63 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
 
         // Check if key field is empty
         let keyValue = this.state.keyFieldValue;
-        if (keyValue == null || keyValue.trim() == "") {
+        if (keyValue === null || keyValue.trim() === '') {
             inputIncorrect = true;
         }
 
         var attributeList;
         // Check if something is selected
-        if (this.props.series.length != 0) {
+        if (this.props.series.length !== 0) {
             // Check if selected series/image has any attributes
-            if (this.state.seriesData.length != 0) {
-                attributeList = <AttributeList listItems={this.state.seriesData} selection={this.props.series}/>
+            if (this.state.seriesData.length !== 0) {
+                attributeList = <AttributeList listItems={this.state.seriesData} selection={this.props.series} />;
                 console.log(this.state.seriesData);
             }
-        } 
+        }
 
         if (!this.state.wait) {
             return (
                 <div >
-                    <Grid style={{ position: 'fixed', paddingRight: 10}} item xs={12} sm={12} md={12}>
-                        <Paper style={{ padding: 10}}>
-                        <div>
-                            <TextField
-                                required
-                                error={inputIncorrect}
-                                id="keyField"
-                                label="Label"
-                                margin="dense"
-                                style={{ width: '100%' }}
-                                value={this.state.keyFieldValue}
-                                onChange={this.handleKeyFieldChange}
-                            />
-                            <TextField
-                                error={inputIncorrect}
-                                id="valueField"
-                                label="Value"
-                                margin="dense"
-                                style={{ width: '50%' }}
-                                value={this.state.valueFieldValue}
-                                onChange={this.handleValueFieldChange}
-                            />
-                            <Button 
-                                disabled={inputIncorrect} 
-                                id="assignButton" 
-                                type="submit" 
-                                raised color="primary" 
-                                onClick={this.handleClick} 
-                                style={{ float: "right", marginTop: 20, marginBottom: 20}}
-                            >
-                            Assign
-                            </Button>
-                        </div>
+                    <Grid style={{ position: 'fixed', paddingRight: 10 }} item="true" xs={12} sm={12} md={12}>
+                        <Paper style={{ padding: 10 }}>
+                            <div>
+                                <TextField
+                                    required="true"
+                                    error={inputIncorrect}
+                                    id="keyField"
+                                    label="Label"
+                                    margin="dense"
+                                    style={{ width: '100%' }}
+                                    value={this.state.keyFieldValue}
+                                    onChange={this.handleKeyFieldChange}
+                                />
+                                <TextField
+                                    error={inputIncorrect}
+                                    id="valueField"
+                                    label="Value"
+                                    margin="dense"
+                                    style={{ width: '50%' }}
+                                    value={this.state.valueFieldValue}
+                                    onChange={this.handleValueFieldChange}
+                                />
+                                <Button
+                                    disabled={inputIncorrect}
+                                    id="assignButton"
+                                    type="submit"
+                                    raised="true"
+                                    color="primary"
+                                    onClick={this.handleClick}
+                                    style={{ float: 'right', marginTop: 20, marginBottom: 20 }}
+                                >
+                                    Assign
+                                </Button>
+                            </div>
                         </Paper>
-                            {attributeList}
-                        
+                        {attributeList}
                     </Grid>
                 </div>);
         } else {
-            return <div />
+            return <div />;
         }
     }
 }
@@ -185,7 +184,8 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
 function mapStateToProps(state: State): ConnectedState {
     console.log('series', state.ui.selections.series);
     let imagesFromState: string[] = [];
-    if (state.ui.selections.series.length != 0 && state.entities.series.byId.get(getLastValue(state.ui.selections.series)) != null) {
+    if (state.ui.selections.series.length !== 0 &&
+        state.entities.series.byId.get(getLastValue(state.ui.selections.series)) !== null) {
         imagesFromState = state.entities.series.byId.get(getLastValue(state.ui.selections.series)).images;
     }
 
@@ -198,7 +198,7 @@ function mapStateToProps(state: State): ConnectedState {
 function mapDispatchToProps(dispatch: Redux.Dispatch<ImageAnnotationAddedAction>): ConnectedDispatch {
     return {
         addedImageAnnotation: (annotation: ImageAnnotation) => dispatch(imageAnnotationAdded(annotation)),
-    }
+    };
 }
 
 export const AttributeForm = connect(mapStateToProps, mapDispatchToProps)(AttributeFormComponent);

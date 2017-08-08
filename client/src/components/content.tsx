@@ -1,12 +1,11 @@
 import * as React from 'react';
-import { FolderForm } from "../folderForm/FolderForm";
-import { PatientViewer } from "../imageview/PatientViewer";
-import { BlowUp } from "./blowup";
-import { connect } from "react-redux";
-import { State } from "../app/store";
-import { SelectionStatus } from "../selectionStatus/SelectionStatus";
-import { ImageViewerComponent } from "../gallery/ImageViewer";
-
+import { FolderForm } from '../folderForm/FolderForm';
+import { PatientViewer } from '../imageview/PatientViewer';
+import { BlowUp } from './blowup';
+import { connect } from 'react-redux';
+import { State } from '../app/store';
+import { SelectionStatus } from '../selectionStatus/SelectionStatus';
+import { ImageViewerComponent } from '../gallery/ImageViewer';
 
 interface OwnProps {
 }
@@ -16,12 +15,11 @@ interface OwnState {
 }
 
 interface ConnectedState {
-    showBlowUp: boolean,
-    imageID: string
+    showBlowUp: boolean;
+    imageID: string;
 }
 
 class ContentComponent extends React.Component<OwnProps & ConnectedState, OwnState> {
-
     render() {
         return (
             <div>
@@ -41,7 +39,6 @@ class ContentComponent extends React.Component<OwnProps & ConnectedState, OwnSta
     }
 }
 
-
 function mapStateToProps(state: State): ConnectedState {
     return {
         showBlowUp: state.ui.isBlownUpShowed,
@@ -49,7 +46,4 @@ function mapStateToProps(state: State): ConnectedState {
     };
 }
 
-
 export const Content = connect(mapStateToProps, null)(ContentComponent);
-
-

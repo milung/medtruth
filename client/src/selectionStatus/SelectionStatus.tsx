@@ -26,21 +26,24 @@ export class SelectionStatusComponent extends React.Component<ConnectedState & C
         let action = 'UNSELECT';
         return (
             <Snackbar
-                open={display} 
-                action={<button
+                open={display}
+                action={
+                    <button
                         type="submit"
                         role="button"
                         style={{
-                            color: '#e53c76', 
-                            fontWeight: 'bold', 
-                            background: 'none', 
-                            outline: 'none', 
-                            border: 'none', 
-                            cursor: 'pointer'}} 
-                        onClick={this.unselectAll}>
-                            {action}
-                        </button>}
-                message={selected} 
+                            color: '#e53c76',
+                            fontWeight: 'bold',
+                            background: 'none',
+                            outline: 'none',
+                            border: 'none',
+                            cursor: 'pointer'
+                        }}
+                        onClick={this.unselectAll}
+                    >
+                        {action}
+                    </button>}
+                message={selected}
             />
         );
     }

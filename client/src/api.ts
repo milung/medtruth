@@ -2,7 +2,6 @@
 import * as axios from 'axios';
 
 export namespace ApiService {
-    //const apiEndpoint = 'http://medtruth.azurewebsites.net/api';
     const apiEndpoint = '/api';
     const uriUpload = apiEndpoint + '/upload';
     const uriImages = apiEndpoint + '/images';

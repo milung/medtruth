@@ -26,7 +26,7 @@ export namespace FileUtils {
                 index++;
                 reader.onload = (e: any) => {
                     if (e.target.error !== null) {
-                        reject("Error while reading file " + file.name);
+                        reject('Error while reading file ' + file.name);
                         return;
                     }
                     filesData.push(e.target.result);
@@ -38,6 +38,4 @@ export namespace FileUtils {
             process_one();
         });
     };
-
-
 }

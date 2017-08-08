@@ -16,17 +16,17 @@ export default class App extends React.Component<{}, {}> {
         return (
             <div>
                 <AppBar style={{ backgroundColor: '#212121' }}>
-                    <Tabs index={false} onChange={() => { }}>
+                    <Tabs index={false}>
                         <Tab label={'Medtruth'} style={{ fontStyle: 'bold', color: '#F44336' }} />
                         <Tab label={<label htmlFor="file"><FolderForm /></label>} />
                     </Tabs>
                 </AppBar>
                 <div style={{ paddingTop: '50px', margin: '0 auto' }}>
                     <Grid container={true}>
-                        <Grid item xs={9} sm={9} md={9}>
-                            <PatientViewer />
+                        <Grid item="false" xs={9} sm={9} md={9}>
+                            <Content />
                         </Grid>
-                        <Grid item xs={3} sm={3} md={3}>
+                        <Grid item="false" xs={3} sm={3} md={3}>
                             <AttributeForm />
                         </Grid>
                     </Grid>
