@@ -25,6 +25,7 @@ export interface ConnectedState {
 export interface ConnectedDispatch {
     addedImageAnnotation: (annotation: ImageAnnotation) => ImageAnnotationAddedAction;
 }
+
 export class AttributeFormComponent extends React.Component<ConnectedDispatch & ConnectedState, OwnState> {
 
     constructor(props) {
@@ -39,11 +40,12 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
         this.handleClick = this.handleClick.bind(this);
         this.handleKeyFieldChange = this.handleKeyFieldChange.bind(this);
         this.handleValueFieldChange = this.handleValueFieldChange.bind(this);
+        this.handleChange = this.handleChange.bind(this);
     }
 
     componentWillUpdate(nextProps, nextState) {
-        console.log('nextProps.series: ', nextProps.series);
-        console.log('this.props.series', this.props.series);
+        // console.log('nextProps.series: ', nextProps.series);
+        // console.log('this.props.series', this.props.series);
         if (nextProps.series !== this.props.series) {
             if (nextProps.series.length !== 0) {
                 this.receiveAttributes(getLastValue(nextProps.series));
@@ -59,11 +61,17 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
         if (resData.attributes) {
             var listItems = [];
             for (let data of resData.attributes) {
-                let tempData: ListItem = {
+                
+                listItems.push({
                     attribute: data.key,
                     value: data.value
-                };
-                listItems.push(tempData);
+                });
+
+                this.props.addedImageAnnotation({
+                    imageId: id,
+                    key: data.key,
+                    value: data.value
+                });
             }
             this.setState({ seriesData: listItems });
         } else {
@@ -73,21 +81,39 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
 
     }
 
+    // Called from AttributeList on Checkbox change
+    async handleChange(key: string, value: number) {
+        await this.addAttribute(key, value);
+    }
+
     async handleClick(): Promise<void> {
         console.log('images', this.props.images);
         console.log('series', this.props.series);
 
+        let valueNumber;
+        // If no value is entered in the value field, assign 1
+        if (this.state.valueFieldValue === null || this.state.valueFieldValue.trim() === '') {
+            valueNumber = 1;
+        } else {
+            valueNumber = Number(this.state.valueFieldValue);
+        }
+
+        await this.addAttribute(this.state.keyFieldValue, valueNumber);
+    }
+
+    async addAttribute(key: string, value: number): Promise<void> {
+        console.log("ADDING ATTRIBUTE");
         let resData;
         // for (var img of this.props.images) {
         for (var series of this.props.series) {
             this.props.addedImageAnnotation({
                 imageId: series,
-                key: this.state.keyFieldValue,
-                value: Number(this.state.valueFieldValue)
+                key: key,
+                value: value
             });
             resData = await ApiService.putAttributes(series, {
-                key: this.state.keyFieldValue,
-                value: Number(this.state.valueFieldValue)
+                key: key,
+                value: value
             });
         }
 
@@ -129,7 +155,7 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
         if (this.props.series.length !== 0) {
             // Check if selected series/image has any attributes
             if (this.state.seriesData.length !== 0) {
-                attributeList = <AttributeList listItems={this.state.seriesData} selection={this.props.series} />;
+                attributeList = <AttributeList listItems={this.state.seriesData} selection={this.props.series} handler={this.handleChange} />;
                 console.log(this.state.seriesData);
             }
         }

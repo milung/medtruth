@@ -64,9 +64,45 @@ const processImageAnnotationAddedAction =
             };
         } else {
             newImageEntity = { ...imageEntity };
-            newImageEntity.annotations = [...imageEntity.annotations];
+
+            var newValue;
+            console.log('image entity annotations' + imageEntity.annotations);
+            /*
+            for (var annotation of imageEntity.annotations) {
+                // Check if annotation already IS assigned to the image
+                (annotation.key === action.annotation.key) ? newValue = action.annotation.value : newValue = annotation.value;
+                //console.log(annotation.imageId + ' ' + annotation.key + ' ' + newValue);
+                newImageEntity.annotations.push({
+                    imageId: annotation.imageId,
+                    key: annotation.key,
+                    value: newValue
+                });
+            }
+            */
+
+            //newImageEntity.annotations = [...imageEntity.annotations];
+
+            var newAnnotation = imageAnnotation;
+            for (var annotation of newImageEntity.annotations) {
+                // Check if annotation already IS assigned to the image
+                if (annotation.key === action.annotation.key) {
+                    console.log(annotation.key + "FOUND THE SAME ANNOTATION!");
+                    newAnnotation = annotation;
+                    newAnnotation.value = action.annotation.value;
+                    newImageEntity.annotations.push(newAnnotation);
+                    console.log("pushed annotation " + newAnnotation.key + " " + newAnnotation.value);
+                    break;
+                    //console.log(annotation.imageId + ' ' + annotation.key + ' ' + newValue);
+                    //annotation.value = action.annotation.value;
+                } else {
+                     newImageEntity.annotations.push(annotation);
+                     console.log("pushed annotation " + annotation.key + " " + annotation.value);
+                }
+            }
+
+            console.log('NEW new image entity annotations' + newImageEntity.annotations);
         }
-        newImageEntity.annotations.push(imageAnnotation);
+        //newImageEntity.annotations.push(imageAnnotation);
         newState.images.byId.set(newImageEntity.imageId, newImageEntity);
         return newState;
     };
@@ -90,8 +126,8 @@ const processUploadDataDownloadedAction =
                 newState.series.byId.set(
                     series.seriesID,
                     {
-                        seriesId: series.seriesID, 
-                        images: series.images, 
+                        seriesId: series.seriesID,
+                        images: series.images,
                         seriesDate: series.seriesDate,
                         seriesDescription: series.seriesDescription,
                         thumbnailImageID: series.thumbnailImageID

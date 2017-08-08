@@ -1,7 +1,6 @@
 import * as React from 'react';
 import * as Redux from 'redux';
 import Grid from 'material-ui/Grid';
-
 import { PatientProps } from './PatientView';
 import { imageStyle } from '../styles/ComponentsStyle';
 import { PatientView } from './PatientView';

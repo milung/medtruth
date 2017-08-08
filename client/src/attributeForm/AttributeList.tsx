@@ -1,53 +1,41 @@
-
 import * as React from 'react';
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
 import Checkbox from 'material-ui/Checkbox';
 import Paper from 'material-ui/Paper';
 import { ApiService } from '../api';
+// import * as Redux from 'redux';
+// import { connect } from 'react-redux';
+// import { State } from '../app/store';
+// import { ImageAnnotation, ImageAnnotationAddedAction, imageAnnotationAdded } from '../actions/actions';
 
 export interface ListItem {
     attribute: string;
     value: number;
 }
-export interface ListOfAttributes {
+
+export interface OwnProps {
     listItems: ListItem[];
     selection: string[];
+    handler: (...args: any[]) => void;
 }
 
 export interface ListState {
     activeCheckboxes: string[];
-    // values: number[]
 }
 
-export class AttributeList extends React.Component<ListOfAttributes, ListState> {
+export class AttributeList extends React.Component<OwnProps, ListState> {
     constructor(props) {
         super(props);
-        // this.props.listItems=props.listItems;
-        console.log(this.props.listItems[2]);
-        // this.handleChange = this.handleChange.bind(this);
         var active: string[] = [];
         var inactive: string[] = [];
-        // var helperValues: number[] = [];
         for (var item of this.props.listItems) {
-            console.log('attribute ' + item.attribute + ' ' + item.value);
             if (item.value > 0) {
                 active.push(item.attribute);
-                // helperValues.push(item.value);
             }
-            // else {
-            //     inactive.push(item.attribute);
-            // }
-
-            // item.value > 0 ? helperChecked.push(true) : helperChecked.push(false);
-            // helperValues.push(item.value);
         }
-        console.log(this.props.listItems);
         this.state = {
             activeCheckboxes: active,
-            // values: helperValues
         };
-        // console.log(this.state.activeCheckboxes);
-        // console.log(inactive);
     }
 
     render() {
@@ -79,7 +67,6 @@ export class AttributeList extends React.Component<ListOfAttributes, ListState> 
                                                 checked={this.state.activeCheckboxes.indexOf(item.attribute) >= 0}
                                                 indeterminate={false}
                                                 onChange={async (event: object, checked: boolean) => {
-                                                    console.log(item.attribute);
                                                     var checkAdded = false;
 
                                                     if (this.state.activeCheckboxes.indexOf(item.attribute) >= 0) {
@@ -96,20 +83,14 @@ export class AttributeList extends React.Component<ListOfAttributes, ListState> 
                                                         });
                                                         checkAdded = true;
                                                     }
-
-                                                    for (var img of this.props.selection) {
-                                                        console.log(img, item.attribute, checkAdded);
-                                                        await ApiService.putAttributes(img, {
-                                                            key: item.attribute,
-                                                            value: checkAdded ? 1 : 0
-                                                        });
-                                                    }
+                                                    this.props.handler(item.attribute, checkAdded ? 1 : 0);
                                                 }}
                                             />
                                             {item.attribute}
                                         </TableCell>
                                         <TableCell >
-                                            {this.state.activeCheckboxes.indexOf(item.attribute) >= 0 ? 1 : 0}
+                                            {item.value}
+                                            {/*this.state.activeCheckboxes.indexOf(item.attribute) >= 0 ? 1 : 0*/}
                                         </TableCell>
                                     </TableRow>
                                 );
