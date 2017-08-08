@@ -9,7 +9,7 @@ export enum ActionTypeKeys {
     SERIES_ALL_UNSELECTED = 'SERIES_ALL_UNSELECTED',
     IMAGE_ANNOTATION_ADDED = 'IMAGE_ANNOTATION_ADDED',
     UPLOAD_DATA_DOWNLOADED = 'UPLOAD_DATA_DOWNLOADED',
-    // LABEL_SELECTED = 'LABEL_SELECTED',
+    // IMAGE_ANNOTATION_SELECTED = 'IMAGE_ANNOTATION_SELECTED',
     OTHER_ACTION = 'OTHER_ACTION'
 }
 
@@ -56,7 +56,7 @@ export interface UploadDataDownloadedAction {
     upload: UploadJSON; 
 }
 
-// export interface LabelSelected {
+// export interface ImageAnnotationSelected {
 //     type: ActionTypeKeys.LABEL_SELECTED;
 
 // }
