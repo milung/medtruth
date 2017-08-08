@@ -123,7 +123,7 @@ export namespace ApiService {
         -------------------------------------------
         Returns the state of an image's attributes.
     */
-    export async function getAttributes(id: number) {
+    export async function getAttributes(id: string) {
         const url = uriImages + '/' + id + '/assign';
 
         let res: axios.AxiosResponse = await axios.default({

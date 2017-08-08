@@ -96,7 +96,6 @@ function mapDispatchToProps(dispatch: Redux.Dispatch<SeriesSelectedAction>): Con
     return {
         selectedSeries: (seriesID: string) => dispatch(seriesSelected(seriesID)),
         blowUp: (imageID: string) => dispatch(thumbnailBlownUp(imageID))
-
     }
 }
 

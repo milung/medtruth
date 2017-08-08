@@ -64,12 +64,12 @@ export class BlowUpComponent extends React.Component<OwnProps & ConnectedState &
     }
 
     myOnKeyDown(event: KeyboardEvent) {
-        if(this.props.showBlowUp){
-           if(event.keyCode == 27){
-               this.onExitClick();
-           }
-           
-            
+        if (this.props.showBlowUp) {
+            if (event.keyCode == 27) {
+                this.onExitClick();
+            }
+
+
         }
 
     }

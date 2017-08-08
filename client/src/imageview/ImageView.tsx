@@ -41,7 +41,6 @@ export class ImageViewComponent extends React.Component<ImageProps, {}> {
     }
 
     render() {
-        
         return <img id={this.props.imageID} style={imageStyle.img} 
         onClick={this.props.handler} 
         onDoubleClick={this.handleDoubleClick.bind(this)}/>;

@@ -6,7 +6,7 @@ import { AppBar, Tabs, Tab } from 'material-ui';
 import { Content } from '../components/content';
 import { FolderForm } from '../folderForm/FolderForm';
 import { FlatButton } from 'material-ui';
-import { PatientViewer } from "../imageview/PatientViewer";
+import { PatientViewer } from '../imageview/PatientViewer';
 
 var injectTapEventPlugin = require('react-tap-event-plugin');
 injectTapEventPlugin();
@@ -17,7 +17,7 @@ export default class App extends React.Component<{}, {}> {
             <div>
                 <AppBar style={{ backgroundColor: '#212121' }}>
                     <Tabs index={false} onChange={() => { }}>
-                        <Tab label={'Medtruth'} style={{ fontStyle: 'bold', color: '#F44336' }}/>
+                        <Tab label={'Medtruth'} style={{ fontStyle: 'bold', color: '#F44336' }} />
                         <Tab label={<label htmlFor="file"><FolderForm /></label>} />
                     </Tabs>
                 </AppBar>
