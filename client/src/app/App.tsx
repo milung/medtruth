@@ -6,6 +6,7 @@ import { AppBar, Tabs, Tab } from 'material-ui';
 import { Content } from '../components/content';
 import { FolderForm } from '../folderForm/FolderForm';
 import { FlatButton } from 'material-ui';
+import { PatientViewer } from "../imageview/PatientViewer";
 
 var injectTapEventPlugin = require('react-tap-event-plugin');
 injectTapEventPlugin();
@@ -23,7 +24,7 @@ export default class App extends React.Component<{}, {}> {
                 <div style={{ paddingTop: '50px', margin: '0 auto' }}>
                     <Grid container={true}>
                         <Grid item xs={9} sm={9} md={9}>
-                            <Content />
+                            <PatientViewer />
                         </Grid>
                         <Grid item xs={3} sm={3} md={3}>
                             <AttributeForm />
