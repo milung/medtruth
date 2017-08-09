@@ -315,6 +315,7 @@ export namespace AzureDatabase {
                 let query = { uploadID: req.uploadID };
                 let result = await conn.collection.findOne(query);
                 
+                // TODO: Refactor!
                 if (result) {
                     if (result.studies) {
                         _.forEach(result.studies, (study) => {
@@ -331,11 +332,9 @@ export namespace AzureDatabase {
                             }
                         });
                     }
-                    reject(Status.FAILED);
-                // If we didn't find a result by the query.
-                } else {
-                    reject(Status.FAILED);
                 }
+                // If we didn't find a result by the query.
+                reject(Status.FAILED);
             } catch (e) {
                 reject(Status.FAILED);
             } finally {

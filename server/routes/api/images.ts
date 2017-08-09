@@ -99,9 +99,9 @@ routerImages.get('/:id/assign', async (req, res) => {
 
 /*
     Route:      GET '/series'
-    Expects:    JSON, containing an upload, series and/or study ID.
+    Expects:    JSON, containing an upload, series & study ID.
     --------------------------------------------
-    Gets an array of image ID's from a upload and series ID.
+    Returns a JSON array of image ID's and orders from an upload, study & series ID.
 */
 interface SeriesRequest {
     uploadID:   number;
