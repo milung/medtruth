@@ -100,30 +100,6 @@ export namespace ApiService {
         return { ...res.data };
     }
 
-
-    /*
-        Route:      GET '/upload/:id'
-        Expects:    Upload ID as a parameter.
-        -------------------------------------------
-        Retreive information about upload's id.
-    */
-    export async function getSeriesImages(uploadID: number, studyID: string, seriesID: string) {
-        const url = uriUpload + '/' + "series";
-
-        let res: axios.AxiosResponse = await axios.default({
-            method: 'GET',
-            url: url,
-            headers: {},
-            data: {
-                uploadID: uploadID,
-                studyID: studyID,
-                seriesID: seriesID
-            }
-        });
-
-        return { ...res.data };
-    }
-
     /*
         Route:      PUT '/images/:id/assign'
         Expects:    Updates or creates new attributes to an image.
