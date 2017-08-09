@@ -2,9 +2,10 @@
 import * as axios from 'axios';
 
 export namespace ApiService {
-    const apiEndpoint = 'http://localhost:8080/api';
+    const apiEndpoint = '/api';
     const uriUpload = apiEndpoint + '/upload';
     const uriImages = apiEndpoint + '/images';
+    const uriDownload = apiEndpoint + '/download';
 
     /*
         Route:      POST '/upload'
@@ -131,5 +132,19 @@ export namespace ApiService {
         });
 
         return { ...res.data }; 
+    }
+
+    export async function getDownload() {
+        const url = uriDownload;
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'GET',
+            url: url,
+            headers: {
+                'Accept': 'application/zip'
+            },
+        });
+
+        return res.data;
     }
 }

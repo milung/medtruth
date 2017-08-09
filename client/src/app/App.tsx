@@ -6,6 +6,7 @@ import { AppBar, Tabs, Tab } from 'material-ui';
 import { Content } from '../components/content';
 import { FolderForm } from '../folderForm/FolderForm';
 import { FlatButton } from 'material-ui';
+import { DownloadButton } from '../button/DownloadButton';
 
 var injectTapEventPlugin = require('react-tap-event-plugin');
 injectTapEventPlugin();
@@ -18,6 +19,7 @@ export default class App extends React.Component<{}, {}> {
                     <Tabs index={false} onChange={() => { }}>
                         <Tab label={'Medtruth'} style={{ fontStyle: 'bold', color: '#F44336' }}/>
                         <Tab label={<label htmlFor="file"><FolderForm /></label>} />
+                        <Tab label={<DownloadButton />}/>
                     </Tabs>
                 </AppBar>
                 <div style={{ paddingTop: '50px', margin: '0 auto' }}>

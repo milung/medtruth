@@ -61,6 +61,7 @@ export namespace AzureStorage {
         });
     }
 }
+
 export namespace AzureDatabase {
     export const localAddress = "localhost:27017/";
     export const localName = "medtruth";
@@ -233,6 +234,40 @@ export namespace AzureDatabase {
                     if (err)    reject(Status.FAILED);
                                 resolve(result[0]);
                 });
+            } catch (e) {
+                reject(Status.FAILED);
+            } finally {
+                close(conn.db);
+            }
+        });
+    }
+
+    /* 
+        GetImagesBySeriesID returns all images by it's series ID.
+    */
+    interface SeriesRequest {
+        uploadID: number;
+        seriesID: string;
+        studyID?: string;
+    }
+    
+    interface SeriesImages {
+        images: string[];
+    }
+
+    export function getImagesBySeriesId(req: SeriesRequest): Promise<SeriesImages> {
+        return new Promise<SeriesImages>(async (resolve, reject) => {
+            try {
+                var conn = await connectToImages();
+
+                let query = { uploadID: req.uploadID };
+                let result = await conn.collection.findOne(query);
+                if (result) {
+                    
+                // If we didn't find a result by the query.
+                } else {
+                    reject(Status.FAILED);
+                }
             } catch (e) {
                 reject(Status.FAILED);
             } finally {

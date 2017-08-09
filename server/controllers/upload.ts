@@ -45,16 +45,10 @@ export class UploadController {
         if (files.length === 0) { next(); return null; }
 
         // Convert, upload and parse the files.
-
-        console.log("[Convert]");
         await this.convert(files);
-        console.log("[Upload]");
         await this.upload();
-        console.log("[Parse]");
         let json = await this.parse();
-        console.log("[insertToImagesCollection]");
         await AzureDatabase.insertToImagesCollection(json);
-        console.log('[Removing files]');
 
         // Cleanup.
         files.forEach((file) => {
@@ -198,11 +192,8 @@ export class UploadController {
         return json;
     }
 
-
     createThumbnail(imageID) {
         return new Promise<string>((resolve, reject) => {
-
-
             jimp.read(imagePath + imageID + ".png", async function (err, image) {
                 // do stuff with the image (if no exception) 
                 let thumbnail = imagePath + imageID + '_.png';
