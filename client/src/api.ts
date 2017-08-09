@@ -178,4 +178,35 @@ export namespace ApiService {
 
         return res.data;
     }
+
+    interface SeriesRequest {
+        uploadID:   number;
+        studyID:    string;
+        seriesID:   string;
+    }
+
+    interface SeriesImages {
+        images: SeriesImage[];
+    }
+
+    interface SeriesImage {
+        imageID: string;
+        imageNumber: number;
+    }
+
+    export async function getSeriesImages(uploadID: number, studyID: string, seriesID: string): Promise<SeriesImages> {
+        const url = uriImages + '/series';
+        const req: SeriesRequest = { uploadID, studyID, seriesID };
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'POST',
+            url: url,
+            headers: { 
+                'Content-Type': 'application/json'
+            },
+            data: req
+        });
+
+        return res.data as SeriesImages;
+    }
 }
