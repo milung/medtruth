@@ -8,6 +8,7 @@ import { UploadController } from '../../controllers/upload';
 import { StatusCode, storagePath, imagePath } from '../../constants';
 import { AzureStorage, AzureDatabase } from '../../azure-service';
 import { JSONCreator } from '../../Objects';
+import * as sharp from 'sharp';
 
 export const rootUpload = '/upload';
 export const routerUpload = express.Router();
@@ -67,6 +68,39 @@ routerUpload.post('/',
     }
 );
 
+
+
+/*
+    Route:      GET 'upload/:id'
+    Expects:    
+    --------------------------------------------
+    Returns details about upload's id.
+*/
+routerUpload.get('/sharptest', async (req, res) => {
+    console.log("in sharp test");
+
+    sharp({
+        create: {
+            width: 300,
+            height: 200,
+            channels: 4,
+            background: { r: 255, g: 0, b: 0, alpha: 128 }
+        }
+        })
+        .png()
+        .toFile('output.jpg', function (err) {
+            console.log("ERROR");
+            console.log(err);
+
+
+        });
+
+    res.sendStatus(StatusCode.OK);
+
+});
+
+
+
 /*
     Route:      GET 'upload/:id'
     Expects:    
@@ -75,8 +109,8 @@ routerUpload.post('/',
 */
 routerUpload.get('/:id', async (req, res) => {
     let id = Number.parseInt(req.params.id);
-    console.log("uploadid: "+id);
-    
+    console.log("uploadid: " + id);
+
     if (id === undefined) {
         res.sendStatus(StatusCode.BadRequest);
         return;
