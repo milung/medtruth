@@ -24,7 +24,6 @@ routerImages.options('/', (req, res) => {
 
 /*
     Route:      GET '/images'
-    Expects:    
     --------------------------------------------
     Returns all PNG images to the client.
 */
@@ -38,7 +37,7 @@ routerImages.get('/', (req, res) => {
     --------------------------------------------
     Returns latest PNG images uploaded to the server.
 */
-routerImages.get('/latest', (req, res) => {
+routerImages.get('/latest', json(), (req, res) => {
     res.sendStatus(StatusCode.NotImplemented);
 });
 
@@ -86,16 +85,50 @@ routerImages.put('/:id/assign', json(), async (req, res) => {
     res.json(result);
 });
 
+
+/*
+    Route:      GET '/images/:id/assign'
+    --------------------------------------------
+    Gets attributes from a single image id.
+*/
 routerImages.get('/:id/assign', async (req, res) => {
     let id = req.params.id;
     let result = await AzureDatabase.getAttributes(id);
     res.json(result);
 });
 
+/*
+    Route:      GET '/series'
+    Expects:    JSON, containing an upload, series and/or study ID.
+    --------------------------------------------
+    Gets an array of image ID's from a upload and series ID.
+*/
+interface SeriesRequest {
+    uploadID:   number;
+    studyID:    string;
+    seriesID:   string;
+}
+
+routerImages.post('/series', json(), async (req, res) => {
+    let seriesReq: SeriesRequest = { ...req.body };
+    try {
+        let result = await AzureDatabase.getImagesBySeriesId(seriesReq);
+        res.json(result);
+    } catch (e) {
+        res.json({});
+    }
+});
+
 routerImages.delete('/:id/assign', json(), async (req, res) => {
     let id = req.params.id;
-    let attributes: Attribute[] = req.body.attributes;
-    let status: AzureDatabase.Status = await AzureDatabase.removeFromAttributes(id, ...attributes);
-    res.sendStatus(status);
+    let labels: string[] = req.body.labels;
+
+    try {
+        await AzureDatabase.removeFromAttributes(id, labels);
+        res.sendStatus(200);
+    } catch (e) {
+        res.sendStatus(500);
+    }
+    
 });
 

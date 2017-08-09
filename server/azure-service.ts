@@ -61,6 +61,7 @@ export namespace AzureStorage {
         });
     }
 }
+
 export namespace AzureDatabase {
     export const localAddress = "localhost:27017/";
     export const localName = "medtruth";
@@ -189,13 +190,12 @@ export namespace AzureDatabase {
         });
     }
 
-    export function removeFromAttributes(id, ...attributes: Attribute[]): Promise<Status> {
-        return new Promise<Status>(async (resolve, reject) => {
+    export function removeFromAttributes(id, labelsToRemove: string[]): Promise<void> {
+        return new Promise<void>(async (resolve, reject) => {
             try {
                 var conn = await connectToAttributes();
 
                 let filter = { imageID: id };
-                let labelsToRemove: string[] = attributes.map(attr => attr.key);
                 let update = {
                     $pull: {
                         attributes: {
@@ -212,22 +212,21 @@ export namespace AzureDatabase {
                     = await conn.collection.findOneAndUpdate(filter, update, options);
 
                 if (!result.ok) {
-                    reject(Status.FAILED);
+                    reject();
                     return;
                 }
 
                 if (result.value === undefined) {
-                    resolve(Status.SUCCESFUL);
+                    resolve();
                     return;
                 }
 
                 let originalLabels = result.value.attributes.map(attr => attr.key);
                 let removedLabels: string[] = _(originalLabels).intersection(labelsToRemove).value();
                 removeFromLabels(removedLabels);
-                resolve(Status.SUCCESFUL);
-            
+                resolve();
             } catch (e) {
-                reject(Status.FAILED);
+                reject();
             } finally {
                 close(conn.db);
             }
@@ -296,10 +295,69 @@ export namespace AzureDatabase {
         });
     }
 
+    /* 
+        GetImagesBySeriesID returns all images by it's series ID.
+    */
+    interface SeriesRequest {
+        uploadID:   number;
+        studyID:    string;
+        seriesID:   string;
+    }
+    
+    interface SeriesImages {
+        images: string[];
+    }
+
+    export function getImagesBySeriesId(req: SeriesRequest): Promise<SeriesImages> {
+        return new Promise<SeriesImages>(async (resolve, reject) => {
+            try {
+                var conn = await connectToImages();
+                let query = { uploadID: req.uploadID };
+                let result = await conn.collection.findOne(query);
+                
+                if (result) {
+                    if (result.studies) {
+                        _.forEach(result.studies, (study) => {
+                            if (study.studyID === req.studyID) {
+                                if (study.series) {
+                                    _.forEach(study.series, (serie) => {
+                                        if (serie.seriesID === req.seriesID) {
+                                            if (serie.images) {
+                                                resolve(serie.images);
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
+                    reject(Status.FAILED);
+                // If we didn't find a result by the query.
+                } else {
+                    reject(Status.FAILED);
+                }
+            } catch (e) {
+                reject(Status.FAILED);
+            } finally {
+                close(conn.db);
+            }
+        });
+    }
+
     export function removeFromLabels(labels: string[]): Promise<Status> {
         return new Promise<Status>(async (resolve, reject) => {
             try {
                 var conn = await connectToLabels();
+
+                // remove where count is equal 1
+                await conn.collection.deleteMany({
+                    label: {
+                        $in: labels
+                    },
+                    count: 1
+                });
+
+                // decrement count
                 let updateObjects: {}[] = labels.map(label => {
                     return {
                         updateOne: {
@@ -312,7 +370,8 @@ export namespace AzureDatabase {
                         }
                     }
                 });
-                let result: BulkWriteOpResultObject = await conn.collection.bulkWrite(updateObjects);
+
+                await conn.collection.bulkWrite(updateObjects);
                 resolve(Status.SUCCESFUL);
             } catch (e) {
                 reject(Status.FAILED);

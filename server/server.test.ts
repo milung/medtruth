@@ -118,10 +118,12 @@ describe('<Server>', () => {
                         expect(res.status).toBe(StatusCode.OK);
                         // We expect that both storagePath and imagePath contain .keep file.
                         await fs.readdir(storagePath, (err, files) => {
+                            expect(err).toBeNull();
                             expect(files.length).toBe(1);
                             expect(files).toContainEqual('.keep');
                         });
                         await fs.readdir(imagePath, (err, files) => {
+                            expect(err).toBeNull();
                             expect(files.length).toBe(1);
                             expect(files).toContainEqual('.keep');
                         });
@@ -138,7 +140,7 @@ describe('<Server>', () => {
             });
 
             it('/images/:id         NotFound status with invalid id', () => {
-                return req.get('/api/images/34298148941')
+                return req.get('/api/images/847483218')
                     .expect(StatusCode.NotFound);
             });
         });

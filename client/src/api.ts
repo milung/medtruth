@@ -5,6 +5,7 @@ export namespace ApiService {
     const apiEndpoint = '/api';
     const uriUpload = apiEndpoint + '/upload';
     const uriImages = apiEndpoint + '/images';
+    const uriDownload = apiEndpoint + '/download';
     const uriLabels = apiEndpoint + '/labels';
 
     /*
@@ -139,14 +140,14 @@ export namespace ApiService {
         return { ...res.data };
     }
 
-    export async function deleteAttributes(id: string, ...attributes: Attribute[]) {
+    export async function deleteAttributes(id: string, labels: string[]) {
         const url = uriImages + '/' + id + '/assign';
 
         let res: axios.AxiosResponse = await axios.default({
             method: 'DELETE',
             url: url,
             headers: { 'Content-Type': 'application/json' },
-            data: { attributes }
+            data: { labels }
         });
 
         return res.status === Status.SUCCESFUL ? true : false;
@@ -162,5 +163,50 @@ export namespace ApiService {
         });
 
         return { ...res.data };
+    }
+
+    export async function getDownload() {
+        const url = uriDownload;
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'GET',
+            url: url,
+            headers: {
+                'Accept': 'application/zip'
+            },
+        });
+
+        return res.data;
+    }
+
+    interface SeriesRequest {
+        uploadID:   number;
+        studyID:    string;
+        seriesID:   string;
+    }
+
+    interface SeriesImages {
+        images: SeriesImage[];
+    }
+
+    interface SeriesImage {
+        imageID: string;
+        imageNumber: number;
+    }
+
+    export async function getSeriesImages(uploadID: number, studyID: string, seriesID: string): Promise<SeriesImages> {
+        const url = uriImages + '/series';
+        const req: SeriesRequest = { uploadID, studyID, seriesID };
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'POST',
+            url: url,
+            headers: { 
+                'Content-Type': 'application/json'
+            },
+            data: req
+        });
+
+        return res.data as SeriesImages;
     }
 }
