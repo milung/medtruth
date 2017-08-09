@@ -8,6 +8,7 @@ import { connect } from "react-redux";
 import { State } from "../app/store";
 import { imageStyle } from '../styles/ComponentsStyle';
 import Icon from 'material-ui/Icon';
+import { Link } from "react-router-dom";
 //import FontIcon from 'material-ui/Icon'
 
 
@@ -16,6 +17,8 @@ export interface SeriesProps {
     seriesDescription: string;
     src: string;
     imageID: string;
+    studyID: string;
+    uploadID: number;
 }
 
 export interface ConnectedDispatch {
@@ -49,8 +52,15 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
         clearTimeout(this.timer);
     }
 
-    displayAlbum(){
-        alert('Iam in gallery');
+    displayAlbum() {
+
+    }
+
+    getGalleryPath(): string{
+        let uploaid: number = this.props.uploadID;
+        let study: string = this.props.studyID;
+        let series: string = this.props.seriesID;
+        return `/gallery/${uploaid}/${study}/${series}`;
     }
 
     render() {
@@ -59,7 +69,7 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
 
         return (
             <div>
-                
+
                 <Card style={{ border: borderStyle }}>
                     <CardMedia>
                         <ImageViewComponent
@@ -75,7 +85,9 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
                             {this.props.seriesDescription}
                         </Typography>
                     </CardContent>
-                    <a><img src={require('../icons/icon1.png')} style={{ float: "right", marginBottom:"5", marginRight:"5"}} onClick={this.displayAlbum}/></a>
+                    <Link to={this.getGalleryPath()}>
+                        <a><img src={require('../icons/icon1.png')} style={{ float: "right", marginBottom: "5", marginRight: "5" }} onClick={this.displayAlbum} /></a>
+                    </Link>
                 </Card>
             </div>
         );
@@ -88,6 +100,8 @@ function mapStateToProps(state: State, props: SeriesProps): SeriesProps & Connec
         seriesDescription: props.seriesDescription,
         src: props.src,
         imageID: props.imageID,
+        studyID: props.studyID,
+        uploadID: props.uploadID,
         seriesSelected: state.ui.selections.series.indexOf(props.seriesID) !== -1
     };
 }
