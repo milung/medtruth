@@ -140,14 +140,14 @@ export namespace ApiService {
         return { ...res.data };
     }
 
-    export async function deleteAttributes(id: string, ...attributes: Attribute[]) {
+    export async function deleteAttributes(id: string, labels: string[]) {
         const url = uriImages + '/' + id + '/assign';
 
         let res: axios.AxiosResponse = await axios.default({
             method: 'DELETE',
             url: url,
             headers: { 'Content-Type': 'application/json' },
-            data: { attributes }
+            data: { labels }
         });
 
         return res.status === Status.SUCCESFUL ? true : false;
