@@ -20,10 +20,7 @@ interface OwnState {
 
 }
 
-
 export default class InnerComponent extends React.Component<OwnProps, OwnState> {
-
-
 
     async componentWillUpdate(nextProps, nextState) {
         let uploadID: number = this.props.match.params.uploadID;
