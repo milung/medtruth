@@ -55,13 +55,15 @@ class PatientViewerComponent extends React.Component<ConnectedState & ConnectedD
 
         for (let patient of resData.studies) {
             let tempSeries = [];
-
+            
             for (let tmpSerie of patient.series) {
                 let serie = {
                     seriesID: tmpSerie.seriesID,
                     seriesDescription: tmpSerie.seriesDescription,
                     src: tmpSerie.thumbnailImageID,
-                    imageID: imageId
+                    imageID: imageId,
+                    studyID: patient.studyID,
+                    uploadID: resData.uploadID
                 };
                 tempSeries.push(serie);
                 imageId++;

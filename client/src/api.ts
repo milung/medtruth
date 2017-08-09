@@ -3,6 +3,8 @@ import * as axios from 'axios';
 
 export namespace ApiService {
     const apiEndpoint = '/api';
+    //const apiEndpoint = 'http://localhost:8080/api'
+    /* change this */
     const uriUpload = apiEndpoint + '/upload';
     const uriImages = apiEndpoint + '/images';
     const uriDownload = apiEndpoint + '/download';
@@ -185,16 +187,12 @@ export namespace ApiService {
         seriesID:   string;
     }
 
-    interface SeriesImages {
-        images: SeriesImage[];
-    }
-
     interface SeriesImage {
         imageID: string;
         imageNumber: number;
     }
 
-    export async function getSeriesImages(uploadID: number, studyID: string, seriesID: string): Promise<SeriesImages> {
+    export async function getSeriesImages(uploadID: number, studyID: string, seriesID: string): Promise<SeriesImage[]> {
         const url = uriImages + '/series';
         const req: SeriesRequest = { uploadID, studyID, seriesID };
 
@@ -207,6 +205,6 @@ export namespace ApiService {
             data: req
         });
 
-        return res.data as SeriesImages;
+        return res.data as SeriesImage[];
     }
 }

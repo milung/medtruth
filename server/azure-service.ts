@@ -304,17 +304,19 @@ export namespace AzureDatabase {
         seriesID:   string;
     }
     
-    interface SeriesImages {
-        images: string[];
+    interface SeriesImage {
+        imageID: string;
+        imageNumber: number;
     }
 
-    export function getImagesBySeriesId(req: SeriesRequest): Promise<SeriesImages> {
-        return new Promise<SeriesImages>(async (resolve, reject) => {
+    export function getImagesBySeriesId(req: SeriesRequest): Promise<SeriesImage[]> {
+        return new Promise<SeriesImage[]>(async (resolve, reject) => {
             try {
                 var conn = await connectToImages();
                 let query = { uploadID: req.uploadID };
                 let result = await conn.collection.findOne(query);
                 
+                // TODO: Refactor!
                 if (result) {
                     if (result.studies) {
                         _.forEach(result.studies, (study) => {
@@ -331,11 +333,9 @@ export namespace AzureDatabase {
                             }
                         });
                     }
-                    reject(Status.FAILED);
-                // If we didn't find a result by the query.
-                } else {
-                    reject(Status.FAILED);
                 }
+                // If we didn't find a result by the query.
+                reject(Status.FAILED);
             } catch (e) {
                 reject(Status.FAILED);
             } finally {
