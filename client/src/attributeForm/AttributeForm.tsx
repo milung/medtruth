@@ -43,9 +43,9 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
         console.log('series', this.props.series);
 
         let valueNumber;
-        // If no value is entered in the value field, assign 1
+        // If no value is entered in the value field, assign -1
         if (this.state.valueFieldValue === null || this.state.valueFieldValue.trim() === '') {
-            valueNumber = 1;
+            valueNumber = -1;
         } else {
             valueNumber = Number(this.state.valueFieldValue);
         }
@@ -55,8 +55,8 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
             valueFieldValue: ''
         });
 
-        await addAttribute(this.props.addedImageAnnotation, this.props.series, this.state.keyFieldValue, valueNumber);
-       
+        await changeAttribute(false, this.props.addedImageAnnotation, this.props.series, this.state.keyFieldValue, valueNumber);
+
     }
 
     handleKeyFieldChange(e) {
@@ -163,18 +163,31 @@ export function getLastValue(set) {
     }
 }
 
-export async function addAttribute(dispatchFunction, selection: string[], key: string, value: number): Promise<void> {
+export async function changeAttribute(deletingAttribute: boolean, dispatchFunction, selection: string[], key: string, value: number): Promise<void> {
+    console.log('DELETING ATTRIBUTE', deletingAttribute);
     let resData;
     // for (var img of this.props.images) {
-    for (var series of selection) {
+    for (var id of selection) {
         dispatchFunction({
-            imageId: series,
+            imageId: id,
             key: key,
             value: value
         });
-        resData = await ApiService.putAttributes(series, {
-            key: key,
-            value: value
-        });
+
+        if (deletingAttribute) {
+            console.log('deleting attribute');
+            let labels: string[] = [];
+            labels.push(key);
+            //[key]
+            resData = await ApiService.deleteAttributes(id, labels);
+        } else {
+            console.log('putting attribute');
+            resData = await ApiService.putAttributes(id, {
+                key: key,
+                value: value
+            });
+        }
+        console.log('res data', resData);
+
     }
 }

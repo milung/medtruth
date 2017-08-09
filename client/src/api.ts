@@ -162,7 +162,7 @@ export namespace ApiService {
             headers: {}
         });
 
-        return { ...res.data };
+        return res.data;
     }
 
     export async function getDownload() {
