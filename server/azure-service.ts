@@ -299,9 +299,9 @@ export namespace AzureDatabase {
         GetImagesBySeriesID returns all images by it's series ID.
     */
     interface SeriesRequest {
-        uploadID: number;
-        seriesID: string;
-        studyID?: string;
+        uploadID:   number;
+        studyID:    string;
+        seriesID:   string;
     }
     
     interface SeriesImages {
@@ -312,17 +312,32 @@ export namespace AzureDatabase {
         return new Promise<SeriesImages>(async (resolve, reject) => {
             try {
                 var conn = await connectToImages();
-
                 let query = { uploadID: req.uploadID };
                 let result = await conn.collection.findOne(query);
+                
                 if (result) {
-                    
+                    if (result.studies) {
+                        _.forEach(result.studies, (study) => {
+                            if (study.studyID === req.studyID) {
+                                if (study.series) {
+                                    _.forEach(study.series, (serie) => {
+                                        if (serie.seriesID === req.seriesID) {
+                                            if (serie.images) {
+                                                resolve(serie.images);
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
+                    reject(Status.FAILED);
                 // If we didn't find a result by the query.
                 } else {
                     reject(Status.FAILED);
                 }
             } catch (e) {
-                
+                reject(Status.FAILED);
             } finally {
                 close(conn.db);
             }

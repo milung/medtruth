@@ -38,8 +38,6 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
         this.handleValueFieldChange = this.handleValueFieldChange.bind(this);
     }
 
-
-
     async handleClick(): Promise<void> {
         console.log('images', this.props.images);
         console.log('series', this.props.series);
@@ -51,7 +49,6 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
         } else {
             valueNumber = Number(this.state.valueFieldValue);
         }
-
 
         this.setState({
             keyFieldValue: '',
@@ -127,7 +124,7 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
                                 style={{ float: 'right', marginTop: 20, marginBottom: 20 }}
                             >
                                 Assign
-                                </Button>
+                            </Button>
                         </div>
                     </Paper>
                     {attributeList}
@@ -167,7 +164,6 @@ export function getLastValue(set) {
 }
 
 export async function addAttribute(dispatchFunction, selection: string[], key: string, value: number): Promise<void> {
-    console.log("ADDING ATTRIBUTE");
     let resData;
     // for (var img of this.props.images) {
     for (var series of selection) {
