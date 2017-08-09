@@ -113,3 +113,11 @@ routerImages.get('/series', json(), async (req, res) => {
     let seriesReq: SeriesRequest = { ...req.body };
     let result = await AzureDatabase.getImagesBySeriesId(seriesReq);
 });
+
+routerImages.delete('/:id/assign', json(), async (req, res) => {
+    let id = req.params.id;
+    let attributes: Attribute[] = req.body.attributes;
+    let status: AzureDatabase.Status = await AzureDatabase.removeFromAttributes(id, ...attributes);
+    res.sendStatus(status);
+});
+

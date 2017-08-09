@@ -52,8 +52,11 @@ export class UploadController {
 
         // Cleanup.
         files.forEach((file) => {
+            console.log("[Deleting files] file: " + file.path);
             fs.unlink(file.path, () => { });
+            console.log("[Deleting files] image: " + file.filename);
             fs.unlink(imagePath + file.filename + ".png", () => { });
+            console.log("[Deleting files] file: "+file.filename+" OK ✔️");
         });
 
         // Grab all ChainStatuses and map them to UploadStatuses.
@@ -102,8 +105,11 @@ export class UploadController {
                     imagePath + upload.filename + ".png");
                 // Assign the upload id to this file.
                 upload.id = upload.filename;
+                console.log('[Uploading] file: ' + upload.filename + ' OK ✔️');
             } catch (e) {
                 // If anything happened during uploading, assign an error to the response.
+                console.log('[Uploading] file: ' + upload.filename + ' FAIL ❌');
+                console.log(e);
                 upload.err = "Storage Error";
             }
             return upload;
@@ -156,7 +162,10 @@ export class UploadController {
 
             studiesArray[studyID][seriesID].push({ imageNumber: Number(converter.getImageNumber()), imageID: parse.filename });
 
-            existingSeries.images.push(parse.filename);
+            existingSeries.images.push({
+                imageID: parse.filename,
+                imageNumber: Number(converter.getImageNumber())
+            });
 
             if (!seriesFound) {
                 existingStudy.series.push(existingSeries);
@@ -211,6 +220,8 @@ export class UploadController {
                         });
 
                 } else {
+                    console.log("[Create Thumbnail] Error");
+                    console.log(err);
                     reject("NOT OK")
                 }
             });

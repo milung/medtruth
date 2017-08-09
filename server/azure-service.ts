@@ -5,7 +5,7 @@ import { StatusCode } from './constants';
 import * as _ from 'lodash';
 //import { db } from './server';
 
-import { MongoClient, Db, Collection } from 'mongodb';
+import { MongoClient, Db, Collection, BulkWriteOpResultObject, FindAndModifyWriteOpResultObject } from 'mongodb';
 import { UploadJSON } from "./Objects";
 
 export namespace AzureStorage {
@@ -65,10 +65,8 @@ export namespace AzureStorage {
 export namespace AzureDatabase {
     export const localAddress = "localhost:27017/";
     export const localName = "medtruth";
-
-    export const url = process.argv[2] === 'production'
-    ? "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true"
-    : "mongodb://" + localAddress + localName;
+    export const urlMedTruth = "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true";
+    export const url = process.argv[2] === 'local' ? "mongodb://" + localAddress + localName : urlMedTruth;
 
     export enum Status {
         SUCCESFUL,
@@ -101,6 +99,12 @@ export namespace AzureDatabase {
     async function connectToAttributes(): Promise<Connection> {
         let db = await connect();
         let collection = await db.collection('attributes');
+        return { db: db, collection: collection };
+    }
+
+    async function connectToLabels(): Promise<Connection> {
+        let db = await connect();
+        let collection = await db.collection('labels');
         return { db: db, collection: collection };
     }
 
@@ -158,20 +162,71 @@ export namespace AzureDatabase {
                     // Else it creates a new key with a value.
                     let updatedAttributes = _({}).merge(
                         _(result.attributes).groupBy('key').value(),
-                        _(attributes)       .groupBy('key').value()
+                        _(attributes).groupBy('key').value()
                     ).values().flatten().value() as Attribute[];
                     // Updates the result query.
                     let updatedResult: AttributeQuery = { imageID: id, attributes: updatedAttributes };
                     await conn.collection.updateOne(result, updatedResult);
+                    await putToLabels(
+                        _(attributes.map(attr => attr.key))
+                            .difference(result.attributes.map(attr => attr.key))
+                            .value()
+                    );
                     // Returns the updated result.
                     resolve(updatedResult);
-                // If the query does not exist, we create a brand new one.
+                    // If the query does not exist, we create a brand new one.
                 } else {
                     let newResult = { imageID: id, attributes };
                     await conn.collection.insertOne(newResult);
+                    await putToLabels(attributes.map(attr => attr.key));
                     // Returns the new result.
                     resolve(newResult);
                 }
+            } catch (e) {
+                reject(Status.FAILED);
+            } finally {
+                close(conn.db);
+            }
+        });
+    }
+
+    export function removeFromAttributes(id, ...attributes: Attribute[]): Promise<Status> {
+        return new Promise<Status>(async (resolve, reject) => {
+            try {
+                var conn = await connectToAttributes();
+
+                let filter = { imageID: id };
+                let labelsToRemove: string[] = attributes.map(attr => attr.key);
+                let update = {
+                    $pull: {
+                        attributes: {
+                            key: {
+                                $in: labelsToRemove
+                            }
+                        }
+                    }
+                };
+                let options = {
+                    returnOriginal: true
+                };
+                let result: FindAndModifyWriteOpResultObject<any>
+                    = await conn.collection.findOneAndUpdate(filter, update, options);
+
+                if (!result.ok) {
+                    reject(Status.FAILED);
+                    return;
+                }
+
+                if (result.value === undefined) {
+                    resolve(Status.SUCCESFUL);
+                    return;
+                }
+
+                let originalLabels = result.value.attributes.map(attr => attr.key);
+                let removedLabels: string[] = _(originalLabels).intersection(labelsToRemove).value();
+                removeFromLabels(removedLabels);
+                resolve(Status.SUCCESFUL);
+            
             } catch (e) {
                 reject(Status.FAILED);
             } finally {
@@ -209,11 +264,11 @@ export namespace AzureDatabase {
         return new Promise<string>(async (resolve, reject) => {
             try {
                 var conn = await connectToImages();
-                
+
                 let query = { uploadID: Number(uploadID) };
                 let result = await conn.collection.findOne(query);
                 if (result) resolve(result);
-                else        reject(Status.FAILED);
+                else reject(Status.FAILED);
             } catch (e) {
                 reject(Status.FAILED);
             } finally {
@@ -231,8 +286,8 @@ export namespace AzureDatabase {
                 var conn = await connectToImages();
 
                 await conn.collection.find({}).sort({ "uploadDate": -1 }).limit(1).toArray((err, result) => {
-                    if (err)    reject(Status.FAILED);
-                                resolve(result[0]);
+                    if (err) reject(Status.FAILED);
+                    resolve(result[0]);
                 });
             } catch (e) {
                 reject(Status.FAILED);
@@ -265,6 +320,88 @@ export namespace AzureDatabase {
                 if (result) {
                     
                 // If we didn't find a result by the query.
+                } else {
+                    reject(Status.FAILED);
+                }
+            } catch (e) {
+                
+            } finally {
+                close(conn.db);
+            }
+        });
+    }
+
+    export function removeFromLabels(labels: string[]): Promise<Status> {
+        return new Promise<Status>(async (resolve, reject) => {
+            try {
+                var conn = await connectToLabels();
+                let updateObjects: {}[] = labels.map(label => {
+                    return {
+                        updateOne: {
+                            filter: {
+                                label,
+                            },
+                            update: {
+                                $inc: { count: -1 }
+                            }
+                        }
+                    }
+                });
+                let result: BulkWriteOpResultObject = await conn.collection.bulkWrite(updateObjects);
+                resolve(Status.SUCCESFUL);
+            } catch (e) {
+                reject(Status.FAILED);
+            } finally {
+                close(conn.db);
+            }
+        });
+    }
+
+    export function putToLabels(labels: string[]): Promise<Status> {
+        return new Promise<Status>(async (resolve, reject) => {
+
+            if (!labels || labels.length === 0) {
+                resolve(Status.SUCCESFUL);
+                return;
+            }
+
+            try {
+                var conn = await connectToLabels();
+                let updateObjects = labels.map(label => {
+                    return {
+                        updateOne: {
+                            filter: {
+                                label
+                            },
+                            update: {
+                                $inc: { count: 1 }
+                            },
+                            upsert: true
+                        }
+                    }
+                });
+                let result: BulkWriteOpResultObject = await conn.collection.bulkWrite(updateObjects);
+                resolve(Status.SUCCESFUL);
+            } catch (e) {
+                reject(Status.FAILED);
+            } finally {
+                close(conn.db);
+            }
+        });
+    }
+
+    export function getLabels(): Promise<string[]> {
+        return new Promise<string[]>(async (resolve, reject) => {
+            try {
+                var conn = await connectToLabels();
+
+                let labels = await conn.collection
+                    .find({ count: { $gt: 0 } })
+                    .map(lab => lab.label)
+                    .toArray();
+
+                if (labels) {
+                    resolve(labels);
                 } else {
                     reject(Status.FAILED);
                 }

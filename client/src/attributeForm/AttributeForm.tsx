@@ -3,18 +3,17 @@ import * as Redux from 'redux';
 import Grid from 'material-ui/Grid';
 import TextField from 'material-ui/TextField';
 import Button from 'material-ui/Button';
-//import Card, { CardContent } from 'material-ui/Card';
-import { AttributeList, listItem } from "./AttributeList";
-import { connect } from "react-redux";
-import { State } from "../app/store";
-import { ImageAnnotation, ImageAnnotationAddedAction, imageAnnotationAdded } from "../actions/actions";
-import { ApiService } from "../api";
+// import Card, { CardContent } from 'material-ui/Card';
+import { AttributeList, ListItem } from './AttributeList';
+import { connect } from 'react-redux';
+import { State } from '../app/store';
+import { ImageAnnotation, ImageAnnotationAddedAction, imageAnnotationAdded } from '../actions/actions';
+import { ApiService } from '../api';
+import Paper from 'material-ui/Paper';
 
 export interface OwnState {
-    keyFieldValue: string,
-    valueFieldValue: string,
-    wait: boolean,
-    seriesData: listItem[]
+    keyFieldValue: string;
+    valueFieldValue: string;
 }
 export interface ConnectedState {
     images: string[];
@@ -24,82 +23,43 @@ export interface ConnectedState {
 export interface ConnectedDispatch {
     addedImageAnnotation: (annotation: ImageAnnotation) => ImageAnnotationAddedAction;
 }
+
 export class AttributeFormComponent extends React.Component<ConnectedDispatch & ConnectedState, OwnState> {
 
     constructor(props) {
         super(props);
-
         this.state = {
             keyFieldValue: '',
             valueFieldValue: '',
-            wait: false,
-            seriesData: []
-        }
+        };
+
         this.handleClick = this.handleClick.bind(this);
         this.handleKeyFieldChange = this.handleKeyFieldChange.bind(this);
         this.handleValueFieldChange = this.handleValueFieldChange.bind(this);
     }
 
-    componentWillUpdate(nextProps, nextState) {
-        console.log('nextProps.series: ', nextProps.series);
-        console.log('this.props.series', this.props.series);
-        if (nextProps.series !== this.props.series) {
-            if (nextProps.series.length != 0) {
-                this.receiveAttributes(getLastValue(nextProps.series));
-            }
-        }
-    }
 
-    async receiveAttributes(id): Promise<void> {
-        this.setState({ wait: true });
-        let resData = await ApiService.getAttributes(id);
-
-        console.log('got data', resData);
-        if (resData.attributes) {
-            var listItems = [];
-            for (let data of resData.attributes) {
-                let tempData: listItem = {
-                    attribute: data.key,
-                    value: data.value
-                }
-                listItems.push(tempData);
-            }
-            console.log("listItems: ", listItems);
-            this.setState({ seriesData: listItems });
-        } else {
-            console.log("EMPTY RES DATA");
-            this.setState({ seriesData: [] });
-        }
-        this.setState({ wait: false });
-
-    }
 
     async handleClick(): Promise<void> {
-        console.log("Assign; Fields", this.state.keyFieldValue + ": " + this.state.valueFieldValue);
-        console.log("images", this.props.images);
-        console.log("series", this.props.series);
+        console.log('images', this.props.images);
+        console.log('series', this.props.series);
 
-        let resData;
-        //for (var img of Array.from(this.props.series.values())) {
-        // for (var img of this.props.images) {
-        //     console.log("IMAGE", img);
-        //     this.props.addedImageAnnotation({ imageId: img, key: this.state.keyFieldValue, value: Number(this.state.valueFieldValue) });
-        //     resData = await ApiService.putAttributes(img, { key: this.state.keyFieldValue, value: Number(this.state.valueFieldValue) })
-        //     console.log("resData", resData);
-        // }
-        for (var series of this.props.series) {
-            console.log("SERIES", series);
-            this.props.addedImageAnnotation({ imageId: series, key: this.state.keyFieldValue, value: Number(this.state.valueFieldValue) });
-            resData = await ApiService.putAttributes(series, { key: this.state.keyFieldValue, value: Number(this.state.valueFieldValue) })
-            console.log("resData", resData);
+        let valueNumber;
+        // If no value is entered in the value field, assign 1
+        if (this.state.valueFieldValue === null || this.state.valueFieldValue.trim() === '') {
+            valueNumber = 1;
+        } else {
+            valueNumber = Number(this.state.valueFieldValue);
         }
+
 
         this.setState({
             keyFieldValue: '',
             valueFieldValue: ''
         });
 
-        await this.receiveAttributes(getLastValue(Array.from(this.props.series)));
+        await addAttribute(this.props.addedImageAnnotation, this.props.series, this.state.keyFieldValue, valueNumber);
+       
     }
 
     handleKeyFieldChange(e) {
@@ -123,35 +83,27 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
 
         // Check if key field is empty
         let keyValue = this.state.keyFieldValue;
-        if (keyValue == null || keyValue.trim() == "") {
+        if (keyValue === null || keyValue.trim() === '') {
             inputIncorrect = true;
         }
 
         var attributeList;
-        if (this.props.series.length != 0) {
-            if (this.state.seriesData.length != 0) {
-                attributeList = <AttributeList listItems={this.state.seriesData} />
-                console.log(this.state.seriesData);
-            } else {
-                console.log("NO ATTRIBUTES");
-            }
-        } else {
-            console.log("NOTHING IS SELECTED");
-            inputIncorrect = true;
+        // Check if something is selected
+        if (this.props.series.length !== 0) {
+            attributeList = <AttributeList />;
         }
-        console.log("input incorrect", inputIncorrect);
- 
-        if (!this.state.wait) {
-            return (
-                <div >
-                    <Grid style={{ position: 'fixed' }} item xs={12} sm={12} md={12}>
+
+        return (
+            <div >
+                <Grid style={{ position: 'fixed', paddingRight: 10 }} item="true" xs={12} sm={12} md={12}>
+                    <Paper style={{ padding: 10 }}>
                         <div>
                             <TextField
-                                required
+                                required="true"
                                 error={inputIncorrect}
                                 id="keyField"
                                 label="Label"
-                                margin="normal"
+                                margin="dense"
                                 style={{ width: '100%' }}
                                 value={this.state.keyFieldValue}
                                 onChange={this.handleKeyFieldChange}
@@ -160,31 +112,37 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
                                 error={inputIncorrect}
                                 id="valueField"
                                 label="Value"
-                                margin="normal"
-                                style={{ width: '100%' }}
+                                margin="dense"
+                                style={{ width: '50%' }}
                                 value={this.state.valueFieldValue}
                                 onChange={this.handleValueFieldChange}
                             />
-                            <p />
-                            <Button disabled={inputIncorrect} id="assignButton" type="submit" raised color="primary" onClick={this.handleClick.bind(this)} style={{ display: "block", marginRight: 0}}>Assign</Button>
+                            <Button
+                                disabled={inputIncorrect}
+                                id="assignButton"
+                                type="submit"
+                                raised="true"
+                                color="primary"
+                                onClick={this.handleClick}
+                                style={{ float: 'right', marginTop: 20, marginBottom: 20 }}
+                            >
+                                Assign
+                                </Button>
                         </div>
-                        <div>
-                            {attributeList}
-                        </div>
-                    </Grid>
-                </div>);
-        } else {
-            return <div />
-        }
+                    </Paper>
+                    {attributeList}
+                </Grid>
+            </div>);
+
     }
 }
 
 function mapStateToProps(state: State): ConnectedState {
     console.log('series', state.ui.selections.series);
     let imagesFromState: string[] = [];
-    if (state.ui.selections.series.length != 0 && state.entities.series.byId.get(getLastValue(state.ui.selections.series)) != null) {
+    if (state.ui.selections.series.length !== 0 &&
+        state.entities.series.byId.get(getLastValue(state.ui.selections.series)) !== null) {
         imagesFromState = state.entities.series.byId.get(getLastValue(state.ui.selections.series)).images;
-        console.log("empty series");
     }
 
     return {
@@ -196,13 +154,31 @@ function mapStateToProps(state: State): ConnectedState {
 function mapDispatchToProps(dispatch: Redux.Dispatch<ImageAnnotationAddedAction>): ConnectedDispatch {
     return {
         addedImageAnnotation: (annotation: ImageAnnotation) => dispatch(imageAnnotationAdded(annotation)),
-    }
+    };
 }
 
 export const AttributeForm = connect(mapStateToProps, mapDispatchToProps)(AttributeFormComponent);
 
 export function getLastValue(set) {
     var value;
-    for (value of set);
-    return value;
+    for (value of set) {
+        return value;
+    }
+}
+
+export async function addAttribute(dispatchFunction, selection: string[], key: string, value: number): Promise<void> {
+    console.log("ADDING ATTRIBUTE");
+    let resData;
+    // for (var img of this.props.images) {
+    for (var series of selection) {
+        dispatchFunction({
+            imageId: series,
+            key: key,
+            value: value
+        });
+        resData = await ApiService.putAttributes(series, {
+            key: key,
+            value: value
+        });
+    }
 }

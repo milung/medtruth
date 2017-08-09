@@ -1,7 +1,6 @@
 import * as React from 'react';
 import * as Redux from 'redux';
 import Grid from 'material-ui/Grid';
-
 import { PatientProps } from './PatientView';
 import { imageStyle } from '../styles/ComponentsStyle';
 import { PatientView } from './PatientView';
@@ -43,7 +42,7 @@ class PatientViewerComponent extends React.Component<ConnectedState & ConnectedD
         this.receiveData(this.props.uploadID);
     }
 
-    async receiveData(uploadID): Promise<void> {
+    async receiveData(uploadID: number): Promise<void> {
         let patId = 10;
         let imageId = 10;
 
@@ -86,7 +85,14 @@ class PatientViewerComponent extends React.Component<ConnectedState & ConnectedD
                 <div >
                     <Grid container={true} gutter={16}>
                         {this.state.patientList.map(value =>
-                            <Grid item xs={12} sm={12} md={12} style={imageStyle.seriesStyle} key={value.patientId}>
+                            <Grid
+                                item="false"
+                                xs={12} 
+                                sm={12} 
+                                md={12}
+                                style={imageStyle.seriesStyle}
+                                key={value.patientId}
+                            >
                                 <PatientView {...value} />
                             </Grid>
                         )}

@@ -2,12 +2,13 @@ import * as React from 'react';
 import * as Redux from 'redux';
 import Card, { CardContent, CardMedia } from 'material-ui/Card';
 import Typography from 'material-ui/Typography';
-import { ImageViewComponent } from "./ImageView";
-import { SeriesSelectedAction, seriesSelected, thumbnailBlownUp, ThumbnailBlownUpAction } from "../actions/actions";
-import { connect } from "react-redux";
-import { State } from "../app/store";
+import { ImageViewComponent } from './ImageView';
+import { SeriesSelectedAction, seriesSelected, thumbnailBlownUp, ThumbnailBlownUpAction } from '../actions/actions';
+import { connect } from 'react-redux';
+import { State } from '../app/store';
 import { imageStyle } from '../styles/ComponentsStyle';
-
+import Icon from 'material-ui/Icon';
+// import FontIcon from 'material-ui/Icon'
 
 export interface SeriesProps {
     seriesID: string;
@@ -25,28 +26,36 @@ export interface ConnectedState {
     seriesSelected: boolean;
 
 }
-
 class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch & ConnectedState, {}> {
+
+    private timer = null;
+
     constructor(props) {
         super(props);
         this.handleImageClick = this.handleImageClick.bind(this);
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
-
-        console.log("seria sa vykreslila s propsami", this.props);
+        this.displayAlbum = this.displayAlbum.bind(this);
     }
 
-    private timer = null;
-
     handleImageClick() {
-        if (this.timer) clearTimeout(this.timer);
-        this.timer = setTimeout(() => {
-            console.log("clicked on " + this.props.seriesID);
-            this.props.selectedSeries(this.props.seriesID);
-        }, 100);
+        if (this.timer) {
+            clearTimeout(this.timer);
+        }
+        this.timer = setTimeout(
+            () => {
+                console.log('clicked on ' + this.props.seriesID);
+                this.props.selectedSeries(this.props.seriesID);
+            },
+            100
+        );
     }
 
     handleDoubleClick() {
         clearTimeout(this.timer);
+    }
+
+    displayAlbum() {
+        alert('Iam in gallery');
     }
 
     render() {
@@ -55,12 +64,13 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
 
         return (
             <div>
+
                 <Card style={{ border: borderStyle }}>
                     <CardMedia>
                         <ImageViewComponent
                             imageName={this.props.src}
                             imageID={this.props.imageID}
-                            handler={this.handleImageClick.bind(this)}
+                            handler={this.handleImageClick}
                             blowUp={this.props.blowUp}
                             handleDouble={this.handleDoubleClick}
                         />
@@ -70,6 +80,13 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
                             {this.props.seriesDescription}
                         </Typography>
                     </CardContent>
+                    <a>
+                        <img
+                            src={require('../icons/icon1.png')}
+                            style={{ float: 'right', marginBottom: '5', marginRight: '5' }}
+                            onClick={this.displayAlbum}
+                        />
+                    </a>
                 </Card>
             </div>
         );
@@ -90,8 +107,7 @@ function mapDispatchToProps(dispatch: Redux.Dispatch<SeriesSelectedAction>): Con
     return {
         selectedSeries: (seriesID: string) => dispatch(seriesSelected(seriesID)),
         blowUp: (imageID: string) => dispatch(thumbnailBlownUp(imageID))
-
-    }
+    };
 }
 
 export const SerieView = connect(mapStateToProps, mapDispatchToProps)(SerieViewComponent);

@@ -6,6 +6,7 @@ export namespace ApiService {
     const uriUpload = apiEndpoint + '/upload';
     const uriImages = apiEndpoint + '/images';
     const uriDownload = apiEndpoint + '/download';
+    const uriLabels = apiEndpoint + '/labels';
 
     /*
         Route:      POST '/upload'
@@ -28,6 +29,11 @@ export namespace ApiService {
         errorMessage: string;
         upload_id: number;
         statuses: UploadStatus[];
+    }
+
+    export enum Status {
+        SUCCESFUL,
+        FAILED
     }
 
     export async function upload(...data: any[]): Promise<UploadResponse> {
@@ -122,7 +128,7 @@ export namespace ApiService {
         -------------------------------------------
         Returns the state of an image's attributes.
     */
-    export async function getAttributes(id: number) {
+    export async function getAttributes(id: string) {
         const url = uriImages + '/' + id + '/assign';
 
         let res: axios.AxiosResponse = await axios.default({
@@ -131,7 +137,32 @@ export namespace ApiService {
             headers: {}
         });
 
-        return { ...res.data }; 
+        return { ...res.data };
+    }
+
+    export async function deleteAttributes(id: string, ...attributes: Attribute[]) {
+        const url = uriImages + '/' + id + '/assign';
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'DELETE',
+            url: url,
+            headers: { 'Content-Type': 'application/json' },
+            data: { attributes }
+        });
+
+        return res.status === Status.SUCCESFUL ? true : false;
+    }
+
+    export async function getLabels() {
+        const url = uriLabels;
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'GET',
+            url: url,
+            headers: {}
+        });
+
+        return { ...res.data };
     }
 
     export async function getDownload() {

@@ -1,9 +1,11 @@
 
-import { storagePath, imagePath } from './constants';
-
 export namespace Converter {
-    const exePath   = 'dcmj2pnm';
-    const exec      = require('child_process').exec;
+    let dicomPath = 'uploads/';
+    let imagePath = 'images/';
+
+    const exePath = 'dcmj2pnm';
+    //const exec = require('child_process').exec;
+    const execFile = require('child_process').execFile;
 
     export enum Status {
         SUCCESSFUL,
@@ -12,17 +14,29 @@ export namespace Converter {
 
     const convert = (dicomName: string, args: string[]): Promise<Status> => {
         return new Promise((resolve, reject) => {
-            let dicomSrcPath    = storagePath + dicomName;
-            let imgSrcPath      = imagePath + dicomName + '.png';
-            let cmd             = exePath + ' ' + dicomSrcPath + ' ' + imgSrcPath;
+            let dicomSrcPath = dicomPath + dicomName;
+            let imgSrcPath = imagePath + dicomName + '.png';
+            args.unshift(imgSrcPath);
+            args.unshift(dicomSrcPath);
+            execFile(exePath, args, { cwd: 'out/' }, (error, stdout, stderr) => {
+                if (error === null) {
+                    console.log("[Converting] " + dicomName + " OK ✔️");
+                    resolve(Status.SUCCESSFUL);
+                }
+                else {
+                    console.log("[Converting] " + dicomName + " FAIL ❌");
+                    console.log(error);
+                    console.log("stdout");
+                    console.log(stdout);
+                    console.log("stderr");
+                    console.log(stderr);
 
-            args.forEach((arg) => {
-                cmd = cmd + ' ' + arg;
+
+
+                    reject(Status.FAILED);
+                }
             });
-            exec(cmd, (error, stdout, stderr) => {
-                if (error === null) resolve(Status.SUCCESSFUL);
-                else                reject(Status.FAILED);
-            });
+
         });
     }
 
@@ -32,7 +46,9 @@ export namespace Converter {
             '--write-16-bit-png',
             '--min-max-window',
             '--no-overlays',
-            '--interpolate 3'
+            '--interpolate',
+            '3',
+
         ]);
     }
 }
