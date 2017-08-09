@@ -304,12 +304,13 @@ export namespace AzureDatabase {
         seriesID:   string;
     }
     
-    interface SeriesImages {
-        images: string[];
+    interface SeriesImage {
+        imageID: string;
+        imageNumber: number;
     }
 
-    export function getImagesBySeriesId(req: SeriesRequest): Promise<SeriesImages> {
-        return new Promise<SeriesImages>(async (resolve, reject) => {
+    export function getImagesBySeriesId(req: SeriesRequest): Promise<SeriesImage[]> {
+        return new Promise<SeriesImage[]>(async (resolve, reject) => {
             try {
                 var conn = await connectToImages();
                 let query = { uploadID: req.uploadID };
