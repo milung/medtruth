@@ -46,9 +46,11 @@ export class UploadController {
 
         // Convert, upload and parse the files.
         await this.convert(files);
+        let createThumbnails = this.createThumbnails();
         await this.upload();
         let json = await this.parse();
         await AzureDatabase.insertToImagesCollection(json);
+        await createThumbnails;
 
         // Cleanup.
         files.forEach((file) => {
@@ -56,7 +58,7 @@ export class UploadController {
             fs.unlink(file.path, () => { });
             console.log("[Deleting files] image: " + file.filename);
             fs.unlink(imagePath + file.filename + ".png", () => { });
-            console.log("[Deleting files] file: "+file.filename+" OK ✔️");
+            console.log("[Deleting files] file: " + file.filename + " OK ✔️");
         });
 
         // Grab all ChainStatuses and map them to UploadStatuses.
@@ -187,7 +189,7 @@ export class UploadController {
                 // In case of even numbers, for example 4, Math.round would give 3rd element as the middle one
                 // Math.floor would return the 2nd element 
                 var middle = images[Math.floor((images.length - 1) / 2)];
-                await this.createThumbnail(middle.imageID);
+                //await this.createThumbnail(middle.imageID);
 
                 json.studies.find((stud) => {
                     return stud.studyID === study;
@@ -201,6 +203,49 @@ export class UploadController {
         return json;
     }
 
+    async createThumbnails() {
+        // Iterate over conversions and send them to the Azure.
+        const thumbnails = this.responses.map(async (thumbnail) => {
+            try {
+                if (thumbnail.err) return thumbnail;
+                console.log(thumbnail);
+                this.createThumbnail(thumbnail.filename);
+
+            } catch (e) {
+                // If anything happened during uploading, assign an error to the response.
+                console.log('[Uploading] file: ' + thumbnail.filename + ' FAIL ❌');
+                console.log(e);
+                thumbnail.err = "Storage Error";
+            }
+            return thumbnail;
+        });
+        // Await for all uploads.
+        return await Promise.all(thumbnails);
+    }
+
+
+    createThumbnail(imageID){
+        jimp.read(imagePath + imageID + ".png", async function (err, image) {
+                // do stuff with the image (if no exception) 
+                let thumbnail = imagePath + imageID + '_.png';
+                if (err === null) {
+                    image.background(0x000000FF)
+                        .contain(300, 300)
+                        .write(thumbnail, async (err, image) => {
+                            if (err === null) {
+                                await AzureStorage.toImages(imageID + '_.png', thumbnail);
+                                fs.unlink(thumbnail, () => { });
+                            } else {
+                            }
+                        });
+
+                } else {
+                    console.log("[Create Thumbnail] Error");
+                    console.log(err);
+                }
+            });
+    }
+/*
     createThumbnail(imageID) {
         return new Promise<string>((resolve, reject) => {
             jimp.read(imagePath + imageID + ".png", async function (err, image) {
@@ -227,5 +272,8 @@ export class UploadController {
             });
         });
     }
+    */
+
+
 
 }

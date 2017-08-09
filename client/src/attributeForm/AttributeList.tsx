@@ -3,7 +3,7 @@ import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Ta
 import Checkbox from 'material-ui/Checkbox';
 import Paper from 'material-ui/Paper';
 import { ApiService } from '../api';
-import { addAttribute, getLastValue } from "./AttributeForm";
+import { addAttribute, getLastValue } from './AttributeForm';
 import * as Redux from 'redux';
 import { connect } from 'react-redux';
 import { State } from '../app/store';
@@ -21,7 +21,7 @@ export interface ConnectedState {
 }
 
 export interface ListItem {
-    attribute: string;
+    key: string;
     value: number;
 }
 
@@ -30,6 +30,8 @@ export interface ConnectedDispatch {
 }
 
 export class AttributeListComponent extends React.Component<ConnectedDispatch & ConnectedState, OwnState> {
+    private updating = false;
+
     constructor(props) {
         super(props);
 
@@ -39,54 +41,68 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
             listItems: []
         };
 
-        this.receiveAttributes(getLastValue(this.props.series));
+        //this.receiveAttributes(getLastValue(this.props.series));
     }
 
-    componentWillUpdate(nextProps, nextState) {
-        // console.log('nextProps.series: ', nextProps.series);
-        // console.log('this.props.series', this.props.series);
-        if (nextProps.series !== this.props.series) {
-            if (nextProps.series.length !== 0) {
-                this.receiveAttributes(getLastValue(nextProps.series));
+    async componentWillReceiveProps(nextProps: ConnectedState) {
+        console.log('COMPONENT WILL RECEIVE PROPS');
+        console.log('COMPONENT next annotations', nextProps.annotations);
+        console.log('COMPONENT old annotations', this.props.annotations);
+        if (nextProps.annotations !== this.props.annotations) {
+            if (nextProps.annotations.length !== 0) {
+                console.log('UPDATED, COMPONENT WILL MOUNT');
+                this.updating = true;
+                await this.receiveAttributes(getLastValue(this.props.series));
             }
         }
     }
 
-    async receiveAttributes(id: string): Promise<void> {
+    async receiveAttributes(id: string) {
         this.setState({ wait: true });
-        let resData = await ApiService.getAttributes(id);
-
+        let resData = await ApiService.getAttributes(getLastValue(this.props.series));
+        console.log('COMPONENT GETTING DATA...');
         console.log('got data', resData);
         if (resData.attributes) {
             var listItems = [];
             var checkboxes = [];
             for (let data of resData.attributes) {
                 listItems.push({
-                    attribute: data.key,
+                    key: data.key,
                     value: data.value
                 });
                 (data.value > 0) ? checkboxes.push(true) : checkboxes.push(false);
-
-                // this.props.addedImageAnnotation({
-                //     imageId: id,
-                //     key: data.key,
-                //     value: data.value
-                // });
             }
-            this.setState({ listItems: listItems, activeCheckboxes: checkboxes });
+            this.setState({ listItems: listItems, activeCheckboxes: checkboxes }, () => {
+                console.log('SET NEW STATE');
+                console.log('CHECKBOXES', this.state.activeCheckboxes);
+                console.log('LISTITEMS', listItems);
+
+                if (!this.updating) {
+                    for (var item of listItems) {
+                        this.props.addedImageAnnotation({
+                            imageId: getLastValue(this.props.series),
+                            key: item.key,
+                            value: item.value
+                        });
+                    }
+                    this.updating = false;
+                }
+            });
         } else {
             this.setState({ listItems: [], activeCheckboxes: [] });
         }
         this.setState({ wait: false });
-        console.log("checkboxes", this.state.activeCheckboxes);
+    }
+
+    async componentDidMount() {
+        console.log('COMPONENT DID MOUNT');
+        await this.receiveAttributes(getLastValue(this.props.series));
     }
 
     render() {
         // Check if selected series/image has any attributes
-        if (this.state.listItems.length !== 0) {
-            console.log("ATTRIBUTE LIST SHOULD RENDER");
-
-            // if (!this.state.wait) {
+        console.log('ATTRIBUTE LIST ITEMS', this.state.listItems);
+        if (this.state.listItems.length !== 0 && !this.state.wait) {
             return (
                 <div>
                     <Paper style={{ maxHeight: '65vh', overflowY: 'auto', width: '100%' }}>
@@ -99,6 +115,7 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                             </TableHead>
                             <TableBody >
                                 {this.state.listItems.map((item, i) => {
+                                    {/* {this.props.annotations.map((item, i) => { */ }
                                     {/* var checked = false;
                                 var indeterminate = false;
                                 //console.log(item.value);
@@ -116,23 +133,36 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                                                     indeterminate={false}
                                                     onChange={async (event: object, checked: boolean) => {
                                                         var checkboxes: boolean[] = [...this.state.activeCheckboxes];
+                                                        console.log('OLD CHECKBOXES', checkboxes);
+                                                        checkboxes[i] = !checkboxes[i];
+                                                        console.log('NEW CHECKBOXES', checkboxes);
+                                                        await addAttribute(
+                                                            this.props.addedImageAnnotation,
+                                                            this.props.series,
+                                                            item.key, checkboxes[i] ? 1 : 0
+                                                        );
+
+                                                        this.setState({
+                                                            activeCheckboxes: checkboxes,
+                                                        });
+                                                        {/* var checkboxes: boolean[] = [...this.state.activeCheckboxes];
+                                                        console.log(this.state.activeCheckboxes);
                                                         checkboxes[i] = !checkboxes[i];
                                                         var items = [...this.state.listItems];
                                                         items[i].value = checkboxes[i] ? 1 : 0;
-                                                        
+
                                                         this.setState({
                                                             activeCheckboxes: checkboxes,
                                                             listItems: items
-                                                        });
-
-                                                        addAttribute(this.props.addedImageAnnotation, this.props.series, item.attribute, checkboxes[i] ? 1 : 0);
+                                                        }, () => {
+                                                            console.log(this.state.activeCheckboxes);
+                                                        }); */}
                                                     }}
                                                 />
-                                                {item.attribute}
+                                                {item.key}
                                             </TableCell>
                                             <TableCell >
                                                 {item.value}
-                                                {/*this.state.activeCheckboxes.indexOf(item.attribute) >= 0 ? 1 : 0*/}
                                             </TableCell>
                                         </TableRow>
                                     );
@@ -148,22 +178,31 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
     }
 }
 
-
 function mapStateToProps(state: State): ConnectedState {
     console.log('series', state.ui.selections.series);
     let imagesFromState: string[] = [];
     let annotations: ImageAnnotation[] = [];
     if (state.ui.selections.series.length !== 0 &&
         state.entities.series.byId.get(getLastValue(state.ui.selections.series)) !== null) {
-        imagesFromState = state.entities.series.byId.get(getLastValue(state.ui.selections.series)).images;
+        console.log('GETTING ANNOTATIONS');
+        // imagesFromState = state.entities.series.byId.get(getLastValue(state.ui.selections.series)).images;
 
-        //state.entities.images.byId.get(getLastValue(state.ui.selections.images)).annotations;
+        // For now imageID in redux is seriesID
+        annotations = state.entities.images.byId.get(getLastValue(state.ui.selections.series)).annotations;
+        console.log('annotations', annotations);
+        // for (var img of imagesFromState) {
+        //     annotations.push(img.an)
+        // }
+
+        // state.entities.images.byId.get(getLastValue(state.ui.selections.images)).annotations;
         // TODO GET ANNOTATIONS FROM REDUX STATE
         // for (var img of imagesFromState) {
         //     annotations.push(img.an)
         // }
     }
-
+    console.log(imagesFromState);
+    console.log(state.ui.selections.series);
+    console.log(annotations);
     return {
         images: imagesFromState,
         series: state.ui.selections.series,

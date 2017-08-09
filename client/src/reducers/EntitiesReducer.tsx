@@ -62,47 +62,25 @@ const processImageAnnotationAddedAction =
                 imageId: imageAnnotation.imageId,
                 annotations: []
             };
+            newImageEntity.annotations.push(imageAnnotation);
         } else {
             newImageEntity = { ...imageEntity };
-
-            var newValue;
-            console.log('image entity annotations' + imageEntity.annotations);
-            /*
-            for (var annotation of imageEntity.annotations) {
-                // Check if annotation already IS assigned to the image
-                (annotation.key === action.annotation.key) ? newValue = action.annotation.value : newValue = annotation.value;
-                //console.log(annotation.imageId + ' ' + annotation.key + ' ' + newValue);
-                newImageEntity.annotations.push({
-                    imageId: annotation.imageId,
-                    key: annotation.key,
-                    value: newValue
-                });
-            }
-            */
-
-            //newImageEntity.annotations = [...imageEntity.annotations];
-
-            var newAnnotation = imageAnnotation;
+            newImageEntity.annotations = [...imageEntity.annotations];
+            var annotationExists = false;
             for (var annotation of newImageEntity.annotations) {
                 // Check if annotation already IS assigned to the image
-                if (annotation.key === action.annotation.key) {
-                    console.log(annotation.key + "FOUND THE SAME ANNOTATION!");
-                    newAnnotation = annotation;
-                    newAnnotation.value = action.annotation.value;
-                    newImageEntity.annotations.push(newAnnotation);
-                    console.log("pushed annotation " + newAnnotation.key + " " + newAnnotation.value);
+                // If yes, just change the value of the annotation
+                if (annotation.key === imageAnnotation.key) {
+                    annotation.value = imageAnnotation.value;
+                    annotationExists = true;
                     break;
-                    //console.log(annotation.imageId + ' ' + annotation.key + ' ' + newValue);
-                    //annotation.value = action.annotation.value;
-                } else {
-                     newImageEntity.annotations.push(annotation);
-                     console.log("pushed annotation " + annotation.key + " " + annotation.value);
                 }
             }
-
-            console.log('NEW new image entity annotations' + newImageEntity.annotations);
+            // If not, add new image annotation
+            if (!annotationExists) {
+                newImageEntity.annotations.push(imageAnnotation);
+            }
         }
-        //newImageEntity.annotations.push(imageAnnotation);
         newState.images.byId.set(newImageEntity.imageId, newImageEntity);
         return newState;
     };
@@ -123,6 +101,14 @@ const processUploadDataDownloadedAction =
                         { imageId, annotations: [], seriesId: series.seriesID }
                     );
                 }
+
+                // TODO delete later when gallery of images is working
+                // FOR NOW SAVE SERIES ID AS IMAGE
+                newState.images.byId.set(
+                    series.seriesID,
+                    { imageId: series.seriesID, annotations: [], seriesId: series.seriesID }
+                );
+
                 newState.series.byId.set(
                     series.seriesID,
                     {
