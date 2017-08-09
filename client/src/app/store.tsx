@@ -4,7 +4,7 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import { filesReducer, FilesState } from '../reducers/FilesReducer';
 import { UIState, uiReducer } from '../reducers/UIReducer';
 import { entitiesReducer } from '../reducers/EntitiesReducer';
-//import { freeze } from 'redux-freeze';
+// import { freeze } from 'redux-freeze';
 import { EntitiesState } from '../reducers/EntitiesReducer';
 
 const rootReducer = combineReducers({
@@ -24,5 +24,5 @@ const composeEnhancers = composeWithDevTools({
 });
 
 export const store = createStore(rootReducer, composeEnhancers(
-    //applyMiddleware(freeze)
+    // applyMiddleware(freeze)
 ));

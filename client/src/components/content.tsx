@@ -18,12 +18,11 @@ interface OwnState {
 }
 
 interface ConnectedState {
-    showBlowUp: boolean,
-    imageID: string
+    showBlowUp: boolean;
+    imageID: string;
 }
 
 class ContentComponent extends React.Component<OwnProps & ConnectedState, OwnState> {
-
     render() {
         return (
             <div>
@@ -36,7 +35,6 @@ class ContentComponent extends React.Component<OwnProps & ConnectedState, OwnSta
     }
 }
 
-
 function mapStateToProps(state: State): ConnectedState {
     return {
         showBlowUp: state.ui.isBlownUpShowed,
@@ -44,7 +42,4 @@ function mapStateToProps(state: State): ConnectedState {
     };
 }
 
-
 export const Content = connect(mapStateToProps, null)(ContentComponent);
-
-

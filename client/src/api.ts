@@ -2,10 +2,12 @@
 import * as axios from 'axios';
 
 export namespace ApiService {
-    const apiEndpoint = '/api';
-    //const apiEndpoint = 'http://localhost:8080/api'
+    //const apiEndpoint = '/api';
+    const apiEndpoint = 'http://localhost:8080/api'
     const uriUpload = apiEndpoint + '/upload';
     const uriImages = apiEndpoint + '/images';
+    const uriDownload = apiEndpoint + '/download';
+    const uriLabels = apiEndpoint + '/labels';
 
     /*
         Route:      POST '/upload'
@@ -28,6 +30,11 @@ export namespace ApiService {
         errorMessage: string;
         upload_id: number;
         statuses: UploadStatus[];
+    }
+
+    export enum Status {
+        SUCCESFUL,
+        FAILED
     }
 
     export async function upload(...data: any[]): Promise<UploadResponse> {
@@ -146,7 +153,7 @@ export namespace ApiService {
         -------------------------------------------
         Returns the state of an image's attributes.
     */
-    export async function getAttributes(id: number) {
+    export async function getAttributes(id: string) {
         const url = uriImages + '/' + id + '/assign';
 
         let res: axios.AxiosResponse = await axios.default({
@@ -156,5 +163,44 @@ export namespace ApiService {
         });
 
         return { ...res.data };
+    }
+
+    export async function deleteAttributes(id: string, labels: string[]) {
+        const url = uriImages + '/' + id + '/assign';
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'DELETE',
+            url: url,
+            headers: { 'Content-Type': 'application/json' },
+            data: { labels }
+        });
+
+        return res.status === Status.SUCCESFUL ? true : false;
+    }
+
+    export async function getLabels() {
+        const url = uriLabels;
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'GET',
+            url: url,
+            headers: {}
+        });
+
+        return { ...res.data };
+    }
+
+    export async function getDownload() {
+        const url = uriDownload;
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'GET',
+            url: url,
+            headers: {
+                'Accept': 'application/zip'
+            },
+        });
+
+        return res.data;
     }
 }

@@ -7,29 +7,26 @@ let overflowAuto: overflow = 'auto';
 
 export const imageStyle = {
     seriesStyle: {
-        //maxWidth: '20%',
-        //maxHeight: '15%',
-        //borderStyle: 'solid'
+        // maxWidth: '20%',
+        // maxHeight: '15%',
+        // borderStyle: 'solid'
     },
-     contentCenter:{
+    contentCenter: {
         wordWrap: 'break-word',
     },
-
     img: {
         maxWidth: '100%',
         maxHeight: '100%',
         align: 'middle',
         display: 'block',
         margin: 'auto',
-              
-        //padding: '2px'
+        // padding: '2px'
     },
     iconButtonStyle: {
         position: 'absolute',
         right: '-25px',
         top: '-25px'
     },
-
     blowUpDiv: {
         padding: 5,
         textAlign: 'center',
@@ -49,7 +46,7 @@ export const imageStyle = {
         position: posFixed,
         top: 0,
         left: 0,
-        background: "rgba(0, 0, 0, 0.6)",
+        background: 'rgba(0, 0, 0, 0.6)',
         zIndex: 5,
         width: '75%',
         height: '100%',
@@ -57,4 +54,4 @@ export const imageStyle = {
         paddingTop: '70px',
         overflow: overflowAuto
     }
-}
+};

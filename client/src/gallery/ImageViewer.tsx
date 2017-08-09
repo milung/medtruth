@@ -1,18 +1,14 @@
 import * as React from 'react';
 import * as Redux from 'redux';
 import Grid from 'material-ui/Grid';
-
 import { imageStyle } from '../styles/ComponentsStyle';
-
 import { ApiService } from '../api';
 import { connect } from 'react-redux';
 import { State } from '../app/store';
 import { UploadJSON, UploadDataDownloadedAction, uploadDataDowloaded } from '../actions/actions';
-import { ImageViewComponent } from "./ImageView";
+import { ImageViewComponent } from './ImageView';
 import Card, { CardContent } from 'material-ui/Card';
 import Typography from 'material-ui/Typography';
-
-
 
 interface ConnectedState {
     uploadID: number;
@@ -31,14 +27,13 @@ interface ArrayOfImages {
     list: ImageProps[];
 }
 
-let MOCimages = []
+let MOCimages = [];
 
 for (let i = 0; i <= 50; i++) {
-
     let image = {
-        imageID: i + "",
-        imageName: "2"
-    }
+        imageID: i + '',
+        imageName: '2'
+    };
     MOCimages.push(image);
 }
 
@@ -48,10 +43,8 @@ export class ImageViewerComponent extends React.Component<{}, {}> {
         super();
         this.state = {
             wait: false,
-            //patientList: []
+            // patientList: []
         };
-
-
     }
 
     // componentWillUpdate(nextProps, nextState) {
@@ -100,9 +93,9 @@ export class ImageViewerComponent extends React.Component<{}, {}> {
             <div >
                 <Grid container={true} gutter={16}>
                     {MOCimages.map(value =>
-                        <Grid item xs={12} sm={6} md={4} lg={3} xl={2} style={imageStyle.seriesStyle} >
+                        <Grid item="false" xs={12} sm={6} md={4} lg={3} xl={2} style={imageStyle.seriesStyle} >
                             <Card>
-                                <ImageViewComponent {...value} />                                
+                                <ImageViewComponent {...value} />
                             </Card>
                         </Grid>
 
@@ -112,10 +105,4 @@ export class ImageViewerComponent extends React.Component<{}, {}> {
             </div>
         );
     }
-
 }
-
-
-
-
-

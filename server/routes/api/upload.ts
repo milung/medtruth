@@ -8,6 +8,7 @@ import { UploadController } from '../../controllers/upload';
 import { StatusCode, storagePath, imagePath } from '../../constants';
 import { AzureStorage, AzureDatabase } from '../../azure-service';
 import { JSONCreator } from '../../Objects';
+
 export const rootUpload = '/upload';
 export const routerUpload = express.Router();
 
@@ -39,7 +40,7 @@ routerUpload.options('/', (req, res) => {
     return res.json(
         {
             endpoint: '/api/upload',
-            message: 'Uploads is an endpoint for uploading series of DICOM images.'
+            message: 'Upload is an endpoint for uploading series of DICOM images.'
         }
     );
 });

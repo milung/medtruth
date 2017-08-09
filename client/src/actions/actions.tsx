@@ -9,6 +9,7 @@ export enum ActionTypeKeys {
     SERIES_ALL_UNSELECTED = 'SERIES_ALL_UNSELECTED',
     IMAGE_ANNOTATION_ADDED = 'IMAGE_ANNOTATION_ADDED',
     UPLOAD_DATA_DOWNLOADED = 'UPLOAD_DATA_DOWNLOADED',
+    // IMAGE_ANNOTATION_SELECTED = 'IMAGE_ANNOTATION_SELECTED',
     OTHER_ACTION = 'OTHER_ACTION'
 }
 
@@ -54,6 +55,11 @@ export interface UploadDataDownloadedAction {
     type: ActionTypeKeys.UPLOAD_DATA_DOWNLOADED;
     upload: UploadJSON; 
 }
+
+// export interface ImageAnnotationSelected {
+//     type: ActionTypeKeys.LABEL_SELECTED;
+
+// }
 
 export interface OtherAction {
     type: ActionTypeKeys.OTHER_ACTION;
@@ -112,12 +118,19 @@ export type ActionType =
     | SeriesAllUnselectedAction
     | ImageAnnotationAddedAction
     | UploadDataDownloadedAction
+    // | LabelSelected
     | OtherAction;
     
 export interface ImageAnnotation {
     imageId: string;
     key: string;
     value: number;
+}
+
+export interface ImageLabel {
+    imageId: string;
+    key: string;
+    checked: boolean;
 }
 
 export interface UploadJSON {
