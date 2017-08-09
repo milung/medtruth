@@ -32,8 +32,6 @@ export default class InnerComponent extends React.Component<OwnProps, OwnState> 
 
     render() {
         console.log("rendering inner component");
-        console.log(this.state);
-        console.log(this.props.match.params);
 
         return (
             <div>
