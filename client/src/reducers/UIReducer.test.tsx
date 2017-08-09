@@ -1,5 +1,6 @@
 import { uiReducer, UIState } from './UIReducer';
-import { OtherAction, ActionTypeKeys, ImageSelectedAction, SeriesSelectedAction, UploadDataDownloadedAction } from '../actions/actions';
+import { OtherAction, ActionTypeKeys, ImageSelectedAction, 
+    SeriesSelectedAction, UploadDataDownloadedAction, Keys } from '../actions/actions';
 
 describe('UIReducer', () => {
 
@@ -65,27 +66,13 @@ describe('UIReducer', () => {
         expect(newState.selections.images.indexOf('aaaaa') === -1).toBeTruthy();
     });
 
-    it('should handle SeriesSelectedAction (select series)', () => {
+    it('should handle simple SeriesSelectedAction (select series)', () => {
 
         // given
         let seriesSelectedAction: SeriesSelectedAction = {
             type: ActionTypeKeys.SERIES_SELECTED,
-            id: 'abcd1234'
-        };
-
-        // when
-        let newState: UIState = uiReducer(undefined, seriesSelectedAction);
-
-        // then
-        expect(newState.selections.series.indexOf('abcd1234') !== -1).toBeTruthy();
-    });
-
-    it('should handle SeriesSelectedAction (deselect series)', () => {
-
-        // given
-        let seriesSelectedAction: SeriesSelectedAction = {
-            type: ActionTypeKeys.SERIES_SELECTED,
-            id: 'abcd1234'
+            id: 'abcd5678',
+            keyPressed: Keys.NONE
         };
 
         let prevState: UIState = {
@@ -93,7 +80,7 @@ describe('UIReducer', () => {
             blownUpThumbnailId: '',
             selections: {
                 images: [],
-                series: ['1234abcd', 'abcd1234']
+                series: ['abcd1234']
             }
         };
 
@@ -102,6 +89,84 @@ describe('UIReducer', () => {
 
         // then
         expect(newState.selections.series.indexOf('abcd1234') === -1).toBeTruthy();
+        expect(newState.selections.series.indexOf('abcd5678') !== -1).toBeTruthy();
+    });
+
+    it('should handle simple SeriesSelectedAction (deselect series)', () => {
+
+        // given
+        let seriesSelectedAction: SeriesSelectedAction = {
+            type: ActionTypeKeys.SERIES_SELECTED,
+            id: 'abcd1234',
+            keyPressed: Keys.NONE
+        };
+
+        let prevState: UIState = {
+            isBlownUpShowed: false,
+            blownUpThumbnailId: '',
+            selections: {
+                images: [],
+                series: ['abcd1234']
+            }
+        };
+
+        // when
+        let newState: UIState = uiReducer(prevState, seriesSelectedAction);
+
+        // then
+        expect(newState.selections.series.indexOf('abcd1234') === -1).toBeTruthy();
+    });
+
+    it('should handle CTRL SeriesSelectedAction (select series)', () => {
+
+        // given
+        let seriesSelectedAction: SeriesSelectedAction = {
+            type: ActionTypeKeys.SERIES_SELECTED,
+            id: 'abcd5678',
+            keyPressed: Keys.CTRL
+        };
+
+        let prevState: UIState = {
+            isBlownUpShowed: false,
+            blownUpThumbnailId: '',
+            selections: {
+                images: [],
+                series: ['abcd1234']
+            }
+        };
+
+        // when
+        let newState: UIState = uiReducer(prevState, seriesSelectedAction);
+
+        // then
+        expect(newState.selections.series.indexOf('abcd1234') !== -1).toBeTruthy();
+        expect(newState.selections.series.indexOf('abcd5678') !== -1).toBeTruthy();
+    });
+
+    it('should handle CTRL SeriesSelectedAction (deselect series)', () => {
+
+        // given
+        let seriesSelectedAction: SeriesSelectedAction = {
+            type: ActionTypeKeys.SERIES_SELECTED,
+            id: 'abcd5678',
+            keyPressed: Keys.CTRL
+        };
+
+        let prevState: UIState = {
+            isBlownUpShowed: false,
+            blownUpThumbnailId: '',
+            selections: {
+                images: [],
+                series: ['abcd1234', 'abcd5678']
+            }
+        };
+
+        // when
+        let newState: UIState = uiReducer(prevState, seriesSelectedAction);
+
+        // then
+        expect(newState.selections.series.indexOf('abcd1234') !== -1).toBeTruthy();
+        expect(newState.selections.series.indexOf('abcd5678') === -1).toBeTruthy();
     });
 
     it('should handle UploadDataDownloadedAction (deselect all series and images)', () => {

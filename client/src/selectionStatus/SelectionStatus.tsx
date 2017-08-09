@@ -21,7 +21,7 @@ export class SelectionStatusComponent extends React.Component<ConnectedState & C
     }
 
     render() {
-        let display = this.props.images.length === 0 ? false : true;
+        let display = this.props.images.length <= 1 ? false : true;
         let selected = 'Selected ' + this.props.images.length + ' images';
         let action = 'UNSELECT';
         return (

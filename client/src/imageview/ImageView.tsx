@@ -6,7 +6,7 @@ import { ApiService } from '../api';
 interface ImageProps {
     imageID: string;
     imageName: string;
-    handler: (...args: any[]) => void;
+    handler: (event: {}) => void;
     blowUp: (imageID: string) => void;
     handleDouble: () => void;
 }

@@ -3,14 +3,14 @@ import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Ta
 import Checkbox from 'material-ui/Checkbox';
 import Paper from 'material-ui/Paper';
 import { ApiService } from '../api';
-import { addAttribute, getLastValue } from './AttributeForm';
+import { changeAttribute, getLastValue } from './AttributeForm';
 import * as Redux from 'redux';
 import { connect } from 'react-redux';
 import { State } from '../app/store';
 import { ImageAnnotation, ImageAnnotationAddedAction, imageAnnotationAdded } from '../actions/actions';
 
 export interface OwnState {
-    activeCheckboxes: boolean[];
+    checkboxes: boolean[];
     wait: boolean;
     listItems: ListItem[];
 }
@@ -36,7 +36,7 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
         super(props);
 
         this.state = {
-            activeCheckboxes: [],
+            checkboxes: [],
             wait: false,
             listItems: []
         };
@@ -59,22 +59,59 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
 
     async receiveAttributes(id: string) {
         this.setState({ wait: true });
+
+        let labels: string[] = await ApiService.getLabels();
+        console.log('labels', labels);
+
         let resData = await ApiService.getAttributes(getLastValue(this.props.series));
         console.log('COMPONENT GETTING DATA...');
-        console.log('got data', resData);
-        if (resData.attributes) {
+        console.log('attributes', resData);
+
+        //if (labels && resData.attributes) {
+        // Even if no attributes are assigned to the image, the list of all labels should be shown
+        if (labels) {
             var listItems = [];
             var checkboxes = [];
-            for (let data of resData.attributes) {
+            for (let label of labels) {
+                var labelFound = false;
+                var value;
+                if (resData.attributes) {
+                    console.log('label ATTRIBUTES', resData.attributes);
+                    for (let data of resData.attributes) {
+                        if (data.key === label) {
+                            labelFound = true;
+                            value = data.value;
+                            // (data.value > 0) ? checkboxes.push(true) : checkboxes.push(false);
+                            break;
+                        }
+                    }
+                }
+                if (labelFound) {
+                    // If label was already assigned to selected img
+                    checkboxes.push(true);
+                    console.log(label + 'LABEL FOUND');
+                } else {
+                    checkboxes.push(false);
+                    console.log(label + 'LABEL NOT FOUND');
+                    value = -1;
+                }
+                console.log(label + ' value ' + value);
                 listItems.push({
-                    key: data.key,
-                    value: data.value
+                    key: label,
+                    value: value
                 });
-                (data.value > 0) ? checkboxes.push(true) : checkboxes.push(false);
             }
-            this.setState({ listItems: listItems, activeCheckboxes: checkboxes }, () => {
+            console.log('labels end');
+            // for (let data of resData.attributes) {
+            //     listItems.push({
+            //         key: data.key,
+            //         value: data.value
+            //     });
+            //     (data.value > 0) ? checkboxes.push(true) : checkboxes.push(false);
+            // }
+            this.setState({ listItems: listItems, checkboxes: checkboxes }, () => {
                 console.log('SET NEW STATE');
-                console.log('CHECKBOXES', this.state.activeCheckboxes);
+                console.log('CHECKBOXES', this.state.checkboxes);
                 console.log('LISTITEMS', listItems);
 
                 if (!this.updating) {
@@ -89,7 +126,7 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                 }
             });
         } else {
-            this.setState({ listItems: [], activeCheckboxes: [] });
+            this.setState({ listItems: [], checkboxes: [] });
         }
         this.setState({ wait: false });
     }
@@ -102,7 +139,8 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
     render() {
         // Check if selected series/image has any attributes
         console.log('ATTRIBUTE LIST ITEMS', this.state.listItems);
-        if (this.state.listItems.length !== 0 && !this.state.wait) {
+        //if (this.state.listItems.length !== 0 && !this.state.wait) {
+        if (!this.state.wait) {
             return (
                 <div>
                     <Paper style={{ maxHeight: '65vh', overflowY: 'auto', width: '100%' }}>
@@ -129,21 +167,26 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                                         <TableRow key={i}>
                                             <TableCell checkbox="true" >
                                                 <Checkbox
-                                                    checked={this.state.activeCheckboxes[i]}
+                                                    checked={this.state.checkboxes[i]}
                                                     indeterminate={false}
                                                     onChange={async (event: object, checked: boolean) => {
-                                                        var checkboxes: boolean[] = [...this.state.activeCheckboxes];
+                                                        var checkboxes: boolean[] = [...this.state.checkboxes];
                                                         console.log('OLD CHECKBOXES', checkboxes);
+                                                        // If attribute was checked and now gets unchecked
+                                                        let deletingAttribute = false;
+                                                        if (checkboxes[i]) { deletingAttribute = true };
                                                         checkboxes[i] = !checkboxes[i];
                                                         console.log('NEW CHECKBOXES', checkboxes);
-                                                        await addAttribute(
+                                                        await changeAttribute(
+                                                            deletingAttribute,
                                                             this.props.addedImageAnnotation,
                                                             this.props.series,
+                                                            //TODO change this to images
                                                             item.key, checkboxes[i] ? 1 : 0
                                                         );
 
                                                         this.setState({
-                                                            activeCheckboxes: checkboxes,
+                                                            checkboxes: checkboxes,
                                                         });
                                                         {/* var checkboxes: boolean[] = [...this.state.activeCheckboxes];
                                                         console.log(this.state.activeCheckboxes);
@@ -185,11 +228,11 @@ function mapStateToProps(state: State): ConnectedState {
     if (state.ui.selections.series.length !== 0 &&
         state.entities.series.byId.get(getLastValue(state.ui.selections.series)) !== null) {
         console.log('GETTING ANNOTATIONS');
-        // imagesFromState = state.entities.series.byId.get(getLastValue(state.ui.selections.series)).images;
+        imagesFromState = state.entities.series.byId.get(getLastValue(state.ui.selections.series)).images;
 
         // For now imageID in redux is seriesID
         annotations = state.entities.images.byId.get(getLastValue(state.ui.selections.series)).annotations;
-        console.log('annotations', annotations);
+        // console.log('annotations', annotations);
         // for (var img of imagesFromState) {
         //     annotations.push(img.an)
         // }

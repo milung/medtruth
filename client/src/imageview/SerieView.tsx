@@ -3,7 +3,8 @@ import * as Redux from 'redux';
 import Card, { CardContent, CardMedia } from 'material-ui/Card';
 import Typography from 'material-ui/Typography';
 import { ImageViewComponent } from './ImageView';
-import { SeriesSelectedAction, seriesSelected, thumbnailBlownUp, ThumbnailBlownUpAction } from '../actions/actions';
+import { SeriesSelectedAction, seriesSelected, 
+    thumbnailBlownUp, ThumbnailBlownUpAction, Keys } from '../actions/actions';
 import { connect } from 'react-redux';
 import { State } from '../app/store';
 import { imageStyle } from '../styles/ComponentsStyle';
@@ -22,7 +23,7 @@ export interface SeriesProps {
 }
 
 export interface ConnectedDispatch {
-    selectedSeries: (seriesID: string) => SeriesSelectedAction;
+    selectedSeries: (seriesID: string, keyPressed: Keys) => SeriesSelectedAction;
     blowUp: (imageID: string) => ThumbnailBlownUpAction;
 }
 
@@ -41,20 +42,27 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
         this.displayAlbum = this.displayAlbum.bind(this);
     }
 
-    handleImageClick() {
+    handleImageClick(event: MouseEvent ) {
+        let keyPressed: Keys = Keys.NONE;
+
+        if (event.ctrlKey) {
+            keyPressed = Keys.CTRL;
+        }
+
         if (this.timer) {
             clearTimeout(this.timer);
         }
         this.timer = setTimeout(
             () => {
                 console.log('clicked on ' + this.props.seriesID);
-                this.props.selectedSeries(this.props.seriesID);
+                this.props.selectedSeries(this.props.seriesID,  keyPressed);
             },
             100
         );
     }
 
     handleDoubleClick() {
+
         clearTimeout(this.timer);
     }
 
@@ -114,7 +122,7 @@ function mapStateToProps(state: State, props: SeriesProps): SeriesProps & Connec
 
 function mapDispatchToProps(dispatch: Redux.Dispatch<SeriesSelectedAction>): ConnectedDispatch {
     return {
-        selectedSeries: (seriesID: string) => dispatch(seriesSelected(seriesID)),
+        selectedSeries: (seriesID: string, keyPressed: Keys) => dispatch(seriesSelected(seriesID, keyPressed)),
         blowUp: (imageID: string) => dispatch(thumbnailBlownUp(imageID))
     };
 }

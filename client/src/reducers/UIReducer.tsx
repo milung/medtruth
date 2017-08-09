@@ -1,5 +1,5 @@
 
-import { ActionTypeKeys, ActionType } from '../actions/actions';
+import { ActionTypeKeys, ActionType, SeriesSelectedAction, Keys } from '../actions/actions';
 
 export interface UIState {
     isBlownUpShowed: boolean;
@@ -49,14 +49,7 @@ export function uiReducer(
             newState.selections.images = imageIdsArray;
             return newState;
         case ActionTypeKeys.SERIES_SELECTED:
-            let seriesIdsArray: string[] = addRemoveFromArray(
-                prevState.selections.series,
-                action.id
-            );
-            newState = Object.assign({}, prevState);
-            newState.selections = Object.assign({}, prevState.selections);
-            newState.selections.series = seriesIdsArray;
-            return newState;
+            return handleSeriesSelectedAction(prevState, action);
         case ActionTypeKeys.SERIES_ALL_UNSELECTED:
             newState = Object.assign({}, prevState);
             newState.selections = Object.assign({}, prevState.selections);
@@ -71,6 +64,30 @@ export function uiReducer(
         default:
             return prevState;
     }
+}
+
+function handleSeriesSelectedAction(prevState: UIState, action: SeriesSelectedAction): UIState {
+
+    let newState: UIState = Object.assign({}, prevState);
+    newState.selections = Object.assign({}, prevState.selections);
+    let seriesIdsArray: string[] = [];
+    let index: number = prevState.selections.series.indexOf(action.id);
+
+    if (action.keyPressed === Keys.NONE) {
+        if (index === -1) {
+            seriesIdsArray.push(action.id);
+        }
+    } else if (action.keyPressed === Keys.CTRL) {
+        if (index !== -1) {
+            seriesIdsArray = [...prevState.selections.series.slice(0, index),
+            ...prevState.selections.series.slice(index + 1)];
+        } else {
+            seriesIdsArray = [action.id, ...prevState.selections.series];
+        }
+    }
+
+    newState.selections.series = seriesIdsArray;
+    return newState;
 }
 
 function addRemoveFromArray(selectedBefore: string[], selected: string): string[] {
