@@ -104,14 +104,19 @@ routerImages.get('/:id/assign', async (req, res) => {
     Gets an array of image ID's from a upload and series ID.
 */
 interface SeriesRequest {
-    uploadID: number;
-    seriesID: string;
-    studyID?: string;
+    uploadID:   number;
+    studyID:    string;
+    seriesID:   string;
 }
 
-routerImages.get('/series', json(), async (req, res) => {
+routerImages.post('/series', json(), async (req, res) => {
     let seriesReq: SeriesRequest = { ...req.body };
-    let result = await AzureDatabase.getImagesBySeriesId(seriesReq);
+    try {
+        let result = await AzureDatabase.getImagesBySeriesId(seriesReq);
+        res.json(result);
+    } catch (e) {
+        res.json({});
+    }
 });
 
 routerImages.delete('/:id/assign', json(), async (req, res) => {
