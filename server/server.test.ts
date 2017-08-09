@@ -43,6 +43,39 @@ describe('<Server>', () => {
             AzureDatabase.close(conn);
             done();
         });
+
+        // it('removeFromAttributes should remove attributes', async (done) => {
+        //     // given
+        //     let db = await AzureDatabase.connect();
+        //     let collection = await db.collection('attributes');
+        //     await collection.deleteOne({ imageID: 'testImageID' });
+
+        //     let imageAttributes: AzureDatabase.AttributeQuery = {
+        //         imageID: 'testImageID',
+        //         attributes: [
+        //             {
+        //                 key: 'oko',
+        //                 value: 1
+        //             },
+        //             {
+        //                 key: 'hlava',
+        //                 value: 0
+        //             }
+        //         ]
+        //     };
+        //     collection.insertOne(imageAttributes);
+
+        //     // when
+        //     await AzureDatabase.removeFromAttributes('testImageID', ['hlava']);
+
+        //     // then
+        //     let result = await collection.findOne({ imageID: 'testImageID' });
+        //     expect(result.attributes.find(elem => elem.key === 'hlava')).toBeUndefined();
+        //     expect(result.attributes.find(elem => elem.key === 'oko')).toBeDefined();
+
+        //     AzureDatabase.close(db);
+        //     done();
+        // });
     });
 
     // <API> tests.

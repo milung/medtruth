@@ -13,6 +13,12 @@ export enum ActionTypeKeys {
     OTHER_ACTION = 'OTHER_ACTION'
 }
 
+export enum Keys {
+    NONE,
+    CTRL,
+    SHIFT
+}
+
 export interface FilesUploadedAction {
     type: ActionTypeKeys.FILES_UPLOADED;
     uploadID: number;
@@ -44,6 +50,7 @@ export interface ImageAnnotationAddedAction {
 
 export interface SeriesSelectedAction {
     type: ActionTypeKeys.SERIES_SELECTED;
+    keyPressed: Keys;
     id: string;
 }
 
@@ -94,9 +101,10 @@ export const imageAnnotationAdded = (annotation: ImageAnnotation): ImageAnnotati
     annotation
 });
 
-export const seriesSelected = (id: string): SeriesSelectedAction => ({
+export const seriesSelected = (id: string, keyPressed: Keys): SeriesSelectedAction => ({
     type: ActionTypeKeys.SERIES_SELECTED,
-    id
+    id,
+    keyPressed
 });
 
 export const seriesAllUnselected = (): SeriesAllUnselectedAction => ({
