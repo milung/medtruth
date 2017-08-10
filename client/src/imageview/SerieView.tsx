@@ -3,15 +3,16 @@ import * as Redux from 'redux';
 import Card, { CardContent, CardMedia } from 'material-ui/Card';
 import Typography from 'material-ui/Typography';
 import { ImageViewComponent } from './ImageView';
-import { SeriesSelectedAction, seriesSelected, 
-    thumbnailBlownUp, ThumbnailBlownUpAction, Keys } from '../actions/actions';
+import {
+    SeriesSelectedAction, seriesSelected,
+    thumbnailBlownUp, ThumbnailBlownUpAction, Keys
+} from '../actions/actions';
 import { connect } from 'react-redux';
 import { State } from '../app/store';
 import { imageStyle } from '../styles/ComponentsStyle';
 import Icon from 'material-ui/Icon';
-import { Link } from "react-router-dom";
-//import FontIcon from 'material-ui/Icon'
-
+import { Link } from 'react-router-dom';
+// import FontIcon from 'material-ui/Icon'
 
 export interface SeriesProps {
     seriesID: string;
@@ -42,7 +43,7 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
         this.displayAlbum = this.displayAlbum.bind(this);
     }
 
-    handleImageClick(event: MouseEvent ) {
+    handleImageClick(event: MouseEvent) {
         let keyPressed: Keys = Keys.NONE;
 
         if (event.ctrlKey) {
@@ -55,22 +56,20 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
         this.timer = setTimeout(
             () => {
                 console.log('clicked on ' + this.props.seriesID);
-                this.props.selectedSeries(this.props.seriesID,  keyPressed);
+                this.props.selectedSeries(this.props.seriesID, keyPressed);
             },
             100
         );
     }
 
     handleDoubleClick() {
-
         clearTimeout(this.timer);
     }
 
     displayAlbum() {
-
     }
 
-    getGalleryPath(): string{
+    getGalleryPath(): string {
         let uploaid: number = this.props.uploadID;
         let study: string = this.props.studyID;
         let series: string = this.props.seriesID;
@@ -100,7 +99,13 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
                         </Typography>
                     </CardContent>
                     <Link to={this.getGalleryPath()}>
-                        <a><img src={require('../icons/icon1.png')} style={{ float: "right", marginBottom: "5", marginRight: "5" }} onClick={this.displayAlbum} /></a>
+                        <a>
+                            <img
+                                src={require('../icons/icon1.png')}
+                                style={{ float: 'right', marginBottom: '5', marginRight: '5' }}
+                                onClick={this.displayAlbum}
+                            />
+                        </a>
                     </Link>
                 </Card>
             </div>
