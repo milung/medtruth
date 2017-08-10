@@ -26,6 +26,7 @@ export class PatientView extends React.Component<PatientProps, {}> {
             let doc = document.getElementById(this.props.series[0].studyID);
             console.log("document: ", doc);
             doc.scrollIntoView();
+            window.scrollBy(0,-50);
         }
 
     }

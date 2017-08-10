@@ -28,54 +28,155 @@ describe('<Server>', () => {
     })
 
     describe('<Services>', () => {
-        it('Azure Storage should be up', async (done) => {
-            let status = await AzureStorage.upload('test', 'testblob', 'HG_001_0.dcm');
-            expect(status).toBe(AzureStorage.Status.SUCCESFUL);
-            await AzureStorage.blobService.deleteBlob('test', 'testblob', (err, res) => {
-                expect(err).toBeNull();
-                done();
+        describe('<AzureStorage>', () => {
+            it('should be up', async (done) => {
+                let status = await AzureStorage.upload('test', 'testblob', 'HG_001_0.dcm');
+                expect(status).toBe(AzureStorage.Status.SUCCESFUL);
+                await AzureStorage.blobService.deleteBlob('test', 'testblob', (err, res) => {
+                    expect(err).toBeNull();
+                    done();
+                });
             });
         });
 
-        it('Azure Database should be up', async (done) => {
-            let conn = await AzureDatabase.connect();
-            expect(conn instanceof Db).toBeTruthy();
-            AzureDatabase.close(conn);
-            done();
+        describe('<AzureDatabase>', () => {
+            var originalTimeout;
+            beforeEach(function () {
+                originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+                jasmine.DEFAULT_TIMEOUT_INTERVAL = 5000;
+            });
+            it('should be up', async (done) => {
+                let conn = await AzureDatabase.connect();
+                expect(conn instanceof Db).toBeTruthy();
+                AzureDatabase.close(conn);
+                done();
+            });
+
+            it('removeFromAttributes should remove attributes', async (done) => {
+                // given
+                let db = await AzureDatabase.connect();
+                let collection = await db.collection('test');
+                await collection.deleteOne({ imageID: 'testImageID' });
+
+                let imageAttributes: AzureDatabase.AttributeQuery = {
+                    imageID: 'testImageID',
+                    attributes: [
+                        {
+                            key: 'oko',
+                            value: 1
+                        },
+                        {
+                            key: 'hlava',
+                            value: 0
+                        }
+                    ]
+                };
+                await collection.insertOne(imageAttributes);
+
+                // when
+                await AzureDatabase.removeFromAttributes('testImageID', ['hlava']);
+
+                // then
+                let result = await collection.findOne({ imageID: 'testImageID' });
+                expect(result.attributes.find(elem => elem.key === 'hlava')).toBeUndefined();
+                expect(result.attributes.find(elem => elem.key === 'oko')).toBeDefined();
+
+                AzureDatabase.close(db);
+                done();
+            });
+
+            it('putToLabels should put to collection of all labels or increment count', async (done) => {
+                // given
+                let db = await AzureDatabase.connect();
+                let collection = await db.collection('test');
+                await collection.deleteMany({});
+                await collection.insertMany([
+                    {
+                        label: "oko",
+                        count: 1
+                    },
+                    {
+                        label: "koleno",
+                        count: 2
+                    }
+                ]);
+
+                // when
+                await AzureDatabase.putToLabels(['oko', 'hlava']);
+
+                // then
+                let result = await collection.find().toArray();
+
+                // created document
+                expect(result.find(elem => elem.label === 'hlava')).toMatchObject({
+                    label: "hlava",
+                    count: 1
+                });
+
+                // incremented count
+                expect(result.find(elem => elem.label === 'oko')).toMatchObject({
+                    label: "oko",
+                    count: 2
+                });
+
+                // not modified document
+                expect(result.find(elem => elem.label === 'koleno')).toMatchObject({
+                    label: "koleno",
+                    count: 2
+                });
+
+                AzureDatabase.close(db);
+                done();
+            });
+
+            it('removeFromLabels should remove from collection of all labels or decrement count', async (done) => {
+                // given
+                let db = await AzureDatabase.connect();
+                let collection = await db.collection('test');
+                await collection.deleteMany({});
+                await collection.insertMany([
+                    {
+                        label: "oko",
+                        count: 1
+                    },
+                    {
+                        label: "hlava",
+                        count: 2
+                    },
+                    {
+                        label: "koleno",
+                        count: 2
+                    }
+                ]);
+
+                // when
+                await AzureDatabase.removeFromLabels(['oko', 'hlava']);
+
+                // then
+                let result = await collection.find({}).toArray();
+
+                // deleted document
+                expect(result.find(elem => elem.label === 'oko')).toBeUndefined();
+
+                // decremented count
+                expect(result.find(elem => elem.label === 'hlava')).toMatchObject({
+                    label: "hlava",
+                    count: 1
+                });
+
+                // not modified document
+                expect(result.find(elem => elem.label === 'koleno')).toMatchObject({
+                    label: "koleno",
+                    count: 2
+                });
+
+                AzureDatabase.close(db);
+                done();
+            });
+            afterEach(function () {
+                jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
+            });
         });
-
-        // it('removeFromAttributes should remove attributes', async (done) => {
-        //     // given
-        //     let db = await AzureDatabase.connect();
-        //     let collection = await db.collection('attributes');
-        //     await collection.deleteOne({ imageID: 'testImageID' });
-
-        //     let imageAttributes: AzureDatabase.AttributeQuery = {
-        //         imageID: 'testImageID',
-        //         attributes: [
-        //             {
-        //                 key: 'oko',
-        //                 value: 1
-        //             },
-        //             {
-        //                 key: 'hlava',
-        //                 value: 0
-        //             }
-        //         ]
-        //     };
-        //     collection.insertOne(imageAttributes);
-
-        //     // when
-        //     await AzureDatabase.removeFromAttributes('testImageID', ['hlava']);
-
-        //     // then
-        //     let result = await collection.findOne({ imageID: 'testImageID' });
-        //     expect(result.attributes.find(elem => elem.key === 'hlava')).toBeUndefined();
-        //     expect(result.attributes.find(elem => elem.key === 'oko')).toBeDefined();
-
-        //     AzureDatabase.close(db);
-        //     done();
-        // });
     });
 
     // <API> tests.

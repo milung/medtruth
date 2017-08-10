@@ -3,8 +3,8 @@ import * as React from 'react';
 import { imageStyle } from '../styles/ComponentsStyle';
 import { ApiService } from '../api';
 
-interface ImageProps {
-    imageID: string;
+export interface ImageProps {
+    imageID: number;
     imageName: string;
     handler: (event: {}) => void;
     blowUp: (imageID: string) => void;
@@ -25,7 +25,7 @@ export class ImageViewComponent extends React.Component<ImageProps, {}> {
 
     async getUrl(): Promise<void> {
         let resImage = await ApiService.getImage(this.props.imageName + '_');
-        let img = document.getElementById(this.props.imageID) as HTMLImageElement;
+        let img = document.getElementById(this.props.imageID + '') as HTMLImageElement;
         if (img != null) {
             img.src = resImage === null ? '' : resImage.url;
         }
@@ -45,7 +45,7 @@ export class ImageViewComponent extends React.Component<ImageProps, {}> {
     render() {
         return (
             <img
-                id={this.props.imageID}
+                id={this.props.imageID + ''}
                 style={imageStyle.img}
                 onClick={this.props.handler}
                 onDoubleClick={this.handleDoubleClick}

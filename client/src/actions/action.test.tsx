@@ -50,14 +50,16 @@ describe('actions', () => {
     it('should create an action ImageSelectedAction', () => {
         //given
         let ID: string = 'imageSelectedAction';
+        let keyPressed: Keys = Keys.NONE;
 
         //when
-        let action: ImageSelectedAction = selectedImage(ID);
+        let action: ImageSelectedAction = selectedImage(ID, keyPressed);
 
         //then
         expect(action).toEqual({
             type: ActionTypeKeys.IMAGE_SELECTED,
-            id: ID
+            id: ID,
+            keyPressed: Keys.NONE
         });
     });
 
@@ -86,8 +88,8 @@ describe('actions', () => {
         //then
         expect(action).toEqual({
             type: ActionTypeKeys.SERIES_SELECTED,
-            keyPressed: Keys.NONE,
-            id: ID
+            id: ID,
+            keyPressed: Keys.NONE
         });
     });
 

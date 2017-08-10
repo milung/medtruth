@@ -11,15 +11,14 @@ import { connect } from 'react-redux';
 import { State } from '../app/store';
 import { imageStyle } from '../styles/ComponentsStyle';
 import Icon from 'material-ui/Icon';
-import { Link } from "react-router-dom";
-//import FontIcon from 'material-ui/Icon'
-
+import { Link } from 'react-router-dom';
+// import FontIcon from 'material-ui/Icon'
 
 export interface SeriesProps {
     seriesID: string;
     seriesDescription: string;
     src: string;
-    imageID: string;
+    imageID: number;
     studyID: string;
     uploadID: number;
 }
@@ -63,12 +62,10 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
     }
 
     handleDoubleClick() {
-
         clearTimeout(this.timer);
     }
 
     displayAlbum() {
-
     }
 
     getGalleryPath(): string {
@@ -100,7 +97,13 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
                         </Typography>
                     </CardContent>
                     <Link to={this.getGalleryPath()}>
-                        <a><img src={require('../icons/icon1.png')} style={{ float: "right", marginBottom: "5", marginRight: "5" }} onClick={this.displayAlbum} /></a>
+                        <a>
+                            <img
+                                src={require('../icons/icon1.png')}
+                                style={{ float: 'right', marginBottom: '5', marginRight: '5' }}
+                                onClick={this.displayAlbum}
+                            />
+                        </a>
                     </Link>
                 </Card>
             </div>

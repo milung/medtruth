@@ -1,7 +1,10 @@
 
 // Storage path to where the incoming files are stored.
-export const storagePath = (process.argv[2] === 'local') ? "out/uploads/" : "uploads/";
-export const imagePath = (process.argv[2] === 'local') ? "out/images/" : "images/";
+//export const storagePath = (process.argv[2] === 'local') ? "out/uploads/" : "uploads/";
+//export const imagePath = (process.argv[2] === 'local') ? "out/images/" : "images/";
+export const storagePath = "out/uploads/"
+export const imagePath ="out/images/";
+
 console.log("paths");
 console.log(storagePath);
 console.log(imagePath);

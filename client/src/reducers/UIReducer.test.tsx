@@ -28,35 +28,100 @@ describe('UIReducer', () => {
         });
     });
 
-    it('should handle ImageSelectedAction (select image)', () => {
-        // given
-        let imageSelectedAction: ImageSelectedAction = {
-            type: ActionTypeKeys.IMAGE_SELECTED,
-            id: 'aaaaa'
-        };
-
-        let prevState: UIState = undefined;
-
-        // when
-        let newState: UIState = uiReducer(prevState, imageSelectedAction);
-
-        // then
-        expect(newState.selections.images.indexOf('aaaaa') !== -1).toBeTruthy();
-    });
-
-    it('should handle ImageSelectedAction (deselect image)', () => {
+    it('should handle simple ImageSelectedAction (select image)', () => {
 
         // given
         let imageSelectedAction: ImageSelectedAction = {
             type: ActionTypeKeys.IMAGE_SELECTED,
-            id: 'aaaaa'
+            id: 'abcd5678',
+            keyPressed: Keys.NONE
         };
 
         let prevState: UIState = {
             isBlownUpShowed: false,
             blownUpThumbnailId: '',
             selections: {
-                images: ['aaaaa', 'bbbbb'],
+                images: ['abcd1234'],
+                series: []
+            },
+            lastViewedStudyID: ''
+        };
+
+        // when
+        let newState: UIState = uiReducer(prevState, imageSelectedAction);
+
+        // then
+        expect(newState.selections.images.indexOf('abcd1234') === -1).toBeTruthy();
+        expect(newState.selections.images.indexOf('abcd5678') !== -1).toBeTruthy();
+    });
+
+    it('should handle simple ImageSelectedAction (deselect image)', () => {
+
+        // given
+        let imageSelectedAction: ImageSelectedAction = {
+            type: ActionTypeKeys.IMAGE_SELECTED,
+            id: 'abcd1234',
+            keyPressed: Keys.NONE
+        };
+
+        let prevState: UIState = {
+            isBlownUpShowed: false,
+            blownUpThumbnailId: '',
+            selections: {
+                images: ['abcd1234'],
+                series: []
+            },
+            lastViewedStudyID: ''
+        };
+
+        // when
+        let newState: UIState = uiReducer(prevState, imageSelectedAction);
+
+        // then
+        expect(newState.selections.images.indexOf('abcd1234') === -1).toBeTruthy();
+    });
+
+    it('should handle CTRL ImageSelectedAction (select image)', () => {
+
+        // given
+        let imageSelectedAction: ImageSelectedAction = {
+            type: ActionTypeKeys.IMAGE_SELECTED,
+            id: 'abcd5678',
+            keyPressed: Keys.CTRL
+        };
+
+        let prevState: UIState = {
+            isBlownUpShowed: false,
+            blownUpThumbnailId: '',
+            selections: {
+                images: ['abcd1234'],
+                series: []
+            },
+            lastViewedStudyID: ''
+        };
+
+        // when
+        let newState: UIState = uiReducer(prevState, imageSelectedAction);
+
+        // then
+        expect(newState.selections.images.indexOf('abcd1234') !== -1).toBeTruthy();
+        expect(newState.selections.images.indexOf('abcd5678') !== -1).toBeTruthy();
+    });
+
+    it('should handle CTRL ImageSelectedAction (deselect image)', () => {
+
+        // given
+        let imageSelectedAction: ImageSelectedAction = {
+            type: ActionTypeKeys.IMAGE_SELECTED,
+            id: 'abcd5678',
+            keyPressed: Keys.CTRL
+        };
+
+        let prevState: UIState = {
+            isBlownUpShowed: false,
+            blownUpThumbnailId: '',
+            selections: {
+                images: ['abcd1234', 'abcd5678'],
                 series: []
             },
             lastViewedStudyID: ""
@@ -67,7 +132,8 @@ describe('UIReducer', () => {
         let newState: UIState = uiReducer(prevState, imageSelectedAction);
 
         // then
-        expect(newState.selections.images.indexOf('aaaaa') === -1).toBeTruthy();
+        expect(newState.selections.images.indexOf('abcd1234') !== -1).toBeTruthy();
+        expect(newState.selections.images.indexOf('abcd5678') === -1).toBeTruthy();
     });
 
     it('should handle simple SeriesSelectedAction (select series)', () => {
