@@ -58,77 +58,80 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
     }
 
     async receiveAttributes(id: string) {
-        this.setState({ wait: true });
+        await this.setState({ wait: true }, async () => {
+            let labels: string[] = await ApiService.getLabels();
+            console.log('labels', labels);
 
-        let labels: string[] = await ApiService.getLabels();
-        console.log('labels', labels);
+            let resData = await ApiService.getAttributes(getLastValue(this.props.series));
+            console.log('COMPONENT GETTING DATA...');
+            console.log('attributes', resData);
 
-        let resData = await ApiService.getAttributes(getLastValue(this.props.series));
-        console.log('COMPONENT GETTING DATA...');
-        console.log('attributes', resData);
-
-        //if (labels && resData.attributes) {
-        // Even if no attributes are assigned to the image, the list of all labels should be shown
-        if (labels) {
-            var listItems = [];
-            var checkboxes = [];
-            for (let label of labels) {
-                var labelFound = false;
-                var value;
-                if (resData.attributes) {
-                    console.log('label ATTRIBUTES', resData.attributes);
-                    for (let data of resData.attributes) {
-                        if (data.key === label) {
-                            labelFound = true;
-                            value = data.value;
-                            // (data.value > 0) ? checkboxes.push(true) : checkboxes.push(false);
-                            break;
+            // if (labels && resData.attributes) {
+            // Even if no attributes are assigned to the image, the list of all labels should be shown
+            if (labels) {
+                var listItems = [];
+                var checkboxes = [];
+                for (let label of labels) {
+                    var labelFound = false;
+                    var value;
+                    if (resData.attributes) {
+                        console.log('label ATTRIBUTES', resData.attributes);
+                        for (let data of resData.attributes) {
+                            if (data.key === label) {
+                                labelFound = true;
+                                value = data.value;
+                                // (data.value > 0) ? checkboxes.push(true) : checkboxes.push(false);
+                                break;
+                            }
                         }
                     }
-                }
-                if (labelFound) {
-                    // If label was already assigned to selected img
-                    checkboxes.push(true);
-                    console.log(label + 'LABEL FOUND');
-                } else {
-                    checkboxes.push(false);
-                    console.log(label + 'LABEL NOT FOUND');
-                    value = -1;
-                }
-                console.log(label + ' value ' + value);
-                listItems.push({
-                    key: label,
-                    value: value
-                });
-            }
-            console.log('labels end');
-            // for (let data of resData.attributes) {
-            //     listItems.push({
-            //         key: data.key,
-            //         value: data.value
-            //     });
-            //     (data.value > 0) ? checkboxes.push(true) : checkboxes.push(false);
-            // }
-            this.setState({ listItems: listItems, checkboxes: checkboxes }, () => {
-                console.log('SET NEW STATE');
-                console.log('CHECKBOXES', this.state.checkboxes);
-                console.log('LISTITEMS', listItems);
-
-                if (!this.updating) {
-                    for (var item of listItems) {
-                        this.props.addedImageAnnotation({
-                            imageId: getLastValue(this.props.series),
-                            key: item.key,
-                            value: item.value
-                        });
+                    if (labelFound) {
+                        // If label was already assigned to selected img
+                        checkboxes.push(true);
+                        console.log(label + 'LABEL FOUND');
+                    } else {
+                        checkboxes.push(false);
+                        console.log(label + 'LABEL NOT FOUND');
+                        value = 0;
                     }
-                    this.updating = false;
+                    console.log(label + ' value ' + value);
+                    listItems.push({
+                        key: label,
+                        value: value
+                    });
                 }
+                console.log('labels end');
+                // for (let data of resData.attributes) {
+                //     listItems.push({
+                //         key: data.key,
+                //         value: data.value
+                //     });
+                //     (data.value > 0) ? checkboxes.push(true) : checkboxes.push(false);
+                // }
+                this.setState({ listItems: listItems, checkboxes: checkboxes }, () => {
+                    console.log('SET NEW STATE');
+                    console.log('CHECKBOXES', this.state.checkboxes);
+                    console.log('LISTITEMS', listItems);
+
+                    if (!this.updating) {
+                        for (var item of listItems) {
+                            this.props.addedImageAnnotation({
+                                imageId: getLastValue(this.props.series),
+                                key: item.key,
+                                value: item.value
+                            });
+                        }
+                        this.updating = false;
+                    }
+                });
+            } else {
+                this.setState({ listItems: [], checkboxes: [] });
+            }
+            await this.setState({ wait: false }, () => {
+                console.log('FINISHED RECEIVING ATTRIBUTES');
             });
-        } else {
-            this.setState({ listItems: [], checkboxes: [] });
-        }
-        this.setState({ wait: false });
+        });
+        
     }
 
     async componentDidMount() {
@@ -138,9 +141,9 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
 
     render() {
         // Check if selected series/image has any attributes
-        console.log('ATTRIBUTE LIST ITEMS', this.state.listItems);
         //if (this.state.listItems.length !== 0 && !this.state.wait) {
         if (!this.state.wait) {
+            console.log('ATTRIBUTE LIST ITEMS', this.state.listItems);
             return (
                 <div>
                     <Paper style={{ maxHeight: '65vh', overflowY: 'auto', width: '100%' }}>
