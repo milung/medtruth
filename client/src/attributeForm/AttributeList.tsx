@@ -8,9 +8,10 @@ import * as Redux from 'redux';
 import { connect } from 'react-redux';
 import { State } from '../app/store';
 import { ImageAnnotation, ImageAnnotationAddedAction, imageAnnotationAdded } from '../actions/actions';
+import * as _ from 'lodash';
 
 export interface OwnState {
-    checkboxes: boolean[];
+    checkboxes: number[];
     wait: boolean;
     listItems: ListItem[];
 }
@@ -31,6 +32,7 @@ export interface ConnectedDispatch {
 
 export class AttributeListComponent extends React.Component<ConnectedDispatch & ConnectedState, OwnState> {
     private updating = false;
+    private multipleSelected = false;
 
     constructor(props) {
         super(props);
@@ -40,15 +42,13 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
             wait: false,
             listItems: []
         };
-
-        //this.receiveAttributes(getLastValue(this.props.series));
     }
 
     async componentWillReceiveProps(nextProps: ConnectedState) {
         console.log('COMPONENT WILL RECEIVE PROPS');
         console.log('COMPONENT next annotations', nextProps.annotations);
         console.log('COMPONENT old annotations', this.props.annotations);
-        if (nextProps.annotations !== this.props.annotations) {
+        if (nextProps.annotations !== this.props.annotations || nextProps.series !== this.props.series) {
             if (nextProps.annotations.length !== 0) {
                 console.log('UPDATED, COMPONENT WILL MOUNT');
                 this.updating = true;
@@ -62,52 +62,90 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
             let labels: string[] = await ApiService.getLabels();
             console.log('labels', labels);
 
-            let resData = await ApiService.getAttributes(getLastValue(this.props.series));
-            console.log('COMPONENT GETTING DATA...');
-            console.log('attributes', resData);
-
-            // if (labels && resData.attributes) {
             // Even if no attributes are assigned to the image, the list of all labels should be shown
             if (labels) {
                 var listItems = [];
-                var checkboxes = [];
-                for (let label of labels) {
-                    var labelFound = false;
-                    var value;
-                    if (resData.attributes) {
-                        console.log('label ATTRIBUTES', resData.attributes);
-                        for (let data of resData.attributes) {
-                            if (data.key === label) {
-                                labelFound = true;
-                                value = data.value;
-                                // (data.value > 0) ? checkboxes.push(true) : checkboxes.push(false);
-                                break;
+                var checkboxes: number[] = [];
+
+                // If more than one thumbnail is selected
+                if (this.props.series.length >= 2) {
+                    console.log('MORE SERIES', this.props.series);
+                    this.multipleSelected = true;
+                    var values: number[] = [];
+                    // Set initial values for labels
+                    for (let label in labels) {
+                        values.push(0);     
+                        checkboxes.push(0);
+                    }
+                    for (let label in labels) {
+                        for (var sel of this.props.series) {
+                            let resData = await ApiService.getAttributes(sel);
+                            console.log('SERIES DATA', resData);
+                            if (resData.attributes) {
+                                for (let data in resData.attributes) {
+                                    console.log('comparing' + resData.attributes[data].key + ' ' + labels[label]);
+                                    if (resData.attributes[data].key === labels[label]) {
+                                        console.log('CURRENT LABEL ', labels[label]);
+                                        console.log('current label value', values[label]);
+                                        values[label] += resData.attributes[data].value;
+                                        console.log('plus ', resData.attributes[data].value);
+                                        console.log('new value ' + values[label]);
+                                        break;
+                                    }
+                                }
                             }
                         }
+                        console.log('LABELS for now', labels);
                     }
-                    if (labelFound) {
-                        // If label was already assigned to selected img
-                        checkboxes.push(true);
-                        console.log(label + 'LABEL FOUND');
-                    } else {
-                        checkboxes.push(false);
-                        console.log(label + 'LABEL NOT FOUND');
-                        value = 0;
+                    for (var label in values) {
+                        if (values[label] === 0) {
+                            checkboxes[label] = 0;
+                        } else if (values[label] === this.props.series.length) {
+                            checkboxes[label] = 1;
+                        } else {
+                            checkboxes[label] = -1;
+                        }
+                        console.log('LABEL ' + labels[label] + ' ' + values[label] + ' ' + checkboxes[label]);
+                        listItems.push({
+                            key: labels[label],
+                            value: checkboxes[label]
+                        });
                     }
-                    console.log(label + ' value ' + value);
-                    listItems.push({
-                        key: label,
-                        value: value
-                    });
+                } else {
+                    console.log('ONE SERIES', this.props.series);
+                    this.multipleSelected = false;
+                    for (let label of labels) {
+                        var labelFound = false;
+                        let resData = await ApiService.getAttributes(getLastValue(this.props.series));
+                        console.log('COMPONENT GETTING DATA...');
+                        console.log('attributes', resData);
+                        let value;
+                        if (resData.attributes) {
+                            console.log('label ATTRIBUTES', resData.attributes);
+                            for (let data of resData.attributes) {
+                                if (data.key === label) {
+                                    labelFound = true;
+                                    value = data.value;
+                                    break;
+                                }
+                            }
+                        }
+                        if (labelFound) {
+                            // If label was already assigned to selected img
+                            checkboxes.push(1);
+                            console.log(label + 'LABEL FOUND');
+                        } else {
+                            checkboxes.push(0);
+                            console.log(label + 'LABEL NOT FOUND');
+                            value = 0;
+                        }
+                        console.log(label + ' value ' + value);
+                        listItems.push({
+                            key: label,
+                            value: value
+                        });
+                    }
                 }
-                console.log('labels end');
-                // for (let data of resData.attributes) {
-                //     listItems.push({
-                //         key: data.key,
-                //         value: data.value
-                //     });
-                //     (data.value > 0) ? checkboxes.push(true) : checkboxes.push(false);
-                // }
                 this.setState({ listItems: listItems, checkboxes: checkboxes }, () => {
                     console.log('SET NEW STATE');
                     console.log('CHECKBOXES', this.state.checkboxes);
@@ -131,7 +169,6 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                 console.log('FINISHED RECEIVING ATTRIBUTES');
             });
         });
-        
     }
 
     async componentDidMount() {
@@ -140,10 +177,9 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
     }
 
     render() {
-        // Check if selected series/image has any attributes
-        //if (this.state.listItems.length !== 0 && !this.state.wait) {
         if (!this.state.wait) {
             console.log('ATTRIBUTE LIST ITEMS', this.state.listItems);
+
             return (
                 <div>
                     <Paper style={{ maxHeight: '65vh', overflowY: 'auto', width: '100%' }}>
@@ -156,59 +192,33 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                             </TableHead>
                             <TableBody >
                                 {this.state.listItems.map((item, i) => {
-                                    {/* {this.props.annotations.map((item, i) => { */ }
-                                    {/* var checked = false;
-                                var indeterminate = false;
-                                //console.log(item.value);
-                                if (item.value > 0) {
-                                    checked = true;
-                                }
-                                if (item.value > 0 && item.value < 1) {
-                                    indeterminate = true;
-                                } */}
                                     return (
                                         <TableRow key={i}>
                                             <TableCell checkbox="true" >
                                                 <Checkbox
-                                                    checked={this.state.checkboxes[i]}
-                                                    indeterminate={false}
+                                                    checked={this.state.checkboxes[i] === 1}
+                                                    indeterminate={this.state.checkboxes[i] === -1}
                                                     onChange={async (event: object, checked: boolean) => {
-                                                        var checkboxes: boolean[] = [...this.state.checkboxes];
-                                                        console.log('OLD CHECKBOXES', checkboxes);
-                                                        // If attribute was checked and now gets unchecked
+                                                        var checkboxes: number[] = [...this.state.checkboxes];                                                    
                                                         let deletingAttribute = false;
-                                                        if (checkboxes[i]) { deletingAttribute = true };
-                                                        checkboxes[i] = !checkboxes[i];
-                                                        console.log('NEW CHECKBOXES', checkboxes);
+                                                        if (checkboxes[i] === 1) { deletingAttribute = true; }
+                                                        checkboxes[i] === 0 ? checkboxes[i] = 1 : checkboxes[i] = 0;
                                                         await changeAttribute(
                                                             deletingAttribute,
                                                             this.props.addedImageAnnotation,
                                                             this.props.series,
-                                                            //TODO change this to images
-                                                            item.key, checkboxes[i] ? 1 : 0
+                                                            // TODO change this to images
+                                                            item.key, checkboxes[i]
                                                         );
-
                                                         this.setState({
                                                             checkboxes: checkboxes,
                                                         });
-                                                        {/* var checkboxes: boolean[] = [...this.state.activeCheckboxes];
-                                                        console.log(this.state.activeCheckboxes);
-                                                        checkboxes[i] = !checkboxes[i];
-                                                        var items = [...this.state.listItems];
-                                                        items[i].value = checkboxes[i] ? 1 : 0;
-
-                                                        this.setState({
-                                                            activeCheckboxes: checkboxes,
-                                                            listItems: items
-                                                        }, () => {
-                                                            console.log(this.state.activeCheckboxes);
-                                                        }); */}
                                                     }}
                                                 />
                                                 {item.key}
                                             </TableCell>
                                             <TableCell >
-                                                {item.value}
+                                                {(this.multipleSelected) ? this.state.checkboxes[i] : item.value}
                                             </TableCell>
                                         </TableRow>
                                     );
