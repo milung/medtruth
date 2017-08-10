@@ -41,6 +41,7 @@ export interface ThumbnailBlownDownAction {
 export interface ImageSelectedAction {
     type: ActionTypeKeys.IMAGE_SELECTED;
     id: string;
+    keyPressed: Keys;
 }
 
 export interface ImageAnnotationAddedAction {
@@ -50,8 +51,8 @@ export interface ImageAnnotationAddedAction {
 
 export interface SeriesSelectedAction {
     type: ActionTypeKeys.SERIES_SELECTED;
-    keyPressed: Keys;
     id: string;
+    keyPressed: Keys;
 }
 
 export interface SeriesAllUnselectedAction {
@@ -91,9 +92,10 @@ export const thumbnailBlownDown = (): ThumbnailBlownDownAction => ({
 //     ids
 // });
 
-export const selectedImage = (id: string): ImageSelectedAction => ({
+export const selectedImage = (id: string, keyPressed: Keys): ImageSelectedAction => ({
     type: ActionTypeKeys.IMAGE_SELECTED,
-    id
+    id,
+    keyPressed
 });
 
 export const imageAnnotationAdded = (annotation: ImageAnnotation): ImageAnnotationAddedAction => ({

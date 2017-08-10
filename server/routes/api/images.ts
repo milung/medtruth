@@ -85,7 +85,6 @@ routerImages.put('/:id/assign', json(), async (req, res) => {
     res.json(result);
 });
 
-
 /*
     Route:      GET '/images/:id/assign'
     --------------------------------------------

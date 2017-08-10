@@ -1,5 +1,5 @@
 
-import { ActionTypeKeys, ActionType, SeriesSelectedAction, Keys } from '../actions/actions';
+import { ActionTypeKeys, ActionType, SeriesSelectedAction, Keys, ImageSelectedAction } from '../actions/actions';
 
 export interface UIState {
     isBlownUpShowed: boolean;
@@ -40,18 +40,11 @@ export function uiReducer(
                     blownUpThumbnailId: ''
                 });
         case ActionTypeKeys.IMAGE_SELECTED:
-            let imageIdsArray: string[] = addRemoveFromArray(
-                prevState.selections.images,
-                action.id
-            );
-            let newState = Object.assign({}, prevState);
-            newState.selections = Object.assign({}, prevState.selections);
-            newState.selections.images = imageIdsArray;
-            return newState;
+            return handleImageSelecedAction(prevState, action);
         case ActionTypeKeys.SERIES_SELECTED:
             return handleSeriesSelectedAction(prevState, action);
         case ActionTypeKeys.SERIES_ALL_UNSELECTED:
-            newState = Object.assign({}, prevState);
+            let newState: UIState = Object.assign({}, prevState);
             newState.selections = Object.assign({}, prevState.selections);
             newState.selections.series = [];
             return newState;
@@ -64,6 +57,28 @@ export function uiReducer(
         default:
             return prevState;
     }
+}
+function handleImageSelecedAction(prevState: UIState, action: ImageSelectedAction): UIState {
+    let newState: UIState = Object.assign({}, prevState);
+    newState.selections = Object.assign({}, prevState.selections);
+    let imageIdsArray: string[] = [];
+    let index: number = prevState.selections.images.indexOf(action.id);
+
+    if (action.keyPressed === Keys.NONE) {
+        if (index === -1) {
+            imageIdsArray.push(action.id);
+        }
+    } else if (action.keyPressed === Keys.CTRL) {
+        if (index !== -1) {
+            imageIdsArray = [...prevState.selections.images.slice(0, index),
+            ...prevState.selections.images.slice(index + 1)];
+        } else {
+            imageIdsArray = [action.id, ...prevState.selections.images];
+        }
+    }
+
+    newState.selections.images = imageIdsArray;
+    return newState;
 }
 
 function handleSeriesSelectedAction(prevState: UIState, action: SeriesSelectedAction): UIState {
@@ -88,15 +103,4 @@ function handleSeriesSelectedAction(prevState: UIState, action: SeriesSelectedAc
 
     newState.selections.series = seriesIdsArray;
     return newState;
-}
-
-function addRemoveFromArray(selectedBefore: string[], selected: string): string[] {
-    let array: string[];
-    let index: number = selectedBefore.indexOf(selected);
-    if (index !== -1) {
-        array = [...selectedBefore.slice(0, index), ...selectedBefore.slice(index + 1)];
-    } else {
-        array = [selected, ...selectedBefore];
-    }
-    return array;
 }
