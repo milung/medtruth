@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { imageStyle } from '../styles/ComponentsStyle';
 import { ApiService } from '../api';
+import {getThumbnailImageURL} from '../constants';
 
 export interface ImageProps {
     imageID: number;
@@ -15,21 +16,28 @@ export class ImageViewComponent extends React.Component<ImageProps, {}> {
         super(props);
 
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
-        this.getUrl = this.getUrl.bind(this);
+        //this.getUrl = this.getUrl.bind(this);
         this.state = { imageSelected: false };
     }
 
     componentDidMount() {
-        this.getUrl();
+        let thumbnailURI = getThumbnailImageURL(this.props.imageName);
+        let img = document.getElementById(this.props.imageID + '') as HTMLImageElement;
+        if (img != null) {
+            img.src = thumbnailURI;
+        }
     }
 
+    /*
     async getUrl(): Promise<void> {
-        let resImage = await ApiService.getImage(this.props.imageName + '_');
+        let thumbnailURI = getThumbnailImageURL(this.props.imageName);
+        //let resImage = await ApiService.getImage(this.props.imageName + '_');
         let img = document.getElementById(this.props.imageID + '') as HTMLImageElement;
         if (img != null) {
             img.src = resImage === null ? '' : resImage.url;
         }
     }
+    */
 
     handleDoubleClick() {
         this.props.handleDouble();

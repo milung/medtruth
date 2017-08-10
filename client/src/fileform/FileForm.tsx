@@ -8,6 +8,7 @@ import { FileFormAction, fileChanged } from './FileFormActions';
 import { FileUtils } from './FileUtils';
 import { validFileExtensions } from '../constants';
 import { ApiService } from '../api';
+import {getFullImageURL} from '../constants';
 
 interface OwnState {
     file: ArrayBuffer;
@@ -63,11 +64,14 @@ export class FileFormComponent extends React.Component<ConnectedDispatch, OwnSta
         let resUpload = await ApiService.upload(this.state.file);
         // After that, fetch an image.
         if (!resUpload.statuses[0].err) {
-            let resImage = await ApiService.getImage(resUpload.statuses[0].id);
+            //let resImage = await ApiService.getImage(resUpload.statuses[0].id);
 
             let img = document.getElementById('thumbnail') as HTMLImageElement;
-            img.src = resImage.url;
+            //img.src = resImage.url;
+            
+            img.src = getFullImageURL(resUpload.statuses[0].id);
         }
+
 
         submit.value = 'Send';
         submit.disabled = false;

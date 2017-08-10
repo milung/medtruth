@@ -68,6 +68,7 @@ export namespace ApiService {
         Server sends a URL to the image from Azure Storage,
         or null if it's invalid.
     */
+    /*
     interface ImageIdResponse {
         url: string;
     }
@@ -82,6 +83,7 @@ export namespace ApiService {
         return { ...res.data };
     }
 
+*/
     /*
         Route:      GET '/upload/:id'
         Expects:    Upload ID as a parameter.
