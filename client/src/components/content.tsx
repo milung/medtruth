@@ -27,9 +27,9 @@ class ContentComponent extends React.Component<OwnProps & ConnectedState, OwnSta
         return (
             <div>
                 <BlowUp />
-                <BrowserRouter>
+                <BrowserRouter >
                     <RouteMap />
-                </BrowserRouter>
+                </BrowserRouter >
             </div>
         );
     }

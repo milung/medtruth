@@ -95,6 +95,7 @@ class PatientViewerComponent extends React.Component<ConnectedState & ConnectedD
                                 style={imageStyle.seriesStyle}
                                 key={value.patientId}
                             >
+                            {}
                                 <PatientView {...value} />
                             </Grid>
                         )}

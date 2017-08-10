@@ -1,6 +1,8 @@
 import { uiReducer, UIState } from './UIReducer';
-import { OtherAction, ActionTypeKeys, ImageSelectedAction, 
-    SeriesSelectedAction, UploadDataDownloadedAction, Keys } from '../actions/actions';
+import {
+    OtherAction, ActionTypeKeys, ImageSelectedAction,
+    SeriesSelectedAction, UploadDataDownloadedAction, Keys
+} from '../actions/actions';
 
 describe('UIReducer', () => {
 
@@ -56,7 +58,9 @@ describe('UIReducer', () => {
             selections: {
                 images: ['aaaaa', 'bbbbb'],
                 series: []
-            }
+            },
+            lastViewedStudyID: ""
+
         };
 
         // when
@@ -81,7 +85,8 @@ describe('UIReducer', () => {
             selections: {
                 images: [],
                 series: ['abcd1234']
-            }
+            },
+            lastViewedStudyID: ""
         };
 
         // when
@@ -107,7 +112,8 @@ describe('UIReducer', () => {
             selections: {
                 images: [],
                 series: ['abcd1234']
-            }
+            },
+            lastViewedStudyID: ""
         };
 
         // when
@@ -132,7 +138,8 @@ describe('UIReducer', () => {
             selections: {
                 images: [],
                 series: ['abcd1234']
-            }
+            },
+            lastViewedStudyID: ""
         };
 
         // when
@@ -158,7 +165,8 @@ describe('UIReducer', () => {
             selections: {
                 images: [],
                 series: ['abcd1234', 'abcd5678']
-            }
+            },
+            lastViewedStudyID: ""
         };
 
         // when
@@ -183,7 +191,8 @@ describe('UIReducer', () => {
             selections: {
                 images: ['1234', '4321'],
                 series: ['1234abcd', 'abcd1234']
-            }
+            },
+            lastViewedStudyID: ""
         };
 
         // when

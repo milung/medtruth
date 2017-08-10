@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Card, { CardContent } from 'material-ui/Card';
 import Typography from 'material-ui/Typography';
-
+import { store, State } from '../app/store';
 import { SeriesViewer } from './SeriesViewer';
 import { SeriesProps } from './SerieView';
 
@@ -20,9 +20,19 @@ export class PatientView extends React.Component<PatientProps, {}> {
         this.convertDate = this.convertDate.bind(this);
     }
 
+    componentDidMount() {
+        let reduxState: State = store.getState() as State;
+        if (this.props.series[0].studyID == reduxState.ui.lastViewedStudyID) {
+            let doc = document.getElementById(this.props.series[0].studyID);
+            console.log("document: ", doc);
+            doc.scrollIntoView();
+        }
+
+    }
+
     render() {
         return (
-            <div>
+            <div id={this.props.series[0].studyID}>
                 <Card>
                     <CardContent>
                         <Typography type="body2" component="p">

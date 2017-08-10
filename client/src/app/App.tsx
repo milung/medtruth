@@ -25,10 +25,10 @@ export default class App extends React.Component<{}, {}> {
                 </AppBar>
                 <div style={{ paddingTop: '50px', margin: '0 auto' }}>
                     <Grid container={true}>
-                        <Grid item="false" xs={9} sm={9} md={9}>
+                        <Grid item={false} xs={9} sm={9} md={9}>
                             <Content />
                         </Grid>
-                        <Grid item="false" xs={3} sm={3} md={3}>
+                        <Grid item={false} xs={3} sm={3} md={3}>
                             <AttributeForm />
                         </Grid>
                     </Grid>
