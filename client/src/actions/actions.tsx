@@ -10,7 +10,8 @@ export enum ActionTypeKeys {
     IMAGE_ANNOTATION_ADDED = 'IMAGE_ANNOTATION_ADDED',
     UPLOAD_DATA_DOWNLOADED = 'UPLOAD_DATA_DOWNLOADED',
     // IMAGE_ANNOTATION_SELECTED = 'IMAGE_ANNOTATION_SELECTED',
-    OTHER_ACTION = 'OTHER_ACTION'
+    OTHER_ACTION = 'OTHER_ACTION',
+    LAST_STUDY_SELECTED = 'LAST_STUDY_SELECTED'
 }
 
 export enum Keys {
@@ -73,6 +74,11 @@ export interface OtherAction {
     type: ActionTypeKeys.OTHER_ACTION;
 }
 
+export interface LastStudySelected{
+    type: ActionTypeKeys.LAST_STUDY_SELECTED;
+    lastStudyID: string;
+}
+
 export const filesUploaded = (uploadID: number): FilesUploadedAction => ({
     type: ActionTypeKeys.FILES_UPLOADED,
     uploadID
@@ -85,6 +91,11 @@ export const thumbnailBlownUp = (thumbnailId: string): ThumbnailBlownUpAction =>
 
 export const thumbnailBlownDown = (): ThumbnailBlownDownAction => ({
     type: ActionTypeKeys.THUMBNAIL_BLOWN_DOWN,
+});
+
+export const lastStudySelected = (studyID: string): LastStudySelected => ({
+    type: ActionTypeKeys.LAST_STUDY_SELECTED,
+    lastStudyID: studyID
 });
 
 // export const selectedImages = (ids: string[]): ImagesSelectedAction => ({
@@ -118,6 +129,8 @@ export const uploadDataDowloaded = (upload: UploadJSON): UploadDataDownloadedAct
     upload
 });
 
+
+
 export type ActionType = 
     | FilesUploadedAction
     | ThumbnailBlownUpAction
@@ -129,7 +142,9 @@ export type ActionType =
     | ImageAnnotationAddedAction
     | UploadDataDownloadedAction
     // | LabelSelected
-    | OtherAction;
+    | OtherAction
+    | LastStudySelected;
+
     
 export interface ImageAnnotation {
     imageId: string;

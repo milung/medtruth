@@ -3,7 +3,7 @@ import * as axios from 'axios';
 
 export namespace ApiService {
     const apiEndpoint = '/api';
-    // const apiEndpoint = 'http://localhost:8080/api'
+    //const apiEndpoint = 'http://localhost:8080/api'
     /* change this */
     const uriUpload = apiEndpoint + '/upload';
     const uriImages = apiEndpoint + '/images';
@@ -68,6 +68,7 @@ export namespace ApiService {
         Server sends a URL to the image from Azure Storage,
         or null if it's invalid.
     */
+    /*
     interface ImageIdResponse {
         url: string;
     }
@@ -82,6 +83,7 @@ export namespace ApiService {
         return { ...res.data };
     }
 
+*/
     /*
         Route:      GET '/upload/:id'
         Expects:    Upload ID as a parameter.

@@ -8,6 +8,7 @@ export interface UIState {
         images: string[];
         series: string[]
     };
+    lastViewedStudyID: string
 }
 
 const initialState: UIState = {
@@ -16,7 +17,8 @@ const initialState: UIState = {
     selections: {
         images: [],
         series: []
-    }
+    },
+    lastViewedStudyID: ""
 };
 
 export function uiReducer(
@@ -53,6 +55,12 @@ export function uiReducer(
             newState.selections = Object.assign({}, prevState.selections);
             newState.selections.series = [];
             newState.selections.images = [];
+            return newState;
+        case ActionTypeKeys.LAST_STUDY_SELECTED:
+            console.log("ActionTypeKeys.LAST_STUDY_SELECTED");
+
+            newState = Object.assign({}, prevState);
+            newState.lastViewedStudyID = action.lastStudyID;
             return newState;
         default:
             return prevState;

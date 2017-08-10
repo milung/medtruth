@@ -11,6 +11,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { RouteMap } from '../router/routermap';
 
 interface OwnProps {
+    match: any
 }
 
 interface OwnState {
@@ -18,9 +19,9 @@ interface OwnState {
 
 export default class GalleryComponent extends React.Component<OwnProps, OwnState> {
 
-    render() {
-        console.log('rendering gallery');
+    
 
+    render() {
         return (
             <div>
                 <PatientViewer />

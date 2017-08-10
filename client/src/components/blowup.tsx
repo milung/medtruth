@@ -10,6 +10,7 @@ import { thumbnailBlownDown, ThumbnailBlownDownAction } from '../actions/actions
 import { State } from '../app/store';
 import { ApiService } from '../api';
 import { CircularProgress } from 'material-ui/Progress';
+import {getFullImageURL} from '../constants';
 
 interface OwnProps {
 
@@ -17,8 +18,6 @@ interface OwnProps {
 
 interface OwnState {
     imageURL: string;
-    imageLoaded: boolean;
-    fetchingStarted: boolean;
 }
 interface ConnectedState {
     showBlowUp: boolean;
@@ -32,45 +31,15 @@ interface ConnectedDispatch {
 export class BlowUpComponent extends React.Component<OwnProps & ConnectedState & ConnectedDispatch, OwnState> {
     constructor() {
         super();
-        this.state = { imageURL: '', imageLoaded: false, fetchingStarted: false };
-        this.setImageURL = this.setImageURL.bind(this);
+        this.state = { imageURL: '' };
+        //this.setImageURL = this.setImageURL.bind(this);
         this.myOnKeyDown = this.myOnKeyDown.bind(this);
         this.onExitClick = this.onExitClick.bind(this);
     }
 
     onExitClick() {
-        this.setState(Object.assign({}, this.state, { imageURL: '', imageLoaded: false }));
+        this.setState(Object.assign({}, this.state, { imageURL: ''}));
         this.props.blowDownImage();
-    }
-
-    componentWillUpdate(nextProps, nextState) {
-        console.log(nextState);
-
-        if (!nextState.fetchingStarted && !nextState.imageLoaded && nextProps.showBlowUp) {
-            this.setImageURL(nextProps.imageID);
-        }
-    }
-
-    async setImageURL(imageID: string): Promise<void> {
-        this.setState(Object.assign({}, this.state, {
-            imageURL: '',
-            imageLoaded: false,
-            fetchingStarted: true
-        }));
-        let azureImageURL = await ApiService.getImage(imageID);
-        if (imageID === this.props.imageID) {
-            this.setState(Object.assign({}, this.state, {
-                imageURL: azureImageURL.url,
-                imageLoaded: true,
-                fetchingStarted: false
-            }));
-        } else {
-            this.setState(Object.assign({}, this.state, {
-                imageURL: '',
-                imageLoaded: false,
-                fetchingStarted: false
-            }));
-        }
     }
 
     myOnKeyDown(event: KeyboardEvent) {
@@ -92,10 +61,6 @@ export class BlowUpComponent extends React.Component<OwnProps & ConnectedState &
     render() {
         let style = Object.assign({}, imageStyle.backgroundDiv);
         this.props.showBlowUp ? style.display = 'block' : style.display = 'none';
-        // set progress or loaded image
-        let circularProgress = <CircularProgress size={50} />;
-        let image: any = <img style={imageStyle.image} src={this.state.imageURL} />;
-        let content = this.state.imageLoaded ? image : circularProgress;
 
         return (
             <div style={style}>
@@ -106,7 +71,7 @@ export class BlowUpComponent extends React.Component<OwnProps & ConnectedState &
                                 <Cancel />
                             </IconButton>
                         </IconButton>
-                        {content}
+                        <img style={imageStyle.image} src={getFullImageURL(this.props.imageID)} />
                     </Paper>
                 </div>
             </div>

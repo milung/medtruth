@@ -30,7 +30,6 @@ export interface ConnectedDispatch {
 
 export interface ConnectedState {
     seriesSelected: boolean;
-
 }
 class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch & ConnectedState, {}> {
 
@@ -81,8 +80,7 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
         this.props.seriesSelected ? borderStyle = '3px solid LightSeaGreen' : borderStyle = '3px solid white';
 
         return (
-            <div>
-
+            <div >
                 <Card style={{ border: borderStyle }}>
                     <CardMedia>
                         <ImageViewComponent
