@@ -17,7 +17,7 @@ export default class App extends React.Component<{}, {}> {
         return (
             <div>
                 <AppBar style={{ backgroundColor: '#212121' }}>
-                    <Tabs index={false}>
+                    <Tabs index={false} onChange={() => { }}>
                         <Tab label={'Medtruth'} style={{ fontStyle: 'bold', color: '#F44336' }} />
                         <Tab label={<label htmlFor="file"><FolderForm /></label>} />
                         <Tab label={<DownloadButton />}/>
