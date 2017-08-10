@@ -55,8 +55,12 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
             valueFieldValue: ''
         });
 
-        await changeAttribute(false, this.props.addedImageAnnotation, this.props.series, this.state.keyFieldValue, valueNumber);
-
+        await changeAttribute(
+            false,
+            this.props.addedImageAnnotation,
+            this.props.series,
+            this.state.keyFieldValue,
+            valueNumber);
     }
 
     handleKeyFieldChange(e) {
@@ -163,17 +167,12 @@ export function getLastValue(set) {
     }
 }
 
-export async function changeAttribute(deletingAttribute: boolean, dispatchFunction, selection: string[], key: string, value: number): Promise<void> {
+export async function changeAttribute(deletingAttribute: boolean, dispatchFunction,
+    selection: string[], key: string, value: number): Promise<void> {
     console.log('DELETING ATTRIBUTE', deletingAttribute);
     let resData;
     // for (var img of this.props.images) {
     for (var id of selection) {
-        dispatchFunction({
-            imageId: id,
-            key: key,
-            value: value
-        });
-
         if (deletingAttribute) {
             console.log('deleting attribute');
             let labels: string[] = [];
@@ -188,5 +187,11 @@ export async function changeAttribute(deletingAttribute: boolean, dispatchFuncti
             });
         }
         console.log('res data', resData);
+
+        dispatchFunction({
+            imageId: id,
+            key: key,
+            value: value
+        });
     }
 }
