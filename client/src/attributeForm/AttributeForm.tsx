@@ -43,9 +43,9 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
         console.log('series', this.props.series);
 
         let valueNumber;
-        // If no value is entered in the value field, assign -1
+        // If no value is entered in the value field, assign 1
         if (this.state.valueFieldValue === null || this.state.valueFieldValue.trim() === '') {
-            valueNumber = -1;
+            valueNumber = 1;
         } else {
             valueNumber = Number(this.state.valueFieldValue);
         }
@@ -178,7 +178,7 @@ export async function changeAttribute(deletingAttribute: boolean, dispatchFuncti
             console.log('deleting attribute');
             let labels: string[] = [];
             labels.push(key);
-            //[key]
+            // resData = await ApiService.deleteAttributes(id, [key]);
             resData = await ApiService.deleteAttributes(id, labels);
         } else {
             console.log('putting attribute');
@@ -188,6 +188,5 @@ export async function changeAttribute(deletingAttribute: boolean, dispatchFuncti
             });
         }
         console.log('res data', resData);
-
     }
 }
