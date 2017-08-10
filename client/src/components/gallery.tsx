@@ -6,7 +6,7 @@ import { BlowUp } from './blowup';
 import { connect } from 'react-redux';
 import { State } from '../app/store';
 import { SelectionStatus } from '../selectionStatus/SelectionStatus';
-import { ImageViewerComponent } from '../gallery/ImageViewer';
+import { ImageViewer } from '../gallery/ImageViewer';
 import { BrowserRouter } from 'react-router-dom';
 import { RouteMap } from '../router/routermap';
 
