@@ -51,8 +51,10 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
         if (nextProps.annotations !== this.props.annotations || nextProps.series !== this.props.series) {
             if (nextProps.annotations.length !== 0) {
                 console.log('UPDATED, COMPONENT WILL MOUNT');
-                this.updating = true;
-                await this.receiveAttributes(getLastValue(this.props.series));
+                this.updating = true;                
+                this.setState({wait: true}, async() => {
+                    await this.receiveAttributes(getLastValue(this.props.series));
+                })
             }
         }
     }
@@ -65,47 +67,43 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
             // Even if no attributes are assigned to the image, the list of all labels should be shown
             if (labels) {
                 var listItems = [];
+                var values: number[] = [];
+                var occurences: number[] = [];
+                var sums: number[] = [];
                 var checkboxes: number[] = [];
 
                 // If more than one thumbnail is selected
                 if (this.props.series.length >= 2) {
                     console.log('MORE SERIES', this.props.series);
                     this.multipleSelected = true;
-                    var values: number[] = [];
                     // Set initial values for labels
                     for (let label in labels) {
-                        values.push(0);     
+                        values.push(0);
+                        occurences.push(0);
+                        sums.push(0);
                         checkboxes.push(0);
                     }
                     for (let label in labels) {
                         for (var sel of this.props.series) {
                             let resData = await ApiService.getAttributes(sel);
-                            console.log('SERIES DATA', resData);
                             if (resData.attributes) {
                                 for (let data in resData.attributes) {
-                                    console.log('comparing' + resData.attributes[data].key + ' ' + labels[label]);
                                     if (resData.attributes[data].key === labels[label]) {
-                                        console.log('CURRENT LABEL ', labels[label]);
-                                        console.log('current label value', values[label]);
-                                        values[label] += resData.attributes[data].value;
-                                        console.log('plus ', resData.attributes[data].value);
-                                        console.log('new value ' + values[label]);
+                                        if (occurences[label] === 0) {
+                                            values[label] = resData.attributes[data].value;
+                                        }
+                                        occurences[label]++;
+                                        sums[label] += resData.attributes[data].value;
                                         break;
                                     }
                                 }
                             }
                         }
-                        console.log('LABELS for now', labels);
                     }
                     for (var label in values) {
-                        if (values[label] === 0) {
-                            checkboxes[label] = 0;
-                        } else if (values[label] === this.props.series.length) {
-                            checkboxes[label] = 1;
-                        } else {
-                            checkboxes[label] = -1;
-                        }
-                        console.log('LABEL ' + labels[label] + ' ' + values[label] + ' ' + checkboxes[label]);
+                        (sums[label] !== (values[label] * this.props.series.length)) ?
+                            checkboxes[label] = -1 :
+                            checkboxes[label] = values[label];
                         listItems.push({
                             key: labels[label],
                             value: checkboxes[label]
@@ -179,7 +177,7 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
     render() {
         if (!this.state.wait) {
             console.log('ATTRIBUTE LIST ITEMS', this.state.listItems);
-
+            console.log('STATE CHECKBOXES', this.state.checkboxes);
             return (
                 <div>
                     <Paper style={{ maxHeight: '65vh', overflowY: 'auto', width: '100%' }}>
@@ -196,12 +194,12 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                                         <TableRow key={i}>
                                             <TableCell checkbox="true" >
                                                 <Checkbox
-                                                    checked={this.state.checkboxes[i] === 1}
+                                                    checked={this.state.checkboxes[i] > 0}
                                                     indeterminate={this.state.checkboxes[i] === -1}
                                                     onChange={async (event: object, checked: boolean) => {
-                                                        var checkboxes: number[] = [...this.state.checkboxes];                                                    
+                                                        var checkboxes: number[] = [...this.state.checkboxes];
                                                         let deletingAttribute = false;
-                                                        if (checkboxes[i] === 1) { deletingAttribute = true; }
+                                                        if (checkboxes[i] > 0) { deletingAttribute = true; }
                                                         checkboxes[i] === 0 ? checkboxes[i] = 1 : checkboxes[i] = 0;
                                                         await changeAttribute(
                                                             deletingAttribute,
@@ -219,6 +217,7 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                                             </TableCell>
                                             <TableCell >
                                                 {(this.multipleSelected) ? this.state.checkboxes[i] : item.value}
+                                                {/* {this.state.checkboxes[i]} */}
                                             </TableCell>
                                         </TableRow>
                                     );

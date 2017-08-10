@@ -172,6 +172,8 @@ export async function changeAttribute(deletingAttribute: boolean, dispatchFuncti
     console.log('DELETING ATTRIBUTE', deletingAttribute);
     let resData;
     // for (var img of this.props.images) {
+        console.log('deleting ' + key + ' ' + value);
+        console.log('selection', selection);
     for (var id of selection) {
         if (deletingAttribute) {
             console.log('deleting attribute');

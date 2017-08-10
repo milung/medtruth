@@ -121,7 +121,6 @@ routerImages.post('/series', json(), async (req, res) => {
 routerImages.delete('/:id/assign', json(), async (req, res) => {
     let id = req.params.id;
     let labels: string[] = req.body.labels;
-
     try {
         await AzureDatabase.removeFromAttributes(id, labels);
         res.sendStatus(200);
