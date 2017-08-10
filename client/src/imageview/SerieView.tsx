@@ -18,7 +18,7 @@ export interface SeriesProps {
     seriesID: string;
     seriesDescription: string;
     src: string;
-    imageID: string;
+    imageID: number;
     studyID: string;
     uploadID: number;
 }

@@ -24,7 +24,8 @@ export default class GalleryComponent extends React.Component<OwnProps, OwnState
         return (
             <div>
                 <PatientViewer />
-                <ImageViewerComponent />
+                {/* <ImageViewerComponent /> */}
+                   {/* <ImageViewer uploadID={1502349793991} studyID={'1.2.840.113845.11.1000000001951524609.20170524173236.1090205'} seriesID={'1.3.12.2.1107.5.2.40.50001.2017052417534013012843783.0.0.0'} />       */}
                 <SelectionStatus />
             </div>
         );
