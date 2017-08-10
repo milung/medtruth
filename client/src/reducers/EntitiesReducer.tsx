@@ -56,29 +56,45 @@ const processImageAnnotationAddedAction =
         let imageAnnotation: ImageAnnotation = action.annotation;
         let imageEntity: ImageEntity = newState.images.byId.get(imageAnnotation.imageId);
         let newImageEntity: ImageEntity;
+
         if (imageEntity === undefined) {
             newImageEntity = {
                 seriesId: undefined,
                 imageId: imageAnnotation.imageId,
                 annotations: []
             };
-            newImageEntity.annotations.push(imageAnnotation);
+            if (imageAnnotation.value !== 0) {
+                newImageEntity.annotations.push(imageAnnotation);
+            }
+
         } else {
             newImageEntity = { ...imageEntity };
-            newImageEntity.annotations = [...imageEntity.annotations];
-            var annotationExists = false;
-            for (var annotation of newImageEntity.annotations) {
-                // Check if annotation already IS assigned to the image
-                // If yes, just change the value of the annotation
-                if (annotation.key === imageAnnotation.key) {
-                    annotation.value = imageAnnotation.value;
-                    annotationExists = true;
-                    break;
+
+            // If the new annotation value is 0, annotation needs to be deleted from the old state
+            if (imageAnnotation.value === 0) {
+                newImageEntity.annotations = [];
+                for (var annotation of imageEntity.annotations) {
+                    // Push all other annotations into the new state
+                    if (annotation.key !== imageAnnotation.key) {
+                        newImageEntity.annotations.push(annotation);
+                    }
                 }
-            }
-            // If not, add new image annotation
-            if (!annotationExists) {
-                newImageEntity.annotations.push(imageAnnotation);
+            } else {
+                newImageEntity.annotations = [...imageEntity.annotations];
+                var annotationExists = false;
+                for (var annotation of newImageEntity.annotations) {
+                    // Check if annotation already IS assigned to the image
+                    // If yes, just change the value of the annotation
+                    if (annotation.key === imageAnnotation.key) {
+                        annotation.value = imageAnnotation.value;
+                        annotationExists = true;
+                        break;
+                    }
+                }
+                // If not, add new image annotation
+                if (!annotationExists && imageAnnotation.value !== 0) {
+                    newImageEntity.annotations.push(imageAnnotation);
+                }
             }
         }
         newState.images.byId.set(newImageEntity.imageId, newImageEntity);
