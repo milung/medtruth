@@ -17,7 +17,6 @@ export interface OwnState {
 }
 export interface ConnectedState {
     images: string[];
-    series: string[];
     annotations: ImageAnnotation[];
 }
 
@@ -48,17 +47,17 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
         console.log('COMPONENT WILL RECEIVE PROPS');
         console.log('COMPONENT next annotations', nextProps.annotations);
         console.log('COMPONENT old annotations', this.props.annotations);
-        if (nextProps.annotations !== this.props.annotations || nextProps.series !== this.props.series) {
+        if (nextProps.annotations !== this.props.annotations || nextProps.images !== this.props.images) {
             //if (nextProps.annotations.length !== 0) {
             console.log('UPDATED, COMPONENT WILL MOUNT');
             this.updating = true;
             this.setState({ wait: true }, async () => {
-                await this.receiveAttributes(getLastValue(this.props.series));
+                await this.receiveAttributes();
             });
         }
     }
 
-    async receiveAttributes(id: string) {
+    async receiveAttributes() {
         await this.setState({ wait: true }, async () => {
             let labels: string[] = await ApiService.getLabels();
             console.log('labels', labels);
@@ -72,8 +71,7 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                 var checkboxes: number[] = [];
 
                 // If more than one thumbnail is selected
-                if (this.props.series.length >= 2) {
-                    console.log('MORE SERIES', this.props.series);
+                if (this.props.images.length >= 2) {
                     this.multipleSelected = true;
                     // Set initial values for labels
                     for (let label in labels) {
@@ -83,8 +81,8 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                         checkboxes.push(0);
                     }
                     for (let label in labels) {
-                        for (var sel of this.props.series) {
-                            let resData = await ApiService.getAttributes(sel);
+                        for (var img of this.props.images) {
+                            let resData = await ApiService.getAttributes(img);
                             if (resData.attributes) {
                                 for (let data in resData.attributes) {
                                     if (resData.attributes[data].key === labels[label]) {
@@ -100,7 +98,7 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                         }
                     }
                     for (var label in values) {
-                        (sums[label] !== (values[label] * this.props.series.length)) ?
+                        (sums[label] !== (values[label] * this.props.images.length)) ?
                             checkboxes[label] = -1 :
                             checkboxes[label] = values[label];
                         listItems.push({
@@ -108,17 +106,16 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                             value: checkboxes[label]
                         });
                     }
-                } else {
-                    console.log('ONE SERIES', this.props.series);
+                } else if (this.props.images.length === 1) {
                     this.multipleSelected = false;
                     for (let label of labels) {
                         var labelFound = false;
-                        let resData = await ApiService.getAttributes(getLastValue(this.props.series));
+                        let resData = await ApiService.getAttributes(this.props.images[0]);
                         console.log('COMPONENT GETTING DATA...');
                         console.log('attributes', resData);
                         let value;
                         if (resData.attributes) {
-                            console.log('label ATTRIBUTES', resData.attributes);
+                            // console.log('label ATTRIBUTES', resData.attributes);
                             for (let data of resData.attributes) {
                                 if (data.key === label) {
                                     labelFound = true;
@@ -130,13 +127,13 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                         if (labelFound) {
                             // If label was already assigned to selected img
                             checkboxes.push(1);
-                            console.log(label + 'LABEL FOUND');
+                            // console.log(label + 'LABEL FOUND');
                         } else {
                             checkboxes.push(0);
-                            console.log(label + 'LABEL NOT FOUND');
+                            // console.log(label + 'LABEL NOT FOUND');
                             value = 0;
                         }
-                        console.log(label + ' value ' + value);
+                        // console.log(label + ' value ' + value);
                         listItems.push({
                             key: label,
                             value: value
@@ -144,14 +141,14 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                     }
                 }
                 this.setState({ listItems: listItems, checkboxes: checkboxes }, () => {
-                    console.log('SET NEW STATE');
-                    console.log('CHECKBOXES', this.state.checkboxes);
-                    console.log('LISTITEMS', listItems);
+                    // console.log('SET NEW STATE');
+                    // console.log('CHECKBOXES', this.state.checkboxes);
+                    // console.log('LISTITEMS', listItems);
 
                     if (!this.updating) {
                         for (var item of listItems) {
                             this.props.addedImageAnnotation({
-                                imageId: getLastValue(this.props.series),
+                                imageId: this.props.images[0],
                                 key: item.key,
                                 value: item.value
                             });
@@ -163,20 +160,20 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                 this.setState({ listItems: [], checkboxes: [] });
             }
             await this.setState({ wait: false }, () => {
-                console.log('FINISHED RECEIVING ATTRIBUTES');
+                // console.log('FINISHED RECEIVING ATTRIBUTES');
             });
         });
     }
 
     async componentDidMount() {
         console.log('COMPONENT DID MOUNT');
-        await this.receiveAttributes(getLastValue(this.props.series));
+        await this.receiveAttributes();
     }
 
     render() {
         if (!this.state.wait) {
-            console.log('ATTRIBUTE LIST ITEMS', this.state.listItems);
-            console.log('STATE CHECKBOXES', this.state.checkboxes);
+            // console.log('ATTRIBUTE LIST ITEMS', this.state.listItems);
+            // console.log('STATE CHECKBOXES', this.state.checkboxes);
             return (
                 <div>
                     <Paper style={{ maxHeight: '65vh', overflowY: 'auto', width: '100%' }}>
@@ -203,7 +200,7 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                                                         await changeAttribute(
                                                             deletingAttribute,
                                                             this.props.addedImageAnnotation,
-                                                            this.props.series,
+                                                            this.props.images,
                                                             // TODO change this to images
                                                             item.key, checkboxes[i]
                                                         );
@@ -233,33 +230,16 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
 }
 
 function mapStateToProps(state: State): ConnectedState {
-    console.log('series', state.ui.selections.series);
     let imagesFromState: string[] = [];
     let annotations: ImageAnnotation[] = [];
     if (state.ui.selections.series.length !== 0 &&
         state.entities.series.byId.get(getLastValue(state.ui.selections.series)) !== null) {
-        console.log('GETTING ANNOTATIONS');
-        imagesFromState = state.entities.series.byId.get(getLastValue(state.ui.selections.series)).images;
-
-        // For now imageID in redux is seriesID
-        annotations = state.entities.images.byId.get(getLastValue(state.ui.selections.series)).annotations;
-        // console.log('annotations', annotations);
-        // for (var img of imagesFromState) {
-        //     annotations.push(img.an)
-        // }
-
-        // state.entities.images.byId.get(getLastValue(state.ui.selections.images)).annotations;
-        // TODO GET ANNOTATIONS FROM REDUX STATE
-        // for (var img of imagesFromState) {
-        //     annotations.push(img.an)
-        // }
+        
+        annotations = [];     
     }
-    console.log(imagesFromState);
-    console.log(state.ui.selections.series);
-    console.log(annotations);
+
     return {
-        images: imagesFromState,
-        series: state.ui.selections.series,
+        images: state.ui.selections.images,
         annotations: annotations
     };
 }

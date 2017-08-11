@@ -17,7 +17,6 @@ export interface OwnState {
 }
 export interface ConnectedState {
     images: string[];
-    series: string[];
 }
 
 export interface ConnectedDispatch {
@@ -39,9 +38,6 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
     }
 
     async handleClick(): Promise<void> {
-        console.log('images', this.props.images);
-        console.log('series', this.props.series);
-
         let valueNumber;
         // If no value is entered in the value field, assign 1
         if (this.state.valueFieldValue === null || this.state.valueFieldValue.trim() === '') {
@@ -58,7 +54,7 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
         await changeAttribute(
             false,
             this.props.addedImageAnnotation,
-            this.props.series,
+            this.props.images,
             this.state.keyFieldValue,
             valueNumber);
     }
@@ -90,7 +86,7 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
 
         var attributeList;
         // Check if something is selected
-        if (this.props.series.length !== 0) {
+        if (this.props.images.length !== 0) {
             attributeList = <AttributeList />;
         }
 
@@ -139,16 +135,13 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
 }
 
 function mapStateToProps(state: State): ConnectedState {
-    console.log('series', state.ui.selections.series);
-    let imagesFromState: string[] = [];
-    if (state.ui.selections.series.length !== 0 &&
-        state.entities.series.byId.get(getLastValue(state.ui.selections.series)) !== null) {
-        imagesFromState = state.entities.series.byId.get(getLastValue(state.ui.selections.series)).images;
-    }
-
+    // let imagesFromState: string[] = [];
+    // if (state.ui.selections.series.length !== 0 &&
+    //     state.entities.series.byId.get(getLastValue(state.ui.selections.series)) !== null) {
+    //     imagesFromState = state.entities.series.byId.get(getLastValue(state.ui.selections.series)).images;
+    // }
     return {
-        images: imagesFromState,
-        series: state.ui.selections.series
+        images: state.ui.selections.images
     };
 }
 
@@ -169,26 +162,20 @@ export function getLastValue(set) {
 
 export async function changeAttribute(deletingAttribute: boolean, dispatchFunction,
     selection: string[], key: string, value: number): Promise<void> {
-    console.log('DELETING ATTRIBUTE', deletingAttribute);
     let resData;
-    // for (var img of this.props.images) {
-        console.log('deleting ' + key + ' ' + value);
-        console.log('selection', selection);
+
     for (var id of selection) {
         if (deletingAttribute) {
-            console.log('deleting attribute');
             let labels: string[] = [];
             labels.push(key);
             // resData = await ApiService.deleteAttributes(id, [key]);
             resData = await ApiService.deleteAttributes(id, labels);
         } else {
-            console.log('putting attribute');
             resData = await ApiService.putAttributes(id, {
                 key: key,
                 value: value
             });
         }
-        console.log('res data', resData);
 
         dispatchFunction({
             imageId: id,
