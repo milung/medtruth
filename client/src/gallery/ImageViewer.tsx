@@ -10,6 +10,9 @@ import { connect } from "react-redux";
 import { State } from "../app/store";
 import * as Redux from 'redux';
 import { ThumbnailBlownUpAction, thumbnailBlownUp, SeriesSelectedAction } from "../actions/actions";
+import { PatientProps } from "../imageview/PatientView";
+import { Link } from "react-router-dom";
+
 
 interface GaleryProps {
     uploadID: number;
@@ -29,6 +32,12 @@ interface ConnectedDispatch {
  */
 class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispatch, ArrayOfImages> {
     private timer = null;
+
+    private patientName: string;
+    private seriesDescription: string;
+    private uploadDate: number;
+
+
     constructor(props) {
         super(props);
         this.state = {
@@ -39,12 +48,10 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
     }
     async componentDidMount() {
-        // console.log("componentDidMount uploadID: ", this.props.uploadID);
-        // console.log("componentDidMount studyID: ", this.props.studyID);
-        // console.log("componentDidMount seriesID: ", this.props.seriesID);
-        // console.log("dostala som sa sem. Spustam receive Images");
+
         await this.receiveImages(this.props.uploadID, this.props.studyID, this.props.seriesID);
-        // console.log("skoncila som receive images");
+        await this.receiveData(this.props.uploadID);
+
     }
 
     handleImageClick() {
@@ -63,15 +70,50 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
         clearTimeout(this.timer);
     }
 
-    
+    async receiveData(uploadID: number): Promise<void> {
+        let patId = 10;
+
+
+        this.setState({ wait: true });
+
+        let resData = await ApiService.getData(uploadID);
+
+        console.log(' data', resData);
+        let patients = [];
+
+        for (let patient of resData.studies) {
+           // let tempSeries = [];
+
+            for (let tmpSerie of patient.series) {
+                let serie = {
+                    seriesID: tmpSerie.seriesID,
+                    seriesDescription: tmpSerie.seriesDescription,   
+                    studyID: patient.studyID,
+                    uploadID: resData.uploadID
+                };
+                if (serie.seriesID == this.props.seriesID) {
+                    this.seriesDescription = serie.seriesDescription;
+                }
+            }
+            let tempPatint = {
+              //  patientId: patId,
+                patientName: patient.patientName,
+                dateOfBirth: patient.patientBirthday,
+                studyDescription: patient.studyDescription,
+              //  series: tempSeries
+            };
+            this.patientName = tempPatint.patientName
+
+        }
+        this.uploadDate = resData.uploadDate;
+        this.setState({ wait: false });
+       
+    }
+
+
     async receiveImages(uploadID: number, studyID: string, seriesID: string): Promise<void> {
         this.setState({ wait: true });
-        // console.log("uploadID: ", uploadID);
-        // console.log("studyID: ", studyID);
-        // console.log("seriesID: ", seriesID);
-        // console.log("typeOf: ", typeof(+uploadID));
-        // console.log("typeOf: ", typeof(studyID));
-        // console.log("typeOf: ", typeof(seriesID));
+
         let resData = await ApiService.getSeriesImages(+uploadID, studyID, seriesID);
         console.log('resData: ', resData);
         let tempImages = [];
@@ -98,29 +140,55 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
     }
 
     render() {
+        let linkStyle = {
+            marginTop: '10px',
+            marginRight: '50px',
+            float: 'right',
+        }
+
         if (!this.state.wait) {
-        return (            
-            <div >
-                <Grid container={true} gutter={16}>
-                    {this.state.imageList.map(value =>
-                        <Grid item="false" xs={12} sm={6} md={4} lg={3} xl={2} style={imageStyle.seriesStyle} key={value.imageID}>
-                            <Card style={{padding: '10'}}>
-                                <ImageViewComponent {...value} />
-                            </Card>
-                        </Grid>
-                    )
-                    }
-                </Grid>
-            </div>
-        );
-        }else {
+            return (
+
+
+                <div >
+                    <Link to={'/'}>
+                        <img
+                            src={require('../icons/arrow_back_black_36x36.png')}
+                            // style={{ float: 'left', marginTop: '10', marginLeft: '10' }}
+                            style={{ float: 'left' }}
+                        />
+                    </Link>
+
+
+                    <div style={linkStyle}>
+
+                        {this.uploadDate} /
+                        {this.seriesDescription} /
+                        {this.patientName}
+                    </div>
+
+
+
+                    <Grid container={true} gutter={16}>
+                        {this.state.imageList.map(value =>
+                            <Grid item="false" xs={12} sm={6} md={4} lg={3} xl={2} style={imageStyle.seriesStyle} key={value.imageID}>
+                                <Card style={{ padding: '10' }}>
+                                    <ImageViewComponent {...value} />
+                                </Card>
+                            </Grid>
+                        )
+                        }
+                    </Grid>
+                </div>
+            );
+        } else {
             return <div />;
         }
     }
 }
 
 function mapStateToProps(state: State, props: GaleryProps): GaleryProps {
-    return {        
+    return {
         uploadID: props.uploadID,
         studyID: props.studyID,
         seriesID: props.seriesID,
