@@ -84,8 +84,8 @@ class PatientViewerComponent extends React.Component<ConnectedState & ConnectedD
     render() {
         if (!this.state.wait) {
             return (
-                <div >
-                    <Grid container={true} gutter={16}>
+                <div style={{marginLeft: 10, marginBottom: 10, marginRight: 10}}>
+                    <Grid container={true} /*gutter={16}*/>
                         {this.state.patientList.map(value =>
                             <Grid
                                 item="false"

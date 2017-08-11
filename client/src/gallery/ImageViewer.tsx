@@ -10,6 +10,7 @@ import { connect } from "react-redux";
 import { State } from "../app/store";
 import * as Redux from 'redux';
 import { ThumbnailBlownUpAction, thumbnailBlownUp, SeriesSelectedAction } from "../actions/actions";
+import Paper from 'material-ui/Paper';
 
 interface GaleryProps {
     uploadID: number;
@@ -39,12 +40,7 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
     }
     async componentDidMount() {
-        // console.log("componentDidMount uploadID: ", this.props.uploadID);
-        // console.log("componentDidMount studyID: ", this.props.studyID);
-        // console.log("componentDidMount seriesID: ", this.props.seriesID);
-        // console.log("dostala som sa sem. Spustam receive Images");
         await this.receiveImages(this.props.uploadID, this.props.studyID, this.props.seriesID);
-        // console.log("skoncila som receive images");
     }
 
     handleImageClick() {
@@ -62,16 +58,9 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
     handleDoubleClick() {
         clearTimeout(this.timer);
     }
-
     
     async receiveImages(uploadID: number, studyID: string, seriesID: string): Promise<void> {
         this.setState({ wait: true });
-        // console.log("uploadID: ", uploadID);
-        // console.log("studyID: ", studyID);
-        // console.log("seriesID: ", seriesID);
-        // console.log("typeOf: ", typeof(+uploadID));
-        // console.log("typeOf: ", typeof(studyID));
-        // console.log("typeOf: ", typeof(seriesID));
         let resData = await ApiService.getSeriesImages(+uploadID, studyID, seriesID);
         console.log('resData: ', resData);
         let tempImages = [];
@@ -85,8 +74,6 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
                     handleDouble: this.handleDoubleClick
                 };
                 tempImages.push(tempImg);
-                // console.log("ImageID", tempImg.imageID);
-                // console.log("ImageName", tempImg.imageName);
             }
             this.setState({ imageList: tempImages });
         } else {
@@ -94,23 +81,24 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
             this.setState({ imageList: [] });
         }
         this.setState({ wait: false });
-        // console.log("imageList", this.state.imageList);
     }
 
     render() {
         if (!this.state.wait) {
         return (            
-            <div >
+            <div style={{marginLeft: 10, marginBottom: 10, marginRight: 10}}>
+                <Paper style={{ paddingLeft: 16, paddingRight: 16, paddingTop: 16, paddingBottom: 30}}>
                 <Grid container={true} gutter={16}>
                     {this.state.imageList.map(value =>
-                        <Grid item="false" xs={12} sm={6} md={4} lg={3} xl={2} style={imageStyle.seriesStyle} key={value.imageID}>
-                            <Card style={{padding: '10'}}>
+                        <Grid item="false" xs={6} sm={3} md={2} style={imageStyle.seriesStyle} key={value.imageID}>
+                            <Card style={{paddingLeft: 3, paddingRight: 3,paddingTop: 3, paddingBottom: 10}}>
                                 <ImageViewComponent {...value} />
                             </Card>
                         </Grid>
                     )
                     }
                 </Grid>
+                </Paper>
             </div>
         );
         }else {
