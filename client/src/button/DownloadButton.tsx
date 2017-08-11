@@ -17,7 +17,7 @@ export class DownloadButton extends React.Component<{}, {}> {
     render() {
         return (
             // tslint:disable-next-line:jsx-boolean-value
-            <a onClick={this.download} download style={{ display: 'block' }}>DOWNLOAD</a>
+            <a href="/api/download" download style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>DOWNLOAD</a>
         );
     } 
 }
