@@ -69,10 +69,11 @@ export const imageStyle = {
     },
 
     imageViewerCard: { 
-        paddingLeft: '3', 
-        paddingRight: '3', 
-        paddingTop: '3', 
-        paddingBottom: '10' 
+        // paddingLeft: '3', 
+        // paddingRight: '3', 
+        // paddingTop: '3', 
+        // paddingBottom: '10'
+        // padding: 10 
     },
     ImageViewGrid: {
         marginTop: '28',

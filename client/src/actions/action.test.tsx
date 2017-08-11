@@ -1,4 +1,10 @@
-import { filesUploaded, ActionTypeKeys, FilesUploadedAction, ThumbnailBlownUpAction, thumbnailBlownUp, ThumbnailBlownDownAction, thumbnailBlownDown, ImageSelectedAction, selectedImage, ImageAnnotation, ImageAnnotationAddedAction, imageAnnotationAdded, SeriesSelectedAction, seriesSelected, SeriesAllUnselectedAction, seriesAllUnselected, UploadJSON, UploadDataDownloadedAction, uploadDataDowloaded, Keys } from './actions';
+import { filesUploaded, ActionTypeKeys, FilesUploadedAction, 
+    ThumbnailBlownUpAction, thumbnailBlownUp, ThumbnailBlownDownAction, 
+    thumbnailBlownDown, ImageSelectedAction, selectedImage, ImageAnnotation, 
+    ImageAnnotationAddedAction, imageAnnotationAdded, SeriesSelectedAction, 
+    seriesSelected, SeriesAllUnselectedAction, seriesAllUnselected, 
+    UploadJSON, UploadDataDownloadedAction, uploadDataDowloaded, Keys, 
+    ImagesAllUnselectedAction, imagesAllUnselected } from './actions';
 
 describe('actions', () => {
     it('should create an action FilesUploadedAction', () => {
@@ -60,6 +66,17 @@ describe('actions', () => {
             type: ActionTypeKeys.IMAGE_SELECTED,
             id: ID,
             keyPressed: Keys.NONE
+        });
+    });
+
+    it('should create an action ImagesAllUnselectedAction', () => {
+        
+        //when
+        let action: ImagesAllUnselectedAction = imagesAllUnselected();
+
+        //then
+        expect(action).toEqual({
+            type: ActionTypeKeys.IMAGES_ALL_UNSELECTED,
         });
     });
 

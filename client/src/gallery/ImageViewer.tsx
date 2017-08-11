@@ -9,15 +9,26 @@ import { ApiService } from "../api";
 import { connect } from "react-redux";
 import { State } from "../app/store";
 import * as Redux from 'redux';
-import { ThumbnailBlownUpAction, thumbnailBlownUp, SeriesSelectedAction } from "../actions/actions";
 import Paper from 'material-ui/Paper';
+
+import {
+    ThumbnailBlownUpAction, thumbnailBlownUp,
+    SeriesSelectedAction, Keys, selectedImage, ImageSelectedAction, ImagesAllUnselectedAction, imagesAllUnselected
+} from "../actions/actions";
+
+import { PatientProps } from "../imageview/PatientView";
 import { Link } from "react-router-dom";
 // import {imageStyle} from '../styles/ComponentsStyle'
+
 
 interface GaleryProps {
     uploadID: number;
     studyID: string;
     seriesID: string;
+}
+
+interface ConnectedState {
+    selectedImages: string[];
 }
 
 interface ArrayOfImages {
@@ -26,11 +37,13 @@ interface ArrayOfImages {
 }
 interface ConnectedDispatch {
     blowUp: (imageID: string) => ThumbnailBlownUpAction;
+    selectedImage: (imageID: string, keyPressedL: Keys) => ImageSelectedAction;
+    deselectAllImages: () => ImagesAllUnselectedAction;
 }
 /**
  * Gallery component
  */
-class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispatch, ArrayOfImages> {
+class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispatch & ConnectedState, ArrayOfImages> {
     private timer = null;
 
     private patientName: string;
@@ -54,13 +67,42 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
 
     }
 
-    handleImageClick() {
+    componentWillReceiveProps(nextProps: GaleryProps & ConnectedState) {
+        if (nextProps.selectedImages !== this.props.selectedImages) {
+            let imageList: ImageProps[] = [...this.state.imageList];
+            for (let image in imageList) {
+                if (nextProps.selectedImages.indexOf(imageList[image].imageName) !== -1) {
+                    // image is now selected
+
+                    if (!imageList[image].isSelected) {
+                        // image was not selected
+
+                        imageList[image] = { ...imageList[image] };
+                        imageList[image].isSelected = true;
+                    }
+                } else {
+                    // image is now not selected 
+
+                    if (imageList[image].isSelected) {
+                        // image was selected
+
+                        imageList[image] = { ...imageList[image] };
+                        imageList[image].isSelected = false;
+                    }
+                }
+            }
+            this.setState({ imageList });
+        }
+    }
+
+    handleImageClick(imageID: string, keyPressed: Keys) {
         if (this.timer) {
             clearTimeout(this.timer);
         }
         this.timer = setTimeout(
             () => {
-                // console.log('clicked on ' + this.props.seriesID);
+                console.log('clicked on ' + this.props.seriesID);
+                this.props.selectedImage(imageID, keyPressed);
             },
             100
         );
@@ -122,9 +164,10 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
                 let tempImg: ImageProps = {
                     imageID: data.imageNumber,
                     imageName: data.imageID,
-                    handler: this.handleImageClick,
+                    handleClick: this.handleImageClick,
                     blowUp: this.props.blowUp,
-                    handleDouble: this.handleDoubleClick
+                    handleDouble: this.handleDoubleClick,
+                    isSelected: false
                 };
                 tempImages.push(tempImg);
             }
@@ -182,19 +225,26 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
             return <div />;
         }
     }
+
+    componentWillUnmount() {
+        this.props.deselectAllImages();
+    }
 }
 
-function mapStateToProps(state: State, props: GaleryProps): GaleryProps {
+function mapStateToProps(state: State, props: GaleryProps): GaleryProps & ConnectedState {
     return {
         uploadID: props.uploadID,
         studyID: props.studyID,
         seriesID: props.seriesID,
+        selectedImages: state.ui.selections.images
     };
 }
 
 function mapDispatchToProps(dispatch: Redux.Dispatch<SeriesSelectedAction>): ConnectedDispatch {
     return {
-        blowUp: (imageID: string) => dispatch(thumbnailBlownUp(imageID))
+        blowUp: (imageID: string) => dispatch(thumbnailBlownUp(imageID)),
+        selectedImage: (imageID: string, keyPressed: Keys) => dispatch(selectedImage(imageID, keyPressed)),
+        deselectAllImages: () => dispatch(imagesAllUnselected())
     };
 }
 

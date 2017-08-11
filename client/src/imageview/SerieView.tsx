@@ -42,13 +42,7 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
         this.displayAlbum = this.displayAlbum.bind(this);
     }
 
-    handleImageClick(event: MouseEvent) {
-        let keyPressed: Keys = Keys.NONE;
-
-        if (event.ctrlKey) {
-            keyPressed = Keys.CTRL;
-        }
-
+    handleImageClick(imageID: string, keyPressed: Keys) {
         if (this.timer) {
             clearTimeout(this.timer);
         }
@@ -60,6 +54,25 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
             100
         );
     }
+
+    // handleImageClick(event: MouseEvent) {
+    //     let keyPressed: Keys = Keys.NONE;
+
+    //     if (event.ctrlKey) {
+    //         keyPressed = Keys.CTRL;
+    //     }
+
+    //     if (this.timer) {
+    //         clearTimeout(this.timer);
+    //     }
+    //     this.timer = setTimeout(
+    //         () => {
+    //             console.log('clicked on ' + this.props.seriesID);
+    //             this.props.selectedSeries(this.props.seriesID, keyPressed);
+    //         },
+    //         100
+    //     );
+    // }
 
     handleDoubleClick() {
         clearTimeout(this.timer);
@@ -86,9 +99,10 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
                         <ImageViewComponent
                             imageName={this.props.src}
                             imageID={this.props.imageID}
-                            handler={this.handleImageClick}
+                            handleClick={this.handleImageClick}
                             blowUp={this.props.blowUp}
                             handleDouble={this.handleDoubleClick}
+                            isSelected={false}
                         />
                     </CardMedia>
                     <CardContent style={imageStyle.contentCenter}>

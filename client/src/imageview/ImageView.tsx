@@ -3,11 +3,13 @@ import * as React from 'react';
 import { imageStyle } from '../styles/ComponentsStyle';
 import { ApiService } from '../api';
 import {getThumbnailImageURL} from '../constants';
+import { Keys } from '../actions/actions';
 
 export interface ImageProps {
     imageID: number;
     imageName: string;
-    handler: (event: {}) => void;
+    isSelected: boolean;
+    handleClick: (imageID: string, keyPressed: Keys) => void;
     blowUp: (imageID: string) => void;
     handleDouble: () => void;
 }
@@ -16,8 +18,8 @@ export class ImageViewComponent extends React.Component<ImageProps, {}> {
         super(props);
 
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
+        this.clickHandler = this.clickHandler.bind(this);
         //this.getUrl = this.getUrl.bind(this);
-        this.state = { imageSelected: false };
     }
 
     componentDidMount() {
@@ -39,23 +41,37 @@ export class ImageViewComponent extends React.Component<ImageProps, {}> {
     }
     */
 
+    clickHandler(event) {
+        let keyPressed: Keys = Keys.NONE;
+
+        if (event.ctrlKey) {
+            keyPressed = Keys.CTRL;
+        }
+
+        this.props.handleClick(this.props.imageName, keyPressed);
+    }
+
     handleDoubleClick() {
         this.props.handleDouble();
         console.log('double click!');
         this.props.blowUp(this.props.imageName);
     }
 
-    keyPressed(event) {
-        console.log(event.keyCode);
-        this.setState(Object.assign({}, this.state, { open: false }));
-    }
+    // keyPressed(event) {
+    //     console.log(event.keyCode);
+    //     this.setState(Object.assign({}, this.state, { open: false }));
+    // }
+
 
     render() {
+        let borderStyle;
+        this.props.isSelected ? borderStyle = '3px solid LightSeaGreen' : borderStyle = '3px solid white';
+
         return (
             <img
                 id={this.props.imageID + ''}
-                style={imageStyle.img}
-                onClick={this.props.handler}
+                style={{...imageStyle.img, border: borderStyle}}
+                onClick={this.clickHandler}
                 onDoubleClick={this.handleDoubleClick}
             />
         );
