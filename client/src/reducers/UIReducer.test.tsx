@@ -1,7 +1,6 @@
 import { uiReducer, UIState } from './UIReducer';
-import {
-    OtherAction, ActionTypeKeys, ImageSelectedAction,
-    SeriesSelectedAction, UploadDataDownloadedAction, Keys
+import { OtherAction, ActionTypeKeys, ImageSelectedAction, 
+    SeriesSelectedAction, UploadDataDownloadedAction, Keys, ImagesAllUnselectedAction
 } from '../actions/actions';
 
 describe('UIReducer', () => {
@@ -124,7 +123,7 @@ describe('UIReducer', () => {
                 images: ['abcd1234', 'abcd5678'],
                 series: []
             },
-            lastViewedStudyID: ""
+            lastViewedStudyID: ''
 
         };
 
@@ -134,6 +133,30 @@ describe('UIReducer', () => {
         // then
         expect(newState.selections.images.indexOf('abcd1234') !== -1).toBeTruthy();
         expect(newState.selections.images.indexOf('abcd5678') === -1).toBeTruthy();
+    });
+
+    it('should handle ImagesAllUnselectedAction', () => {
+
+        // given
+        let imagesAllUnselectedAction: ImagesAllUnselectedAction = {
+            type: ActionTypeKeys.IMAGES_ALL_UNSELECTED
+        };
+
+        let prevState: UIState = {
+            isBlownUpShowed: false,
+            blownUpThumbnailId: '',
+            selections: {
+                images: ['abcd1234', 'abcd5678'],
+                series: []
+            },
+            lastViewedStudyID: ''
+        };
+
+        // when
+        let newState: UIState = uiReducer(prevState, imagesAllUnselectedAction);
+
+        // then
+        expect(newState.selections.images.length).toBe(0);
     });
 
     it('should handle simple SeriesSelectedAction (select series)', () => {
@@ -152,7 +175,7 @@ describe('UIReducer', () => {
                 images: [],
                 series: ['abcd1234']
             },
-            lastViewedStudyID: ""
+            lastViewedStudyID: ''
         };
 
         // when
@@ -179,7 +202,7 @@ describe('UIReducer', () => {
                 images: [],
                 series: ['abcd1234']
             },
-            lastViewedStudyID: ""
+            lastViewedStudyID: ''
         };
 
         // when
@@ -205,7 +228,7 @@ describe('UIReducer', () => {
                 images: [],
                 series: ['abcd1234']
             },
-            lastViewedStudyID: ""
+            lastViewedStudyID: ''
         };
 
         // when
@@ -232,7 +255,7 @@ describe('UIReducer', () => {
                 images: [],
                 series: ['abcd1234', 'abcd5678']
             },
-            lastViewedStudyID: ""
+            lastViewedStudyID: ''
         };
 
         // when
@@ -258,7 +281,7 @@ describe('UIReducer', () => {
                 images: ['1234', '4321'],
                 series: ['1234abcd', 'abcd1234']
             },
-            lastViewedStudyID: ""
+            lastViewedStudyID: ''
         };
 
         // when

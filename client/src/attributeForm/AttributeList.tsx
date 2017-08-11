@@ -49,13 +49,12 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
         console.log('COMPONENT next annotations', nextProps.annotations);
         console.log('COMPONENT old annotations', this.props.annotations);
         if (nextProps.annotations !== this.props.annotations || nextProps.series !== this.props.series) {
-            if (nextProps.annotations.length !== 0) {
-                console.log('UPDATED, COMPONENT WILL MOUNT');
-                this.updating = true;                
-                this.setState({wait: true}, async() => {
-                    await this.receiveAttributes(getLastValue(this.props.series));
-                })
-            }
+            //if (nextProps.annotations.length !== 0) {
+            console.log('UPDATED, COMPONENT WILL MOUNT');
+            this.updating = true;
+            this.setState({ wait: true }, async () => {
+                await this.receiveAttributes(getLastValue(this.props.series));
+            });
         }
     }
 

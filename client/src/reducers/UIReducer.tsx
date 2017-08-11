@@ -43,10 +43,15 @@ export function uiReducer(
                 });
         case ActionTypeKeys.IMAGE_SELECTED:
             return handleImageSelecedAction(prevState, action);
+        case ActionTypeKeys.IMAGES_ALL_UNSELECTED:
+            let newState: UIState = Object.assign({}, prevState);
+            newState.selections = Object.assign({}, prevState.selections);
+            newState.selections.images = [];
+            return newState;
         case ActionTypeKeys.SERIES_SELECTED:
             return handleSeriesSelectedAction(prevState, action);
         case ActionTypeKeys.SERIES_ALL_UNSELECTED:
-            let newState: UIState = Object.assign({}, prevState);
+            newState = Object.assign({}, prevState);
             newState.selections = Object.assign({}, prevState.selections);
             newState.selections.series = [];
             return newState;

@@ -5,6 +5,7 @@ export enum ActionTypeKeys {
     THUMBNAIL_BLOWN_DOWN = 'THUMBNAIL_BLOWN_DOWN',
     // IMAGES_SELECTED = 'IMAGES_SELECTED',
     IMAGE_SELECTED = 'IMAGE_SELECTED',
+    IMAGES_ALL_UNSELECTED = 'IMAGES_ALL_UNSELECTED',
     SERIES_SELECTED = 'SERIES_SELECTED',
     SERIES_ALL_UNSELECTED = 'SERIES_ALL_UNSELECTED',
     IMAGE_ANNOTATION_ADDED = 'IMAGE_ANNOTATION_ADDED',
@@ -43,6 +44,10 @@ export interface ImageSelectedAction {
     type: ActionTypeKeys.IMAGE_SELECTED;
     id: string;
     keyPressed: Keys;
+}
+
+export interface ImagesAllUnselectedAction {
+    type: ActionTypeKeys.IMAGES_ALL_UNSELECTED;
 }
 
 export interface ImageAnnotationAddedAction {
@@ -109,6 +114,10 @@ export const selectedImage = (id: string, keyPressed: Keys): ImageSelectedAction
     keyPressed
 });
 
+export const imagesAllUnselected = (): ImagesAllUnselectedAction => ({
+    type: ActionTypeKeys.IMAGES_ALL_UNSELECTED,
+});
+
 export const imageAnnotationAdded = (annotation: ImageAnnotation): ImageAnnotationAddedAction => ({
     type: ActionTypeKeys.IMAGE_ANNOTATION_ADDED,
     annotation
@@ -137,6 +146,7 @@ export type ActionType =
     | ThumbnailBlownDownAction
     // | ImagesSelectedAction
     | ImageSelectedAction
+    | ImagesAllUnselectedAction
     | SeriesSelectedAction
     | SeriesAllUnselectedAction
     | ImageAnnotationAddedAction
