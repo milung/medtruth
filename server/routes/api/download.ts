@@ -37,14 +37,14 @@ routerDownload.get('/', (req, res) => {
     // Writes the response's header.
     res.writeHead(StatusCode.OK, {
         'Content-Type': 'application/zip',
-        'Content-Disposition': 'attachment',
+        'Content-Disposition': 'attachment; filename=Test.zip',
     });
 
     // Pipe the ziping to the response.
     archive.pipe(res);
 
     // Dynamically append to the zip file.
-    archive.file('Gigfile', { name: 'testing' });
+    archive.append('Ahoj Feďo', { name: 'Pozdrav.txt' });
 
     // Finalize the stream.
     archive.finalize();

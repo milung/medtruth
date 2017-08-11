@@ -53,5 +53,29 @@ export const imageStyle = {
         display: 'none',
         paddingTop: '70px',
         overflow: overflowAuto
+    },
+            
+    imageViewerDiv: {
+        marginLeft: '10', 
+        marginBottom: '10', 
+        marginRight: '10'  
+    },
+
+    imageViewerPaper: { 
+        paddingLeft: '16', 
+        paddingRight: '16', 
+        paddingTop: '16', 
+        paddingBottom: '30'
+    },
+
+    imageViewerCard: { 
+        paddingLeft: '3', 
+        paddingRight: '3', 
+        paddingTop: '3', 
+        paddingBottom: '10' 
+    },
+    ImageViewGrid: {
+        marginTop: '28',
     }
+    
 };
