@@ -8,7 +8,7 @@ import { FileFormAction, fileChanged } from './FileFormActions';
 import { FileUtils } from './FileUtils';
 import { validFileExtensions } from '../constants';
 import { ApiService } from '../api';
-import {getFullImageURL} from '../constants';
+import { getFullImageURL } from '../constants';
 
 interface OwnState {
     file: ArrayBuffer;
@@ -68,7 +68,7 @@ export class FileFormComponent extends React.Component<ConnectedDispatch, OwnSta
 
             let img = document.getElementById('thumbnail') as HTMLImageElement;
             //img.src = resImage.url;
-            
+
             img.src = getFullImageURL(resUpload.statuses[0].id);
         }
 
