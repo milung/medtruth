@@ -53,5 +53,8 @@ export const imageStyle = {
         display: 'none',
         paddingTop: '70px',
         overflow: overflowAuto
-    }
+    },
+            
+  
+    
 };
