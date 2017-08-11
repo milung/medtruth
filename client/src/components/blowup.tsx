@@ -61,6 +61,9 @@ export class BlowUpComponent extends React.Component<OwnProps & ConnectedState &
     render() {
         let style = Object.assign({}, imageStyle.backgroundDiv);
         this.props.showBlowUp ? style.display = 'block' : style.display = 'none';
+        let image = this.props.showBlowUp ? 
+        <img style={imageStyle.image} src={getFullImageURL(this.props.imageID)} /> :
+        undefined;
 
         return (
             <div style={style}>
@@ -71,7 +74,7 @@ export class BlowUpComponent extends React.Component<OwnProps & ConnectedState &
                                 <Cancel />
                             </IconButton>
                         </IconButton>
-                        <img style={imageStyle.image} src={getFullImageURL(this.props.imageID)} />
+                        {image}
                     </Paper>
                 </div>
             </div>
