@@ -17,7 +17,12 @@ export class DownloadButton extends React.Component<{}, {}> {
     render() {
         return (
             // tslint:disable-next-line:jsx-boolean-value
-            <a href="/api/download" download style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>DOWNLOAD</a>
+            <a
+                href="/api/download"
+                download
+                style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}
+            >DOWNLOAD
+            </a>
         );
-    } 
+    }
 }

@@ -3,23 +3,22 @@ import Grid from 'material-ui/Grid';
 import { imageStyle } from '../styles/ComponentsStyle';
 import Card, { CardContent } from 'material-ui/Card';
 import Typography from 'material-ui/Typography';
-import { ImageViewComponent } from "../imageview/ImageView";
-import { ImageProps } from '../imageview/ImageView'
-import { ApiService } from "../api";
-import { connect } from "react-redux";
-import { State } from "../app/store";
+import { ImageViewComponent } from '../imageview/ImageView';
+import { ImageProps } from '../imageview/ImageView';
+import { ApiService } from '../api';
+import { connect } from 'react-redux';
+import { State } from '../app/store';
 import * as Redux from 'redux';
 import Paper from 'material-ui/Paper';
 
 import {
     ThumbnailBlownUpAction, thumbnailBlownUp,
     SeriesSelectedAction, Keys, selectedImage, ImageSelectedAction, ImagesAllUnselectedAction, imagesAllUnselected
-} from "../actions/actions";
+} from '../actions/actions';
 
-import { PatientProps } from "../imageview/PatientView";
-import { Link } from "react-router-dom";
+import { PatientProps } from '../imageview/PatientView';
+import { Link } from 'react-router-dom';
 // import {imageStyle} from '../styles/ComponentsStyle'
-
 
 interface GaleryProps {
     uploadID: number;
@@ -40,6 +39,7 @@ interface ConnectedDispatch {
     selectedImage: (imageID: string, keyPressedL: Keys) => ImageSelectedAction;
     deselectAllImages: () => ImagesAllUnselectedAction;
 }
+
 /**
  * Gallery component
  */
@@ -50,7 +50,6 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
     private seriesDescription: string;
     private uploadDate: number;
 
-
     constructor(props) {
         super(props);
         this.state = {
@@ -60,11 +59,10 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
         this.handleImageClick = this.handleImageClick.bind(this);
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
     }
-    async componentDidMount() {
 
+    async componentDidMount() {
         await this.receiveImages(this.props.uploadID, this.props.studyID, this.props.seriesID);
         await this.receiveData(this.props.uploadID);
-
     }
 
     componentWillReceiveProps(nextProps: GaleryProps & ConnectedState) {
@@ -115,7 +113,6 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
     async receiveData(uploadID: number): Promise<void> {
         let patId = 10;
 
-
         this.setState({ wait: true });
 
         let resData = await ApiService.getData(uploadID);
@@ -133,7 +130,7 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
                     studyID: patient.studyID,
                     uploadID: resData.uploadID
                 };
-                if (serie.seriesID == this.props.seriesID) {
+                if (serie.seriesID === this.props.seriesID) {
                     this.seriesDescription = serie.seriesDescription;
                 }
             }
@@ -144,14 +141,12 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
                 studyDescription: patient.studyDescription,
                 //  series: tempSeries
             };
-            this.patientName = tempPatint.patientName
-
+            this.patientName = tempPatint.patientName;
         }
         this.uploadDate = resData.uploadDate;
         this.setState({ wait: false });
 
     }
-
 
     async receiveImages(uploadID: number, studyID: string, seriesID: string): Promise<void> {
         this.setState({ wait: true });
@@ -214,14 +209,21 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
 
                         <Grid container={true} gutter={16} style={imageStyle.ImageViewGrid}>
                             {this.state.imageList.map(value =>
-                                <Grid item="false" xs={6} sm={3} md={2} style={imageStyle.seriesStyle} key={value.imageID}>
+                                <Grid
+                                    item="false"
+                                    xs={6}
+                                    sm={3}
+                                    md={2}
+                                    style={imageStyle.seriesStyle}
+                                    key={value.imageID}
+                                >
                                     <Card
                                         style={{
                                             ...imageStyle.imageViewerCard,
                                             border: this.getImageBorderStyle(value.isSelected)
                                         }}
                                     >
-                                        <ImageViewComponent {...{...value, isSelected: false }} />
+                                        <ImageViewComponent {...{ ...value, isSelected: false }} />
                                     </Card>
                                 </Grid>
                             )

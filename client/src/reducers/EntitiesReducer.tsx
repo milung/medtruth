@@ -93,7 +93,7 @@ const processImageAnnotationAddedAction =
                     }
                 }
                 // If not, add new image annotation
-                //if (!annotationExists && imageAnnotation.value !== 0) {
+                // if (!annotationExists && imageAnnotation.value !== 0) {
                 if (!annotationExists) {
                     newImageEntity.annotations.push(imageAnnotation);
                 }

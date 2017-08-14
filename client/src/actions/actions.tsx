@@ -49,7 +49,6 @@ export interface ImageSelectedAction {
 export interface ImagesAllUnselectedAction {
     type: ActionTypeKeys.IMAGES_ALL_UNSELECTED;
 }
-
 export interface ImageAnnotationAddedAction {
     type: ActionTypeKeys.IMAGE_ANNOTATION_ADDED;
     annotation: ImageAnnotation;
@@ -79,7 +78,7 @@ export interface OtherAction {
     type: ActionTypeKeys.OTHER_ACTION;
 }
 
-export interface LastStudySelected{
+export interface LastStudySelected {
     type: ActionTypeKeys.LAST_STUDY_SELECTED;
     lastStudyID: string;
 }
@@ -138,8 +137,6 @@ export const uploadDataDowloaded = (upload: UploadJSON): UploadDataDownloadedAct
     upload
 });
 
-
-
 export type ActionType = 
     | FilesUploadedAction
     | ThumbnailBlownUpAction
@@ -155,7 +152,6 @@ export type ActionType =
     | OtherAction
     | LastStudySelected;
 
-    
 export interface ImageAnnotation {
     imageId: string;
     key: string;

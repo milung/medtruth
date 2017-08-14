@@ -8,7 +8,7 @@ import { FolderForm } from '../folderForm/FolderForm';
 import { FlatButton } from 'material-ui';
 import { DownloadButton } from '../button/DownloadButton';
 import { PatientViewer } from '../imageview/PatientViewer';
-import { DownloadImgMapButton } from "../button/DownloadImgMapButton";
+import { DownloadImgMapButton } from '../button/DownloadImgMapButton';
 
 var injectTapEventPlugin = require('react-tap-event-plugin');
 injectTapEventPlugin();

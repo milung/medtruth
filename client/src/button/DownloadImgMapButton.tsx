@@ -17,7 +17,12 @@ export class DownloadImgMapButton extends React.Component<{}, {}> {
     render() {
         return (
             // tslint:disable-next-line:jsx-boolean-value
-            <a href="/api/download/img_map" download style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>IMG_MAP</a>
+            <a
+                href="/api/download/img_map"
+                download
+                style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}
+            >IMG_MAP
+            </a>
         );
-    } 
+    }
 }

@@ -3,7 +3,7 @@ import * as axios from 'axios';
 
 export namespace ApiService {
     const apiEndpoint = '/api';
-    //const apiEndpoint = 'http://localhost:8080/api'
+    // const apiEndpoint = 'http://localhost:8080/api'
     /* change this */
     const uriUpload = apiEndpoint + '/upload';
     const uriImages = apiEndpoint + '/images';
@@ -183,8 +183,8 @@ export namespace ApiService {
         return res.data;
     }
 
-      export async function getDownloadImgMap() {
-        const url = uriDownload+'/img_map';
+    export async function getDownloadImgMap() {
+        const url = uriDownload + '/img_map';
 
         let res: axios.AxiosResponse = await axios.default({
             method: 'GET',
@@ -198,9 +198,9 @@ export namespace ApiService {
     }
 
     interface SeriesRequest {
-        uploadID:   number;
-        studyID:    string;
-        seriesID:   string;
+        uploadID: number;
+        studyID: string;
+        seriesID: string;
     }
 
     interface SeriesImage {
@@ -215,7 +215,7 @@ export namespace ApiService {
         let res: axios.AxiosResponse = await axios.default({
             method: 'POST',
             url: url,
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json'
             },
             data: req
