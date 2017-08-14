@@ -49,6 +49,7 @@ routerImages.get('/latest', json(), (req, res) => {
 */
 routerImages.get('/:id', async (req, res) => {
     let id = req.params.id + ".png";
+   
     // Declare a status code and a retreived url.
     let code: number;
     let url: string;
