@@ -64,10 +64,15 @@ export class ImageViewComponent extends React.Component<ImageProps, {}> {
 
 
     render() {
+        let borderStyle;
+      
+      
+this.props.isSelected ? borderStyle = '3px solid LightSeaGreen' : borderStyle = '3px solid white';
+
         return (
             <img
                 id={this.props.imageID + ''}
-                style={imageStyle.img}
+                style={{...imageStyle.img, border: borderStyle}}
                 onClick={this.clickHandler}
                 onDoubleClick={this.handleDoubleClick}
             />

@@ -183,6 +183,20 @@ export namespace ApiService {
         return res.data;
     }
 
+      export async function getDownloadImgMap() {
+        const url = uriDownload+'/img_map';
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'GET',
+            url: url,
+            headers: {
+                'Accept': 'application/zip'
+            },
+        });
+
+        return res.data;
+    }
+
     interface SeriesRequest {
         uploadID:   number;
         studyID:    string;
