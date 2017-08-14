@@ -63,15 +63,16 @@ const processImageAnnotationAddedAction =
                 imageId: imageAnnotation.imageId,
                 annotations: []
             };
-            if (imageAnnotation.value !== 0) {
-                newImageEntity.annotations.push(imageAnnotation);
-            }
+            // if (imageAnnotation.value !== 0) {
+            //     newImageEntity.annotations.push(imageAnnotation);
+            // }
+            newImageEntity.annotations.push(imageAnnotation);
 
         } else {
             newImageEntity = { ...imageEntity };
 
-            // If the new annotation value is 0, annotation needs to be deleted from the old state
-            if (imageAnnotation.value === 0) {
+            // If the new annotation value is -10, annotation needs to be deleted from the old state
+            if (imageAnnotation.value === -10) {
                 newImageEntity.annotations = [];
                 for (var annotation of imageEntity.annotations) {
                     // Push all other annotations into the new state
@@ -92,7 +93,8 @@ const processImageAnnotationAddedAction =
                     }
                 }
                 // If not, add new image annotation
-                if (!annotationExists && imageAnnotation.value !== 0) {
+                //if (!annotationExists && imageAnnotation.value !== 0) {
+                if (!annotationExists) {
                     newImageEntity.annotations.push(imageAnnotation);
                 }
             }
