@@ -1,6 +1,6 @@
 import {
     ActionTypeKeys, OtherAction, ImageAnnotationAddedAction,
-    ImageAnnotation, SeriesJSON, StudyJSON, UploadJSON, UploadDataDownloadedAction
+    ImageAnnotation, SeriesJSON, StudyJSON, UploadJSON, UploadDataDownloadedAction, LabelsDownloadedAction, ImagesAnnotationRemovedAction, ImagesAnnotationAddedAction
 } from '../actions/actions';
 import { entitiesReducer, EntitiesState, ImageEntity, SeriesEntity } from './EntitiesReducer';
 
@@ -24,7 +24,8 @@ describe('EntitiesReducer', () => {
             },
             series: {
                 byId: new Map<string, SeriesEntity>()
-            }
+            },
+            labels: []
         });
     });
 
@@ -53,7 +54,8 @@ describe('EntitiesReducer', () => {
             },
             series: {
                 byId: new Map<string, SeriesEntity>()
-            }
+            },
+            labels: []
         };
 
         // when
@@ -89,7 +91,8 @@ describe('EntitiesReducer', () => {
             },
             series: {
                 byId: new Map<string, SeriesEntity>()
-            }
+            },
+            labels: []
         };
 
         // when
@@ -103,6 +106,145 @@ describe('EntitiesReducer', () => {
             key: 'key1',
             value: 0.5
         });
+    });
+
+    it('should handle LabelsDownloadedAction', () => {
+        // given 
+        let labels: string[] = ['oko', 'hlava'];
+        let action: LabelsDownloadedAction = {
+            type: ActionTypeKeys.LABELS_DOWNLOADED,
+            labels
+        };
+        let prevState: EntitiesState = undefined;
+
+        // when
+        let newState: EntitiesState = entitiesReducer(prevState, action);
+
+        // then
+        expect(newState.labels.indexOf('oko') !== -1).toBeTruthy();
+        expect(newState.labels.indexOf('hlava') !== -1).toBeTruthy();
+    });
+
+    it('should handle ImagesAnnotationRemovedAction', () => {
+        // given
+        let action: ImagesAnnotationRemovedAction = {
+            type: ActionTypeKeys.IMAGES_ANNOTATION_REMOVED,
+            label: 'oko',
+            imageIds: ['testImageId1', 'testImageId2']
+        };
+
+        let annotation1: ImageAnnotation = {
+            imageId: 'testImageId1',
+            key: 'oko',
+            value: 0.5
+        };
+
+        let annotation2: ImageAnnotation = {
+            imageId: 'testImageId1',
+            key: 'hlava',
+            value: 1
+        };
+
+        let annotation3: ImageAnnotation = {
+            imageId: 'testImageId2',
+            key: 'oko',
+            value: 0.2
+        };
+
+        let image1: ImageEntity = {
+            seriesId: undefined,
+            imageId: 'testImageId1',
+            annotations: [annotation1, annotation2]
+        };
+
+        let image2: ImageEntity = {
+            seriesId: undefined,
+            imageId: 'testImageId2',
+            annotations: [annotation3]
+        };
+
+        let prevState: EntitiesState = {
+            images: {
+                byId: new Map<string, ImageEntity>([
+                    [image1.imageId, image1],
+                    [image2.imageId, image2]
+                ])
+            },
+            series: {
+                byId: new Map<string, SeriesEntity>()
+            },
+            labels: []
+        };
+
+        // when
+        let newState: EntitiesState = entitiesReducer(prevState, action);
+
+        // then
+        expect(newState.images.byId.get('testImageId1').annotations).toEqual([annotation2]);
+        expect(newState.images.byId.get('testImageId2').annotations).toEqual([]);
+    });
+
+    it('should handle ImagesAnnotationAddedAction', () => {
+        // given
+        let action: ImagesAnnotationAddedAction = {
+            type: ActionTypeKeys.IMAGES_ANNOTATION_ADDED,
+            imageIds: ['testImageId1', 'testImageId2'],
+            annotation: {
+                imageId: undefined,
+                key: 'oko',
+                value: 0.3
+            }
+        };
+
+        console.log('lenAAA ' + action.imageIds);
+        let annotation1: ImageAnnotation = {
+            imageId: 'testImageId1',
+            key: 'oko',
+            value: 0.5
+        };
+
+        let image1: ImageEntity = {
+            seriesId: undefined,
+            imageId: 'testImageId1',
+            annotations: [annotation1]
+        };
+
+        let image2: ImageEntity = {
+            seriesId: undefined,
+            imageId: 'testImageId2',
+            annotations: []
+        };
+
+        let prevState: EntitiesState = {
+            images: {
+                byId: new Map<string, ImageEntity>([
+                    [image1.imageId, image1],
+                    [image2.imageId, image2]
+                ])
+            },
+            series: {
+                byId: new Map<string, SeriesEntity>()
+            },
+            labels: []
+        };
+
+        // when
+        let newState: EntitiesState = entitiesReducer(prevState, action);
+
+        // then
+        expect(newState.images.byId.get('testImageId2').annotations.
+            find(annotation => annotation.key === 'oko')).toEqual({
+                imageId: 'testImageId2',
+                key: 'oko',
+                value: 0.3
+            });
+
+        expect(newState.images.byId.get('testImageId1').annotations.
+            find(annotation => annotation.key === 'oko')).toEqual({
+                imageId: 'testImageId1',
+                key: 'oko',
+                value: 0.3
+            });
     });
 
     it('should handle UploadDataDownloadedAction' +
@@ -136,7 +278,8 @@ describe('EntitiesReducer', () => {
                 },
                 series: {
                     byId: new Map<string, SeriesEntity>([[oldSeriesEntity.seriesId, oldSeriesEntity]])
-                }
+                },
+                labels: []
             };
 
             // when

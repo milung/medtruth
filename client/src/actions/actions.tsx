@@ -12,7 +12,10 @@ export enum ActionTypeKeys {
     UPLOAD_DATA_DOWNLOADED = 'UPLOAD_DATA_DOWNLOADED',
     // IMAGE_ANNOTATION_SELECTED = 'IMAGE_ANNOTATION_SELECTED',
     OTHER_ACTION = 'OTHER_ACTION',
-    LAST_STUDY_SELECTED = 'LAST_STUDY_SELECTED'
+    LAST_STUDY_SELECTED = 'LAST_STUDY_SELECTED',
+    LABELS_DOWNLOADED = 'LABELS_DOWNLOADED',
+    IMAGES_ANNOTATION_REMOVED = 'IMAGES_ANNOTATION_REMOVED',
+    IMAGES_ANNOTATION_ADDED = 'IMAGES_ANNOTATION_ADDED'
 }
 
 export enum Keys {
@@ -66,7 +69,7 @@ export interface SeriesAllUnselectedAction {
 
 export interface UploadDataDownloadedAction {
     type: ActionTypeKeys.UPLOAD_DATA_DOWNLOADED;
-    upload: UploadJSON; 
+    upload: UploadJSON;
 }
 
 // export interface ImageAnnotationSelected {
@@ -81,6 +84,23 @@ export interface OtherAction {
 export interface LastStudySelected {
     type: ActionTypeKeys.LAST_STUDY_SELECTED;
     lastStudyID: string;
+}
+
+export interface LabelsDownloadedAction {
+    type: ActionTypeKeys.LABELS_DOWNLOADED;
+    labels: string[];
+}
+
+export interface ImagesAnnotationRemovedAction {
+    type: ActionTypeKeys.IMAGES_ANNOTATION_REMOVED;
+    label: string;
+    imageIds: string[];
+}
+
+export interface ImagesAnnotationAddedAction {
+    type: ActionTypeKeys.IMAGES_ANNOTATION_ADDED;
+    imageIds: string[];
+    annotation: ImageAnnotation;
 }
 
 export const filesUploaded = (uploadID: number): FilesUploadedAction => ({
@@ -137,7 +157,25 @@ export const uploadDataDowloaded = (upload: UploadJSON): UploadDataDownloadedAct
     upload
 });
 
-export type ActionType = 
+export const labelsDowloadedAction = (labels: string[]): LabelsDownloadedAction => ({
+    type: ActionTypeKeys.LABELS_DOWNLOADED,
+    labels
+});
+
+export const imagesAnnotationRemovedAction = (imageIds: string[], label: string): ImagesAnnotationRemovedAction => ({
+    type: ActionTypeKeys.IMAGES_ANNOTATION_REMOVED,
+    imageIds,
+    label
+});
+
+export const imagesAnnotationAddedAction =
+    (imageIds: string[], annotation: ImageAnnotation): ImagesAnnotationAddedAction => ({
+        type: ActionTypeKeys.IMAGES_ANNOTATION_ADDED,
+        imageIds,
+        annotation
+    });
+
+export type ActionType =
     | FilesUploadedAction
     | ThumbnailBlownUpAction
     | ThumbnailBlownDownAction
@@ -150,7 +188,10 @@ export type ActionType =
     | UploadDataDownloadedAction
     // | LabelSelected
     | OtherAction
-    | LastStudySelected;
+    | LastStudySelected
+    | LabelsDownloadedAction
+    | ImagesAnnotationRemovedAction
+    | ImagesAnnotationAddedAction;
 
 export interface ImageAnnotation {
     imageId: string;
