@@ -10,7 +10,7 @@ import { State } from '../app/store';
 import { ImageAnnotation, ImagesAnnotationAddedAction, imagesAnnotationAddedAction } from '../actions/actions';
 import { ApiService } from '../api';
 import Paper from 'material-ui/Paper';
-import { addImagesAnnotationAction } from "../actions/asyncActions";
+import { addImagesAnnotationAction } from '../actions/asyncActions';
 
 export interface OwnState {
     keyFieldValue: string;
@@ -144,7 +144,8 @@ function mapStateToProps(state: State): ConnectedState {
 
 function mapDispatchToProps(dispatch): ConnectedDispatch {
     return {
-        addImagesAnnotation: (imageIds: string[], annotation: ImageAnnotation) => dispatch(addImagesAnnotationAction(imageIds, annotation)),
+        addImagesAnnotation: (imageIds: string[], annotation: ImageAnnotation) => 
+            dispatch(addImagesAnnotationAction(imageIds, annotation)),
     };
 }
 

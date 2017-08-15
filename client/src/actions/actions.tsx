@@ -45,7 +45,6 @@ export interface DownloadStatePopup {
     showDownloadPopUP: boolean;
 }
 
-
 // export interface ImagesSelectedAction {
 //     type: ActionTypeKeys.IMAGES_SELECTED;
 //     ids: string[];
@@ -114,7 +113,7 @@ export interface ImagesAnnotationAddedAction {
 
 export interface ImagesAnnotationsDownloadedAction {
     type: ActionTypeKeys.IMAGES_ANNOTATIONS_DOWNLOADED;
-    imagesAnnotations: Map<string, Annotation[]>;
+    imagesAnnotations: Map<string, ImageAnnotation[]>;
 }
 
 export const filesUploaded = (uploadID: number): FilesUploadedAction => ({
@@ -195,7 +194,7 @@ export const imagesAnnotationAddedAction =
     });
 
 export const imagesAnnotationsDownloadedAction = 
-    (imagesAnnotations: Map<string, Annotation[]>): ImagesAnnotationsDownloadedAction => ({
+    (imagesAnnotations: Map<string, ImageAnnotation[]>): ImagesAnnotationsDownloadedAction => ({
         type: ActionTypeKeys.IMAGES_ANNOTATIONS_DOWNLOADED,
         imagesAnnotations
 });

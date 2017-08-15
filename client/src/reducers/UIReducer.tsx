@@ -19,7 +19,7 @@ const initialState: UIState = {
         images: [],
         series: []
     },
-    lastViewedStudyID: "",
+    lastViewedStudyID: '',
     showDownloadPopUP: false
 };
 

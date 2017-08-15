@@ -77,7 +77,7 @@ const processImagesAnnotationsDownloadedAction =
                 let newImage: ImageEntity;
                 let newAnnotationsArray: ImageAnnotation[] = value.map(annotation => ({
                     imageId: key,
-                    key: annotation.label,
+                    key: annotation.key,
                     value: annotation.value
                 }));
 

@@ -39,6 +39,7 @@ export function downloadLabelsAction() {
 }
 
 export function downloadImageAnnotations(...imageIds: string[]) {
+    console.log('downloading image annotations');
     return async (dispatch) => {
         let promises = imageIds.map(imageId =>
             ApiService.getAttributes(imageId)
@@ -49,7 +50,7 @@ export function downloadImageAnnotations(...imageIds: string[]) {
         imagesAnnotations.forEach(imageAnnotations => {
             imagesAnnotationsMap.set(imageAnnotations.imageID, imageAnnotations.attributes.map(attr => (
                 {
-                    label: attr.key,
+                    key: attr.key,
                     value: attr.value
                 }
             )));
