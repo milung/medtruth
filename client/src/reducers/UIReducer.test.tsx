@@ -43,7 +43,8 @@ describe('UIReducer', () => {
                 images: ['abcd1234'],
                 series: []
             },
-            lastViewedStudyID: ''
+            lastViewedStudyID: '',
+            showDownloadPopUP: false
         };
 
         // when
@@ -70,7 +71,8 @@ describe('UIReducer', () => {
                 images: ['abcd1234'],
                 series: []
             },
-            lastViewedStudyID: ''
+            lastViewedStudyID: '',
+            showDownloadPopUP: false
         };
 
         // when
@@ -96,7 +98,8 @@ describe('UIReducer', () => {
                 images: ['abcd1234'],
                 series: []
             },
-            lastViewedStudyID: ''
+            lastViewedStudyID: '',
+            showDownloadPopUP: false
         };
 
         // when
@@ -123,7 +126,8 @@ describe('UIReducer', () => {
                 images: ['abcd1234', 'abcd5678'],
                 series: []
             },
-            lastViewedStudyID: ''
+            lastViewedStudyID: '',
+            showDownloadPopUP: false
 
         };
 
@@ -149,7 +153,8 @@ describe('UIReducer', () => {
                 images: ['abcd1234', 'abcd5678'],
                 series: []
             },
-            lastViewedStudyID: ''
+            lastViewedStudyID: '',
+            showDownloadPopUP: false
         };
 
         // when
@@ -175,7 +180,8 @@ describe('UIReducer', () => {
                 images: [],
                 series: ['abcd1234']
             },
-            lastViewedStudyID: ''
+            lastViewedStudyID: '',
+            showDownloadPopUP: false
         };
 
         // when
@@ -202,7 +208,8 @@ describe('UIReducer', () => {
                 images: [],
                 series: ['abcd1234']
             },
-            lastViewedStudyID: ''
+            lastViewedStudyID: '',
+            showDownloadPopUP: false
         };
 
         // when
@@ -228,7 +235,8 @@ describe('UIReducer', () => {
                 images: [],
                 series: ['abcd1234']
             },
-            lastViewedStudyID: ''
+            lastViewedStudyID: '',
+            showDownloadPopUP: false
         };
 
         // when
@@ -255,7 +263,8 @@ describe('UIReducer', () => {
                 images: [],
                 series: ['abcd1234', 'abcd5678']
             },
-            lastViewedStudyID: ''
+            lastViewedStudyID: '',
+            showDownloadPopUP: false
         };
 
         // when
@@ -281,7 +290,8 @@ describe('UIReducer', () => {
                 images: ['1234', '4321'],
                 series: ['1234abcd', 'abcd1234']
             },
-            lastViewedStudyID: ''
+            lastViewedStudyID: '',
+            showDownloadPopUP: false
         };
 
         // when

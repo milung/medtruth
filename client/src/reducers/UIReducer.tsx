@@ -8,7 +8,8 @@ export interface UIState {
         images: string[];
         series: string[]
     };
-    lastViewedStudyID: string
+    lastViewedStudyID: string;
+    showDownloadPopUP: boolean;
 }
 
 const initialState: UIState = {
@@ -18,7 +19,8 @@ const initialState: UIState = {
         images: [],
         series: []
     },
-    lastViewedStudyID: ""
+    lastViewedStudyID: "",
+    showDownloadPopUP: false
 };
 
 export function uiReducer(
@@ -67,6 +69,11 @@ export function uiReducer(
             newState = Object.assign({}, prevState);
             newState.lastViewedStudyID = action.lastStudyID;
             return newState;
+        case ActionTypeKeys.DOWNLOAD_POPUP_STATE_CHANGE:
+            newState = Object.assign({}, prevState);
+            newState.showDownloadPopUP = action.showDownloadPopUP;
+            return newState;
+        
         default:
             return prevState;
     }

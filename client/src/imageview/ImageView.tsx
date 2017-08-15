@@ -65,7 +65,7 @@ export class ImageViewComponent extends React.Component<ImageProps, {}> {
 
     render() {
         let borderStyle;
-        this.props.isSelected ? borderStyle = '3px solid LightSeaGreen' : borderStyle = '3px solid white';
+        //this.props.isSelected ? borderStyle = '3px solid LightSeaGreen' : borderStyle = '3px solid white';
 
         return (
             <img

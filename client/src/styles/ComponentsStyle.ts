@@ -54,21 +54,21 @@ export const imageStyle = {
         paddingTop: '70px',
         overflow: overflowAuto
     },
-            
+
     imageViewerDiv: {
-        marginLeft: '10', 
-        marginBottom: '10', 
-        marginRight: '10'  
+        marginLeft: '10',
+        marginBottom: '10',
+        marginRight: '10'
     },
 
-    imageViewerPaper: { 
-        paddingLeft: '16', 
-        paddingRight: '16', 
-        paddingTop: '16', 
+    imageViewerPaper: {
+        paddingLeft: '16',
+        paddingRight: '16',
+        paddingTop: '16',
         paddingBottom: '30'
     },
 
-    imageViewerCard: { 
+    imageViewerCard: {
         // paddingLeft: '3', 
         // paddingRight: '3', 
         // paddingTop: '3', 
@@ -78,5 +78,20 @@ export const imageStyle = {
     ImageViewGrid: {
         marginTop: '28',
     }
-    
+
 };
+
+
+export const downloadStyle = {
+    appBar: {
+        width: '500px',
+        position: 'inherit'
+    },
+    flex:{
+        flex: 1
+    },
+    paddingDisable: {
+        paddingLeft: '0px',
+        paddingRight: '0px'
+    }
+}

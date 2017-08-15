@@ -12,7 +12,8 @@ export enum ActionTypeKeys {
     UPLOAD_DATA_DOWNLOADED = 'UPLOAD_DATA_DOWNLOADED',
     // IMAGE_ANNOTATION_SELECTED = 'IMAGE_ANNOTATION_SELECTED',
     OTHER_ACTION = 'OTHER_ACTION',
-    LAST_STUDY_SELECTED = 'LAST_STUDY_SELECTED'
+    LAST_STUDY_SELECTED = 'LAST_STUDY_SELECTED',
+    DOWNLOAD_POPUP_STATE_CHANGE = 'DOWNLOAD_POPUP_STATE_CHANGE'
 }
 
 export enum Keys {
@@ -34,6 +35,12 @@ export interface ThumbnailBlownUpAction {
 export interface ThumbnailBlownDownAction {
     type: ActionTypeKeys.THUMBNAIL_BLOWN_DOWN;
 }
+
+export interface DownloadStatePopup {
+    type: ActionTypeKeys.DOWNLOAD_POPUP_STATE_CHANGE;
+    showDownloadPopUP: boolean;
+}
+
 
 // export interface ImagesSelectedAction {
 //     type: ActionTypeKeys.IMAGES_SELECTED;
@@ -67,7 +74,7 @@ export interface SeriesAllUnselectedAction {
 
 export interface UploadDataDownloadedAction {
     type: ActionTypeKeys.UPLOAD_DATA_DOWNLOADED;
-    upload: UploadJSON; 
+    upload: UploadJSON;
 }
 
 // export interface ImageAnnotationSelected {
@@ -79,7 +86,7 @@ export interface OtherAction {
     type: ActionTypeKeys.OTHER_ACTION;
 }
 
-export interface LastStudySelected{
+export interface LastStudySelected {
     type: ActionTypeKeys.LAST_STUDY_SELECTED;
     lastStudyID: string;
 }
@@ -138,9 +145,12 @@ export const uploadDataDowloaded = (upload: UploadJSON): UploadDataDownloadedAct
     upload
 });
 
+export const downloadPopupStateChange = (state: boolean): DownloadStatePopup => ({
+    type: ActionTypeKeys.DOWNLOAD_POPUP_STATE_CHANGE,
+    showDownloadPopUP: state
+});
 
-
-export type ActionType = 
+export type ActionType =
     | FilesUploadedAction
     | ThumbnailBlownUpAction
     | ThumbnailBlownDownAction
@@ -153,9 +163,10 @@ export type ActionType =
     | UploadDataDownloadedAction
     // | LabelSelected
     | OtherAction
-    | LastStudySelected;
+    | LastStudySelected 
+    | DownloadStatePopup;
 
-    
+
 export interface ImageAnnotation {
     imageId: string;
     key: string;

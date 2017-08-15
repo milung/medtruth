@@ -6,6 +6,7 @@ import * as archiver from 'archiver';
 
 import { AzureStorage, AzureDatabase } from '../../azure-service';
 import { StatusCode } from '../../constants';
+import { json } from 'body-parser';
 
 export const rootDownload = '/download';
 export const routerDownload = express.Router();
@@ -49,3 +50,35 @@ routerDownload.get('/', (req, res) => {
     // Finalize the stream.
     archive.finalize();
 });
+
+interface DownloadData {
+    labels: LabelStatus[],
+    format: OutputType
+}
+
+export interface LabelStatus {
+    labelName: string;
+    selected: boolean;
+}
+
+export enum OutputType {
+    STATE_OF_LABEL, REGRESSION_VALUE
+}
+/*
+    Route:      POST '/download'
+    --------------------------------------------
+    // TODO: Think of a way how the download endpoint will work.
+*/
+routerDownload.post('/', json(), (req, res) => {
+    let data: DownloadData = req.body;
+    console.log(data);
+    console.log(data.format);
+    console.log(data.format == OutputType.REGRESSION_VALUE);
+    
+    
+    
+    res.sendStatus(StatusCode.Accepted);
+});
+
+
+
