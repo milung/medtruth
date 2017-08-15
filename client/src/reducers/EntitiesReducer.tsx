@@ -1,6 +1,7 @@
 import {
     ActionType, ActionTypeKeys, ImageAnnotation,
-    ImageAnnotationAddedAction, UploadDataDownloadedAction, UploadJSON, LabelsDownloadedAction, ImagesAnnotationRemovedAction, ImagesAnnotationAddedAction
+    ImageAnnotationAddedAction, UploadDataDownloadedAction, UploadJSON, LabelsDownloadedAction, 
+    ImagesAnnotationRemovedAction, ImagesAnnotationAddedAction
 } from '../actions/actions';
 
 export interface EntitiesState {

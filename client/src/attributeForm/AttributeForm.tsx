@@ -85,10 +85,8 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
         }
 
         var attributeList;
-        // Check if something is selected
-        if (this.props.images.length !== 0) {
-            attributeList = <AttributeList />;
-        }
+        // Check if something is selected, if not, assigning should be disabled
+        (this.props.images.length !== 0) ?  attributeList = <AttributeList /> : inputIncorrect = true;
 
         return (
             <div >
