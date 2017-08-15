@@ -1,6 +1,9 @@
 import {
     ActionTypeKeys, OtherAction, ImageAnnotationAddedAction,
-    ImageAnnotation, SeriesJSON, StudyJSON, UploadJSON, UploadDataDownloadedAction, LabelsDownloadedAction, ImagesAnnotationRemovedAction, ImagesAnnotationAddedAction
+    ImageAnnotation, SeriesJSON, StudyJSON, 
+    UploadJSON, UploadDataDownloadedAction, 
+    LabelsDownloadedAction, ImagesAnnotationRemovedAction, 
+    ImagesAnnotationAddedAction, ImagesAnnotationsDownloadedAction, Annotation
 } from '../actions/actions';
 import { entitiesReducer, EntitiesState, ImageEntity, SeriesEntity } from './EntitiesReducer';
 
@@ -196,7 +199,6 @@ describe('EntitiesReducer', () => {
             }
         };
 
-        console.log('lenAAA ' + action.imageIds);
         let annotation1: ImageAnnotation = {
             imageId: 'testImageId1',
             key: 'oko',
@@ -326,6 +328,104 @@ describe('EntitiesReducer', () => {
             expect(newState.images.byId.has('oldImageId')).toBeFalsy();
 
         });
+
+    it('should handle ImagesAnnotationsDownloadedAction', () => {
+
+        // given
+        let annotations1: Annotation[] = [
+            {
+                label: 'oko',
+                value: 1
+            },
+            {
+                label: 'hlava',
+                value: 0
+            }
+        ];
+
+        let annotations2: Annotation[] = [
+            {
+                label: 'hlava',
+                value: 0.5
+            }
+        ];
+
+        let imageId1: string = 'imageId1';
+        let imageId2: string = 'imageId2';
+
+        let imagesAnnotations: Map<string, Annotation[]> = new Map(
+            [
+                [imageId1, annotations1],
+                [imageId2, annotations2]
+            ]
+        );
+
+        let action: ImagesAnnotationsDownloadedAction = {
+            type: ActionTypeKeys.IMAGES_ANNOTATIONS_DOWNLOADED,
+            imagesAnnotations
+        };
+
+        let image2: ImageEntity = {
+            seriesId: undefined,
+            imageId: 'imageId2',
+            annotations: [
+                {
+                    imageId: 'imageId2',
+                    key: 'krk',
+                    value: 1
+                }
+            ]
+        };
+
+        let prevState: EntitiesState = {
+            images: {
+                byId: new Map<string, ImageEntity>(
+                    [
+                        [image2.imageId, image2]
+                    ]
+                )
+            },
+            series: {
+                byId: new Map<string, SeriesEntity>()
+            },
+            labels: []
+        };
+
+        // when
+        let newState: EntitiesState = entitiesReducer(prevState, action);
+
+        // then
+
+        // created image entity when it has not existed
+        expect(newState.images.byId.get('imageId1')).toBeDefined();
+
+        // added image annotations or 
+        expect(newState.images.byId.get('imageId1').annotations).toEqual(
+            [
+                {
+                    imageId: 'imageId1',
+                    key: 'oko',
+                    value: 1
+                },
+                {
+                    imageId: 'imageId1',
+                    key: 'hlava',
+                    value: 0
+                }
+            ]
+        );
+
+        // replaced old image annotations by new ones
+        expect(newState.images.byId.get('imageId2').annotations).toEqual(
+            [
+                {
+                    imageId: 'imageId2',
+                    key: 'hlava',
+                    value: 0.5
+                }
+            ]
+        );
+    });
 });
 
 const getUploadJSON = (): UploadJSON => {
