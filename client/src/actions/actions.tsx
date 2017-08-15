@@ -13,6 +13,7 @@ export enum ActionTypeKeys {
     // IMAGE_ANNOTATION_SELECTED = 'IMAGE_ANNOTATION_SELECTED',
     OTHER_ACTION = 'OTHER_ACTION',
     LAST_STUDY_SELECTED = 'LAST_STUDY_SELECTED',
+    DOWNLOAD_POPUP_STATE_CHANGE = 'DOWNLOAD_POPUP_STATE_CHANGE',
     LABELS_DOWNLOADED = 'LABELS_DOWNLOADED',
     IMAGES_ANNOTATION_REMOVED = 'IMAGES_ANNOTATION_REMOVED',
     IMAGES_ANNOTATION_ADDED = 'IMAGES_ANNOTATION_ADDED'
@@ -37,6 +38,12 @@ export interface ThumbnailBlownUpAction {
 export interface ThumbnailBlownDownAction {
     type: ActionTypeKeys.THUMBNAIL_BLOWN_DOWN;
 }
+
+export interface DownloadStatePopup {
+    type: ActionTypeKeys.DOWNLOAD_POPUP_STATE_CHANGE;
+    showDownloadPopUP: boolean;
+}
+
 
 // export interface ImagesSelectedAction {
 //     type: ActionTypeKeys.IMAGES_SELECTED;
@@ -157,6 +164,11 @@ export const uploadDataDowloaded = (upload: UploadJSON): UploadDataDownloadedAct
     upload
 });
 
+export const downloadPopupStateChange = (state: boolean): DownloadStatePopup => ({
+    type: ActionTypeKeys.DOWNLOAD_POPUP_STATE_CHANGE,
+    showDownloadPopUP: state
+});
+
 export const labelsDowloadedAction = (labels: string[]): LabelsDownloadedAction => ({
     type: ActionTypeKeys.LABELS_DOWNLOADED,
     labels
@@ -188,6 +200,8 @@ export type ActionType =
     | UploadDataDownloadedAction
     // | LabelSelected
     | OtherAction
+    | LastStudySelected 
+    | DownloadStatePopup
     | LastStudySelected
     | LabelsDownloadedAction
     | ImagesAnnotationRemovedAction

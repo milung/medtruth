@@ -1,9 +1,10 @@
 
 import * as axios from 'axios';
+import { LabelStatus, OutputType } from "./components/downloadpopup";
 
 export namespace ApiService {
     const apiEndpoint = '/api';
-    // const apiEndpoint = 'http://localhost:8080/api'
+    //const apiEndpoint = 'http://localhost:8080/api'
     /* change this */
     const uriUpload = apiEndpoint + '/upload';
     const uriImages = apiEndpoint + '/images';
@@ -223,4 +224,23 @@ export namespace ApiService {
 
         return res.data as SeriesImage[];
     }
+
+    interface DownloadData {
+        labels: LabelStatus[],
+        format: OutputType
+    }
+
+    export async function downloadData(data: DownloadData) {
+        const url = uriDownload;
+        
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'POST',
+            url: url,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: data
+        });
+    }
+
 }

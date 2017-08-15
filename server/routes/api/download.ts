@@ -6,6 +6,7 @@ import * as archiver from 'archiver';
 
 import { AzureStorage, AzureDatabase } from '../../azure-service';
 import { StatusCode } from '../../constants';
+import { json } from 'body-parser';
 
 export const rootDownload = '/download';
 export const routerDownload = express.Router();
@@ -50,46 +51,31 @@ routerDownload.get('/', (req, res) => {
     archive.finalize();
 });
 
+interface DownloadData {
+    labels: LabelStatus[],
+    format: OutputType
+}
 
+export interface LabelStatus {
+    labelName: string;
+    selected: boolean;
+}
+
+export enum OutputType {
+    STATE_OF_LABEL, REGRESSION_VALUE
+}
 /*
-    Route:      GET '/download'
-    -------------------------------------------- 
+    Route:      POST '/download'
+    --------------------------------------------
+    // TODO: Think of a way how the download endpoint will work.
 */
-routerDownload.get('/img_map', async(req, res) => {
-    // Create a new archiver with options set to ZIP format.
-    let archive = archiver('zip');
-
-    // Writes the response's header.
-    res.writeHead(StatusCode.OK, {
-        'Content-Type': 'application/zip',
-        'Content-Disposition': 'attachment; filename=Test.zip',
-    });
-
-    // Pipe the ziping to the response.
-    archive.pipe(res);
-
-     let url: string;
-     let test=['test'];
-     for(let j=0;j<=200;j++){
-         test.push("test"+j);
-     }
-
-   // let id = "008e6ec3b2cf495e6a3a94b060e03786" + ".png";   
-   // url = await AzureStorage.getURLforImage(id);
- 
-  
-    let temp=test[0]+'\r\n';
-    // Dynamically append to the zip file.
-
-    for (let i=1;i<test.length;i++){      
-       temp=temp.concat(test[i]+'\t'+0+'\r\n');      
-    }
-   
-    archive.append(temp+'', { name: 'img_map.txt' });
-  
-
-    // Finalize the stream.
-    archive.finalize();
+routerDownload.post('/', json(), (req, res) => {
+    let data: DownloadData = req.body;
+    console.log(data);
+    console.log(data.format);
+    console.log(data.format == OutputType.REGRESSION_VALUE);
+    res.sendStatus(StatusCode.Accepted);
 });
+
 
 

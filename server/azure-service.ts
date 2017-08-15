@@ -299,11 +299,11 @@ export namespace AzureDatabase {
         GetImagesBySeriesID returns all images by it's series ID.
     */
     interface SeriesRequest {
-        uploadID:   number;
-        studyID:    string;
-        seriesID:   string;
+        uploadID: number;
+        studyID: string;
+        seriesID: string;
     }
-    
+
     interface SeriesImage {
         imageID: string;
         imageNumber: number;
@@ -315,7 +315,7 @@ export namespace AzureDatabase {
                 var conn = await connectToImages();
                 let query = { uploadID: req.uploadID };
                 let result = await conn.collection.findOne(query);
-                
+
                 // TODO: Refactor!
                 if (result) {
                     if (result.studies) {
@@ -346,6 +346,12 @@ export namespace AzureDatabase {
 
     export function removeFromLabels(labels: string[]): Promise<Status> {
         return new Promise<Status>(async (resolve, reject) => {
+
+            if (!labels || labels.length === 0) {
+                resolve(Status.SUCCESFUL);
+                return;
+            }
+
             try {
                 var conn = await connectToLabels();
 
