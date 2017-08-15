@@ -1,6 +1,8 @@
 
-import { ImageAnnotation, imagesAnnotationAddedAction, 
-    imagesAnnotationRemovedAction, labelsDowloadedAction } from './actions';
+import {
+    ImageAnnotation, imagesAnnotationAddedAction,
+    imagesAnnotationRemovedAction, labelsDowloadedAction, imagesAnnotationsDownloadedAction
+} from './actions';
 import { ApiService } from '../api';
 
 export function addImagesAnnotationAction(imageIds: string[], annotation: ImageAnnotation) {
@@ -31,7 +33,27 @@ export function downloadLabelsAction() {
     return (dispatch) => {
 
         ApiService.getLabels().then(labels => {
-           dispatch(labelsDowloadedAction(labels));
+            dispatch(labelsDowloadedAction(labels));
         });
+    };
+}
+
+export function downloadImageAnnotations(...imageIds: string[]) {
+    return async (dispatch) => {
+        let promises = imageIds.map(imageId =>
+            ApiService.getAttributes(imageId)
+        );
+
+        let imagesAnnotationsMap: Map<string, ImageAnnotation[]> = new Map();
+        let imagesAnnotations = await Promise.all(promises);
+        imagesAnnotations.forEach(imageAnnotations => {
+            imagesAnnotationsMap.set(imageAnnotations.imageID, imageAnnotations.attributes.map(attr => (
+                {
+                    label: attr.key,
+                    value: attr.value
+                }
+            )));
+        });
+        dispatch(imagesAnnotationsDownloadedAction(imagesAnnotationsMap));
     };
 }

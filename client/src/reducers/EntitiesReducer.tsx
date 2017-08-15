@@ -1,7 +1,8 @@
 import {
     ActionType, ActionTypeKeys, ImageAnnotation,
-    ImageAnnotationAddedAction, UploadDataDownloadedAction, UploadJSON, LabelsDownloadedAction, 
-    ImagesAnnotationRemovedAction, ImagesAnnotationAddedAction, ImageJSON
+    ImageAnnotationAddedAction, UploadDataDownloadedAction, 
+    UploadJSON, LabelsDownloadedAction, ImagesAnnotationRemovedAction, 
+    ImagesAnnotationAddedAction, ImagesAnnotationsDownloadedAction, ImageJSON
 } from '../actions/actions';
 
 export interface EntitiesState {
@@ -52,12 +53,53 @@ export function entitiesReducer(
             return processImagesAnnotationRemovedAction(prevState, action);
         case ActionTypeKeys.IMAGES_ANNOTATION_ADDED:
             return processImagesAnnotationAddedAction(prevState, action);
+        case ActionTypeKeys.IMAGES_ANNOTATIONS_DOWNLOADED:
+            return processImagesAnnotationsDownloadedAction(prevState, action);
         default:
             return prevState;
     }
 }
 
-const processImagesAnnotationAddedAction = 
+const processImagesAnnotationsDownloadedAction =
+    (prevState: EntitiesState, action: ImagesAnnotationsDownloadedAction): EntitiesState => {
+
+        if (!action.imagesAnnotations.size || action.imagesAnnotations.size === 0) {
+            return prevState;
+        }
+
+        let newState: EntitiesState = { ...prevState };
+        newState.images = { ...prevState.images };
+        newState.images.byId = new Map(prevState.images.byId);
+
+        action.imagesAnnotations.forEach(
+            (value, key) => {
+                let image: ImageEntity = prevState.images.byId.get(key);
+                let newImage: ImageEntity;
+                let newAnnotationsArray: ImageAnnotation[] = value.map(annotation => ({
+                    imageId: key,
+                    key: annotation.label,
+                    value: annotation.value
+                }));
+
+                if (image) {
+                    newImage = { ...image };
+
+                } else {
+                    newImage = {
+                        imageId: key,
+                        seriesId: undefined,
+                        annotations: []
+                    };
+                }
+
+                newImage.annotations = newAnnotationsArray;
+                newState.images.byId.set(newImage.imageId, newImage);
+            }
+        );
+        return newState;
+    };
+
+const processImagesAnnotationAddedAction =
     (prevState: EntitiesState, action: ImagesAnnotationAddedAction) => {
         let modifiedImages: ImageEntity[] = [];
         let counter = 0;

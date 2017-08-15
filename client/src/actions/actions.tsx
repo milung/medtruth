@@ -16,7 +16,8 @@ export enum ActionTypeKeys {
     DOWNLOAD_POPUP_STATE_CHANGE = 'DOWNLOAD_POPUP_STATE_CHANGE',
     LABELS_DOWNLOADED = 'LABELS_DOWNLOADED',
     IMAGES_ANNOTATION_REMOVED = 'IMAGES_ANNOTATION_REMOVED',
-    IMAGES_ANNOTATION_ADDED = 'IMAGES_ANNOTATION_ADDED'
+    IMAGES_ANNOTATION_ADDED = 'IMAGES_ANNOTATION_ADDED',
+    IMAGES_ANNOTATIONS_DOWNLOADED = 'ANNOTATIONS_DOWNLOADED'
 }
 
 export enum Keys {
@@ -111,6 +112,11 @@ export interface ImagesAnnotationAddedAction {
     annotation: ImageAnnotation;
 }
 
+export interface ImagesAnnotationsDownloadedAction {
+    type: ActionTypeKeys.IMAGES_ANNOTATIONS_DOWNLOADED;
+    imagesAnnotations: Map<string, Annotation[]>;
+}
+
 export const filesUploaded = (uploadID: number): FilesUploadedAction => ({
     type: ActionTypeKeys.FILES_UPLOADED,
     uploadID
@@ -188,6 +194,12 @@ export const imagesAnnotationAddedAction =
         annotation
     });
 
+export const imagesAnnotationsDownloadedAction = 
+    (imagesAnnotations: Map<string, Annotation[]>): ImagesAnnotationsDownloadedAction => ({
+        type: ActionTypeKeys.IMAGES_ANNOTATIONS_DOWNLOADED,
+        imagesAnnotations
+});
+
 export type ActionType =
     | FilesUploadedAction
     | ThumbnailBlownUpAction
@@ -206,7 +218,8 @@ export type ActionType =
     | LastStudySelected
     | LabelsDownloadedAction
     | ImagesAnnotationRemovedAction
-    | ImagesAnnotationAddedAction;
+    | ImagesAnnotationAddedAction
+    | ImagesAnnotationsDownloadedAction;
 
 export interface ImageAnnotation {
     key: string;
