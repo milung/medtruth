@@ -1,5 +1,6 @@
 
 import * as axios from 'axios';
+import { LabelStatus, OutputType } from "./components/downloadpopup";
 
 export namespace ApiService {
     const apiEndpoint = '/api';
@@ -183,10 +184,24 @@ export namespace ApiService {
         return res.data;
     }
 
+    export async function getDownloadImgMap() {
+        const url = uriDownload + '/img_map';
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'GET',
+            url: url,
+            headers: {
+                'Accept': 'application/zip'
+            },
+        });
+
+        return res.data;
+    }
+
     interface SeriesRequest {
-        uploadID:   number;
-        studyID:    string;
-        seriesID:   string;
+        uploadID: number;
+        studyID: string;
+        seriesID: string;
     }
 
     interface SeriesImage {
@@ -201,7 +216,7 @@ export namespace ApiService {
         let res: axios.AxiosResponse = await axios.default({
             method: 'POST',
             url: url,
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json'
             },
             data: req
@@ -209,4 +224,23 @@ export namespace ApiService {
 
         return res.data as SeriesImage[];
     }
+
+    interface DownloadData {
+        labels: LabelStatus[],
+        format: OutputType
+    }
+
+    export async function downloadData(data: DownloadData) {
+        const url = uriDownload;
+        
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'POST',
+            url: url,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: data
+        });
+    }
+
 }

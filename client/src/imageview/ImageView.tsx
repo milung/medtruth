@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { imageStyle } from '../styles/ComponentsStyle';
 import { ApiService } from '../api';
-import {getThumbnailImageURL} from '../constants';
+import { getThumbnailImageURL } from '../constants';
 import { Keys } from '../actions/actions';
 
 export interface ImageProps {
@@ -19,7 +19,7 @@ export class ImageViewComponent extends React.Component<ImageProps, {}> {
 
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
         this.clickHandler = this.clickHandler.bind(this);
-        //this.getUrl = this.getUrl.bind(this);
+        // this.getUrl = this.getUrl.bind(this);
     }
 
     componentDidMount() {
@@ -62,15 +62,11 @@ export class ImageViewComponent extends React.Component<ImageProps, {}> {
     //     this.setState(Object.assign({}, this.state, { open: false }));
     // }
 
-
     render() {
-        let borderStyle;
-        //this.props.isSelected ? borderStyle = '3px solid LightSeaGreen' : borderStyle = '3px solid white';
-
         return (
             <img
                 id={this.props.imageID + ''}
-                style={{...imageStyle.img, border: borderStyle}}
+                style={imageStyle.img}
                 onClick={this.clickHandler}
                 onDoubleClick={this.handleDoubleClick}
             />

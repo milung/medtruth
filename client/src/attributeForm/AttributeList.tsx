@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
 import { State } from '../app/store';
 import { ImageAnnotation, ImageAnnotationAddedAction, imageAnnotationAdded } from '../actions/actions';
 import * as _ from 'lodash';
+import { ImageEntity } from '../reducers/EntitiesReducer';
 
 export interface OwnState {
     checkboxes: number[];
@@ -17,7 +18,7 @@ export interface OwnState {
 }
 export interface ConnectedState {
     images: string[];
-    annotations: ImageAnnotation[];
+    annotations: ImageAnnotation[][];
 }
 
 export interface ListItem {
@@ -48,7 +49,7 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
         console.log('COMPONENT next annotations', nextProps.annotations);
         console.log('COMPONENT old annotations', this.props.annotations);
         if (nextProps.annotations !== this.props.annotations || nextProps.images !== this.props.images) {
-            //if (nextProps.annotations.length !== 0) {
+            // if (nextProps.annotations.length !== 0) {
             console.log('UPDATED, COMPONENT WILL MOUNT');
             this.updating = true;
             this.setState({ wait: true }, async () => {
@@ -69,16 +70,20 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                 var occurences: number[] = [];
                 var sums: number[] = [];
                 var checkboxes: number[] = [];
+                // Checkbox values mean the following:
+                // -10: unchecked
+                // -1: indeterminate
+                // greater than 0: checked
 
                 // If more than one thumbnail is selected
                 if (this.props.images.length >= 2) {
                     this.multipleSelected = true;
                     // Set initial values for labels
                     for (let label in labels) {
-                        values.push(0);
+                        values.push(-10);
                         occurences.push(0);
                         sums.push(0);
-                        checkboxes.push(0);
+                        checkboxes.push(-10);
                     }
                     for (let label in labels) {
                         for (var img of this.props.images) {
@@ -98,9 +103,16 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                         }
                     }
                     for (var label in values) {
-                        (sums[label] !== (values[label] * this.props.images.length)) ?
-                            checkboxes[label] = -1 :
+                        // If no images have the attribute assigned
+                        if (occurences[label] === 0) {
+                            checkboxes[label] = -10;
+                            // If the sum doesn't check
+                        } else if (sums[label] !== (values[label] * this.props.images.length) ||
+                            occurences[label] !== this.props.images.length) {
+                            checkboxes[label] = -1;
+                        } else {
                             checkboxes[label] = values[label];
+                        }
                         listItems.push({
                             key: labels[label],
                             value: checkboxes[label]
@@ -129,9 +141,9 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                             checkboxes.push(1);
                             // console.log(label + 'LABEL FOUND');
                         } else {
-                            checkboxes.push(0);
+                            checkboxes.push(-10);
                             // console.log(label + 'LABEL NOT FOUND');
-                            value = 0;
+                            value = -10;
                         }
                         // console.log(label + ' value ' + value);
                         listItems.push({
@@ -172,8 +184,8 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
 
     render() {
         if (!this.state.wait) {
-            // console.log('ATTRIBUTE LIST ITEMS', this.state.listItems);
-            // console.log('STATE CHECKBOXES', this.state.checkboxes);
+            console.log('ATTRIBUTE LIST ITEMS', this.state.listItems);
+            console.log('STATE CHECKBOXES', this.state.checkboxes);
             return (
                 <div>
                     <Paper style={{ maxHeight: '65vh', overflowY: 'auto', width: '100%' }}>
@@ -186,6 +198,8 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                             </TableHead>
                             <TableBody >
                                 {this.state.listItems.map((item, i) => {
+                                    var value;
+                                    (this.state.checkboxes[i] > 0) ? value = item.value + '' : value = '';
                                     return (
                                         <TableRow key={i}>
                                             <TableCell checkbox="true" >
@@ -196,7 +210,7 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                                                         var checkboxes: number[] = [...this.state.checkboxes];
                                                         let deletingAttribute = false;
                                                         if (checkboxes[i] > 0) { deletingAttribute = true; }
-                                                        checkboxes[i] === 0 ? checkboxes[i] = 1 : checkboxes[i] = 0;
+                                                        checkboxes[i] <= 0 ? checkboxes[i] = 1 : checkboxes[i] = -10;
                                                         await changeAttribute(
                                                             deletingAttribute,
                                                             this.props.addedImageAnnotation,
@@ -212,8 +226,7 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                                                 {item.key}
                                             </TableCell>
                                             <TableCell >
-                                                {(this.multipleSelected) ? this.state.checkboxes[i] : item.value}
-                                                {/* {this.state.checkboxes[i]} */}
+                                                {value}
                                             </TableCell>
                                         </TableRow>
                                     );
@@ -231,11 +244,25 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
 
 function mapStateToProps(state: State): ConnectedState {
     let imagesFromState: string[] = [];
-    let annotations: ImageAnnotation[] = [];
-    if (state.ui.selections.series.length !== 0 &&
-        state.entities.series.byId.get(getLastValue(state.ui.selections.series)) !== null) {
-        
-        annotations = [];     
+    let annotations: ImageAnnotation[][] = [];
+    let images: string[] = state.ui.selections.images;
+
+    // if (state.ui.selections.series.length !== 0 &&
+    // state.entities.series.byId.get(getLastValue(state.ui.selections.series)) !== null) {
+    if (state.ui.selections.images.length !== 0) {
+        // Add all annotations of selected images into props
+        console.log('images', images);
+        for (var imageName of images) {
+            console.log('imageName', imageName);
+            var imageEntity: ImageEntity = state.entities.images.byId.get(imageName);
+            if (imageEntity) {
+                if (imageEntity.annotations) {
+                    console.log('annotations', imageEntity.annotations);
+                    annotations.push(imageEntity.annotations);
+                }
+            }
+        }
+        console.log('annotations', annotations);
     }
 
     return {

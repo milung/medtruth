@@ -64,7 +64,7 @@ export function uiReducer(
             newState.selections.images = [];
             return newState;
         case ActionTypeKeys.LAST_STUDY_SELECTED:
-            console.log("ActionTypeKeys.LAST_STUDY_SELECTED");
+            console.log('ActionTypeKeys.LAST_STUDY_SELECTED');
 
             newState = Object.assign({}, prevState);
             newState.lastViewedStudyID = action.lastStudyID;

@@ -74,9 +74,6 @@ routerDownload.post('/', json(), (req, res) => {
     console.log(data);
     console.log(data.format);
     console.log(data.format == OutputType.REGRESSION_VALUE);
-    
-    
-    
     res.sendStatus(StatusCode.Accepted);
 });
 

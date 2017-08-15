@@ -23,7 +23,8 @@ describe('UIReducer', () => {
             selections: {
                 images: [],
                 series: []
-            }
+            },
+            lastViewedStudyID: ''
         });
     });
 

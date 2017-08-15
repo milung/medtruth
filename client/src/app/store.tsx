@@ -6,6 +6,8 @@ import { UIState, uiReducer } from '../reducers/UIReducer';
 import { entitiesReducer } from '../reducers/EntitiesReducer';
 // import { freeze } from 'redux-freeze';
 import { EntitiesState } from '../reducers/EntitiesReducer';
+import thunk from 'redux-thunk';
+import { applyMiddleware } from 'redux';
 
 const rootReducer = combineReducers({
     entities: entitiesReducer,
@@ -20,9 +22,9 @@ export interface State {
 }
 
 const composeEnhancers = composeWithDevTools({
-  serialize: true
+    serialize: true
 });
 
 export const store = createStore(rootReducer, composeEnhancers(
-    // applyMiddleware(freeze)
+    applyMiddleware(thunk)
 ));

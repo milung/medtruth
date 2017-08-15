@@ -3,23 +3,22 @@ import Grid from 'material-ui/Grid';
 import { imageStyle } from '../styles/ComponentsStyle';
 import Card, { CardContent } from 'material-ui/Card';
 import Typography from 'material-ui/Typography';
-import { ImageViewComponent } from "../imageview/ImageView";
-import { ImageProps } from '../imageview/ImageView'
-import { ApiService } from "../api";
-import { connect } from "react-redux";
-import { State } from "../app/store";
+import { ImageViewComponent } from '../imageview/ImageView';
+import { ImageProps } from '../imageview/ImageView';
+import { ApiService } from '../api';
+import { connect } from 'react-redux';
+import { State } from '../app/store';
 import * as Redux from 'redux';
 import Paper from 'material-ui/Paper';
 
 import {
     ThumbnailBlownUpAction, thumbnailBlownUp,
     SeriesSelectedAction, Keys, selectedImage, ImageSelectedAction, ImagesAllUnselectedAction, imagesAllUnselected
-} from "../actions/actions";
+} from '../actions/actions';
 
-import { PatientProps } from "../imageview/PatientView";
-import { Link } from "react-router-dom";
+import { PatientProps } from '../imageview/PatientView';
+import { Link } from 'react-router-dom';
 // import {imageStyle} from '../styles/ComponentsStyle'
-
 
 interface GaleryProps {
     uploadID: number;
@@ -40,6 +39,7 @@ interface ConnectedDispatch {
     selectedImage: (imageID: string, keyPressedL: Keys) => ImageSelectedAction;
     deselectAllImages: () => ImagesAllUnselectedAction;
 }
+
 /**
  * Gallery component
  */
@@ -50,7 +50,6 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
     private seriesDescription: string;
     private uploadDate: number;
 
-
     constructor(props) {
         super(props);
         this.state = {
@@ -60,11 +59,10 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
         this.handleImageClick = this.handleImageClick.bind(this);
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
     }
-    async componentDidMount() {
 
+    async componentDidMount() {
         await this.receiveImages(this.props.uploadID, this.props.studyID, this.props.seriesID);
         await this.receiveData(this.props.uploadID);
-
     }
 
     componentWillReceiveProps(nextProps: GaleryProps & ConnectedState) {
@@ -115,7 +113,6 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
     async receiveData(uploadID: number): Promise<void> {
         let patId = 10;
 
-
         this.setState({ wait: true });
 
         let resData = await ApiService.getData(uploadID);
@@ -133,7 +130,7 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
                     studyID: patient.studyID,
                     uploadID: resData.uploadID
                 };
-                if (serie.seriesID == this.props.seriesID) {
+                if (serie.seriesID === this.props.seriesID) {
                     this.seriesDescription = serie.seriesDescription;
                 }
             }
@@ -144,14 +141,12 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
                 studyDescription: patient.studyDescription,
                 //  series: tempSeries
             };
-            this.patientName = tempPatint.patientName
-
+            this.patientName = tempPatint.patientName;
         }
         this.uploadDate = resData.uploadDate;
         this.setState({ wait: false });
 
     }
-
 
     async receiveImages(uploadID: number, studyID: string, seriesID: string): Promise<void> {
         this.setState({ wait: true });
@@ -179,6 +174,10 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
         this.setState({ wait: false });
     }
 
+    getImageBorderStyle(isSelected: boolean) {
+        return isSelected ? '3px solid LightSeaGreen' : '3px solid white';
+    }
+
     render() {
         if (!this.state.wait) {
             return (
@@ -186,20 +185,20 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
                 <div style={imageStyle.imageViewerDiv}>
 
                     <Paper style={imageStyle.imageViewerPaper}>
-                        
+
                         {/* <div style={{ marginBottom: 32, width: '100%'}}>  */}
-                        <Grid container={true} gutter={16} >  
-                            <Grid item="true" xs={1} sm={1} md={1}  lg={1} xl={1}>                         
-                                <Link to={'/'} style={{margin: 10}}>
+                        <Grid container={true} gutter={16} >
+                            <Grid item="true" xs={1} sm={1} md={1} lg={1} xl={1}>
+                                <Link to={'/'} style={{ margin: 10 }}>
                                     <img
                                         src={require('../icons/arrow_back_black_36x36.png')}
                                         // style={{ float: 'left', marginTop: '10', marginLeft: '10' }}
                                         style={{ float: 'left', width: 30, height: 30 }}
                                     />
-                                </Link> 
-                            </Grid> 
+                                </Link>
+                            </Grid>
                             <Grid item="true" xs={11} sm={11} md={11} lg={11} xl={11}>
-                                <div style={{marginTop: '5px'}}>
+                                <div style={{ marginTop: '5px' }}>
                                     {this.uploadDate} /
                                     {this.patientName} /
                                     {this.seriesDescription}
@@ -207,12 +206,24 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
                             </Grid>
                         </Grid>
                         {/* </div> */}
-                        
+
                         <Grid container={true} gutter={16} style={imageStyle.ImageViewGrid}>
                             {this.state.imageList.map(value =>
-                                <Grid item="false" xs={6} sm={3} md={2} style={imageStyle.seriesStyle} key={value.imageID}>
-                                    <Card style={imageStyle.imageViewerCard}>
-                                        <ImageViewComponent {...value} />
+                                <Grid
+                                    item="false"
+                                    xs={6}
+                                    sm={3}
+                                    md={2}
+                                    style={imageStyle.seriesStyle}
+                                    key={value.imageID}
+                                >
+                                    <Card
+                                        style={{
+                                            ...imageStyle.imageViewerCard,
+                                            border: this.getImageBorderStyle(value.isSelected)
+                                        }}
+                                    >
+                                        <ImageViewComponent {...{ ...value, isSelected: false }} />
                                     </Card>
                                 </Grid>
                             )

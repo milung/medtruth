@@ -24,7 +24,7 @@ export class ImageViewComponent extends React.Component<ImageProps, {}> {
     async getUrl(): Promise<void> {
         // let resImage = await ApiService.getImage(this.props.imageName + "_");
         let img = document.getElementById(this.props.imageID) as HTMLImageElement;
-        // if(img != null)img.src = resImage === null ? "" : resImage.url;
+        // if (img != null) img.src = resImage === null ? "" : resImage.url;
         img.src = 'https://www.wolken.cz/images/product/322/i3.jpg';
     }
 

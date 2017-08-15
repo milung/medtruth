@@ -10,7 +10,7 @@ import { thumbnailBlownDown, ThumbnailBlownDownAction } from '../actions/actions
 import { State } from '../app/store';
 import { ApiService } from '../api';
 import { CircularProgress } from 'material-ui/Progress';
-import {getFullImageURL} from '../constants';
+import { getFullImageURL } from '../constants';
 
 interface OwnProps {
 
@@ -32,7 +32,7 @@ export class BlowUpComponent extends React.Component<OwnProps & ConnectedState &
     constructor() {
         super();
         this.state = { imageURL: '' };
-        //this.setImageURL = this.setImageURL.bind(this);
+        // this.setImageURL = this.setImageURL.bind(this);
         this.myOnKeyDown = this.myOnKeyDown.bind(this);
         this.onExitClick = this.onExitClick.bind(this);
     }

@@ -22,11 +22,11 @@ export class PatientView extends React.Component<PatientProps, {}> {
 
     componentDidMount() {
         let reduxState: State = store.getState() as State;
-        if (this.props.series[0].studyID == reduxState.ui.lastViewedStudyID) {
+        if (this.props.series[0].studyID === reduxState.ui.lastViewedStudyID) {
             let doc = document.getElementById(this.props.series[0].studyID);
-            console.log("document: ", doc);
+            console.log('document: ', doc);
             doc.scrollIntoView();
-            window.scrollBy(0,-50);
+            window.scrollBy(0, -50);
         }
 
     }
