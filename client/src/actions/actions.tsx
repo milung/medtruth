@@ -62,6 +62,7 @@ export interface ImagesAllUnselectedAction {
 export interface ImageAnnotationAddedAction {
     type: ActionTypeKeys.IMAGE_ANNOTATION_ADDED;
     annotation: ImageAnnotation;
+    imageID: string;
 }
 
 export interface SeriesSelectedAction {
@@ -144,9 +145,9 @@ export const imagesAllUnselected = (): ImagesAllUnselectedAction => ({
     type: ActionTypeKeys.IMAGES_ALL_UNSELECTED,
 });
 
-export const imageAnnotationAdded = (annotation: ImageAnnotation): ImageAnnotationAddedAction => ({
+export const imageAnnotationAdded = (annotation: ImageAnnotation, imageID: string): ImageAnnotationAddedAction => ({
     type: ActionTypeKeys.IMAGE_ANNOTATION_ADDED,
-    annotation
+    annotation, imageID
 });
 
 export const seriesSelected = (id: string, keyPressed: Keys): SeriesSelectedAction => ({
@@ -208,7 +209,6 @@ export type ActionType =
     | ImagesAnnotationAddedAction;
 
 export interface ImageAnnotation {
-    imageId: string;
     key: string;
     value: number;
 }

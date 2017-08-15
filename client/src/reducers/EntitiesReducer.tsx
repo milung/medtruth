@@ -146,13 +146,13 @@ const processImageAnnotationAddedAction =
         newState.images = { ...prevState.images };
         newState.images.byId = new Map(prevState.images.byId);
         let imageAnnotation: ImageAnnotation = action.annotation;
-        let imageEntity: ImageEntity = newState.images.byId.get(imageAnnotation.imageId);
+        let imageEntity: ImageEntity = newState.images.byId.get(action.imageID);
         let newImageEntity: ImageEntity;
 
         if (imageEntity === undefined) {
             newImageEntity = {
                 seriesId: undefined,
-                imageId: imageAnnotation.imageId,
+                imageId: action.imageID,
                 annotations: []
             };
             // if (imageAnnotation.value !== 0) {

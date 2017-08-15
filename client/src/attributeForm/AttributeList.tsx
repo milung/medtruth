@@ -3,13 +3,14 @@ import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Ta
 import Checkbox from 'material-ui/Checkbox';
 import Paper from 'material-ui/Paper';
 import { ApiService } from '../api';
-import { changeAttribute, getLastValue } from './AttributeForm';
+import { getLastValue } from './AttributeForm';
 import * as Redux from 'redux';
 import { connect } from 'react-redux';
 import { State } from '../app/store';
-import { ImageAnnotation, ImageAnnotationAddedAction, imageAnnotationAdded } from '../actions/actions';
+import { ImageAnnotation, imagesAnnotationAddedAction, ImagesAnnotationAddedAction } from '../actions/actions';
 import * as _ from 'lodash';
 import { ImageEntity } from '../reducers/EntitiesReducer';
+import { removeImagesAnnotationAction, addImagesAnnotationAction } from "../actions/asyncActions";
 
 export interface OwnState {
     checkboxes: number[];
@@ -27,7 +28,7 @@ export interface ListItem {
 }
 
 export interface ConnectedDispatch {
-    addedImageAnnotation: (annotation: ImageAnnotation) => ImageAnnotationAddedAction;
+    addedImagesAnnotation: (imageIds: string[], annotation: ImageAnnotation) => ImagesAnnotationAddedAction;
 }
 
 export class AttributeListComponent extends React.Component<ConnectedDispatch & ConnectedState, OwnState> {
@@ -73,7 +74,7 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                 // Checkbox values mean the following:
                 // -10: unchecked
                 // -1: indeterminate
-                // greater than 0: checked
+                // equal or greater than 0: checked
 
                 // If more than one thumbnail is selected
                 if (this.props.images.length >= 2) {
@@ -113,10 +114,12 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                         } else {
                             checkboxes[label] = values[label];
                         }
+                        console.log('label' + labels[label] + ' value ' + values[label] + ' occurence ' + occurences[label] + ' sum ' + sums[label] + ' length ' + this.props.images.length);
                         listItems.push({
                             key: labels[label],
                             value: checkboxes[label]
                         });
+                        console.log('pushed label ' + labels[label] + ' ' + checkboxes[label]);
                     }
                 } else if (this.props.images.length === 1) {
                     this.multipleSelected = false;
@@ -159,8 +162,7 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
 
                     if (!this.updating) {
                         for (var item of listItems) {
-                            this.props.addedImageAnnotation({
-                                imageId: this.props.images[0],
+                            this.props.addedImagesAnnotation(this.props.images, {
                                 key: item.key,
                                 value: item.value
                             });
@@ -199,25 +201,26 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                             <TableBody >
                                 {this.state.listItems.map((item, i) => {
                                     var value;
-                                    (this.state.checkboxes[i] > 0) ? value = item.value + '' : value = '';
+                                    (this.state.checkboxes[i] >= 0) ? value = item.value + '' : value = '';
                                     return (
                                         <TableRow key={i}>
                                             <TableCell checkbox="true" >
                                                 <Checkbox
-                                                    checked={this.state.checkboxes[i] > 0}
+                                                    checked={this.state.checkboxes[i] >= 0}
                                                     indeterminate={this.state.checkboxes[i] === -1}
                                                     onChange={async (event: object, checked: boolean) => {
                                                         var checkboxes: number[] = [...this.state.checkboxes];
                                                         let deletingAttribute = false;
-                                                        if (checkboxes[i] > 0) { deletingAttribute = true; }
-                                                        checkboxes[i] <= 0 ? checkboxes[i] = 1 : checkboxes[i] = -10;
-                                                        await changeAttribute(
-                                                            deletingAttribute,
-                                                            this.props.addedImageAnnotation,
-                                                            this.props.images,
-                                                            // TODO change this to images
-                                                            item.key, checkboxes[i]
-                                                        );
+                                                        if (checkboxes[i] >= 0) { deletingAttribute = true; }
+                                                        checkboxes[i] < 0 ? checkboxes[i] = 1 : checkboxes[i] = -10;
+                                                        if (deletingAttribute) {
+                                                            removeImagesAnnotationAction(this.props.images, item.key);
+                                                        } else {
+                                                            addImagesAnnotationAction(this.props.images, {
+                                                                key: item.key,
+                                                                value: checkboxes[i]
+                                                            });
+                                                        }
                                                         this.setState({
                                                             checkboxes: checkboxes,
                                                         });
@@ -271,9 +274,9 @@ function mapStateToProps(state: State): ConnectedState {
     };
 }
 
-function mapDispatchToProps(dispatch: Redux.Dispatch<ImageAnnotationAddedAction>): ConnectedDispatch {
+function mapDispatchToProps(dispatch: Redux.Dispatch<ImagesAnnotationAddedAction>): ConnectedDispatch {
     return {
-        addedImageAnnotation: (annotation: ImageAnnotation) => dispatch(imageAnnotationAdded(annotation)),
+        addedImagesAnnotation: (imageIds: string[], annotation: ImageAnnotation) => dispatch(imagesAnnotationAddedAction(imageIds, annotation)),
     };
 }
 

@@ -32,14 +32,14 @@ describe('EntitiesReducer', () => {
     it('should handle ImageAnnotationAddedAction (add image annotation when image entry exists)', () => {
         // given
         let annotation: ImageAnnotation = {
-            imageId: 'image1',
             key: 'key1',
             value: 0.5
         };
 
         let imageAnnotationAddedAction: ImageAnnotationAddedAction = {
             type: ActionTypeKeys.IMAGE_ANNOTATION_ADDED,
-            annotation
+            annotation,
+            imageID: 'image1'
         };
 
         let imageEntity: ImageEntity = {
@@ -75,14 +75,14 @@ describe('EntitiesReducer', () => {
 
         // given
         let annotation: ImageAnnotation = {
-            imageId: 'image1',
             key: 'key1',
             value: 0.5
         };
 
         let imageAnnotationAddedAction: ImageAnnotationAddedAction = {
             type: ActionTypeKeys.IMAGE_ANNOTATION_ADDED,
-            annotation
+            annotation,
+            imageID: 'image1',
         };
 
         let prevState: EntitiesState = {
@@ -100,9 +100,8 @@ describe('EntitiesReducer', () => {
 
         // then
         expect(
-            newState.images.byId.get(annotation.imageId).annotations[0]
+            newState.images.byId.get(imageAnnotationAddedAction.imageID).annotations[0]
         ).toEqual({
-            imageId: 'image1',
             key: 'key1',
             value: 0.5
         });
@@ -134,19 +133,16 @@ describe('EntitiesReducer', () => {
         };
 
         let annotation1: ImageAnnotation = {
-            imageId: 'testImageId1',
             key: 'oko',
             value: 0.5
         };
 
         let annotation2: ImageAnnotation = {
-            imageId: 'testImageId1',
             key: 'hlava',
             value: 1
         };
 
         let annotation3: ImageAnnotation = {
-            imageId: 'testImageId2',
             key: 'oko',
             value: 0.2
         };
@@ -190,7 +186,6 @@ describe('EntitiesReducer', () => {
             type: ActionTypeKeys.IMAGES_ANNOTATION_ADDED,
             imageIds: ['testImageId1', 'testImageId2'],
             annotation: {
-                imageId: undefined,
                 key: 'oko',
                 value: 0.3
             }
@@ -198,7 +193,6 @@ describe('EntitiesReducer', () => {
 
         console.log('lenAAA ' + action.imageIds);
         let annotation1: ImageAnnotation = {
-            imageId: 'testImageId1',
             key: 'oko',
             value: 0.5
         };
