@@ -115,6 +115,7 @@ export namespace ApiService {
     }
 
     export async function putAttributes(id: string, ...attributes: Attribute[]) {
+        console.log('putting attributes api');
         const url = uriImages + '/' + id + '/assign';
 
         let res: axios.AxiosResponse = await axios.default({

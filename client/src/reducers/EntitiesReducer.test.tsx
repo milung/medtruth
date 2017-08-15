@@ -1,6 +1,6 @@
 import {
     ActionTypeKeys, OtherAction, ImageAnnotationAddedAction,
-    ImageAnnotation, SeriesJSON, StudyJSON, UploadJSON, UploadDataDownloadedAction, LabelsDownloadedAction, ImagesAnnotationRemovedAction, ImagesAnnotationAddedAction
+    ImageAnnotation, SeriesJSON, StudyJSON, UploadJSON, UploadDataDownloadedAction, LabelsDownloadedAction, ImagesAnnotationRemovedAction, ImagesAnnotationAddedAction, ImageJSON
 } from '../actions/actions';
 import { entitiesReducer, EntitiesState, ImageEntity, SeriesEntity } from './EntitiesReducer';
 
@@ -261,7 +261,7 @@ describe('EntitiesReducer', () => {
             let oldSeriesEntity: SeriesEntity = {
                 seriesId: 'oldSseriesId',
                 seriesDate: undefined,
-                images: ['oldImageId'],
+                images: [{imageID: 'oldImageId', imageNumber: 1}],
                 seriesDescription: 'series desc',
                 thumbnailImageID: 'oldImageId'
             };
@@ -323,9 +323,9 @@ describe('EntitiesReducer', () => {
 });
 
 const getUploadJSON = (): UploadJSON => {
-    let imageId1: string = '04556da2ce2edd91fe3ca5c1f335524b';
-    let imageId2: string = '04c899278a1b0cad90d8a2ff286f4e63';
-    let imageId3: string = '04f518349c32cfcbe820527cee910abb';
+    let imageId1: ImageJSON = {imageID: '04556da2ce2edd91fe3ca5c1f335524b', imageNumber: 1};
+    let imageId2: ImageJSON = {imageID: '04c899278a1b0cad90d8a2ff286f4e63', imageNumber: 3};
+    let imageId3: ImageJSON = {imageID: '04f518349c32cfcbe820527cee910abb', imageNumber: 4};
 
     let series1: SeriesJSON = {
         seriesID: 'seriesId1',

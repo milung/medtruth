@@ -21,7 +21,7 @@ export interface ConnectedState {
 }
 
 export interface ConnectedDispatch {
-    addedImagesAnnotation: (imageIds: string[], annotation: ImageAnnotation) => ImagesAnnotationAddedAction;
+    addImagesAnnotation: (imageIds: string[], annotation: ImageAnnotation) => ImagesAnnotationAddedAction;
 }
 
 export class AttributeFormComponent extends React.Component<ConnectedDispatch & ConnectedState, OwnState> {
@@ -52,7 +52,7 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
             valueFieldValue: ''
         });
 
-        addImagesAnnotationAction(this.props.images, {
+        this.props.addImagesAnnotation(this.props.images, {
             key: this.state.keyFieldValue,
             value: valueNumber
         });
@@ -142,9 +142,9 @@ function mapStateToProps(state: State): ConnectedState {
     };
 }
 
-function mapDispatchToProps(dispatch: Redux.Dispatch<ImagesAnnotationAddedAction>): ConnectedDispatch {
+function mapDispatchToProps(dispatch): ConnectedDispatch {
     return {
-        addedImagesAnnotation: (imageIds: string[], annotation: ImageAnnotation) => dispatch(imagesAnnotationAddedAction(imageIds, annotation)),
+        addImagesAnnotation: (imageIds: string[], annotation: ImageAnnotation) => dispatch(addImagesAnnotationAction(imageIds, annotation)),
     };
 }
 

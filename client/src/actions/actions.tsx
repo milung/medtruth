@@ -238,5 +238,10 @@ export interface SeriesJSON {
     seriesDate: number;
     seriesDescription: string;
     thumbnailImageID: string;
-    images: string[];
+    images: ImageJSON[];
+}
+
+export class ImageJSON {
+    imageID: string;
+    imageNumber: number;
 }

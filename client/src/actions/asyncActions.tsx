@@ -5,7 +5,6 @@ import { ApiService } from '../api';
 
 export function addImagesAnnotationAction(imageIds: string[], annotation: ImageAnnotation) {
     return (dispatch) => {
-
         let promises = imageIds.map(imageId => ApiService.putAttributes(imageId, {
             key: annotation.key,
             value: annotation.value
@@ -19,7 +18,6 @@ export function addImagesAnnotationAction(imageIds: string[], annotation: ImageA
 
 export function removeImagesAnnotationAction(imageIds: string[], label: string) {
     return (dispatch) => {
-
         let promises = imageIds.map(imageId => ApiService.deleteAttributes(imageId, [label]
         ));
 

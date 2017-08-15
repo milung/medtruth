@@ -7,7 +7,7 @@ import { getLastValue } from './AttributeForm';
 import * as Redux from 'redux';
 import { connect } from 'react-redux';
 import { State } from '../app/store';
-import { ImageAnnotation, imagesAnnotationAddedAction, ImagesAnnotationAddedAction } from '../actions/actions';
+import { ImageAnnotation, imagesAnnotationAddedAction, ImagesAnnotationAddedAction, ImagesAnnotationRemovedAction } from '../actions/actions';
 import * as _ from 'lodash';
 import { ImageEntity } from '../reducers/EntitiesReducer';
 import { removeImagesAnnotationAction, addImagesAnnotationAction } from "../actions/asyncActions";
@@ -28,7 +28,8 @@ export interface ListItem {
 }
 
 export interface ConnectedDispatch {
-    addedImagesAnnotation: (imageIds: string[], annotation: ImageAnnotation) => ImagesAnnotationAddedAction;
+    addImagesAnnotation: (imageIds: string[], annotation: ImageAnnotation) => ImagesAnnotationAddedAction;
+    removeImagesAnnotation: (imageIds: string[], label: string) => ImagesAnnotationRemovedAction;
 }
 
 export class AttributeListComponent extends React.Component<ConnectedDispatch & ConnectedState, OwnState> {
@@ -87,18 +88,19 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                         checkboxes.push(-10);
                     }
                     for (let label in labels) {
-                        for (var img of this.props.images) {
-                            let resData = await ApiService.getAttributes(img);
-                            if (resData.attributes) {
-                                for (let data in resData.attributes) {
-                                    if (resData.attributes[data].key === labels[label]) {
-                                        if (occurences[label] === 0) {
-                                            values[label] = resData.attributes[data].value;
-                                        }
-                                        occurences[label]++;
-                                        sums[label] += resData.attributes[data].value;
-                                        break;
+                        // Go through the array of annotations of selected images
+                        for (let imageAnnotations of this.props.annotations) {
+                            console.log('image annotations array' + imageAnnotations);
+                            // Go through the array of image's annotations
+                            for (let annotations in imageAnnotations) {
+                                console.log('image annotations' + imageAnnotations[annotations]);
+                                if (imageAnnotations[annotations].key === labels[label]) {
+                                    if (occurences[label] === 0) {
+                                        values[label] = imageAnnotations[annotations].value;
                                     }
+                                    occurences[label]++;
+                                    sums[label] += imageAnnotations[annotations].value;
+                                    break;
                                 }
                             }
                         }
@@ -125,13 +127,11 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                     this.multipleSelected = false;
                     for (let label of labels) {
                         var labelFound = false;
-                        let resData = await ApiService.getAttributes(this.props.images[0]);
-                        console.log('COMPONENT GETTING DATA...');
-                        console.log('attributes', resData);
+                        console.log('attributes', this.props.annotations);
                         let value;
-                        if (resData.attributes) {
+                        if (this.props.annotations.length !== 0) {
                             // console.log('label ATTRIBUTES', resData.attributes);
-                            for (let data of resData.attributes) {
+                            for (let data of this.props.annotations[0]) {
                                 if (data.key === label) {
                                     labelFound = true;
                                     value = data.value;
@@ -142,10 +142,10 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                         if (labelFound) {
                             // If label was already assigned to selected img
                             checkboxes.push(1);
-                            // console.log(label + 'LABEL FOUND');
+                            console.log(label + 'LABEL FOUND');
                         } else {
                             checkboxes.push(-10);
-                            // console.log(label + 'LABEL NOT FOUND');
+                            console.log(label + 'LABEL NOT FOUND');
                             value = -10;
                         }
                         // console.log(label + ' value ' + value);
@@ -155,21 +155,23 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                         });
                     }
                 }
-                this.setState({ listItems: listItems, checkboxes: checkboxes }, () => {
-                    // console.log('SET NEW STATE');
-                    // console.log('CHECKBOXES', this.state.checkboxes);
-                    // console.log('LISTITEMS', listItems);
+                this.setState({ listItems: listItems, checkboxes: checkboxes }
+                // , () => {
+                //     // console.log('SET NEW STATE');
+                //     // console.log('CHECKBOXES', this.state.checkboxes);
+                //     // console.log('LISTITEMS', listItems);
 
-                    if (!this.updating) {
-                        for (var item of listItems) {
-                            this.props.addedImagesAnnotation(this.props.images, {
-                                key: item.key,
-                                value: item.value
-                            });
-                        }
-                        this.updating = false;
-                    }
-                });
+                //     if (!this.updating) {
+                //         for (var item of listItems) {
+                //             this.props.addImagesAnnotation(this.props.images, {
+                //                 key: item.key,
+                //                 value: item.value
+                //             });
+                //         }
+                //         this.updating = false;
+                //     }
+                // }
+                );
             } else {
                 this.setState({ listItems: [], checkboxes: [] });
             }
@@ -200,8 +202,11 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                             </TableHead>
                             <TableBody >
                                 {this.state.listItems.map((item, i) => {
-                                    var value;
-                                    (this.state.checkboxes[i] >= 0) ? value = item.value + '' : value = '';
+                                    {/* var value;
+                                    if (!this.state.wait) {
+                                        (this.state.checkboxes[i] >= 0) ? value = item.value + '' : value = '';
+                                    } */}
+
                                     return (
                                         <TableRow key={i}>
                                             <TableCell checkbox="true" >
@@ -211,25 +216,35 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                                                     onChange={async (event: object, checked: boolean) => {
                                                         var checkboxes: number[] = [...this.state.checkboxes];
                                                         let deletingAttribute = false;
+                                                        // Decide whether the checkbox is checked or unchecked
                                                         if (checkboxes[i] >= 0) { deletingAttribute = true; }
+                                                        console.log('old checkboxes', checkboxes);
+                                                        // Set the new checkbox value, 1 for checked, -10 to unchecked
                                                         checkboxes[i] < 0 ? checkboxes[i] = 1 : checkboxes[i] = -10;
-                                                        if (deletingAttribute) {
-                                                            removeImagesAnnotationAction(this.props.images, item.key);
-                                                        } else {
-                                                            addImagesAnnotationAction(this.props.images, {
-                                                                key: item.key,
-                                                                value: checkboxes[i]
-                                                            });
-                                                        }
+                                                        console.log('new checkboxes', checkboxes);
+                                                        console.log('deleting attribute ', deletingAttribute);
                                                         this.setState({
                                                             checkboxes: checkboxes,
+                                                            wait: true
+                                                        }, async () => {
+                                                            if (deletingAttribute) {
+                                                                // If the checkbox gets unchecked, remove the annotation from Redux state and db
+                                                                await this.props.removeImagesAnnotation(this.props.images, item.key);
+                                                            } else {
+                                                                // Otherwise add/update the annotation
+                                                                await this.props.addImagesAnnotation(this.props.images, {
+                                                                    key: item.key,
+                                                                    value: checkboxes[i]
+                                                                });
+                                                            }
+                                                            this.setState({ wait: false });
                                                         });
                                                     }}
                                                 />
                                                 {item.key}
                                             </TableCell>
                                             <TableCell >
-                                                {value}
+                                                {(this.state.checkboxes[i] >= 0 && item.value >= 0) ? item.value + '' : ''}
                                             </TableCell>
                                         </TableRow>
                                     );
@@ -254,18 +269,14 @@ function mapStateToProps(state: State): ConnectedState {
     // state.entities.series.byId.get(getLastValue(state.ui.selections.series)) !== null) {
     if (state.ui.selections.images.length !== 0) {
         // Add all annotations of selected images into props
-        console.log('images', images);
         for (var imageName of images) {
-            console.log('imageName', imageName);
             var imageEntity: ImageEntity = state.entities.images.byId.get(imageName);
             if (imageEntity) {
                 if (imageEntity.annotations) {
-                    console.log('annotations', imageEntity.annotations);
                     annotations.push(imageEntity.annotations);
                 }
             }
         }
-        console.log('annotations', annotations);
     }
 
     return {
@@ -274,9 +285,11 @@ function mapStateToProps(state: State): ConnectedState {
     };
 }
 
-function mapDispatchToProps(dispatch: Redux.Dispatch<ImagesAnnotationAddedAction>): ConnectedDispatch {
+
+function mapDispatchToProps(dispatch): ConnectedDispatch {
     return {
-        addedImagesAnnotation: (imageIds: string[], annotation: ImageAnnotation) => dispatch(imagesAnnotationAddedAction(imageIds, annotation)),
+        addImagesAnnotation: (imageIds: string[], annotation: ImageAnnotation) => dispatch(addImagesAnnotationAction(imageIds, annotation)),
+        removeImagesAnnotation: (imageIds: string[], label: string) => dispatch(removeImagesAnnotationAction(imageIds, label))
     };
 }
 

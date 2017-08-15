@@ -1,7 +1,7 @@
 import {
     ActionType, ActionTypeKeys, ImageAnnotation,
     ImageAnnotationAddedAction, UploadDataDownloadedAction, UploadJSON, LabelsDownloadedAction, 
-    ImagesAnnotationRemovedAction, ImagesAnnotationAddedAction
+    ImagesAnnotationRemovedAction, ImagesAnnotationAddedAction, ImageJSON
 } from '../actions/actions';
 
 export interface EntitiesState {
@@ -25,7 +25,7 @@ export interface SeriesEntity {
     seriesDate: number;
     seriesDescription: string;
     thumbnailImageID: string;
-    images: string[];
+    images: ImageJSON[];
 }
 
 const initialState: EntitiesState = {
@@ -61,37 +61,48 @@ const processImagesAnnotationAddedAction =
     (prevState: EntitiesState, action: ImagesAnnotationAddedAction) => {
         let modifiedImages: ImageEntity[] = [];
         let counter = 0;
+        console.log('annotation ids', action.imageIds);
         action.imageIds.forEach((imageId: string) => {
             let image: ImageEntity = prevState.images.byId.get(imageId);
+            console.log('prev state images', prevState.images);
             if (image) {
                 let newImage = { ...image };
-                let newImageAnnotation = { ...action.annotation, imageId: image.imageId };
+                let newImageAnnotation = { ...action.annotation };
 
                 let annotationIndex: number = image.annotations.findIndex(annotation =>
                     annotation.key === action.annotation.key
                 );
 
                 if (annotationIndex !== -1) {
+                    console.log('annotation found');
                     newImage.annotations =
                         [...image.annotations.slice(0, annotationIndex), newImageAnnotation,
                         ...image.annotations.slice(annotationIndex + 1)];
                 } else {
+                    console.log('annotation not found');
                     newImage.annotations = [...image.annotations, newImageAnnotation];
                 }
+                console.log('new annotations', newImage.annotations);
 
                 modifiedImages.push(newImage);
+                console.log('modified image', newImage);
+            } else {
+                console.log('image not found');
             }
         });
 
         let newState: EntitiesState = prevState;
 
         if (modifiedImages.length > 0) {
+            console.log('more modified images');
             newState = { ...prevState };
             newState.images = { ...prevState.images };
             newState.images.byId = new Map(prevState.images.byId);
             modifiedImages.forEach((image) => {
                 newState.images.byId.set(image.imageId, image);
             });
+        } else {
+            console.log('no modified images');
         }
 
         return newState;
@@ -205,19 +216,12 @@ const processUploadDataDownloadedAction =
         let upload: UploadJSON = action.upload;
         for (let study of upload.studies) {
             for (let series of study.series) {
-                for (let imageId of series.images) {
+                for (let image of series.images) {
                     newState.images.byId.set(
-                        imageId,
-                        { imageId, annotations: [], seriesId: series.seriesID }
+                        image.imageID,
+                        { imageId: image.imageID, annotations: [], seriesId: series.seriesID }
                     );
                 }
-
-                // TODO delete later when gallery of images is working
-                // FOR NOW SAVE SERIES ID AS IMAGE
-                newState.images.byId.set(
-                    series.seriesID,
-                    { imageId: series.seriesID, annotations: [], seriesId: series.seriesID }
-                );
 
                 newState.series.byId.set(
                     series.seriesID,
