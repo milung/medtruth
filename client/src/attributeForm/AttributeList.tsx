@@ -16,7 +16,7 @@ import { removeImagesAnnotationAction, addImagesAnnotationAction,
 
 export interface OwnState {
     checkboxes: number[];
-    wait: boolean;
+    //wait: boolean;
     listItems: ListItem[];
 }
 export interface ConnectedState {
@@ -44,7 +44,7 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
 
         this.state = {
             checkboxes: [],
-            wait: false,
+            //wait: false,
             listItems: []
         };
     }
@@ -55,22 +55,22 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
         console.log('COMPONENT old annotations', this.props.annotations);
         if (nextProps.images !== this.props.images) {
             this.updating = true;
-            this.setState({ wait: true }, async () => {
+            //this.setState({ wait: true }, async () => {
                 await this.props.downloadImageAnnotations(this.props.images);
-            });
+            //});
         }
         if (nextProps.annotations !== this.props.annotations || nextProps.images !== this.props.images) {
             // if (nextProps.annotations.length !== 0) {
             console.log('UPDATED, COMPONENT WILL MOUNT');
             this.updating = true;
-            this.setState({ wait: true }, async () => {
+            //this.setState({ wait: true }, async () => {
                 await this.receiveAttributes();
-            });
+            //});
         }
     }
 
     async receiveAttributes() {
-        await this.setState({ wait: true }, async () => {
+        //await this.setState({ wait: true }, async () => {
             let labels: string[] = await ApiService.getLabels();
             console.log('labels', labels);
 
@@ -178,8 +178,8 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
             } else {
                 this.setState({ listItems: [], checkboxes: [] });
             }
-            await this.setState({ wait: false });
-        });
+            //await this.setState({ wait: false });
+        //});
     }
 
     async componentDidMount() {
@@ -189,7 +189,7 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
     }
 
     render() {
-        if (!this.state.wait) {
+        //if (!this.state.wait) {
             console.log('ATTRIBUTE LIST ITEMS', this.state.listItems);
             console.log('STATE CHECKBOXES', this.state.checkboxes);
             return (
@@ -227,7 +227,7 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                                                         console.log('deleting attribute ', deletingAttribute);
                                                         this.setState({
                                                             checkboxes: checkboxes,
-                                                            wait: true
+                                                            //wait: true
                                                         }, async () => {
                                                             if (deletingAttribute) {
                                                                 // If the checkbox gets unchecked, remove the annotation from Redux state and db
@@ -239,7 +239,7 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                                                                     value: checkboxes[i]
                                                                 });
                                                             }
-                                                            this.setState({ wait: false });
+                                                            //this.setState({ wait: false });
                                                         });
                                                     }}
                                                 />
@@ -256,9 +256,9 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                     </Paper>
                 </div>
             );
-        } else {
-            return (<div />);
-        }
+        // } else {
+        //     return (<div />);
+        // }
     }
 }
 

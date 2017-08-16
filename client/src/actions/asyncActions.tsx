@@ -48,12 +48,14 @@ export function downloadImageAnnotations(...imageIds: string[]) {
         let imagesAnnotationsMap: Map<string, ImageAnnotation[]> = new Map();
         let imagesAnnotations = await Promise.all(promises);
         imagesAnnotations.forEach(imageAnnotations => {
-            imagesAnnotationsMap.set(imageAnnotations.imageID, imageAnnotations.attributes.map(attr => (
-                {
-                    key: attr.key,
-                    value: attr.value
-                }
-            )));
+            if (imageAnnotations.attributes) {
+                imagesAnnotationsMap.set(imageAnnotations.imageID, imageAnnotations.attributes.map(attr => (
+                    {
+                        key: attr.key,
+                        value: attr.value
+                    }
+                )));
+            }
         });
         dispatch(imagesAnnotationsDownloadedAction(imagesAnnotationsMap));
     };
