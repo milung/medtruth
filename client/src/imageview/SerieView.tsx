@@ -20,7 +20,7 @@ export interface SeriesProps {
     src: string;
     imageID: number;
     studyID: string;
-    uploadID: number;
+    patientID: string;  // TODO delete
 }
 
 export interface ConnectedDispatch {
@@ -82,16 +82,20 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
     }
 
     getGalleryPath(): string {
-        let uploaid: number = this.props.uploadID;
-        let study: string = this.props.studyID;
-        let series: string = this.props.seriesID;
-        return `/gallery/${uploaid}/${study}/${series}`;
+        // let uploaid: number = this.props.uploadID;
+        // let study: string = this.props.studyID;
+        // let series: string = this.props.seriesID;
+        // return `/gallery/${uploaid}/${study}/${series}`;
+
+        ///:seriesID/:patientID/:studyID"
+
+        return `/${this.props.seriesID}/${this.props.patientID}/${this.props.studyID}`;
     }
 
     render() {
         let borderStyle;
         this.props.seriesSelected ? borderStyle = '3px solid LightSeaGreen' : borderStyle = '3px solid white';
-
+        console.log('serieview path', this.getGalleryPath());
         return (
             <div >
                 <Card style={{ border: borderStyle }}>
@@ -132,8 +136,8 @@ function mapStateToProps(state: State, props: SeriesProps): SeriesProps & Connec
         src: props.src,
         imageID: props.imageID,
         studyID: props.studyID,
-        uploadID: props.uploadID,
-        seriesSelected: state.ui.selections.series.indexOf(props.seriesID) !== -1
+        seriesSelected: state.ui.selections.series.indexOf(props.seriesID) !== -1,
+        patientID: props.patientID
     };
 }
 

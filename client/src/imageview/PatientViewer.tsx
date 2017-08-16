@@ -8,6 +8,7 @@ import { ApiService } from '../api';
 import { connect } from 'react-redux';
 import { State } from '../app/store';
 import { UploadJSON, UploadDataDownloadedAction, uploadDataDowloaded } from '../actions/actions';
+import { StudiesProps } from "./StudyView";
 
 interface ArrayOfPatients {
     wait: boolean;
@@ -24,7 +25,7 @@ interface ConnectedDispatch {
 
 class PatientViewerComponent extends React.Component<ConnectedState & ConnectedDispatch, ArrayOfPatients> {
 
-    constructor() {
+    constructor() {       
         super();
         this.state = {
             wait: false,
@@ -43,42 +44,49 @@ class PatientViewerComponent extends React.Component<ConnectedState & ConnectedD
     }
 
     async receiveData(uploadID: number): Promise<void> {
+        
         let patId = 10;
         let imageId = 10;
 
         this.setState({ wait: true });
-
+        
         let resData = await ApiService.getData(uploadID/*12345*/);
-        this.props.uploadedDataDownloaded(resData);
+       
+       // this.props.uploadedDataDownloaded(resData);
         console.log('got data', resData);
         let patients = [];
 
-        for (let patient of resData.studies) {
+        for (let patient of resData.listOfPatients) {
             let tempSeries = [];
-            
-            for (let tmpSerie of patient.series) {
-                let serie = {
-                    seriesID: tmpSerie.seriesID,
-                    seriesDescription: tmpSerie.seriesDescription,
-                    src: tmpSerie.thumbnailImageID,
-                    imageID: imageId,
-                    studyID: patient.studyID,
-                    uploadID: resData.uploadID
+           // console.log("len ist of patients",resData.listOfPatients.length)
+            let tmpStudies=[];
+
+            for (let tmpStudy of patient.studies) {
+              //  console.log("tmpStudy",tmpStudy)
+                let study: StudiesProps = {
+                    // TODO REMOVE PATIENT ID
+                    patientID: patient.patientID,
+                    studyID: tmpStudy.studyID,
+                    studyDescription: tmpStudy.studyDescription,
+                    series: null,
+                   
                 };
-                tempSeries.push(serie);
+                tmpStudies.push(study);
                 imageId++;
             }
-            let tempPatint: PatientProps = {
-                patientId: patId,
+            let tempPatient: PatientProps = {
+                patientId: patient.patientID,
                 patientName: patient.patientName,
-                dateOfBirth: patient.patientBirthday,
-                studyDescription: patient.studyDescription,
-                series: tempSeries
+                dateOfBirth: patient.dateOfBirth,   
+                studies: tmpStudies,           
+                
             };
-            patients.push(tempPatint);
+            patients.push(tempPatient);
             patId++;
+            console.log('studies',tmpStudies)
+            console.log()
         }
-        this.setState(Object.assign({}, { wait: false, patientList: patients }));
+       this.setState(Object.assign({}, { wait: false, patientList: patients }));
     }
 
     render() {

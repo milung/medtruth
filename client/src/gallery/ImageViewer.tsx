@@ -20,12 +20,15 @@ import { PatientProps } from '../imageview/PatientView';
 import { Link } from 'react-router-dom';
 // import {imageStyle} from '../styles/ComponentsStyle'
 
-interface GaleryProps {
+interface GalleryProps {
     uploadID: number;
     studyID: string;
     seriesID: string;
 }
 
+interface OwnProps {
+    match: any;
+}
 interface ConnectedState {
     selectedImages: string[];
 }
@@ -34,6 +37,7 @@ interface ArrayOfImages {
     wait: boolean;
     imageList: ImageProps[];
 }
+
 interface ConnectedDispatch {
     blowUp: (imageID: string) => ThumbnailBlownUpAction;
     selectedImage: (imageID: string, keyPressedL: Keys) => ImageSelectedAction;
@@ -43,7 +47,7 @@ interface ConnectedDispatch {
 /**
  * Gallery component
  */
-class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispatch & ConnectedState, ArrayOfImages> {
+class ImageViewerComponent extends React.Component<OwnProps & GalleryProps & ConnectedDispatch & ConnectedState, ArrayOfImages> {
     private timer = null;
 
     private patientName: string;
@@ -61,11 +65,11 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
     }
 
     async componentDidMount() {
-        await this.receiveImages(this.props.uploadID, this.props.studyID, this.props.seriesID);
-        await this.receiveData(this.props.uploadID);
+        //await this.receiveImages(this.props.uploadID, this.props.studyID, this.props.seriesID);
+        await this.receiveData();
     }
 
-    componentWillReceiveProps(nextProps: GaleryProps & ConnectedState) {
+    componentWillReceiveProps(nextProps: GalleryProps & ConnectedState) {
         if (nextProps.selectedImages !== this.props.selectedImages) {
             let imageList: ImageProps[] = [...this.state.imageList];
             for (let image in imageList) {
@@ -110,75 +114,57 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
         clearTimeout(this.timer);
     }
 
-    async receiveData(uploadID: number): Promise<void> {
-        let patId = 10;
-
+    async receiveData(): Promise<void> {
         this.setState({ wait: true });
 
-        let resData = await ApiService.getData(uploadID);
+        let resData = await ApiService.getData(12345);
+        console.log('got data', resData);
+        let tmpImages: ImageProps[] = [];
 
-        console.log(' data', resData);
-        let patients = [];
+        console.log('match', this.props.match);
+        console.log('match params', this.props.match.params);
 
-        for (let patient of resData.studies) {
-            // let tempSeries = [];
+        for (let patient of resData.listOfPatients) {
+            console.log('patient id ' + this.props.match.params.patientID);
 
-            for (let tmpSerie of patient.series) {
-                let serie = {
-                    seriesID: tmpSerie.seriesID,
-                    seriesDescription: tmpSerie.seriesDescription,
-                    studyID: patient.studyID,
-                    uploadID: resData.uploadID
-                };
-                if (serie.seriesID === this.props.seriesID) {
-                    this.seriesDescription = serie.seriesDescription;
+            if (patient.patientID == this.props.match.params.patientID) {
+                console.log('patient ' + this.props.match.params.patientID + ' found');
+                console.log('patient studies', patient.studies);
+                for (let study of patient.studies) {
+                    if (study.studyID == this.props.match.params.studyID) {
+                        console.log('patient series', study.series);
+                        for (let series of study.series) {
+                            if (series.seriesID == this.props.match.params.seriesID) {
+                                console.log('patient images', series.images);
+                                for (let image of series.images) {
+                                    tmpImages.push({
+                                        imageID: image.imageNumber,
+                                        imageName: image.imageID,
+                                        handleClick: this.handleImageClick,
+                                        blowUp: this.props.blowUp,
+                                        handleDouble: this.handleDoubleClick,
+                                        isSelected: false
+                                    });
+                                }
+                            }
+                        }
+                    }
                 }
+                console.log('images', tmpImages);
             }
-            let tempPatint = {
-                //  patientId: patId,
-                patientName: patient.patientName,
-                dateOfBirth: patient.patientBirthday,
-                studyDescription: patient.studyDescription,
-                //  series: tempSeries
-            };
-            this.patientName = tempPatint.patientName;
+            this.setState({ imageList: tmpImages, wait: false });
         }
-        this.uploadDate = resData.uploadDate;
-        this.setState({ wait: false });
-
     }
 
-    async receiveImages(uploadID: number, studyID: string, seriesID: string): Promise<void> {
-        this.setState({ wait: true });
-
-        let resData = await ApiService.getSeriesImages(+uploadID, studyID, seriesID);
-        console.log('resData: ', resData);
-        let tempImages = [];
-        if (resData) {
-            for (let data of resData) {
-                let tempImg: ImageProps = {
-                    imageID: data.imageNumber,
-                    imageName: data.imageID,
-                    handleClick: this.handleImageClick,
-                    blowUp: this.props.blowUp,
-                    handleDouble: this.handleDoubleClick,
-                    isSelected: false
-                };
-                tempImages.push(tempImg);
-            }
-            this.setState({ imageList: tempImages });
-        } else {
-            tempImages = [];
-            this.setState({ imageList: [] });
-        }
-        this.setState({ wait: false });
-    }
+    // TODO get images from state
 
     getImageBorderStyle(isSelected: boolean) {
         return isSelected ? '3px solid LightSeaGreen' : '3px solid white';
     }
 
     render() {
+        console.log('IMAGE VIEWER RENDERING');
+        console.log('image list', this.state.imageList);
         if (!this.state.wait) {
             return (
 
@@ -242,7 +228,7 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
     }
 }
 
-function mapStateToProps(state: State, props: GaleryProps): GaleryProps & ConnectedState {
+function mapStateToProps(state: State, props: GalleryProps): GalleryProps & ConnectedState {
     return {
         uploadID: props.uploadID,
         studyID: props.studyID,

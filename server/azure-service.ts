@@ -6,7 +6,7 @@ import * as _ from 'lodash';
 //import { db } from './server';
 
 import { MongoClient, Db, Collection, BulkWriteOpResultObject, FindAndModifyWriteOpResultObject } from 'mongodb';
-import { UploadJSON } from "./Objects";
+// import { UploadJSON } from "./Objects";
 
 export namespace AzureStorage {
     const accountName = 'medtruth';

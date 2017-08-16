@@ -4,53 +4,69 @@ import Typography from 'material-ui/Typography';
 import { store, State } from '../app/store';
 import { SeriesViewer } from './SeriesViewer';
 import { SeriesProps } from './SerieView';
+import { StudiesProps } from "./StudyView";
+import { Link } from "react-router-dom";
+
 
 export interface PatientProps {
     patientId: number;
     patientName: string;
     dateOfBirth: number;
-    studyDescription: string;
-    series: SeriesProps[];
+    studies: StudiesProps[];
+}
+
+export interface PatientList {
+    patientList: PatientProps[];
 }
 
 export class PatientView extends React.Component<PatientProps, {}> {
 
     constructor(props: PatientProps) {
         super(props);
+
         this.convertDate = this.convertDate.bind(this);
+        this.handleDoubleClick = this.handleDoubleClick.bind(this);
     }
 
     componentDidMount() {
-        let reduxState: State = store.getState() as State;
-        if (this.props.series[0].studyID === reduxState.ui.lastViewedStudyID) {
-            let doc = document.getElementById(this.props.series[0].studyID);
-            console.log('document: ', doc);
-            doc.scrollIntoView();
-            window.scrollBy(0, -50);
-        }
-
+        // let reduxState: State = store.getState() as State;
+        // if (this.props.s[0].studyID === reduxState.ui.lastViewedStudyID) {
+        //     let doc = document.getElementById(this.props.series[0].studyID);
+        //     console.log('document: ', doc);
+        //     doc.scrollIntoView();
+        //     window.scrollBy(0, -50);
+        // }
     }
+
+    handleDoubleClick() {
+        console.log('double click!',this.props.patientId);
+        
+    }
+
+    
 
     render() {
         return (
-            <div id={this.props.series[0].studyID}>
-                <Card>
-                    <CardContent>
-                        <Typography type="body2" component="p">
-                            Patient name: {this.props.patientName}
-                        </Typography>
-                        <Typography type="body2" component="p">
-                            Date of birth: {this.convertDate(this.props.dateOfBirth)}
-                        </Typography>
-                        <Typography type="body2" component="p">
+            <Link to={'/patients/' + this.props.patientId} style={{ margin: 10 }}>
+                <div id={this.props.patientId + ''} >
+                    <Card onDoubleClick={this.handleDoubleClick}>
+                        <CardContent>
+                            <Typography type="body2" component="p">
+                                Patient name: {this.props.patientName}
+                            </Typography>
+                            <Typography type="body2" component="p">
+                                Date of birth: {this.convertDate(this.props.dateOfBirth)}
+                            </Typography>
+                            {/* <Typography type="body2" component="p">
                             Study description: {this.props.studyDescription}
-                        </Typography>
-                    </CardContent>
-                    <CardContent>
+                        </Typography> */}
+                        </CardContent>
+                        {/* <CardContent>
                         <SeriesViewer list={this.props.series} />
-                    </CardContent>
-                </Card>
-            </div>
+                    </CardContent> */}
+                    </Card>
+                </div>
+            </Link>
         );
     }
 

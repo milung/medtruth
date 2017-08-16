@@ -8,6 +8,7 @@ export enum ActionTypeKeys {
     IMAGES_ALL_UNSELECTED = 'IMAGES_ALL_UNSELECTED',
     SERIES_SELECTED = 'SERIES_SELECTED',
     SERIES_ALL_UNSELECTED = 'SERIES_ALL_UNSELECTED',
+    STUDIES_SELECTED='STUDIES_SELECTED',
     IMAGE_ANNOTATION_ADDED = 'IMAGE_ANNOTATION_ADDED',
     UPLOAD_DATA_DOWNLOADED = 'UPLOAD_DATA_DOWNLOADED',
     // IMAGE_ANNOTATION_SELECTED = 'IMAGE_ANNOTATION_SELECTED',
@@ -66,6 +67,12 @@ export interface ImageAnnotationAddedAction {
 
 export interface SeriesSelectedAction {
     type: ActionTypeKeys.SERIES_SELECTED;
+    id: string;
+    keyPressed: Keys;
+}
+
+export interface StudiesSelectedAction {
+    type: ActionTypeKeys.STUDIES_SELECTED;
     id: string;
     keyPressed: Keys;
 }
