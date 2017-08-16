@@ -76,8 +76,7 @@ routerUpload.post('/',
     Returns details about upload's id.
 */
 routerUpload.get('/:id', async (req, res) => {
-    let id = Number.parseInt(req.params.id);
-    console.log("uploadid: " + id);
+    res.sendStatus(StatusCode.Forbidden);
 
     /*
 
