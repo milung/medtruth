@@ -2,7 +2,7 @@
 import {
     ImageAnnotation, imagesAnnotationAddedAction,
     imagesAnnotationRemovedAction, labelsDowloadedAction,  
-    imagesAnnotationsDownloadedAction, PatientJSON, patientsDataFetched
+    imagesAnnotationsDownloadedAction, PatientJSON, patientsFetched
 } from './actions';
 import { ApiService } from '../api';
 
@@ -62,10 +62,10 @@ export function downloadImageAnnotations(...imageIds: string[]) {
     };
 }
 
-export function fetchPatientsData() {
+export function fetchPatients() {
     return async (dispatch) => {
         let patients: PatientJSON[] = await ApiService.getPatients();
 
-        dispatch(patientsDataFetched(patients));
+        dispatch(patientsFetched(patients));
     };
 }

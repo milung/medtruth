@@ -201,7 +201,7 @@ export namespace ApiService {
     }
 
     export async function getPatients() {
-        const url = uriPatients + 'patients';
+        const url = uriPatients;
 
         let res: axios.AxiosResponse = await axios.default({
             method: 'GET',

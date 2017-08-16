@@ -187,7 +187,7 @@ export const imagesAnnotationsDownloadedAction =
         imagesAnnotations
     });
 
-export const patientsDataFetched = (patients: PatientJSON[]): PatientsFetchedAction => ({
+export const patientsFetched = (patients: PatientJSON[]): PatientsFetchedAction => ({
     type: ActionTypeKeys.PATIENTS_FETCHED,
     patients
 });
