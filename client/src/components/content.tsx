@@ -8,7 +8,7 @@ import { SelectionStatus } from '../selectionStatus/SelectionStatus';
 import { ImageViewer } from '../gallery/ImageViewer';
 import { BrowserRouter } from 'react-router-dom';
 import { RouteMap } from '../router/routermap';
-import { DownloadPopUp } from "./downloadpopup";
+import { DownloadPopUp } from './downloadpopup';
 
 interface OwnProps {
 }

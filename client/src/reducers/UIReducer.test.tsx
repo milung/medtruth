@@ -24,7 +24,8 @@ describe('UIReducer', () => {
                 images: [],
                 series: []
             },
-            lastViewedStudyID: ''
+            lastViewedStudyID: '',
+            showDownloadPopUP: false
         });
     });
 

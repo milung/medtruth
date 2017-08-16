@@ -426,6 +426,12 @@ export namespace AzureDatabase {
 
     export function removeFromLabels(labels: string[]): Promise<Status> {
         return new Promise<Status>(async (resolve, reject) => {
+
+            if (!labels || labels.length === 0) {
+                resolve(Status.SUCCESFUL);
+                return;
+            }
+
             try {
                 var conn = await connectToLabels();
 

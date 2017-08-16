@@ -82,10 +82,10 @@ describe('actions', () => {
 
     it('should create an action ImageAnnotationAddedAction', () => {
         //given
-        let annot: ImageAnnotation = { imageId: '5d6s7vv', key: 'po8lkj7', value: 12345 };
+        let annot: ImageAnnotation = { key: 'po8lkj7', value: 12345 };
 
         //when
-        let action: ImageAnnotationAddedAction = imageAnnotationAdded(annot);
+        let action: ImageAnnotationAddedAction = imageAnnotationAdded(annot, '5d6s7vv');
 
         //then
         expect(action).toEqual({

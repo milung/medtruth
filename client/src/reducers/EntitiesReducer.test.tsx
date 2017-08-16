@@ -1,6 +1,9 @@
 import {
     ActionTypeKeys, OtherAction, ImageAnnotationAddedAction,
-    ImageAnnotation, SeriesJSON, StudyJSON, UploadJSON, UploadDataDownloadedAction, LabelsDownloadedAction, ImagesAnnotationRemovedAction, ImagesAnnotationAddedAction
+    ImageAnnotation, SeriesJSON, StudyJSON, 
+    UploadJSON, UploadDataDownloadedAction, 
+    LabelsDownloadedAction, ImagesAnnotationRemovedAction, 
+    ImagesAnnotationAddedAction, ImagesAnnotationsDownloadedAction, ImageJSON
 } from '../actions/actions';
 import { entitiesReducer, EntitiesState, ImageEntity, SeriesEntity } from './EntitiesReducer';
 
@@ -32,14 +35,14 @@ describe('EntitiesReducer', () => {
     it('should handle ImageAnnotationAddedAction (add image annotation when image entry exists)', () => {
         // given
         let annotation: ImageAnnotation = {
-            imageId: 'image1',
             key: 'key1',
             value: 0.5
         };
 
         let imageAnnotationAddedAction: ImageAnnotationAddedAction = {
             type: ActionTypeKeys.IMAGE_ANNOTATION_ADDED,
-            annotation
+            annotation,
+            imageID: 'image1'
         };
 
         let imageEntity: ImageEntity = {
@@ -75,14 +78,14 @@ describe('EntitiesReducer', () => {
 
         // given
         let annotation: ImageAnnotation = {
-            imageId: 'image1',
             key: 'key1',
             value: 0.5
         };
 
         let imageAnnotationAddedAction: ImageAnnotationAddedAction = {
             type: ActionTypeKeys.IMAGE_ANNOTATION_ADDED,
-            annotation
+            annotation,
+            imageID: 'image1',
         };
 
         let prevState: EntitiesState = {
@@ -100,9 +103,8 @@ describe('EntitiesReducer', () => {
 
         // then
         expect(
-            newState.images.byId.get(annotation.imageId).annotations[0]
+            newState.images.byId.get(imageAnnotationAddedAction.imageID).annotations[0]
         ).toEqual({
-            imageId: 'image1',
             key: 'key1',
             value: 0.5
         });
@@ -134,19 +136,16 @@ describe('EntitiesReducer', () => {
         };
 
         let annotation1: ImageAnnotation = {
-            imageId: 'testImageId1',
             key: 'oko',
             value: 0.5
         };
 
         let annotation2: ImageAnnotation = {
-            imageId: 'testImageId1',
             key: 'hlava',
             value: 1
         };
 
         let annotation3: ImageAnnotation = {
-            imageId: 'testImageId2',
             key: 'oko',
             value: 0.2
         };
@@ -190,15 +189,12 @@ describe('EntitiesReducer', () => {
             type: ActionTypeKeys.IMAGES_ANNOTATION_ADDED,
             imageIds: ['testImageId1', 'testImageId2'],
             annotation: {
-                imageId: undefined,
                 key: 'oko',
                 value: 0.3
             }
         };
 
-        console.log('lenAAA ' + action.imageIds);
         let annotation1: ImageAnnotation = {
-            imageId: 'testImageId1',
             key: 'oko',
             value: 0.5
         };
@@ -267,7 +263,7 @@ describe('EntitiesReducer', () => {
             let oldSeriesEntity: SeriesEntity = {
                 seriesId: 'oldSseriesId',
                 seriesDate: undefined,
-                images: ['oldImageId'],
+                images: [{imageID: 'oldImageId', imageNumber: 1}],
                 seriesDescription: 'series desc',
                 thumbnailImageID: 'oldImageId'
             };
@@ -326,12 +322,109 @@ describe('EntitiesReducer', () => {
             expect(newState.images.byId.has('oldImageId')).toBeFalsy();
 
         });
+
+    it('should handle ImagesAnnotationsDownloadedAction', () => {
+
+        // given
+        let annotations1: ImageAnnotation[] = [
+            {
+                key: 'oko',
+                value: 1
+            },
+            {
+                key: 'hlava',
+                value: 0
+            }
+        ];
+
+        let annotations2: ImageAnnotation[] = [
+            {
+                key: 'hlava',
+                value: 0.5
+            }
+        ];
+
+        let imageId1: string = 'imageId1';
+        let imageId2: string = 'imageId2';
+
+        let imagesAnnotations: Map<string, ImageAnnotation[]> = new Map(
+            [
+                [imageId1, annotations1],
+                [imageId2, annotations2]
+            ]
+        );
+
+        let action: ImagesAnnotationsDownloadedAction = {
+            type: ActionTypeKeys.IMAGES_ANNOTATIONS_DOWNLOADED,
+            imagesAnnotations: new Map<string, ImageAnnotation[]>()
+        };
+
+        let image2: ImageEntity = {
+            seriesId: undefined,
+            imageId: 'imageId2',
+            annotations: [
+                {
+                    key: 'krk',
+                    value: 1
+                }
+            ]
+        };
+
+        let prevState: EntitiesState = {
+            images: {
+                byId: new Map<string, ImageEntity>(
+                    [
+                        [image2.imageId, image2]
+                    ]
+                )
+            },
+            series: {
+                byId: new Map<string, SeriesEntity>()
+            },
+            labels: []
+        };
+
+        // when
+        let newState: EntitiesState = entitiesReducer(prevState, action);
+
+        // then
+
+        // created image entity when it has not existed
+        expect(newState.images.byId.get('imageId1')).toBeDefined();
+
+        // added image annotations or 
+        expect(newState.images.byId.get('imageId1').annotations).toEqual(
+            [
+                {
+                    imageId: 'imageId1',
+                    key: 'oko',
+                    value: 1
+                },
+                {
+                    imageId: 'imageId1',
+                    key: 'hlava',
+                    value: 0
+                }
+            ]
+        );
+
+        // replaced old image annotations by new ones
+        expect(newState.images.byId.get('imageId2').annotations).toEqual(
+            [
+                {
+                    imageId: 'imageId2',
+                    key: 'hlava',
+                    value: 0.5
+                }
+            ]
+        );
+    });
 });
 
 const getUploadJSON = (): UploadJSON => {
-    let imageId1: string = '04556da2ce2edd91fe3ca5c1f335524b';
-    let imageId2: string = '04c899278a1b0cad90d8a2ff286f4e63';
-    let imageId3: string = '04f518349c32cfcbe820527cee910abb';
+    let imageId1: ImageJSON = {imageID: '04556da2ce2edd91fe3ca5c1f335524b', imageNumber: 1};
+    let imageId2: ImageJSON = {imageID: '04c899278a1b0cad90d8a2ff286f4e63', imageNumber: 3};
+    let imageId3: ImageJSON = {imageID: '04f518349c32cfcbe820527cee910abb', imageNumber: 4};
 
     let series1: SeriesJSON = {
         seriesID: 'seriesId1',

@@ -21,16 +21,16 @@ import Divider from 'material-ui/Divider';
 import { downloadStyle } from '../styles/ComponentsStyle';
 import Checkbox from 'material-ui/Checkbox';
 import * as Redux from 'redux';
-import { DownloadStatePopup, downloadPopupStateChange } from "../actions/actions";
-import { ApiService } from "../api";
+import { DownloadStatePopup, downloadPopupStateChange } from '../actions/actions';
+import { ApiService } from '../api';
 
 interface OwnProps {
 }
 
 interface OwnState {
-    labels: LabelStatus[],
-    outputType: OutputType
-    labelsFetched: boolean
+    labels: LabelStatus[];
+    outputType: OutputType;
+    labelsFetched: boolean;
 }
 
 interface ConnectedState {
@@ -38,7 +38,7 @@ interface ConnectedState {
 }
 
 interface ConnectedDispatch {
-    changeDialogState: (state: boolean) => DownloadStatePopup
+    changeDialogState: (state: boolean) => DownloadStatePopup;
 }
 
 export interface LabelStatus {
@@ -49,7 +49,6 @@ export interface LabelStatus {
 export enum OutputType {
     STATE_OF_LABEL, REGRESSION_VALUE
 }
-
 
 class DownloadPopupComponent extends React.Component<OwnProps & ConnectedState & ConnectedDispatch, OwnState> {
     private allChecked;
@@ -69,23 +68,21 @@ class DownloadPopupComponent extends React.Component<OwnProps & ConnectedState &
     }
 
     async componentWillUpdate(nextProps: OwnProps & ConnectedState & ConnectedDispatch, nextState: OwnState) {
-        if (nextProps.showDownload && nextState.labelsFetched == false) {
+        if (nextProps.showDownload && nextState.labelsFetched === false) {
             let labels: string[] = await ApiService.getLabels();
             let stateLabels: LabelStatus[] = [];
             labels.forEach(label => {
                 let labelStatus: LabelStatus = { labelName: label, selected: false };
                 stateLabels.push(labelStatus);
             });
-            let newStateObject =
-                { labels: stateLabels, labelsFetched: true };
+            let newStateObject = { labels: stateLabels, labelsFetched: true };
             this.setState(Object.assign({}, this.state, newStateObject));
         }
     }
 
     downloadClick() {
-        let data = {labels: this.state.labels, format: this.state.outputType}
+        let data = { labels: this.state.labels, format: this.state.outputType };
         ApiService.downloadData(data);
-
     }
 
     checkBoxClickHandler(event: any, value: LabelStatus) {
@@ -95,14 +92,14 @@ class DownloadPopupComponent extends React.Component<OwnProps & ConnectedState &
     }
 
     getIndeterminate(): boolean {
-        if (this.state.labels.length == 0) return false;
+        if (this.state.labels.length === 0) { return false; }
         // if checkbox should be indeterminate
         let indeterminate: boolean = false;
         // first value of labels
         let firstValue: boolean = this.state.labels[0].selected;
         // loop through all values, if value are not the sale -> indeterminate
         for (let i = 0; i < this.state.labels.length; i++) {
-            if (this.state.labels[i].selected != firstValue) {
+            if (this.state.labels[i].selected !== firstValue) {
                 this.allCheckedStatus = false;
                 this.downloadDisabled = false;
                 return true;
@@ -110,7 +107,7 @@ class DownloadPopupComponent extends React.Component<OwnProps & ConnectedState &
         }
         this.allCheckedStatus = firstValue;
         this.allChecked = this.allCheckedStatus;
-        this.allCheckedStatus == 0 ? this.downloadDisabled = true : this.downloadDisabled = false
+        this.allCheckedStatus === 0 ? this.downloadDisabled = true : this.downloadDisabled = false;
 
         return indeterminate;
     }
@@ -122,7 +119,7 @@ class DownloadPopupComponent extends React.Component<OwnProps & ConnectedState &
         });
         this.indeterminate = false;
         this.allCheckedStatus = this.allChecked;
-        this.allCheckedStatus == 0 ? this.downloadDisabled = true : this.downloadDisabled = false
+        this.allCheckedStatus === 0 ? this.downloadDisabled = true : this.downloadDisabled = false;
 
         this.setState(this.state);
     }
@@ -134,19 +131,18 @@ class DownloadPopupComponent extends React.Component<OwnProps & ConnectedState &
     }
 
     selectFormatState() {
-        let state = { outputType: OutputType.STATE_OF_LABEL }
+        let state = { outputType: OutputType.STATE_OF_LABEL };
         this.setState(Object.assign({}, this.state, state));
     }
 
     selectFormatReggresion() {
-        let state = { outputType: OutputType.REGRESSION_VALUE }
+        let state = { outputType: OutputType.REGRESSION_VALUE };
         this.setState(Object.assign({}, this.state, state));
     }
 
     render() {
         return (
-            <Dialog
-                open={this.props.showDownload}>
+            <Dialog open={this.props.showDownload}>
                 <AppBar style={downloadStyle.appBar}>
                     <Toolbar style={downloadStyle.paddingDisable}>
                         <IconButton color="contrast" aria-label="Close" onClick={this.closeDialog}>
@@ -164,7 +160,7 @@ class DownloadPopupComponent extends React.Component<OwnProps & ConnectedState &
                     <ListItemText primary={`Labels format: state`} />
                     <ListItemSecondaryAction>
                         <Checkbox
-                            checked={this.state.outputType == OutputType.STATE_OF_LABEL}
+                            checked={this.state.outputType === OutputType.STATE_OF_LABEL}
                             onClick={event => (this.selectFormatState())}
                         />
                     </ListItemSecondaryAction>
@@ -173,7 +169,7 @@ class DownloadPopupComponent extends React.Component<OwnProps & ConnectedState &
                     <ListItemText primary={`Labels format: regression value`} />
                     <ListItemSecondaryAction>
                         <Checkbox
-                            checked={this.state.outputType == OutputType.REGRESSION_VALUE}
+                            checked={this.state.outputType === OutputType.REGRESSION_VALUE}
                             onClick={event => (this.selectFormatReggresion())}
                         />
                     </ListItemSecondaryAction>

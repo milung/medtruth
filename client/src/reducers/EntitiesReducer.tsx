@@ -1,6 +1,8 @@
 import {
     ActionType, ActionTypeKeys, ImageAnnotation,
-    ImageAnnotationAddedAction, UploadDataDownloadedAction, UploadJSON, LabelsDownloadedAction, ImagesAnnotationRemovedAction, ImagesAnnotationAddedAction
+    ImageAnnotationAddedAction, UploadDataDownloadedAction, 
+    UploadJSON, LabelsDownloadedAction, ImagesAnnotationRemovedAction, 
+    ImagesAnnotationAddedAction, ImagesAnnotationsDownloadedAction, ImageJSON
 } from '../actions/actions';
 
 export interface EntitiesState {
@@ -24,7 +26,7 @@ export interface SeriesEntity {
     seriesDate: number;
     seriesDescription: string;
     thumbnailImageID: string;
-    images: string[];
+    images: ImageJSON[];
 }
 
 const initialState: EntitiesState = {
@@ -51,46 +53,98 @@ export function entitiesReducer(
             return processImagesAnnotationRemovedAction(prevState, action);
         case ActionTypeKeys.IMAGES_ANNOTATION_ADDED:
             return processImagesAnnotationAddedAction(prevState, action);
+        case ActionTypeKeys.IMAGES_ANNOTATIONS_DOWNLOADED:
+            return processImagesAnnotationsDownloadedAction(prevState, action);
         default:
             return prevState;
     }
 }
 
-const processImagesAnnotationAddedAction = 
+const processImagesAnnotationsDownloadedAction =
+    (prevState: EntitiesState, action: ImagesAnnotationsDownloadedAction): EntitiesState => {
+
+        if (!action.imagesAnnotations.size || action.imagesAnnotations.size === 0) {
+            return prevState;
+        }
+
+        let newState: EntitiesState = { ...prevState };
+        newState.images = { ...prevState.images };
+        newState.images.byId = new Map(prevState.images.byId);
+
+        action.imagesAnnotations.forEach(
+            (value, key) => {
+                let image: ImageEntity = prevState.images.byId.get(key);
+                let newImage: ImageEntity;
+                let newAnnotationsArray: ImageAnnotation[] = value.map(annotation => ({
+                    imageId: key,
+                    key: annotation.key,
+                    value: annotation.value
+                }));
+
+                if (image) {
+                    newImage = { ...image };
+
+                } else {
+                    newImage = {
+                        imageId: key,
+                        seriesId: undefined,
+                        annotations: []
+                    };
+                }
+
+                newImage.annotations = newAnnotationsArray;
+                newState.images.byId.set(newImage.imageId, newImage);
+            }
+        );
+        return newState;
+    };
+
+const processImagesAnnotationAddedAction =
     (prevState: EntitiesState, action: ImagesAnnotationAddedAction) => {
         let modifiedImages: ImageEntity[] = [];
         let counter = 0;
+        console.log('annotation ids', action.imageIds);
         action.imageIds.forEach((imageId: string) => {
             let image: ImageEntity = prevState.images.byId.get(imageId);
+            console.log('prev state images', prevState.images);
             if (image) {
                 let newImage = { ...image };
-                let newImageAnnotation = { ...action.annotation, imageId: image.imageId };
+                let newImageAnnotation = { ...action.annotation };
 
                 let annotationIndex: number = image.annotations.findIndex(annotation =>
                     annotation.key === action.annotation.key
                 );
 
                 if (annotationIndex !== -1) {
+                    console.log('annotation found');
                     newImage.annotations =
                         [...image.annotations.slice(0, annotationIndex), newImageAnnotation,
                         ...image.annotations.slice(annotationIndex + 1)];
                 } else {
+                    console.log('annotation not found');
                     newImage.annotations = [...image.annotations, newImageAnnotation];
                 }
+                console.log('new annotations', newImage.annotations);
 
                 modifiedImages.push(newImage);
+                console.log('modified image', newImage);
+            } else {
+                console.log('image not found');
             }
         });
 
         let newState: EntitiesState = prevState;
 
         if (modifiedImages.length > 0) {
+            console.log('more modified images');
             newState = { ...prevState };
             newState.images = { ...prevState.images };
             newState.images.byId = new Map(prevState.images.byId);
             modifiedImages.forEach((image) => {
                 newState.images.byId.set(image.imageId, image);
             });
+        } else {
+            console.log('no modified images');
         }
 
         return newState;
@@ -145,13 +199,13 @@ const processImageAnnotationAddedAction =
         newState.images = { ...prevState.images };
         newState.images.byId = new Map(prevState.images.byId);
         let imageAnnotation: ImageAnnotation = action.annotation;
-        let imageEntity: ImageEntity = newState.images.byId.get(imageAnnotation.imageId);
+        let imageEntity: ImageEntity = newState.images.byId.get(action.imageID);
         let newImageEntity: ImageEntity;
 
         if (imageEntity === undefined) {
             newImageEntity = {
                 seriesId: undefined,
-                imageId: imageAnnotation.imageId,
+                imageId: action.imageID,
                 annotations: []
             };
             // if (imageAnnotation.value !== 0) {
@@ -204,19 +258,12 @@ const processUploadDataDownloadedAction =
         let upload: UploadJSON = action.upload;
         for (let study of upload.studies) {
             for (let series of study.series) {
-                for (let imageId of series.images) {
+                for (let image of series.images) {
                     newState.images.byId.set(
-                        imageId,
-                        { imageId, annotations: [], seriesId: series.seriesID }
+                        image.imageID,
+                        { imageId: image.imageID, annotations: [], seriesId: series.seriesID }
                     );
                 }
-
-                // TODO delete later when gallery of images is working
-                // FOR NOW SAVE SERIES ID AS IMAGE
-                newState.images.byId.set(
-                    series.seriesID,
-                    { imageId: series.seriesID, annotations: [], seriesId: series.seriesID }
-                );
 
                 newState.series.byId.set(
                     series.seriesID,

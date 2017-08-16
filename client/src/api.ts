@@ -1,10 +1,10 @@
 
 import * as axios from 'axios';
-import { LabelStatus, OutputType } from "./components/downloadpopup";
+import { LabelStatus, OutputType } from './components/downloadpopup';
 
 export namespace ApiService {
     const apiEndpoint = '/api';
-    //const apiEndpoint = 'http://localhost:8080/api'
+    // const apiEndpoint = 'http://localhost:8080/api'
     /* change this */
     const uriUpload = apiEndpoint + '/upload';
     const uriImages = apiEndpoint + '/images';
@@ -115,6 +115,7 @@ export namespace ApiService {
     }
 
     export async function putAttributes(id: string, ...attributes: Attribute[]) {
+        console.log('putting attributes api');
         const url = uriImages + '/' + id + '/assign';
 
         let res: axios.AxiosResponse = await axios.default({
@@ -226,8 +227,8 @@ export namespace ApiService {
     }
 
     interface DownloadData {
-        labels: LabelStatus[],
-        format: OutputType
+        labels: LabelStatus[];
+        format: OutputType;
     }
 
     export async function downloadData(data: DownloadData) {
