@@ -1,6 +1,6 @@
 import { uiReducer, UIState } from './UIReducer';
 import { OtherAction, ActionTypeKeys, ImageSelectedAction, 
-    SeriesSelectedAction, UploadDataDownloadedAction, Keys, ImagesAllUnselectedAction
+    SeriesSelectedAction, Keys, ImagesAllUnselectedAction
 } from '../actions/actions';
 
 describe('UIReducer', () => {
@@ -275,32 +275,5 @@ describe('UIReducer', () => {
         // then
         expect(newState.selections.series.indexOf('abcd1234') !== -1).toBeTruthy();
         expect(newState.selections.series.indexOf('abcd5678') === -1).toBeTruthy();
-    });
-
-    it('should handle UploadDataDownloadedAction (deselect all series and images)', () => {
-
-        // given
-        let uploadDataDownloadedAction: UploadDataDownloadedAction = {
-            type: ActionTypeKeys.UPLOAD_DATA_DOWNLOADED,
-            upload: undefined
-        };
-
-        let prevState: UIState = {
-            isBlownUpShowed: false,
-            blownUpThumbnailId: '',
-            selections: {
-                images: ['1234', '4321'],
-                series: ['1234abcd', 'abcd1234']
-            },
-            lastViewedStudyID: '',
-            showDownloadPopUP: false
-        };
-
-        // when
-        let newState: UIState = uiReducer(prevState, uploadDataDownloadedAction);
-
-        // then
-        expect(newState.selections.series.length).toBe(0);
-        expect(newState.selections.images.length).toBe(0);
     });
 });

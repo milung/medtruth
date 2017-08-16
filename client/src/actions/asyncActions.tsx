@@ -1,7 +1,8 @@
 
 import {
     ImageAnnotation, imagesAnnotationAddedAction,
-    imagesAnnotationRemovedAction, labelsDowloadedAction, imagesAnnotationsDownloadedAction
+    imagesAnnotationRemovedAction, labelsDowloadedAction,  
+    imagesAnnotationsDownloadedAction, PatientJSON, patientsDataFetched
 } from './actions';
 import { ApiService } from '../api';
 
@@ -58,5 +59,13 @@ export function downloadImageAnnotations(...imageIds: string[]) {
             }
         });
         dispatch(imagesAnnotationsDownloadedAction(imagesAnnotationsMap));
+    };
+}
+
+export function fetchPatientsData() {
+    return async (dispatch) => {
+        let patients: PatientJSON[] = await ApiService.getPatients();
+
+        dispatch(patientsDataFetched(patients));
     };
 }
