@@ -5,7 +5,7 @@ import { StatusCode } from './constants';
 import * as _ from 'lodash';
 //import { db } from './server';
 
-import { MongoClient, Db, Collection, BulkWriteOpResultObject, FindAndModifyWriteOpResultObject } from 'mongodb';
+import { MongoClient, Db, Collection, BulkWriteOpResultObject, FindAndModifyWriteOpResultObject, Cursor } from 'mongodb';
 import { UploadJSON } from "./Objects";
 
 export namespace AzureStorage {
@@ -67,6 +67,7 @@ export namespace AzureDatabase {
     export const localName = "medtruth";
     export const urlMedTruth = "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true";
     export const url = (process.argv[2] === 'local' || process.env.NODE_ENV === 'development') ? "mongodb://" + localAddress + localName : urlMedTruth;
+    //export const url = "mongodb://" + localAddress + localName;
 
     export enum Status {
         SUCCESFUL,
@@ -123,10 +124,16 @@ export namespace AzureDatabase {
                 var db = await connect();
                 let collection = await db.collection(collectionName);
                 await collection.insert(object, (error, result) => {
-                    if (error) reject(Status.FAILED);
+                    if (error) {
+                        console.log('error');
+                        console.log(error);
+                        reject(Status.FAILED);
+                    }
                     else resolve(Status.SUCCESFUL);
                 });
             } catch (e) {
+                console.log('error');
+                console.log(e);
                 reject(Status.FAILED);
             } finally {
                 close(db);
@@ -136,6 +143,55 @@ export namespace AzureDatabase {
 
     export function insertToImagesCollection(object): Promise<Status> {
         return insertDocument(object, 'images');
+    }
+
+    export function updateToImageCollection(object): Promise<Status> {
+        return new Promise<Status>(async (resolve, reject) => {
+            try {
+                var db = await connect();
+                let collection = await db.collection('images');
+                let query = { patientID: String(object.patientID) };
+                await collection.update(query, object,
+                    {
+                        upsert: true
+                    }, (error, result) => {
+                        if (error) {
+                            console.log('error');
+                            console.log(error);
+                            reject(Status.FAILED);
+                        }
+                        else {
+
+                            resolve(Status.SUCCESFUL);
+                        }
+                    });
+            } catch (e) {
+                console.log('error');
+                console.log(e);
+                reject(Status.FAILED);
+            } finally {
+                close(db);
+            }
+        });
+    }
+
+    export function getAllPatients() {
+        return new Promise<any>(async (resolve, reject) => {
+            try {
+                var db = await connect();
+                let collection = await db.collection('images');
+
+                let query = { patientID: { $exists: true } };
+                let result = await collection.find(query);
+                
+                resolve(result.toArray());
+
+            } catch (e) {
+                reject({});
+            } finally {
+                close(db);
+            }
+        });
     }
 
     interface Attribute {
@@ -276,6 +332,30 @@ export namespace AzureDatabase {
     }
 
     /**
+    * Returns Upload document with a specific ID.
+    * @param patientID
+    */
+    export function getPatientDocument(patientID: string): Promise<string> {
+        return new Promise<string>(async (resolve, reject) => {
+            try {
+                var conn = await connectToImages();
+
+                let query = { patientID: String(patientID) };
+                console.log("query");
+                console.log(query);
+
+                let result = await conn.collection.findOne(query);
+                if (result) resolve(result);
+                else resolve(result);
+            } catch (e) {
+                reject(Status.FAILED);
+            } finally {
+                close(conn.db);
+            }
+        });
+    }
+
+    /**
      * Returns JSON object of the last Upload document in MongoDB.
      */
     export function getLastUpload(): Promise<string> {
@@ -299,11 +379,11 @@ export namespace AzureDatabase {
         GetImagesBySeriesID returns all images by it's series ID.
     */
     interface SeriesRequest {
-        uploadID:   number;
-        studyID:    string;
-        seriesID:   string;
+        uploadID: number;
+        studyID: string;
+        seriesID: string;
     }
-    
+
     interface SeriesImage {
         imageID: string;
         imageNumber: number;
@@ -315,7 +395,7 @@ export namespace AzureDatabase {
                 var conn = await connectToImages();
                 let query = { uploadID: req.uploadID };
                 let result = await conn.collection.findOne(query);
-                
+
                 // TODO: Refactor!
                 if (result) {
                     if (result.studies) {

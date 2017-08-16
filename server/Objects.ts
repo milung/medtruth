@@ -1,5 +1,6 @@
 
 
+/*
 export class JSONCreator {
     getUploadJSON() {
         let uploadJSON = new UploadJSON();
@@ -74,16 +75,15 @@ export class JSONCreator {
         // series.images.push("052bd8d959567911ba4ae06ed8267f9b", 5);
     }
 }
-
+*/
 export class UploadJSON {
-    uploadID: number;
-    uploadDate: Date;
+    patientID: string;
+    patientName: string;
+    patientBirtday: number;
     studies: StudyJSON[] = [];
 }
 
 export class StudyJSON {
-    patientName: string;
-    patientBirthday: number;
     studyDescription: string;
     studyID: string;
     series: SeriesJSON[] = [];
