@@ -81,17 +81,16 @@ export const imageStyle = {
 
 };
 
-
 export const downloadStyle = {
     appBar: {
         width: '500px',
         position: 'inherit'
     },
-    flex:{
+    flex: {
         flex: 1
     },
     paddingDisable: {
         paddingLeft: '0px',
         paddingRight: '0px'
     }
-}
+};

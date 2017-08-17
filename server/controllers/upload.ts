@@ -9,6 +9,7 @@ import * as objects from '../Objects';
 import { DaikonConverter } from '../daikon/daikon';
 import { StatusCode, storagePath, imagePath } from '../constants';
 
+
 // Upload status to notify client which files have been succesful.
 interface UploadStatus {
     name: string;
@@ -49,14 +50,20 @@ export class UploadController {
         let createThumbnails = this.createThumbnails();
         await this.upload();
         let json = await this.parse();
-        await AzureDatabase.insertToImagesCollection(json);
-        await createThumbnails;
+        console.log("inserting to db");
+        for (let key in json) {
+            console.log('inserting ' + key);
+
+            await AzureDatabase.updateToImageCollection(json[key]);
+        }
+
+        //await createThumbnails;
 
         // Cleanup.
         files.forEach((file) => {
-            console.log("[Deleting files] file: " + file.path);
+            //console.log("[Deleting files] file: " + file.path);
             fs.unlink(file.path, () => { });
-            console.log("[Deleting files] image: " + file.filename);
+            //console.log("[Deleting files] image: " + file.filename);
             fs.unlink(imagePath + file.filename + ".png", () => { });
             console.log("[Deleting files] file: " + file.filename + " OK ✔️");
         });
@@ -66,7 +73,7 @@ export class UploadController {
             return { name: upload.name, id: upload.id, err: upload.err };
         });
         // Then assign a unique_id and UploadStatuses.
-        req.params.statuses = { upload_id: json.uploadID, statuses: statuses };
+        //req.params.statuses = { upload_id: json.uploadID, statuses: statuses };
         next();
     }
 
@@ -152,55 +159,55 @@ export class UploadController {
     }
 
 
-    createThumbnail(imageID){
-        jimp.read(imagePath + imageID + ".png", async function (err, image) {
-                // do stuff with the image (if no exception) 
-                let thumbnail = imagePath + imageID + '_.png';
-                if (err === null) {
-                    image.background(0x000000FF)
-                        .contain(300, 300)
-                        .write(thumbnail, async (err, image) => {
-                            if (err === null) {
-                                await AzureStorage.toImages(imageID + '_.png', thumbnail);
-                                fs.unlink(thumbnail, () => { });
-                            } else {
-                            }
-                        });
-
-                } else {
-                    console.log("[Create Thumbnail] Error");
-                    console.log(err);
-                }
-            });
-    }
-/*
     createThumbnail(imageID) {
-        return new Promise<string>((resolve, reject) => {
-            jimp.read(imagePath + imageID + ".png", async function (err, image) {
-                // do stuff with the image (if no exception) 
-                let thumbnail = imagePath + imageID + '_.png';
-                if (err === null) {
-                    image.background(0x000000FF)
-                        .contain(300, 300)
-                        .write(thumbnail, async (err, image) => {
-                            if (err === null) {
-                                await AzureStorage.toImages(imageID + '_.png', thumbnail);
-                                fs.unlink(thumbnail, () => { });
-                                resolve("OK")
-                            } else {
-                                reject("NO OK")
-                            }
-                        });
+        jimp.read(imagePath + imageID + ".png", async function (err, image) {
+            // do stuff with the image (if no exception) 
+            let thumbnail = imagePath + imageID + '_.png';
+            if (err === null) {
+                image.background(0x000000FF)
+                    .contain(300, 300)
+                    .write(thumbnail, async (err, image) => {
+                        if (err === null) {
+                            await AzureStorage.toImages(imageID + '_.png', thumbnail);
+                            fs.unlink(thumbnail, () => { });
+                        } else {
+                        }
+                    });
 
-                } else {
-                    console.log("[Create Thumbnail] Error");
-                    console.log(err);
-                    reject("NOT OK")
-                }
-            });
+            } else {
+                console.log("[Create Thumbnail] Error");
+                console.log(err);
+            }
         });
     }
-    */
+    /*
+        createThumbnail(imageID) {
+            return new Promise<string>((resolve, reject) => {
+                jimp.read(imagePath + imageID + ".png", async function (err, image) {
+                    // do stuff with the image (if no exception) 
+                    let thumbnail = imagePath + imageID + '_.png';
+                    if (err === null) {
+                        image.background(0x000000FF)
+                            .contain(300, 300)
+                            .write(thumbnail, async (err, image) => {
+                                if (err === null) {
+                                    await AzureStorage.toImages(imageID + '_.png', thumbnail);
+                                    fs.unlink(thumbnail, () => { });
+                                    resolve("OK")
+                                } else {
+                                    reject("NO OK")
+                                }
+                            });
+    
+                    } else {
+                        console.log("[Create Thumbnail] Error");
+                        console.log(err);
+                        reject("NOT OK")
+                    }
+                });
+            });
+        }
+        */
 
 
 

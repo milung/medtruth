@@ -3,21 +3,20 @@ export enum ActionTypeKeys {
     FILES_UPLOADED = 'FILES_UPLOADED',
     THUMBNAIL_BLOWN_UP = 'THUMBNAIL_BLOWN_UP',
     THUMBNAIL_BLOWN_DOWN = 'THUMBNAIL_BLOWN_DOWN',
-    // IMAGES_SELECTED = 'IMAGES_SELECTED',
     IMAGE_SELECTED = 'IMAGE_SELECTED',
     IMAGES_ALL_UNSELECTED = 'IMAGES_ALL_UNSELECTED',
     SERIES_SELECTED = 'SERIES_SELECTED',
     SERIES_ALL_UNSELECTED = 'SERIES_ALL_UNSELECTED',
     STUDIES_SELECTED='STUDIES_SELECTED',
     IMAGE_ANNOTATION_ADDED = 'IMAGE_ANNOTATION_ADDED',
-    UPLOAD_DATA_DOWNLOADED = 'UPLOAD_DATA_DOWNLOADED',
-    // IMAGE_ANNOTATION_SELECTED = 'IMAGE_ANNOTATION_SELECTED',
     OTHER_ACTION = 'OTHER_ACTION',
     LAST_STUDY_SELECTED = 'LAST_STUDY_SELECTED',
     DOWNLOAD_POPUP_STATE_CHANGE = 'DOWNLOAD_POPUP_STATE_CHANGE',
     LABELS_DOWNLOADED = 'LABELS_DOWNLOADED',
     IMAGES_ANNOTATION_REMOVED = 'IMAGES_ANNOTATION_REMOVED',
-    IMAGES_ANNOTATION_ADDED = 'IMAGES_ANNOTATION_ADDED'
+    IMAGES_ANNOTATION_ADDED = 'IMAGES_ANNOTATION_ADDED',
+    IMAGES_ANNOTATIONS_DOWNLOADED = 'ANNOTATIONS_DOWNLOADED',
+    PATIENTS_FETCHED = 'PATIENTS_FETCHED'
 }
 
 export enum Keys {
@@ -45,7 +44,6 @@ export interface DownloadStatePopup {
     showDownloadPopUP: boolean;
 }
 
-
 // export interface ImagesSelectedAction {
 //     type: ActionTypeKeys.IMAGES_SELECTED;
 //     ids: string[];
@@ -63,6 +61,7 @@ export interface ImagesAllUnselectedAction {
 export interface ImageAnnotationAddedAction {
     type: ActionTypeKeys.IMAGE_ANNOTATION_ADDED;
     annotation: ImageAnnotation;
+    imageID: string;
 }
 
 export interface SeriesSelectedAction {
@@ -80,16 +79,6 @@ export interface StudiesSelectedAction {
 export interface SeriesAllUnselectedAction {
     type: ActionTypeKeys.SERIES_ALL_UNSELECTED;
 }
-
-export interface UploadDataDownloadedAction {
-    type: ActionTypeKeys.UPLOAD_DATA_DOWNLOADED;
-    upload: UploadJSON;
-}
-
-// export interface ImageAnnotationSelected {
-//     type: ActionTypeKeys.LABEL_SELECTED;
-
-// }
 
 export interface OtherAction {
     type: ActionTypeKeys.OTHER_ACTION;
@@ -115,6 +104,16 @@ export interface ImagesAnnotationAddedAction {
     type: ActionTypeKeys.IMAGES_ANNOTATION_ADDED;
     imageIds: string[];
     annotation: ImageAnnotation;
+}
+
+export interface ImagesAnnotationsDownloadedAction {
+    type: ActionTypeKeys.IMAGES_ANNOTATIONS_DOWNLOADED;
+    imagesAnnotations: Map<string, ImageAnnotation[]>;
+}
+
+export interface PatientsFetchedAction {
+    type: ActionTypeKeys.PATIENTS_FETCHED;
+    patients: PatientJSON[];
 }
 
 export const filesUploaded = (uploadID: number): FilesUploadedAction => ({
@@ -151,9 +150,9 @@ export const imagesAllUnselected = (): ImagesAllUnselectedAction => ({
     type: ActionTypeKeys.IMAGES_ALL_UNSELECTED,
 });
 
-export const imageAnnotationAdded = (annotation: ImageAnnotation): ImageAnnotationAddedAction => ({
+export const imageAnnotationAdded = (annotation: ImageAnnotation, imageID: string): ImageAnnotationAddedAction => ({
     type: ActionTypeKeys.IMAGE_ANNOTATION_ADDED,
-    annotation
+    annotation, imageID
 });
 
 export const seriesSelected = (id: string, keyPressed: Keys): SeriesSelectedAction => ({
@@ -164,11 +163,6 @@ export const seriesSelected = (id: string, keyPressed: Keys): SeriesSelectedActi
 
 export const seriesAllUnselected = (): SeriesAllUnselectedAction => ({
     type: ActionTypeKeys.SERIES_ALL_UNSELECTED
-});
-
-export const uploadDataDowloaded = (upload: UploadJSON): UploadDataDownloadedAction => ({
-    type: ActionTypeKeys.UPLOAD_DATA_DOWNLOADED,
-    upload
 });
 
 export const downloadPopupStateChange = (state: boolean): DownloadStatePopup => ({
@@ -194,28 +188,37 @@ export const imagesAnnotationAddedAction =
         annotation
     });
 
+export const imagesAnnotationsDownloadedAction = 
+    (imagesAnnotations: Map<string, ImageAnnotation[]>): ImagesAnnotationsDownloadedAction => ({
+        type: ActionTypeKeys.IMAGES_ANNOTATIONS_DOWNLOADED,
+        imagesAnnotations
+    });
+
+export const patientsFetched = (patients: PatientJSON[]): PatientsFetchedAction => ({
+    type: ActionTypeKeys.PATIENTS_FETCHED,
+    patients
+});
+
 export type ActionType =
     | FilesUploadedAction
     | ThumbnailBlownUpAction
     | ThumbnailBlownDownAction
-    // | ImagesSelectedAction
     | ImageSelectedAction
     | ImagesAllUnselectedAction
     | SeriesSelectedAction
     | SeriesAllUnselectedAction
     | ImageAnnotationAddedAction
-    | UploadDataDownloadedAction
-    // | LabelSelected
     | OtherAction
-    | LastStudySelected 
+    | LastStudySelected
     | DownloadStatePopup
     | LastStudySelected
     | LabelsDownloadedAction
     | ImagesAnnotationRemovedAction
-    | ImagesAnnotationAddedAction;
+    | ImagesAnnotationAddedAction
+    | ImagesAnnotationsDownloadedAction
+    | PatientsFetchedAction;
 
 export interface ImageAnnotation {
-    imageId: string;
     key: string;
     value: number;
 }
@@ -226,24 +229,26 @@ export interface ImageLabel {
     checked: boolean;
 }
 
-export interface UploadJSON {
-    uploadID: number;
-    uploadDate: Date;
-    studies: StudyJSON[];
-}
-
-export interface StudyJSON {
+export class PatientJSON {
+    patientID: string;
     patientName: string;
-    patientBirthday: number;
+    patientBirtday: number;
+    studies: StudyJSON[] = [];
+}
+export class StudyJSON {
     studyDescription: string;
     studyID: string;
-    series: SeriesJSON[];
+    series: SeriesJSON[] = [];
 }
-
-export interface SeriesJSON {
+export class SeriesJSON {
     seriesID: string;
     seriesDate: number;
     seriesDescription: string;
     thumbnailImageID: string;
-    images: string[];
+    images: ImageJSON[];
+}
+
+export class ImageJSON {
+    imageID: string;
+    imageNumber: number;
 }

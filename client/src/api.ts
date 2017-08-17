@@ -1,15 +1,16 @@
 
 import * as axios from 'axios';
-import { LabelStatus, OutputType } from "./components/downloadpopup";
+import { LabelStatus, OutputType } from './components/downloadpopup';
 
 export namespace ApiService {
     const apiEndpoint = '/api';
-    //const apiEndpoint = 'http://localhost:8080/api'
+    // const apiEndpoint = 'http://localhost:8080/api'
     /* change this */
     const uriUpload = apiEndpoint + '/upload';
     const uriImages = apiEndpoint + '/images';
     const uriDownload = apiEndpoint + '/download';
     const uriLabels = apiEndpoint + '/labels';
+    const uriPatients = apiEndpoint + '/patients';
 
     /*
         Route:      POST '/upload'
@@ -115,6 +116,7 @@ export namespace ApiService {
     }
 
     export async function putAttributes(id: string, ...attributes: Attribute[]) {
+        console.log('putting attributes api');
         const url = uriImages + '/' + id + '/assign';
 
         let res: axios.AxiosResponse = await axios.default({
@@ -198,6 +200,18 @@ export namespace ApiService {
         return res.data;
     }
 
+    export async function getPatients() {
+        const url = uriPatients;
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'GET',
+            url: url,
+            headers: {}
+        });
+
+        return res.data;
+    }
+
     interface SeriesRequest {
         uploadID: number;
         studyID: string;
@@ -226,8 +240,8 @@ export namespace ApiService {
     }
 
     interface DownloadData {
-        labels: LabelStatus[],
-        format: OutputType
+        labels: LabelStatus[];
+        format: OutputType;
     }
 
     export async function downloadData(data: DownloadData) {

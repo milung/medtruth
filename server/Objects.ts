@@ -1,5 +1,6 @@
 
 
+
 export class JSONCreator {
     getUploadJSON() {
         let uploadJSON = new UploadJSON();
@@ -33,27 +34,27 @@ export class JSONCreator {
         let series06 = new Series();
 
         this.setSeries(series01, "SeriesID01",
-            "seriesDescription: Head scan or something.",
+            "Head scan or something.",
             "f9976359e28549595b1f8ebd63ffb01e");
 
         this.setSeries(series02, "SeriesID02",
-            "seriesDescription: Don't know what this thing is LOL",
+            "Don't know what this thing is LOL",
             "e6ce9a48f7d1ee31fda8422912eb7a57");
 
         this.setSeries(series03, "SeriesID03",
-            "seriesDescription: Scan of some part of the body.",
+            "Scan of some part of the body.",
             "f9976359e28549595b1f8ebd63ffb01e");
 
         this.setSeries(series04, "SeriesID04",
-            "seriesDescription: Who are we? Why are we here? What is our purpose?",
+            "Who are we? Why are we here? What is our purpose?",
             "e6ce9a48f7d1ee31fda8422912eb7a57");
 
         this.setSeries(series05, "SeriesID05",
-            "seriesDescription: This is supposed to be a description, but im too lazy to write a proper one.",
+            "This is supposed to be a description, but im too lazy to write a proper one.",
             "04f518349c32cfcbe820527cee910abb");
 
         this.setSeries(series06, "SeriesID06",
-            "seriesDescription This is a scan of another scan. SCANCEPTION !",
+            "This is a scan of another scan. SCANCEPTION !",
             "052bd8d959567911ba4ae06ed8267f9b");
 
         study1.series.push(series01);

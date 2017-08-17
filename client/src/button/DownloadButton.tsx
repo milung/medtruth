@@ -5,10 +5,10 @@ import { ButtonComponent } from './Button';
 import { ApiService } from '../api';
 import * as Redux from 'redux';
 import { connect } from 'react-redux';
-import { DownloadStatePopup, downloadPopupStateChange } from "../actions/actions";
+import { DownloadStatePopup, downloadPopupStateChange } from '../actions/actions';
 
 interface ConnectedDispatch {
-    changeDialogState: (state: boolean) => DownloadStatePopup
+    changeDialogState: (state: boolean) => DownloadStatePopup;
 }
 class DownloadButtonComponent extends React.Component<ConnectedDispatch, {}> {
     constructor() {
@@ -27,7 +27,12 @@ class DownloadButtonComponent extends React.Component<ConnectedDispatch, {}> {
     render() {
         return (
             // tslint:disable-next-line:jsx-boolean-value
-            <a onClick={this.showDialog} style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>DOWNLOAD</a>
+            <a
+                onClick={this.showDialog}
+                style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}
+            >
+                DOWNLOAD
+            </a>
         );
     }
 }
@@ -37,6 +42,5 @@ function mapDispatchToProps(dispatch: Redux.Dispatch<DownloadStatePopup>): Conne
         changeDialogState: (show: boolean) => dispatch(downloadPopupStateChange(show)),
     };
 }
-
 
 export const DownloadButton = connect(null, mapDispatchToProps)(DownloadButtonComponent);

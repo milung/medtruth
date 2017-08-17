@@ -19,7 +19,7 @@ const initialState: UIState = {
         images: [],
         series: []
     },
-    lastViewedStudyID: "",
+    lastViewedStudyID: '',
     showDownloadPopUP: false
 };
 
@@ -56,12 +56,6 @@ export function uiReducer(
             newState = Object.assign({}, prevState);
             newState.selections = Object.assign({}, prevState.selections);
             newState.selections.series = [];
-            return newState;
-        case ActionTypeKeys.UPLOAD_DATA_DOWNLOADED:
-            newState = Object.assign({}, prevState);
-            newState.selections = Object.assign({}, prevState.selections);
-            newState.selections.series = [];
-            newState.selections.images = [];
             return newState;
         case ActionTypeKeys.LAST_STUDY_SELECTED:
             console.log('ActionTypeKeys.LAST_STUDY_SELECTED');

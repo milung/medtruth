@@ -2,79 +2,50 @@ import * as React from 'react';
 import Grid from 'material-ui/Grid';
 import { imageStyle } from '../styles/ComponentsStyle';
 import { SerieView, SeriesProps } from './SerieView';
-import { ApiService } from "../api";
+import { ApiService } from '../api';
+import Typography from 'material-ui/Typography';
+import { SeriesEntity } from "../reducers/EntitiesReducer";
+import { State } from "../app/store";
+import { getSeriesesWhereStudyId } from "../selectors/selectors";
+import { connect } from "react-redux";
 
-export interface ArrayOfSeries {
-    list: SeriesProps[];
-    patientID: string;
-    studyID: string;
-}
+// export interface ArrayOfSeries {
+//     list: SeriesProps[];
+//     patientID: string;
+//     studyID: string;
+// }
 
 interface OwnProps {
     match: any;
 }
 
-interface State {
-    wait: boolean;
+interface ConnectedState {
+    seriesList: SeriesEntity[];
 }
-export class SeriesViewer extends React.Component<OwnProps & ArrayOfSeries, State> {
 
-    private seriesData: SeriesProps[] = []; 
+export class SeriesViewerComponent extends React.Component<OwnProps & ConnectedState, {}> {
+
     constructor(props) {
-        super(props);
-        console.log('SERIES VIEWER');
-    }
-
-    async componentDidMount() {
-        await this.receiveData();
-    }
-
-    async receiveData(): Promise<void> {
-        this.setState({ wait: true });
-
-        let resData = await ApiService.getData(4);
-
-        // this.props.uploadedDataDownloaded(resData);
-        console.log('got data', resData);
-        let tempSeries = [];
-
-        for (let patient of resData.listOfPatients) {
-            
-            // console.log("len ist of patients",resData.listOfPatients.length)
-            
-            if (patient.patientID == this.props.match.params.patientID) {
-                for (let tmpStudy of patient.studies) {
-                    if (tmpStudy.studyID == this.props.match.params.studyID) {
-                        for (let series of tmpStudy.series) {
-                            tempSeries.push({
-                                seriesID: series.seriesID,
-                                seriesDescription: series.seriesDescription,
-                                src: series.thumbnailImageID,
-                                imageID: series.thumbnailImageID,
-                                studyID: tmpStudy.studyID,
-                                patientID: this.props.match.params.patientID
-                            });
-                        }
-                    }
-                }
-            }
-            console.log('series', tempSeries)
-        }
-        this.seriesData = tempSeries;
-        this.setState({ wait: false});
+        super(props);      
     }
 
     render() {
-        console.log('SERIES VIEWER RENDER');
+      
         console.log('patientID', this.props.match.params.patientID);
         console.log('studyID', this.props.match.params.studyID);
-        
+
         return (
-            <div>
+            <div style={{ marginLeft: 10, marginBottom: 10, marginRight: 10 }}>
+              
+                <Typography type="display1" component="p" style={{ margin: 20 }} >
+                    List of series
+                </Typography>
+               
                 <Grid container={true} gutter={16}>
-                    {this.seriesData.map(value =>
+                    {console.log("series list",this.props.seriesList)}
+                    {this.props.seriesList.map(value =>
                         <Grid item={true} xs={6} sm={3} md={2} style={imageStyle.seriesStyle} key={value.seriesID}>
-                            <SerieView {...value} />
+                            <SerieView {...{ ...value, patientID: this.props.match.params.patientID}} />
                         </Grid>
                     )}
                 </Grid>
@@ -82,3 +53,12 @@ export class SeriesViewer extends React.Component<OwnProps & ArrayOfSeries, Stat
         );
     }
 }
+
+function mapStateToProps(state: State, props): ConnectedState {
+    let studyID = props.match.params.studyID;
+    let patientID=props.match.params.patientID;
+
+    return { seriesList: getSeriesesWhereStudyId(state, studyID) };
+}
+
+export const SeriesViewer = connect(mapStateToProps, null)(SeriesViewerComponent);

@@ -12,7 +12,7 @@ import { State } from '../app/store';
 import { imageStyle } from '../styles/ComponentsStyle';
 import Icon from 'material-ui/Icon';
 import { Link } from 'react-router-dom';
-import { ArrayOfSeries } from "./SeriesViewer";
+//import { ArrayOfSeries } from "./SeriesViewer";
 
 // import FontIcon from 'material-ui/Icon'
 
@@ -20,7 +20,7 @@ export interface StudiesProps {
     patientID: string;  // TODO REMOVE PATIENT ID
     studyID: string;
     studyDescription: string;
-    series: ArrayOfSeries;
+    //series: ArrayOfSeries;
 }
 
 interface OwnProps {
@@ -83,6 +83,9 @@ export class StudyViewComponent extends React.Component<OwnProps & StudiesProps 
             <div >
                 <Card style={{ border: borderStyle }}>                    
                     <CardContent style={imageStyle.contentCenter}>
+                        <Typography type="title" component="p">
+                            {this.props.studyID}
+                        </Typography>
                         <Typography type="body2" component="p">
                             {this.props.studyDescription}
                         </Typography>
@@ -106,8 +109,7 @@ function mapStateToProps(state: State, props: StudiesProps): StudiesProps & Conn
         // TODO REMOVE PATIENT ID
         patientID: props.patientID,
         studyID: props.studyID,
-        studyDescription: props.studyDescription,
-        series: props.series,      
+        studyDescription: props.studyDescription,   
         seriesSelected: state.ui.selections.series.indexOf(props.studyID) !== -1
     };
 }

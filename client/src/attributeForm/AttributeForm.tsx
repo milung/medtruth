@@ -7,9 +7,10 @@ import Button from 'material-ui/Button';
 import { AttributeList, ListItem } from './AttributeList';
 import { connect } from 'react-redux';
 import { State } from '../app/store';
-import { ImageAnnotation, ImageAnnotationAddedAction, imageAnnotationAdded } from '../actions/actions';
+import { ImageAnnotation, ImagesAnnotationAddedAction, imagesAnnotationAddedAction } from '../actions/actions';
 import { ApiService } from '../api';
 import Paper from 'material-ui/Paper';
+import { addImagesAnnotationAction } from '../actions/asyncActions';
 
 export interface OwnState {
     keyFieldValue: string;
@@ -20,7 +21,7 @@ export interface ConnectedState {
 }
 
 export interface ConnectedDispatch {
-    addedImageAnnotation: (annotation: ImageAnnotation) => ImageAnnotationAddedAction;
+    addImagesAnnotation: (imageIds: string[], annotation: ImageAnnotation) => ImagesAnnotationAddedAction;
 }
 
 export class AttributeFormComponent extends React.Component<ConnectedDispatch & ConnectedState, OwnState> {
@@ -51,12 +52,10 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
             valueFieldValue: ''
         });
 
-        await changeAttribute(
-            false,
-            this.props.addedImageAnnotation,
-            this.props.images,
-            this.state.keyFieldValue,
-            valueNumber);
+        this.props.addImagesAnnotation(this.props.images, {
+            key: this.state.keyFieldValue,
+            value: valueNumber
+        });
     }
 
     handleKeyFieldChange(e) {
@@ -85,10 +84,8 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
         }
 
         var attributeList;
-        // Check if something is selected
-        if (this.props.images.length !== 0) {
-            attributeList = <AttributeList />;
-        }
+        // Check if something is selected, if not, assigning should be disabled
+        (this.props.images.length !== 0) ? attributeList = <AttributeList /> : inputIncorrect = true;
 
         return (
             <div >
@@ -145,9 +142,10 @@ function mapStateToProps(state: State): ConnectedState {
     };
 }
 
-function mapDispatchToProps(dispatch: Redux.Dispatch<ImageAnnotationAddedAction>): ConnectedDispatch {
+function mapDispatchToProps(dispatch): ConnectedDispatch {
     return {
-        addedImageAnnotation: (annotation: ImageAnnotation) => dispatch(imageAnnotationAdded(annotation)),
+        addImagesAnnotation: (imageIds: string[], annotation: ImageAnnotation) => 
+            dispatch(addImagesAnnotationAction(imageIds, annotation)),
     };
 }
 
@@ -157,30 +155,5 @@ export function getLastValue(set) {
     var value;
     for (value of set) {
         return value;
-    }
-}
-
-export async function changeAttribute(deletingAttribute: boolean, dispatchFunction,
-    selection: string[], key: string, value: number): Promise<void> {
-    let resData;
-
-    for (var id of selection) {
-        if (deletingAttribute) {
-            let labels: string[] = [];
-            labels.push(key);
-            // resData = await ApiService.deleteAttributes(id, [key]);
-            resData = await ApiService.deleteAttributes(id, labels);
-        } else {
-            resData = await ApiService.putAttributes(id, {
-                key: key,
-                value: value
-            });
-        }
-
-        dispatchFunction({
-            imageId: id,
-            key: key,
-            value: value
-        });
     }
 }
