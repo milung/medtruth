@@ -1,12 +1,14 @@
 
-import { ActionTypeKeys, ActionType, SeriesSelectedAction, Keys, ImageSelectedAction } from '../actions/actions';
+import { ActionTypeKeys, ActionType, SeriesSelectedAction, Keys, ImageSelectedAction, ItemSelectedAction, ItemTypes, AllItemsUnselectedAction } from '../actions/actions';
 
 export interface UIState {
     isBlownUpShowed: boolean;
     blownUpThumbnailId: string;
     selections: {
         images: string[];
-        series: string[]
+        series: string[];
+        studies: string[];
+        patients: string[]
     };
     lastViewedStudyID: string;
     showDownloadPopUP: boolean;
@@ -17,7 +19,9 @@ const initialState: UIState = {
     blownUpThumbnailId: '',
     selections: {
         images: [],
-        series: []
+        series: [],
+        studies: [],
+        patients: []
     },
     lastViewedStudyID: '',
     showDownloadPopUP: false
@@ -67,11 +71,84 @@ export function uiReducer(
             newState = Object.assign({}, prevState);
             newState.showDownloadPopUP = action.showDownloadPopUP;
             return newState;
-        
+        case ActionTypeKeys.ITEM_SELECTED:
+            return handleItemSelectedAction(prevState, action);
+        case ActionTypeKeys.ALL_ITEMS_UNSELECTED:
+            return handleAllItemsUnselectedAction(prevState, action);
         default:
             return prevState;
     }
 }
+
+function handleAllItemsUnselectedAction(prevState: UIState, action: AllItemsUnselectedAction) {
+    let newState: UIState = { ...prevState };
+    newState.selections = { ...prevState.selections };
+    newState.selections.images = [];
+    newState.selections.series = [];
+    newState.selections.studies = [];
+    newState.selections.patients = [];
+
+    return newState;
+}
+
+function handleItemSelectedAction(prevState: UIState, action: ItemSelectedAction): UIState {
+    let newState: UIState = { ...prevState };
+    newState.selections = { ...prevState.selections };
+
+    let oldSelectedItemIds: string[] = [];
+    switch (action.itemType) {
+        case ItemTypes.IMAGE:
+            oldSelectedItemIds = prevState.selections.images;
+            break;
+        case ItemTypes.SERIES:
+            oldSelectedItemIds = prevState.selections.series;
+            break;
+        case ItemTypes.STUDY:
+            oldSelectedItemIds = prevState.selections.studies;
+            break;
+        case ItemTypes.PATIENT:
+            oldSelectedItemIds = prevState.selections.patients;
+            break;
+        default:
+            oldSelectedItemIds = [];
+    }
+
+    let index: number = oldSelectedItemIds.indexOf(action.itemId);
+
+    let newSelectedItemIds: string[] = [];
+
+    if (action.keyPressed === Keys.NONE) {
+        if (index === -1) {
+            newSelectedItemIds.push(action.itemId);
+        }
+    } else if (action.keyPressed === Keys.CTRL) {
+        if (index !== -1) {
+            newSelectedItemIds = [...oldSelectedItemIds.slice(0, index),
+            ...oldSelectedItemIds.slice(index + 1)];
+        } else {
+            newSelectedItemIds = [action.itemId, ...oldSelectedItemIds];
+        }
+    }
+
+    switch (action.itemType) {
+        case ItemTypes.IMAGE:
+            newState.selections.images = newSelectedItemIds;
+            break;
+        case ItemTypes.SERIES:
+            newState.selections.series = newSelectedItemIds;
+            break;
+        case ItemTypes.STUDY:
+            newState.selections.studies = newSelectedItemIds;
+            break;
+        case ItemTypes.PATIENT:
+            newState.selections.patients = newSelectedItemIds;
+            break;
+        default:
+    }
+
+    return newState;
+}
+
 function handleImageSelecedAction(prevState: UIState, action: ImageSelectedAction): UIState {
     let newState: UIState = Object.assign({}, prevState);
     newState.selections = Object.assign({}, prevState.selections);

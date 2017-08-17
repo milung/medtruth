@@ -89,15 +89,59 @@ export const getPatientsWhereId = (state: State, ids: string[]): PatientEntity[]
 //
 export const getStudiesWherePatientId = (state: State, patientId: string): StudyEntity[] => {
     let patient: PatientEntity = getPatientWhereId(state, patientId);
-    return getStudiesWhereId(state, patient.studies);
+    return patient ? getStudiesWhereId(state, patient.studies) : [];
 }; 
 
 export const getSeriesesWhereStudyId = (state: State, studyId: string): SeriesEntity[] => {
     let study: StudyEntity = getStudyWhereId(state, studyId);
-    return getSeriesesWhereId(state, study.series);
+    return study ? getSeriesesWhereId(state, study.series) : [];
 };
 
 export const getImagesWhereSeriesId = (state: State, seriesId: string): ImageEntity[] => {
     let series: SeriesEntity = getSeriesWhereId(state, seriesId);
-    return getImagesWhereId(state, series.images);
+    return series ? getImagesWhereId(state, series.images) : [];
+};
+
+//
+
+export const getImagesWherePatientIds = (state: State, patientIds: string[]): ImageEntity[] => {
+    let studies: StudyEntity[] = [];
+    patientIds.forEach(patientId => {
+        studies.push(...getStudiesWherePatientId(state, patientId));
+    }); 
+
+    let serieses: SeriesEntity[] = [];
+    studies.forEach(study => {
+        serieses.push(...getSeriesesWhereStudyId(state, study.studyID));
+    });
+
+    let images: ImageEntity[] = [];
+    serieses.forEach(series => {
+        images.push(...getImagesWhereSeriesId(state, series.seriesID));
+    });
+
+    return images;
+};
+
+export const getImagesWhereStudyIds = (state: State, studiesIds: string[]): ImageEntity[] => {
+    let serieses: SeriesEntity[] = [];
+    studiesIds.forEach(studyId => {
+        serieses.push(...getSeriesesWhereStudyId(state, studyId));
+    });
+
+    let images: ImageEntity[] = [];
+    serieses.forEach(series => {
+        images.push(...getImagesWhereSeriesId(state, series.seriesID));
+    });
+
+    return images;
+};
+
+export const getImagesWhereSeriesIds = (state: State, seriesIds: string[]): ImageEntity[] => {
+    let images: ImageEntity[] = [];
+    seriesIds.forEach(seriesId => {
+        images.push(...getImagesWhereSeriesId(state, seriesId));
+    });
+
+    return images;
 };
