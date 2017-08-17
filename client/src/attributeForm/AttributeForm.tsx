@@ -127,7 +127,6 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
                     {attributeList}
                 </Grid>
             </div>);
-
     }
 }
 
