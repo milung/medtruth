@@ -1,22 +1,30 @@
 
 export enum ActionTypeKeys {
-    FILES_UPLOADED = 'FILES_UPLOADED',
-    THUMBNAIL_BLOWN_UP = 'THUMBNAIL_BLOWN_UP',
-    THUMBNAIL_BLOWN_DOWN = 'THUMBNAIL_BLOWN_DOWN',
-    IMAGE_SELECTED = 'IMAGE_SELECTED',
-    IMAGES_ALL_UNSELECTED = 'IMAGES_ALL_UNSELECTED',
-    SERIES_SELECTED = 'SERIES_SELECTED',
-    SERIES_ALL_UNSELECTED = 'SERIES_ALL_UNSELECTED',
-    STUDIES_SELECTED='STUDIES_SELECTED',
-    IMAGE_ANNOTATION_ADDED = 'IMAGE_ANNOTATION_ADDED',
-    OTHER_ACTION = 'OTHER_ACTION',
-    LAST_STUDY_SELECTED = 'LAST_STUDY_SELECTED',
-    DOWNLOAD_POPUP_STATE_CHANGE = 'DOWNLOAD_POPUP_STATE_CHANGE',
-    LABELS_DOWNLOADED = 'LABELS_DOWNLOADED',
-    IMAGES_ANNOTATION_REMOVED = 'IMAGES_ANNOTATION_REMOVED',
-    IMAGES_ANNOTATION_ADDED = 'IMAGES_ANNOTATION_ADDED',
-    IMAGES_ANNOTATIONS_DOWNLOADED = 'ANNOTATIONS_DOWNLOADED',
-    PATIENTS_FETCHED = 'PATIENTS_FETCHED'
+    FILES_UPLOADED,
+    THUMBNAIL_BLOWN_UP,
+    THUMBNAIL_BLOWN_DOWN,
+    IMAGE_SELECTED,
+    IMAGES_ALL_UNSELECTED,
+    SERIES_SELECTED,
+    SERIES_ALL_UNSELECTED,
+    IMAGE_ANNOTATION_ADDED,
+    OTHER_ACTION,
+    LAST_STUDY_SELECTED,
+    DOWNLOAD_POPUP_STATE_CHANGE,
+    LABELS_DOWNLOADED,
+    IMAGES_ANNOTATION_REMOVED,
+    IMAGES_ANNOTATION_ADDED,
+    IMAGES_ANNOTATIONS_DOWNLOADED,
+    PATIENTS_FETCHED,
+    ITEM_SELECTED,
+    ALL_ITEMS_UNSELECTED
+}
+
+export enum ItemTypes {
+    IMAGE,
+    SERIES,
+    STUDY,
+    PATIENT
 }
 
 export enum Keys {
@@ -116,6 +124,17 @@ export interface PatientsFetchedAction {
     patients: PatientJSON[];
 }
 
+export interface ItemSelectedAction {
+    type: ActionTypeKeys.ITEM_SELECTED;
+    itemType: ItemTypes;
+    itemId: string;
+    keyPressed: Keys;
+}
+
+export interface AllItemsUnselectedAction {
+    type: ActionTypeKeys.ALL_ITEMS_UNSELECTED;
+}
+
 export const filesUploaded = (uploadID: number): FilesUploadedAction => ({
     type: ActionTypeKeys.FILES_UPLOADED,
     uploadID
@@ -199,6 +218,17 @@ export const patientsFetched = (patients: PatientJSON[]): PatientsFetchedAction 
     patients
 });
 
+export const itemSelected = (itemType: ItemTypes, itemId: string, keyPressed: Keys): ItemSelectedAction => ({
+    type: ActionTypeKeys.ITEM_SELECTED,
+    itemType,
+    itemId,
+    keyPressed
+});
+
+export const allItemsUnselected = (): AllItemsUnselectedAction => ({
+    type: ActionTypeKeys.ALL_ITEMS_UNSELECTED
+});
+
 export type ActionType =
     | FilesUploadedAction
     | ThumbnailBlownUpAction
@@ -216,7 +246,9 @@ export type ActionType =
     | ImagesAnnotationRemovedAction
     | ImagesAnnotationAddedAction
     | ImagesAnnotationsDownloadedAction
-    | PatientsFetchedAction;
+    | PatientsFetchedAction
+    | ItemSelectedAction
+    | AllItemsUnselectedAction;
 
 export interface ImageAnnotation {
     key: string;
