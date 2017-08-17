@@ -1,40 +1,69 @@
 import {
     ActionType, ActionTypeKeys, ImageAnnotation,
-    ImageAnnotationAddedAction, UploadDataDownloadedAction, 
-    UploadJSON, LabelsDownloadedAction, ImagesAnnotationRemovedAction, 
-    ImagesAnnotationAddedAction, ImagesAnnotationsDownloadedAction, ImageJSON
+    ImageAnnotationAddedAction, PatientJSON, LabelsDownloadedAction, ImagesAnnotationRemovedAction,
+    ImagesAnnotationAddedAction, ImagesAnnotationsDownloadedAction, PatientsFetchedAction, ImageJSON
 } from '../actions/actions';
 
+import { normalize, schema } from 'normalizr';
+
 export interface EntitiesState {
-    images: {
-        byId: Map<string, ImageEntity>
+    patients: {
+        byId: Map<string, PatientEntity>
+    };
+    studies: {
+        byId: Map<string, StudyEntity>
     };
     series: {
         byId: Map<string, SeriesEntity>
+    };
+    images: {
+        byId: Map<string, ImageEntity>
     };
     labels: string[];
 }
 
 export interface ImageEntity {
-    seriesId: string;
-    imageId: string;
+    imageID: string;
+    series: string;
+    imageNumber: number;
     annotations: ImageAnnotation[];
 }
 
 export interface SeriesEntity {
-    seriesId: string;
+    seriesID: string;
+    study: string;
     seriesDate: number;
     seriesDescription: string;
     thumbnailImageID: string;
-    images: ImageJSON[];
+    images: string[];
+}
+
+export interface StudyEntity {
+    studyID: string;
+    patient: string;
+    studyDescription: string;
+    series: string[];
+}
+
+export interface PatientEntity {
+    patientID: string;
+    patientName: string;
+    patientBirtday: number;
+    studies: string[];
 }
 
 const initialState: EntitiesState = {
-    images: {
-        byId: new Map<string, ImageEntity>()
+    patients: {
+        byId: new Map<string, PatientEntity>()
+    },
+    studies: {
+        byId: new Map<string, StudyEntity>()
     },
     series: {
         byId: new Map<string, SeriesEntity>()
+    },
+    images: {
+        byId: new Map<string, ImageEntity>()
     },
     labels: []
 };
@@ -45,8 +74,6 @@ export function entitiesReducer(
     switch (action.type) {
         case ActionTypeKeys.IMAGE_ANNOTATION_ADDED:
             return processImageAnnotationAddedAction(prevState, action);
-        case ActionTypeKeys.UPLOAD_DATA_DOWNLOADED:
-            return processUploadDataDownloadedAction(prevState, action);
         case ActionTypeKeys.LABELS_DOWNLOADED:
             return processLabelsDownloadedAction(prevState, action);
         case ActionTypeKeys.IMAGES_ANNOTATION_REMOVED:
@@ -55,9 +82,97 @@ export function entitiesReducer(
             return processImagesAnnotationAddedAction(prevState, action);
         case ActionTypeKeys.IMAGES_ANNOTATIONS_DOWNLOADED:
             return processImagesAnnotationsDownloadedAction(prevState, action);
+        case ActionTypeKeys.PATIENTS_FETCHED:
+            return processPatientsDataFetched(prevState, action);
         default:
             return prevState;
     }
+}
+
+const processPatientsDataFetched = (prevState: EntitiesState, action: PatientsFetchedAction): EntitiesState => {
+
+    const imageSchema = new schema.Entity(
+        'images',
+        {},
+        {
+            processStrategy: (value, parent, key) => {
+                return { ...value, series: parent.seriesID, annotations: [] };
+            },
+            idAttribute: 'imageID'
+        }
+    );
+    const seriesSchema = new schema.Entity(
+        'series',
+        {
+            images: [imageSchema]
+        },
+        {
+            processStrategy: (value, parent, key) => {
+                return { ...value, study: parent.studyID };
+            },
+            idAttribute: 'seriesID'
+        }
+    );
+
+    const studySchema = new schema.Entity(
+        'studies',
+        {
+            series: [seriesSchema]
+        },
+        {
+            processStrategy: (value, parent, key) => {
+                return { ...value, patient: parent.patientID };
+            },
+            idAttribute: 'studyID'
+        }
+    );
+
+    const patientSchema = new schema.Entity(
+        'patients',
+        {
+            studies: [studySchema]
+        },
+        {
+            idAttribute: 'patientID'
+        }
+    );
+
+    const normalizedData = normalize(action.patients, [patientSchema]);
+
+    // convert objects (dictionaries) to maps
+    let imagesMap: Map<string, ImageEntity> = createMapFromObject(normalizedData.entities.images);
+    let seriesMap: Map<string, SeriesEntity> = createMapFromObject(normalizedData.entities.series);
+    let studiesMap: Map<string, StudyEntity> = createMapFromObject(normalizedData.entities.studies);
+    let patientsMap: Map<string, PatientEntity> = createMapFromObject(normalizedData.entities.patients);
+
+    let newState: EntitiesState = { ...prevState };
+
+    newState.images = {
+        byId: imagesMap
+    };
+
+    newState.series = {
+        byId: seriesMap
+    };
+
+    newState.studies = {
+        byId: studiesMap
+    };
+
+    newState.patients = {
+        byId: patientsMap
+    };
+
+    return newState;
+};
+
+function createMapFromObject<T>(obj: Object): Map<string, T> {
+    let map: Map<string, T> = new Map();
+    Object.keys(obj).forEach(key => {
+        map.set(key, obj[key]);
+    });
+
+    return map;
 }
 
 const processImagesAnnotationsDownloadedAction =
@@ -76,7 +191,6 @@ const processImagesAnnotationsDownloadedAction =
                 let image: ImageEntity = prevState.images.byId.get(key);
                 let newImage: ImageEntity;
                 let newAnnotationsArray: ImageAnnotation[] = value.map(annotation => ({
-                    imageId: key,
                     key: annotation.key,
                     value: annotation.value
                 }));
@@ -86,14 +200,15 @@ const processImagesAnnotationsDownloadedAction =
 
                 } else {
                     newImage = {
-                        imageId: key,
-                        seriesId: undefined,
+                        imageID: key,
+                        series: undefined,
+                        imageNumber: undefined,
                         annotations: []
                     };
                 }
 
                 newImage.annotations = newAnnotationsArray;
-                newState.images.byId.set(newImage.imageId, newImage);
+                newState.images.byId.set(newImage.imageID, newImage);
             }
         );
         return newState;
@@ -141,7 +256,7 @@ const processImagesAnnotationAddedAction =
             newState.images = { ...prevState.images };
             newState.images.byId = new Map(prevState.images.byId);
             modifiedImages.forEach((image) => {
-                newState.images.byId.set(image.imageId, image);
+                newState.images.byId.set(image.imageID, image);
             });
         } else {
             console.log('no modified images');
@@ -179,7 +294,7 @@ const processImagesAnnotationRemovedAction =
             newState.images = { ...prevState.images };
             newState.images.byId = new Map(prevState.images.byId);
             modifiedImages.forEach((image) => {
-                newState.images.byId.set(image.imageId, image);
+                newState.images.byId.set(image.imageID, image);
             });
         }
 
@@ -204,8 +319,9 @@ const processImageAnnotationAddedAction =
 
         if (imageEntity === undefined) {
             newImageEntity = {
-                seriesId: undefined,
-                imageId: action.imageID,
+                series: undefined,
+                imageID: action.imageID,
+                imageNumber: undefined,
                 annotations: []
             };
             // if (imageAnnotation.value !== 0) {
@@ -219,7 +335,7 @@ const processImageAnnotationAddedAction =
             // If the new annotation value is -10, annotation needs to be deleted from the old state
             if (imageAnnotation.value === -10) {
                 newImageEntity.annotations = [];
-                for (var annotation of imageEntity.annotations) {
+                for (let annotation of imageEntity.annotations) {
                     // Push all other annotations into the new state
                     if (annotation.key !== imageAnnotation.key) {
                         newImageEntity.annotations.push(annotation);
@@ -228,7 +344,7 @@ const processImageAnnotationAddedAction =
             } else {
                 newImageEntity.annotations = [...imageEntity.annotations];
                 var annotationExists = false;
-                for (var annotation of newImageEntity.annotations) {
+                for (let annotation of newImageEntity.annotations) {
                     // Check if annotation already IS assigned to the image
                     // If yes, just change the value of the annotation
                     if (annotation.key === imageAnnotation.key) {
@@ -244,38 +360,6 @@ const processImageAnnotationAddedAction =
                 }
             }
         }
-        newState.images.byId.set(newImageEntity.imageId, newImageEntity);
-        return newState;
-    };
-
-const processUploadDataDownloadedAction =
-    (prevState: EntitiesState, action: UploadDataDownloadedAction): EntitiesState => {
-        let newState = { ...prevState };
-        newState.images = { ...prevState.images };
-        newState.images.byId = new Map<string, ImageEntity>();
-        newState.series = { ...prevState.series };
-        newState.series.byId = new Map<string, SeriesEntity>();
-        let upload: UploadJSON = action.upload;
-        for (let study of upload.studies) {
-            for (let series of study.series) {
-                for (let image of series.images) {
-                    newState.images.byId.set(
-                        image.imageID,
-                        { imageId: image.imageID, annotations: [], seriesId: series.seriesID }
-                    );
-                }
-
-                newState.series.byId.set(
-                    series.seriesID,
-                    {
-                        seriesId: series.seriesID,
-                        images: series.images,
-                        seriesDate: series.seriesDate,
-                        seriesDescription: series.seriesDescription,
-                        thumbnailImageID: series.thumbnailImageID
-                    }
-                );
-            }
-        }
+        newState.images.byId.set(newImageEntity.imageID, newImageEntity);
         return newState;
     };

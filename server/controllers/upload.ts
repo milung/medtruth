@@ -9,6 +9,7 @@ import * as objects from '../Objects';
 import { DaikonConverter } from '../daikon/daikon';
 import { StatusCode, storagePath, imagePath } from '../constants';
 
+
 // Upload status to notify client which files have been succesful.
 interface UploadStatus {
     name: string;
@@ -49,14 +50,20 @@ export class UploadController {
         let createThumbnails = this.createThumbnails();
         await this.upload();
         let json = await this.parse();
-        await AzureDatabase.insertToImagesCollection(json);
-        await createThumbnails;
+        console.log("inserting to db");
+        for (let key in json) {
+            console.log('inserting ' + key);
+
+            await AzureDatabase.updateToImageCollection(json[key]);
+        }
+
+        //await createThumbnails;
 
         // Cleanup.
         files.forEach((file) => {
-            console.log("[Deleting files] file: " + file.path);
+            //console.log("[Deleting files] file: " + file.path);
             fs.unlink(file.path, () => { });
-            console.log("[Deleting files] image: " + file.filename);
+            //console.log("[Deleting files] image: " + file.filename);
             fs.unlink(imagePath + file.filename + ".png", () => { });
             console.log("[Deleting files] file: " + file.filename + " OK ✔️");
         });
@@ -66,7 +73,7 @@ export class UploadController {
             return { name: upload.name, id: upload.id, err: upload.err };
         });
         // Then assign a unique_id and UploadStatuses.
-        req.params.statuses = { upload_id: json.uploadID, statuses: statuses };
+        //req.params.statuses = { upload_id: json.uploadID, statuses: statuses };
         next();
     }
 
@@ -121,31 +128,48 @@ export class UploadController {
     }
 
     async parse() {
-        // TODO: Refactor!
-        let json = new objects.UploadJSON();
-        json.uploadID = new Date().getTime();
-        json.uploadDate = new Date();
-        let studiesArray: Image[][][] = [];
+        let patients = {};
+        //patients[0] = new objects.UploadJSON();
+        // get patients from database
+        let getPatients = this.responses.map(async (parse) => {
+            let conv = new DaikonConverter(storagePath + parse.filename);
+            let patientID = conv.getPatientID();
+            let patientAzure = await AzureDatabase.getPatientDocument(patientID);
+            patients[patientID] = patientAzure;
+        });
+        // w8 'till all patients are fetched
+        await Promise.all(getPatients)
 
+        // parse info from all dicom files and save to db
         let parses = this.responses.forEach((parse) => {
             if (parse.err) return;
+            console.log("patient parsing start");
             let converter = new DaikonConverter(storagePath + parse.filename);
+            let patientID = converter.getPatientID();
+            let patientBirthday = converter.getPatientDateOfBirth();
+            let patientName = converter.getPatientName();
             let studyID = converter.getStudyInstanceUID();
             let studyFound: boolean = true;
             let seriesFound: boolean = true;
-            let existingStudy = json.studies.find((stud) => {
+
+            let patient = patients[patientID];
+            if (patient == null) {
+                patient = new objects.UploadJSON();
+                patient.patientID = patientID;
+                patient.patientName = patientName;
+                patient.patientBirtday = patientBirthday;
+            }
+
+            let existingStudy = patient.studies.find((stud) => {
                 return stud.studyID === studyID;
             });
 
             if (existingStudy === undefined) {
                 studyFound = false;
                 existingStudy = new objects.StudyJSON();
-                studiesArray[studyID] = [];
             }
             existingStudy.studyID = converter.getStudyInstanceUID();
             existingStudy.studyDescription = converter.getStudyDescription();
-            existingStudy.patientBirthday = converter.getPatientDateOfBirth();
-            existingStudy.patientName = converter.getPatientName();
 
             let seriesID = converter.getSeriesUID();
             let existingSeries = existingStudy.series.find((seria) => {
@@ -156,51 +180,56 @@ export class UploadController {
                 seriesFound = false;
                 existingSeries = new objects.SeriesJSON();
                 existingSeries.seriesID = seriesID;
-                studiesArray[studyID][seriesID] = [];
             }
 
             existingSeries.seriesDescription = converter.getSeriesDescription();
             existingSeries.seriesID = converter.getSeriesUID();
 
-            studiesArray[studyID][seriesID].push({ imageNumber: Number(converter.getImageNumber()), imageID: parse.filename });
-
-            existingSeries.images.push({
+            let newImage = {
                 imageID: parse.filename,
                 imageNumber: Number(converter.getImageNumber())
-            });
+            };
+            if (existingSeries.images.length > 0) {
+                let existingImage = existingSeries.images.find((image) => {
+                    return image.imageNumber === newImage.imageNumber;
+                });
+                if (existingImage == undefined) existingSeries.images.push(newImage);
+            } else {
+                existingSeries.images.push(newImage);
+            }
 
             if (!seriesFound) {
                 existingStudy.series.push(existingSeries);
             }
 
             if (!studyFound) {
-                json.studies.push(existingStudy);
+                patient.studies.push(existingStudy);
             }
+            patients[patientID] = patient;
         });
 
-        for (var study in studiesArray) {
-            for (var series in studiesArray[study]) {
-                let images = studiesArray[study][series];
-                images.sort((a: Image, b: Image) => {
-                    if (a.imageNumber < b.imageNumber) return -1;
-                    if (a.imageNumber > b.imageNumber) return 1;
-                    return 0;
-                });
-                // In case of even numbers, for example 4, Math.round would give 3rd element as the middle one
-                // Math.floor would return the 2nd element 
-                var middle = images[Math.floor((images.length - 1) / 2)];
-                //await this.createThumbnail(middle.imageID);
-
-                json.studies.find((stud) => {
-                    return stud.studyID === study;
-                }).series.find((seria) => {
-                    return seria.seriesID === series;
-                }).thumbnailImageID = middle.imageID;
+        for (var patientKey in patients) {
+            let patient = patients[patientKey];
+            for (var studyKey in patient.studies) {
+                let study = patient.studies[studyKey];
+                for (var seriesKey in study.series) {
+                    let series = study.series[seriesKey];
+                    let images = series.images;
+                    images.sort((a: Image, b: Image) => {
+                        if (a.imageNumber < b.imageNumber) return -1;
+                        if (a.imageNumber > b.imageNumber) return 1;
+                        return 0;
+                    });
+                    // In case of even numbers, for example 4, Math.round would give 3rd element as the middle one
+                    // Math.floor would return the 2nd element 
+                    var middle = images[Math.floor((images.length - 1) / 2)];
+                    //await this.createThumbnail(middle.imageID);
+                    series.thumbnailImageID = middle.imageID
+                }
 
             }
         }
-
-        return json;
+        return patients;
     }
 
     async createThumbnails() {
@@ -224,55 +253,55 @@ export class UploadController {
     }
 
 
-    createThumbnail(imageID){
-        jimp.read(imagePath + imageID + ".png", async function (err, image) {
-                // do stuff with the image (if no exception) 
-                let thumbnail = imagePath + imageID + '_.png';
-                if (err === null) {
-                    image.background(0x000000FF)
-                        .contain(300, 300)
-                        .write(thumbnail, async (err, image) => {
-                            if (err === null) {
-                                await AzureStorage.toImages(imageID + '_.png', thumbnail);
-                                fs.unlink(thumbnail, () => { });
-                            } else {
-                            }
-                        });
-
-                } else {
-                    console.log("[Create Thumbnail] Error");
-                    console.log(err);
-                }
-            });
-    }
-/*
     createThumbnail(imageID) {
-        return new Promise<string>((resolve, reject) => {
-            jimp.read(imagePath + imageID + ".png", async function (err, image) {
-                // do stuff with the image (if no exception) 
-                let thumbnail = imagePath + imageID + '_.png';
-                if (err === null) {
-                    image.background(0x000000FF)
-                        .contain(300, 300)
-                        .write(thumbnail, async (err, image) => {
-                            if (err === null) {
-                                await AzureStorage.toImages(imageID + '_.png', thumbnail);
-                                fs.unlink(thumbnail, () => { });
-                                resolve("OK")
-                            } else {
-                                reject("NO OK")
-                            }
-                        });
+        jimp.read(imagePath + imageID + ".png", async function (err, image) {
+            // do stuff with the image (if no exception) 
+            let thumbnail = imagePath + imageID + '_.png';
+            if (err === null) {
+                image.background(0x000000FF)
+                    .contain(300, 300)
+                    .write(thumbnail, async (err, image) => {
+                        if (err === null) {
+                            await AzureStorage.toImages(imageID + '_.png', thumbnail);
+                            fs.unlink(thumbnail, () => { });
+                        } else {
+                        }
+                    });
 
-                } else {
-                    console.log("[Create Thumbnail] Error");
-                    console.log(err);
-                    reject("NOT OK")
-                }
-            });
+            } else {
+                console.log("[Create Thumbnail] Error");
+                console.log(err);
+            }
         });
     }
-    */
+    /*
+        createThumbnail(imageID) {
+            return new Promise<string>((resolve, reject) => {
+                jimp.read(imagePath + imageID + ".png", async function (err, image) {
+                    // do stuff with the image (if no exception) 
+                    let thumbnail = imagePath + imageID + '_.png';
+                    if (err === null) {
+                        image.background(0x000000FF)
+                            .contain(300, 300)
+                            .write(thumbnail, async (err, image) => {
+                                if (err === null) {
+                                    await AzureStorage.toImages(imageID + '_.png', thumbnail);
+                                    fs.unlink(thumbnail, () => { });
+                                    resolve("OK")
+                                } else {
+                                    reject("NO OK")
+                                }
+                            });
+    
+                    } else {
+                        console.log("[Create Thumbnail] Error");
+                        console.log(err);
+                        reject("NOT OK")
+                    }
+                });
+            });
+        }
+        */
 
 
 

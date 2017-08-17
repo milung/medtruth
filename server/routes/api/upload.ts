@@ -7,12 +7,11 @@ import * as lo from 'lodash';
 import { UploadController } from '../../controllers/upload';
 import { StatusCode, storagePath, imagePath } from '../../constants';
 import { AzureStorage, AzureDatabase } from '../../azure-service';
-import { JSONCreator } from '../../Objects';
 
 export const rootUpload = '/upload';
 export const routerUpload = express.Router();
 
-let jsonCreator: JSONCreator = new JSONCreator();
+
 
 // Middleware for extending the response's timeout for uploading larger files.
 const extendTimeout = (req, res, next) => {
@@ -77,8 +76,9 @@ routerUpload.post('/',
     Returns details about upload's id.
 */
 routerUpload.get('/:id', async (req, res) => {
-    let id = Number.parseInt(req.params.id);
-    console.log("uploadid: " + id);
+    res.sendStatus(StatusCode.Forbidden);
+
+    /*
 
     if (id === undefined) {
         res.sendStatus(StatusCode.BadRequest);
@@ -101,5 +101,7 @@ routerUpload.get('/:id', async (req, res) => {
         }
     }
 
+
+*/
 });
 
