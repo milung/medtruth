@@ -12,12 +12,17 @@ import { StudiesProps } from './StudyView';
 import Typography from 'material-ui/Typography';
 import { PatientEntity } from "../reducers/EntitiesReducer";
 import { getPatients } from "../selectors/selectors";
+import { AllItemsUnselectedAction, ActionType, allItemsUnselected } from "../actions/actions";
 
 interface ConnectedState {
     patientList: PatientEntity[];
 }
 
-class PatientViewerComponent extends React.Component<ConnectedState, {}> {
+interface ConnectedDispatch {
+    deselectAllItems: () => AllItemsUnselectedAction;
+}
+
+class PatientViewerComponent extends React.Component<ConnectedState & ConnectedDispatch, {}> {
 
     constructor() {
         super();
@@ -107,10 +112,20 @@ class PatientViewerComponent extends React.Component<ConnectedState, {}> {
         //     return <div />;
         // }
     }
+
+    componentWillUnmount() {
+        this.props.deselectAllItems();
+    }
 }
 
 function mapStateToProps(state: State): ConnectedState {
     return { patientList: Array.from(getPatients(state).values()) };
 }
 
-export const PatientViewer = connect(mapStateToProps, null)(PatientViewerComponent);
+function mapDispatchToProps(dispatch: Redux.Dispatch<ActionType>): ConnectedDispatch {
+    return {
+        deselectAllItems: () => dispatch(allItemsUnselected())
+    };
+}
+
+export const PatientViewer = connect(mapStateToProps, mapDispatchToProps)(PatientViewerComponent);

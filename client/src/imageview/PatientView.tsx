@@ -6,6 +6,9 @@ import { SeriesViewer } from './SeriesViewer';
 import { SeriesProps } from './SerieView';
 import { StudiesProps } from './StudyView';
 import { Link } from 'react-router-dom';
+import { ItemSelectedAction, Keys, ActionType, itemSelected, ItemTypes } from '../actions/actions';
+import * as Redux from 'redux';
+import { connect } from 'react-redux';
 
 export interface PatientProps {
     patientID: string;
@@ -18,13 +21,22 @@ export interface PatientList {
     patientList: PatientProps[];
 }
 
-export class PatientView extends React.Component<PatientProps, {}> {
+export interface ConnectedState {
+    isSelected: boolean;
+}
 
-    constructor(props: PatientProps) {
+export interface ConnectedDispatch {
+    selectItem: (itemId: string, keyPressed: Keys) => ItemSelectedAction;
+}
+
+export class PatientViewComponent extends React.Component<PatientProps & ConnectedState & ConnectedDispatch, {}> {
+
+    constructor(props) {
         super(props);
 
         this.convertDate = this.convertDate.bind(this);
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
+        this.clickHandler = this.clickHandler.bind(this);
     }
 
     componentDidMount() {
@@ -42,10 +54,28 @@ export class PatientView extends React.Component<PatientProps, {}> {
 
     }
 
+    clickHandler(event) {
+        let keyPressed: Keys = Keys.NONE;
+
+        if (event.ctrlKey) {
+            keyPressed = Keys.CTRL;
+        }
+
+        this.props.selectItem(this.props.patientID, keyPressed);
+    }
+
+    getBorderStyle(isSelected: boolean) {
+        return isSelected ? '3px solid LightSeaGreen' : '3px solid white';
+    }
+
     render() {
         return (
             <div id={this.props.patientID + ''} >
-                <Card onDoubleClick={this.handleDoubleClick}>
+
+                <Card
+                    onClick={this.clickHandler}
+                    style={{ border: this.getBorderStyle(this.props.isSelected) }}
+                >
                     <CardContent>
                         <img
                             src={require('../icons/account.png')}
@@ -65,7 +95,7 @@ export class PatientView extends React.Component<PatientProps, {}> {
                             <a>
                                 <img
                                     src={require('../icons/icon1.png')}
-                                    style={{ float: 'right'}}
+                                    style={{ float: 'right' }}
                                 />
                             </a>
                         </Link>
@@ -89,3 +119,23 @@ export class PatientView extends React.Component<PatientProps, {}> {
         return datestring;
     }
 }
+
+function mapStateToProps(state: State, props): ConnectedState & PatientProps {
+
+    return {
+        isSelected: isPatientSelected(state, props.patientID),
+        ...props
+    };
+}
+
+function mapDispatchToProps(dispatch: Redux.Dispatch<ActionType>): ConnectedDispatch {
+    return {
+        selectItem: (itemId: string, keyPressed: Keys) => dispatch(itemSelected(ItemTypes.PATIENT, itemId, keyPressed))
+    };
+}
+
+export const PatientView = connect(mapStateToProps, mapDispatchToProps)(PatientViewComponent);
+
+const isPatientSelected = (state: State, patientId: string): boolean => {
+    return state.ui.selections.patients.indexOf(patientId) !== -1;
+};

@@ -8,6 +8,8 @@ import { SeriesEntity } from "../reducers/EntitiesReducer";
 import { State } from "../app/store";
 import { getSeriesesWhereStudyId } from "../selectors/selectors";
 import { connect } from "react-redux";
+import { AllItemsUnselectedAction, ActionType, allItemsUnselected } from "../actions/actions";
+import * as Redux from 'redux';
 
 // export interface ArrayOfSeries {
 //     list: SeriesProps[];
@@ -23,7 +25,11 @@ interface ConnectedState {
     seriesList: SeriesEntity[];
 }
 
-export class SeriesViewerComponent extends React.Component<OwnProps & ConnectedState, {}> {
+interface ConnectedDispatch {
+    deselectAllItems: () => AllItemsUnselectedAction;
+}
+
+export class SeriesViewerComponent extends React.Component<OwnProps & ConnectedState & ConnectedDispatch, {}> {
 
     constructor(props) {
         super(props);      
@@ -42,7 +48,6 @@ export class SeriesViewerComponent extends React.Component<OwnProps & ConnectedS
                 </Typography>
                
                 <Grid container={true} gutter={16}>
-                    {console.log("series list",this.props.seriesList)}
                     {this.props.seriesList.map(value =>
                         <Grid item={true} xs={6} sm={3} md={2} style={imageStyle.seriesStyle} key={value.seriesID}>
                             <SerieView {...{ ...value, patientID: this.props.match.params.patientID}} />
@@ -52,13 +57,22 @@ export class SeriesViewerComponent extends React.Component<OwnProps & ConnectedS
             </div>
         );
     }
+
+    componentWillUnmount() {
+        this.props.deselectAllItems();
+    }
 }
 
 function mapStateToProps(state: State, props): ConnectedState {
     let studyID = props.match.params.studyID;
-    let patientID=props.match.params.patientID;
 
     return { seriesList: getSeriesesWhereStudyId(state, studyID) };
 }
 
-export const SeriesViewer = connect(mapStateToProps, null)(SeriesViewerComponent);
+function mapDispatchToProps(dispatch: Redux.Dispatch<ActionType>): ConnectedDispatch {
+    return {
+        deselectAllItems: () => dispatch(allItemsUnselected())
+    };
+}
+
+export const SeriesViewer = connect(mapStateToProps, mapDispatchToProps)(SeriesViewerComponent);

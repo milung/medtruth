@@ -10,6 +10,8 @@ import { StudyEntity } from "../reducers/EntitiesReducer";
 import { connect } from "react-redux";
 import { getStudies, getStudiesWherePatientId } from "../selectors/selectors";
 import { State } from "../app/store";
+import { AllItemsUnselectedAction, ActionType, allItemsUnselected } from "../actions/actions";
+import * as Redux from 'redux';
 
 // studyOne={
 //     studyID:"prva",
@@ -27,7 +29,11 @@ interface ConnectedState {
     studiesList: StudyEntity[];
 }
 
-export class StudyViewerComponent extends React.Component<OwnProps & ConnectedState, {}> {
+interface ConnectedDispatch {
+    deselectAllItems: () => AllItemsUnselectedAction;
+}
+
+export class StudyViewerComponent extends React.Component<OwnProps & ConnectedState & ConnectedDispatch, {}> {
 
     constructor() {
         super();
@@ -98,6 +104,10 @@ export class StudyViewerComponent extends React.Component<OwnProps & ConnectedSt
             </div>
         );
     }
+
+    componentWillUnmount() {
+        this.props.deselectAllItems();
+    }
 }
 
 function mapStateToProps(state: State, props): ConnectedState {
@@ -105,4 +115,10 @@ function mapStateToProps(state: State, props): ConnectedState {
     return { studiesList: getStudiesWherePatientId(state, patientID) };
 }
 
-export const StudyViewer = connect(mapStateToProps, null)(StudyViewerComponent);
+function mapDispatchToProps(dispatch: Redux.Dispatch<ActionType>): ConnectedDispatch {
+    return {
+        deselectAllItems: () => dispatch(allItemsUnselected())
+    };
+}
+
+export const StudyViewer = connect(mapStateToProps, mapDispatchToProps)(StudyViewerComponent);
