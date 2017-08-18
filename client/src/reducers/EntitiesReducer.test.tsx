@@ -1,11 +1,14 @@
 import {
     ActionTypeKeys, OtherAction, ImageAnnotationAddedAction,
-    ImageAnnotation, SeriesJSON, StudyJSON, 
-    UploadJSON, UploadDataDownloadedAction, 
-    LabelsDownloadedAction, ImagesAnnotationRemovedAction, 
-    ImagesAnnotationAddedAction, ImagesAnnotationsDownloadedAction, ImageJSON
+    ImageAnnotation, SeriesJSON, StudyJSON,
+    LabelsDownloadedAction, ImagesAnnotationRemovedAction,
+    ImagesAnnotationAddedAction, ImagesAnnotationsDownloadedAction,
+    PatientJSON, ImageJSON, PatientsFetchedAction
 } from '../actions/actions';
-import { entitiesReducer, EntitiesState, ImageEntity, SeriesEntity } from './EntitiesReducer';
+import {
+    entitiesReducer, EntitiesState, ImageEntity,
+    SeriesEntity, PatientEntity, StudyEntity
+} from './EntitiesReducer';
 
 describe('EntitiesReducer', () => {
 
@@ -28,6 +31,12 @@ describe('EntitiesReducer', () => {
             series: {
                 byId: new Map<string, SeriesEntity>()
             },
+            patients: {
+                byId: new Map<string, PatientEntity>()
+            },
+            studies: {
+                byId: new Map<string, StudyEntity>()
+            },
             labels: []
         });
     });
@@ -46,17 +55,25 @@ describe('EntitiesReducer', () => {
         };
 
         let imageEntity: ImageEntity = {
-            seriesId: 'series',
-            imageId: 'image1',
-            annotations: []
+            series: 'series',
+            imageID: 'image1',
+            imageNumber: undefined,
+            annotations: [],
+            isSelected: false
         };
 
         let prevState: EntitiesState = {
             images: {
-                byId: new Map([[imageEntity.imageId, imageEntity]])
+                byId: new Map([[imageEntity.imageID, imageEntity]])
             },
             series: {
                 byId: new Map<string, SeriesEntity>()
+            },
+            patients: {
+                byId: new Map<string, PatientEntity>()
+            },
+            studies: {
+                byId: new Map<string, StudyEntity>()
             },
             labels: []
         };
@@ -66,9 +83,8 @@ describe('EntitiesReducer', () => {
 
         // then
         expect(
-            newState.images.byId.get(imageEntity.imageId).annotations[0]
+            newState.images.byId.get(imageEntity.imageID).annotations[0]
         ).toEqual({
-            imageId: 'image1',
             key: 'key1',
             value: 0.5
         });
@@ -94,6 +110,12 @@ describe('EntitiesReducer', () => {
             },
             series: {
                 byId: new Map<string, SeriesEntity>()
+            },
+            patients: {
+                byId: new Map<string, PatientEntity>()
+            },
+            studies: {
+                byId: new Map<string, StudyEntity>()
             },
             labels: []
         };
@@ -132,7 +154,7 @@ describe('EntitiesReducer', () => {
         let action: ImagesAnnotationRemovedAction = {
             type: ActionTypeKeys.IMAGES_ANNOTATION_REMOVED,
             label: 'oko',
-            imageIds: ['testImageId1', 'testImageId2']
+            imageIds: ['testimageID1', 'testimageID2']
         };
 
         let annotation1: ImageAnnotation = {
@@ -151,26 +173,36 @@ describe('EntitiesReducer', () => {
         };
 
         let image1: ImageEntity = {
-            seriesId: undefined,
-            imageId: 'testImageId1',
-            annotations: [annotation1, annotation2]
+            imageID: 'testimageID1',
+            series: undefined,
+            imageNumber: undefined,
+            annotations: [annotation1, annotation2],
+            isSelected: false
         };
 
         let image2: ImageEntity = {
-            seriesId: undefined,
-            imageId: 'testImageId2',
-            annotations: [annotation3]
+            imageID: 'testimageID2',
+            series: undefined,
+            imageNumber: undefined,
+            annotations: [annotation3],
+            isSelected: false
         };
 
         let prevState: EntitiesState = {
             images: {
                 byId: new Map<string, ImageEntity>([
-                    [image1.imageId, image1],
-                    [image2.imageId, image2]
+                    [image1.imageID, image1],
+                    [image2.imageID, image2]
                 ])
             },
             series: {
                 byId: new Map<string, SeriesEntity>()
+            },
+            patients: {
+                byId: new Map<string, PatientEntity>()
+            },
+            studies: {
+                byId: new Map<string, StudyEntity>()
             },
             labels: []
         };
@@ -179,15 +211,15 @@ describe('EntitiesReducer', () => {
         let newState: EntitiesState = entitiesReducer(prevState, action);
 
         // then
-        expect(newState.images.byId.get('testImageId1').annotations).toEqual([annotation2]);
-        expect(newState.images.byId.get('testImageId2').annotations).toEqual([]);
+        expect(newState.images.byId.get('testimageID1').annotations).toEqual([annotation2]);
+        expect(newState.images.byId.get('testimageID2').annotations).toEqual([]);
     });
 
     it('should handle ImagesAnnotationAddedAction', () => {
         // given
         let action: ImagesAnnotationAddedAction = {
             type: ActionTypeKeys.IMAGES_ANNOTATION_ADDED,
-            imageIds: ['testImageId1', 'testImageId2'],
+            imageIds: ['testimageID1', 'testimageID2'],
             annotation: {
                 key: 'oko',
                 value: 0.3
@@ -200,26 +232,36 @@ describe('EntitiesReducer', () => {
         };
 
         let image1: ImageEntity = {
-            seriesId: undefined,
-            imageId: 'testImageId1',
-            annotations: [annotation1]
+            series: undefined,
+            imageNumber: undefined,
+            imageID: 'testimageID1',
+            annotations: [annotation1],
+            isSelected: false
         };
 
         let image2: ImageEntity = {
-            seriesId: undefined,
-            imageId: 'testImageId2',
-            annotations: []
+            series: undefined,
+            imageNumber: undefined,
+            imageID: 'testimageID2',
+            annotations: [],
+            isSelected: false
         };
 
         let prevState: EntitiesState = {
             images: {
                 byId: new Map<string, ImageEntity>([
-                    [image1.imageId, image1],
-                    [image2.imageId, image2]
+                    [image1.imageID, image1],
+                    [image2.imageID, image2]
                 ])
             },
             series: {
                 byId: new Map<string, SeriesEntity>()
+            },
+            patients: {
+                byId: new Map<string, PatientEntity>()
+            },
+            studies: {
+                byId: new Map<string, StudyEntity>()
             },
             labels: []
         };
@@ -228,100 +270,18 @@ describe('EntitiesReducer', () => {
         let newState: EntitiesState = entitiesReducer(prevState, action);
 
         // then
-        expect(newState.images.byId.get('testImageId2').annotations.
+        expect(newState.images.byId.get('testimageID2').annotations.
             find(annotation => annotation.key === 'oko')).toEqual({
-                imageId: 'testImageId2',
                 key: 'oko',
                 value: 0.3
             });
 
-        expect(newState.images.byId.get('testImageId1').annotations.
+        expect(newState.images.byId.get('testimageID1').annotations.
             find(annotation => annotation.key === 'oko')).toEqual({
-                imageId: 'testImageId1',
                 key: 'oko',
                 value: 0.3
             });
     });
-
-    it('should handle UploadDataDownloadedAction' +
-        // tslint:disable-next-line:align
-        '(remove old entities from store, save new image entities and series entities)', () => {
-            // given
-            let upload: UploadJSON = getUploadJSON();
-
-            let action: UploadDataDownloadedAction = {
-                type: ActionTypeKeys.UPLOAD_DATA_DOWNLOADED,
-                upload
-            };
-
-            let oldImageEntity: ImageEntity = {
-                imageId: 'oldImageId',
-                seriesId: 'oldSeriesId',
-                annotations: []
-            };
-
-            let oldSeriesEntity: SeriesEntity = {
-                seriesId: 'oldSseriesId',
-                seriesDate: undefined,
-                images: [{imageID: 'oldImageId', imageNumber: 1}],
-                seriesDescription: 'series desc',
-                thumbnailImageID: 'oldImageId'
-            };
-
-            let prevState: EntitiesState = {
-                images: {
-                    byId: new Map<string, ImageEntity>([[oldImageEntity.imageId, oldImageEntity]])
-                },
-                series: {
-                    byId: new Map<string, SeriesEntity>([[oldSeriesEntity.seriesId, oldSeriesEntity]])
-                },
-                labels: []
-            };
-
-            // when
-            let newState: EntitiesState = entitiesReducer(prevState, action);
-
-            // then
-            // new entities created
-            expect(
-                newState.images.byId.get('04556da2ce2edd91fe3ca5c1f335524b')
-            ).toEqual({
-                seriesId: 'seriesId1',
-                imageId: '04556da2ce2edd91fe3ca5c1f335524b',
-                annotations: []
-            });
-
-            expect(
-                newState.images.byId.get('04c899278a1b0cad90d8a2ff286f4e63')
-            ).toEqual({
-                seriesId: 'seriesId1',
-                imageId: '04c899278a1b0cad90d8a2ff286f4e63',
-                annotations: []
-            });
-
-            expect(
-                newState.images.byId.get('04f518349c32cfcbe820527cee910abb')
-            ).toEqual({
-                seriesId: 'seriesId2',
-                imageId: '04f518349c32cfcbe820527cee910abb',
-                annotations: []
-            });
-
-            expect(
-                newState.series.byId.get('seriesId1')
-            ).toEqual({
-                seriesId: 'seriesId1',
-                seriesDescription: 'series description 1',
-                thumbnailImageID: '04b1f296878b9b0e2f1e2662be692ccb',
-                seriesDate: 1000000,
-                images: ['04556da2ce2edd91fe3ca5c1f335524b', '04c899278a1b0cad90d8a2ff286f4e63']
-            });
-
-            // old entities removed
-            expect(newState.series.byId.has('oldSeriesId')).toBeFalsy();
-            expect(newState.images.byId.has('oldImageId')).toBeFalsy();
-
-        });
 
     it('should handle ImagesAnnotationsDownloadedAction', () => {
 
@@ -344,42 +304,50 @@ describe('EntitiesReducer', () => {
             }
         ];
 
-        let imageId1: string = 'imageId1';
-        let imageId2: string = 'imageId2';
+        let imageID1: string = 'imageID1';
+        let imageID2: string = 'imageID2';
 
         let imagesAnnotations: Map<string, ImageAnnotation[]> = new Map(
             [
-                [imageId1, annotations1],
-                [imageId2, annotations2]
+                [imageID1, annotations1],
+                [imageID2, annotations2]
             ]
         );
 
         let action: ImagesAnnotationsDownloadedAction = {
             type: ActionTypeKeys.IMAGES_ANNOTATIONS_DOWNLOADED,
-            imagesAnnotations: new Map<string, ImageAnnotation[]>()
+            imagesAnnotations: imagesAnnotations
         };
 
         let image2: ImageEntity = {
-            seriesId: undefined,
-            imageId: 'imageId2',
+            series: undefined,
+            imageID: 'imageID2',
+            imageNumber: undefined,
             annotations: [
                 {
                     key: 'krk',
                     value: 1
                 }
-            ]
+            ],
+            isSelected: false
         };
 
         let prevState: EntitiesState = {
             images: {
                 byId: new Map<string, ImageEntity>(
                     [
-                        [image2.imageId, image2]
+                        [image2.imageID, image2]
                     ]
                 )
             },
             series: {
                 byId: new Map<string, SeriesEntity>()
+            },
+            patients: {
+                byId: new Map<string, PatientEntity>()
+            },
+            studies: {
+                byId: new Map<string, StudyEntity>()
             },
             labels: []
         };
@@ -390,18 +358,16 @@ describe('EntitiesReducer', () => {
         // then
 
         // created image entity when it has not existed
-        expect(newState.images.byId.get('imageId1')).toBeDefined();
+        expect(newState.images.byId.get('imageID1')).toBeDefined();
 
         // added image annotations or 
-        expect(newState.images.byId.get('imageId1').annotations).toEqual(
+        expect(newState.images.byId.get('imageID1').annotations).toEqual(
             [
                 {
-                    imageId: 'imageId1',
                     key: 'oko',
                     value: 1
                 },
                 {
-                    imageId: 'imageId1',
                     key: 'hlava',
                     value: 0
                 }
@@ -409,51 +375,115 @@ describe('EntitiesReducer', () => {
         );
 
         // replaced old image annotations by new ones
-        expect(newState.images.byId.get('imageId2').annotations).toEqual(
+        expect(newState.images.byId.get('imageID2').annotations).toEqual(
             [
                 {
-                    imageId: 'imageId2',
                     key: 'hlava',
                     value: 0.5
                 }
             ]
         );
     });
+
+    it('should handle PatientsFetchedAction', () => {
+
+        // given
+        let image1: ImageJSON = {
+            imageID: 'imageID1',
+            imageNumber: undefined
+        };
+
+        let series1: SeriesJSON = {
+            seriesID: 'seriesID1',
+            seriesDate: undefined,
+            seriesDescription: undefined,
+            thumbnailImageID: undefined,
+            images: [image1]
+        };
+
+        let study1: StudyJSON = {
+            studyID: 'studyID1',
+            studyDescription: undefined,
+            series: [series1]
+        };
+
+        let patient1: PatientJSON = {
+            patientID: 'patientID1',
+            patientBirtday: undefined,
+            patientName: undefined,
+            studies: [study1]
+        };
+
+        let patient2: PatientJSON = {
+            patientID: 'patientID2',
+            patientBirtday: undefined,
+            patientName: undefined,
+            studies: []
+        };
+
+        let patients: PatientJSON[] = [patient1, patient2];
+
+        let action: PatientsFetchedAction = {
+            type: ActionTypeKeys.PATIENTS_FETCHED,
+            patients
+        };
+
+        let prevState: EntitiesState = {
+            images: {
+                byId: new Map<string, ImageEntity>()
+            },
+            series: {
+                byId: new Map<string, SeriesEntity>()
+            },
+            patients: {
+                byId: new Map<string, PatientEntity>()
+            },
+            studies: {
+                byId: new Map<string, StudyEntity>()
+            },
+            labels: []
+        };
+
+        // when 
+        let newState: EntitiesState = entitiesReducer(prevState, action);
+
+        // then
+        expect(newState.images.byId.get('imageID1')).toEqual({
+            imageID: 'imageID1',
+            imageNumber: undefined,
+            series: 'seriesID1',
+            annotations: []
+        });
+
+        expect(newState.series.byId.get('seriesID1')).toEqual({
+            seriesID: 'seriesID1',
+            seriesDate: undefined,
+            seriesDescription: undefined,
+            thumbnailImageID: undefined,
+            study: 'studyID1',
+            images: ['imageID1']
+        });
+
+        expect(newState.studies.byId.get('studyID1')).toEqual({
+            studyID: 'studyID1',
+            studyDescription: undefined,
+            patient: 'patientID1',
+            series: ['seriesID1']
+        });
+
+        expect(newState.patients.byId.get('patientID1')).toEqual({
+            patientID: 'patientID1',
+            patientBirtday: undefined,
+            patientName: undefined,
+            studies: ['studyID1']
+        });
+
+        expect(newState.patients.byId.get('patientID2')).toEqual({
+            patientID: 'patientID2',
+            patientBirtday: undefined,
+            patientName: undefined,
+            studies: []
+        });
+
+    });
 });
-
-const getUploadJSON = (): UploadJSON => {
-    let imageId1: ImageJSON = {imageID: '04556da2ce2edd91fe3ca5c1f335524b', imageNumber: 1};
-    let imageId2: ImageJSON = {imageID: '04c899278a1b0cad90d8a2ff286f4e63', imageNumber: 3};
-    let imageId3: ImageJSON = {imageID: '04f518349c32cfcbe820527cee910abb', imageNumber: 4};
-
-    let series1: SeriesJSON = {
-        seriesID: 'seriesId1',
-        seriesDescription: 'series description 1',
-        thumbnailImageID: '04b1f296878b9b0e2f1e2662be692ccb',
-        seriesDate: 1000000,
-        images: [imageId1, imageId2]
-    };
-
-    let series2: SeriesJSON = {
-        seriesID: 'seriesId2',
-        seriesDescription: 'series description 2',
-        thumbnailImageID: '04b1f296878b9b0e2f1e2662be692ccb',
-        seriesDate: 1000000,
-        images: [imageId3]
-    };
-
-    let study1: StudyJSON = {
-        patientName: 'patient name',
-        studyDescription: 'study description',
-        studyID: 'studyId',
-        patientBirthday: 1000000,
-        series: [series1, series2]
-    };
-
-    let upload: UploadJSON = {
-        uploadID: 12345,
-        uploadDate: undefined,
-        studies: [study1]
-    };
-    return upload;
-};

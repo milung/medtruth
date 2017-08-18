@@ -11,6 +11,7 @@ export namespace ApiService {
     const uriImages = apiEndpoint + '/images';
     const uriDownload = apiEndpoint + '/download';
     const uriLabels = apiEndpoint + '/labels';
+    const uriPatients = apiEndpoint + '/patients';
 
     /*
         Route:      POST '/upload'
@@ -195,6 +196,18 @@ export namespace ApiService {
             headers: {
                 'Accept': 'application/zip'
             },
+        });
+
+        return res.data;
+    }
+
+    export async function getPatients() {
+        const url = uriPatients;
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'GET',
+            url: url,
+            headers: {}
         });
 
         return res.data;

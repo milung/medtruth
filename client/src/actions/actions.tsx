@@ -1,23 +1,30 @@
 
 export enum ActionTypeKeys {
-    FILES_UPLOADED = 'FILES_UPLOADED',
-    THUMBNAIL_BLOWN_UP = 'THUMBNAIL_BLOWN_UP',
-    THUMBNAIL_BLOWN_DOWN = 'THUMBNAIL_BLOWN_DOWN',
-    // IMAGES_SELECTED = 'IMAGES_SELECTED',
-    IMAGE_SELECTED = 'IMAGE_SELECTED',
-    IMAGES_ALL_UNSELECTED = 'IMAGES_ALL_UNSELECTED',
-    SERIES_SELECTED = 'SERIES_SELECTED',
-    SERIES_ALL_UNSELECTED = 'SERIES_ALL_UNSELECTED',
-    IMAGE_ANNOTATION_ADDED = 'IMAGE_ANNOTATION_ADDED',
-    UPLOAD_DATA_DOWNLOADED = 'UPLOAD_DATA_DOWNLOADED',
-    // IMAGE_ANNOTATION_SELECTED = 'IMAGE_ANNOTATION_SELECTED',
-    OTHER_ACTION = 'OTHER_ACTION',
-    LAST_STUDY_SELECTED = 'LAST_STUDY_SELECTED',
-    DOWNLOAD_POPUP_STATE_CHANGE = 'DOWNLOAD_POPUP_STATE_CHANGE',
-    LABELS_DOWNLOADED = 'LABELS_DOWNLOADED',
-    IMAGES_ANNOTATION_REMOVED = 'IMAGES_ANNOTATION_REMOVED',
-    IMAGES_ANNOTATION_ADDED = 'IMAGES_ANNOTATION_ADDED',
-    IMAGES_ANNOTATIONS_DOWNLOADED = 'ANNOTATIONS_DOWNLOADED'
+    FILES_UPLOADED,
+    THUMBNAIL_BLOWN_UP,
+    THUMBNAIL_BLOWN_DOWN,
+    IMAGE_SELECTED,
+    IMAGES_ALL_UNSELECTED,
+    SERIES_SELECTED,
+    SERIES_ALL_UNSELECTED,
+    IMAGE_ANNOTATION_ADDED,
+    OTHER_ACTION,
+    LAST_STUDY_SELECTED,
+    DOWNLOAD_POPUP_STATE_CHANGE,
+    LABELS_DOWNLOADED,
+    IMAGES_ANNOTATION_REMOVED,
+    IMAGES_ANNOTATION_ADDED,
+    IMAGES_ANNOTATIONS_DOWNLOADED,
+    PATIENTS_FETCHED,
+    ITEM_SELECTED,
+    ALL_ITEMS_UNSELECTED
+}
+
+export enum ItemTypes {
+    IMAGE,
+    SERIES,
+    STUDY,
+    PATIENT
 }
 
 export enum Keys {
@@ -71,19 +78,15 @@ export interface SeriesSelectedAction {
     keyPressed: Keys;
 }
 
+// export interface StudiesSelectedAction {
+//     type: ActionTypeKeys.STUDIES_SELECTED;
+//     id: string;
+//     keyPressed: Keys;
+// }
+
 export interface SeriesAllUnselectedAction {
     type: ActionTypeKeys.SERIES_ALL_UNSELECTED;
 }
-
-export interface UploadDataDownloadedAction {
-    type: ActionTypeKeys.UPLOAD_DATA_DOWNLOADED;
-    upload: UploadJSON;
-}
-
-// export interface ImageAnnotationSelected {
-//     type: ActionTypeKeys.LABEL_SELECTED;
-
-// }
 
 export interface OtherAction {
     type: ActionTypeKeys.OTHER_ACTION;
@@ -114,6 +117,22 @@ export interface ImagesAnnotationAddedAction {
 export interface ImagesAnnotationsDownloadedAction {
     type: ActionTypeKeys.IMAGES_ANNOTATIONS_DOWNLOADED;
     imagesAnnotations: Map<string, ImageAnnotation[]>;
+}
+
+export interface PatientsFetchedAction {
+    type: ActionTypeKeys.PATIENTS_FETCHED;
+    patients: PatientJSON[];
+}
+
+export interface ItemSelectedAction {
+    type: ActionTypeKeys.ITEM_SELECTED;
+    itemType: ItemTypes;
+    itemId: string;
+    keyPressed: Keys;
+}
+
+export interface AllItemsUnselectedAction {
+    type: ActionTypeKeys.ALL_ITEMS_UNSELECTED;
 }
 
 export const filesUploaded = (uploadID: number): FilesUploadedAction => ({
@@ -165,11 +184,6 @@ export const seriesAllUnselected = (): SeriesAllUnselectedAction => ({
     type: ActionTypeKeys.SERIES_ALL_UNSELECTED
 });
 
-export const uploadDataDowloaded = (upload: UploadJSON): UploadDataDownloadedAction => ({
-    type: ActionTypeKeys.UPLOAD_DATA_DOWNLOADED,
-    upload
-});
-
 export const downloadPopupStateChange = (state: boolean): DownloadStatePopup => ({
     type: ActionTypeKeys.DOWNLOAD_POPUP_STATE_CHANGE,
     showDownloadPopUP: state
@@ -197,28 +211,44 @@ export const imagesAnnotationsDownloadedAction =
     (imagesAnnotations: Map<string, ImageAnnotation[]>): ImagesAnnotationsDownloadedAction => ({
         type: ActionTypeKeys.IMAGES_ANNOTATIONS_DOWNLOADED,
         imagesAnnotations
+    });
+
+export const patientsFetched = (patients: PatientJSON[]): PatientsFetchedAction => ({
+    type: ActionTypeKeys.PATIENTS_FETCHED,
+    patients
+});
+
+export const itemSelected = (itemType: ItemTypes, itemId: string, keyPressed: Keys): ItemSelectedAction => ({
+    type: ActionTypeKeys.ITEM_SELECTED,
+    itemType,
+    itemId,
+    keyPressed
+});
+
+export const allItemsUnselected = (): AllItemsUnselectedAction => ({
+    type: ActionTypeKeys.ALL_ITEMS_UNSELECTED
 });
 
 export type ActionType =
     | FilesUploadedAction
     | ThumbnailBlownUpAction
     | ThumbnailBlownDownAction
-    // | ImagesSelectedAction
     | ImageSelectedAction
     | ImagesAllUnselectedAction
     | SeriesSelectedAction
     | SeriesAllUnselectedAction
     | ImageAnnotationAddedAction
-    | UploadDataDownloadedAction
-    // | LabelSelected
     | OtherAction
-    | LastStudySelected 
+    | LastStudySelected
     | DownloadStatePopup
     | LastStudySelected
     | LabelsDownloadedAction
     | ImagesAnnotationRemovedAction
     | ImagesAnnotationAddedAction
-    | ImagesAnnotationsDownloadedAction;
+    | ImagesAnnotationsDownloadedAction
+    | PatientsFetchedAction
+    | ItemSelectedAction
+    | AllItemsUnselectedAction;
 
 export interface ImageAnnotation {
     key: string;
@@ -231,21 +261,18 @@ export interface ImageLabel {
     checked: boolean;
 }
 
-export interface UploadJSON {
-    uploadID: number;
-    uploadDate: Date;
-    studies: StudyJSON[];
-}
-
-export interface StudyJSON {
+export class PatientJSON {
+    patientID: string;
     patientName: string;
-    patientBirthday: number;
+    patientBirtday: number;
+    studies: StudyJSON[] = [];
+}
+export class StudyJSON {
     studyDescription: string;
     studyID: string;
-    series: SeriesJSON[];
+    series: SeriesJSON[] = [];
 }
-
-export interface SeriesJSON {
+export class SeriesJSON {
     seriesID: string;
     seriesDate: number;
     seriesDescription: string;

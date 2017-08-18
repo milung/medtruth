@@ -58,11 +58,11 @@ export class UploadController {
         if (files.length === 0) { next(); return null; }
         console.time('end');
         // Convert, upload and parse the files.
-        //await this.convert(files);
+        await this.convert(files);
         //let createThumbnails = this.createThumbnails();
         //await this.upload();
-        //let json = await this.parse();
-        /*console.log("inserting to db");
+        let json = await this.parse();
+        console.log("inserting to db");
         console.log(json);
 
         for (let key in json) {
@@ -70,7 +70,7 @@ export class UploadController {
 
             await AzureDatabase.updateToImageCollection(json[key]);
         }
-*/
+
         //await createThumbnails;
 
         // Cleanup.

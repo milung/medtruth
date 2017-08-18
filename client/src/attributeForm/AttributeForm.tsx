@@ -11,6 +11,7 @@ import { ImageAnnotation, ImagesAnnotationAddedAction, imagesAnnotationAddedActi
 import { ApiService } from '../api';
 import Paper from 'material-ui/Paper';
 import { addImagesAnnotationAction } from '../actions/asyncActions';
+import { getImagesWhereSeriesIds, getImagesWhereStudyIds, getImagesWherePatientIds } from "../selectors/selectors";
 
 export interface OwnState {
     keyFieldValue: string;
@@ -83,10 +84,6 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
             inputIncorrect = true;
         }
 
-        var attributeList;
-        // Check if something is selected, if not, assigning should be disabled
-        (this.props.images.length !== 0) ? attributeList = <AttributeList /> : inputIncorrect = true;
-
         return (
             <div >
                 <Grid style={{ position: 'fixed', paddingRight: 10 }} item="true" xs={12} sm={12} md={12}>
@@ -124,7 +121,7 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
                             </Button>
                         </div>
                     </Paper>
-                    {attributeList}
+                    <AttributeList />
                 </Grid>
             </div>);
 
@@ -137,8 +134,22 @@ function mapStateToProps(state: State): ConnectedState {
     //     state.entities.series.byId.get(getLastValue(state.ui.selections.series)) !== null) {
     //     imagesFromState = state.entities.series.byId.get(getLastValue(state.ui.selections.series)).images;
     // }
+
+    let images: string[] = [];
+
+    if (state.ui.selections.images.length > 0) {
+        console.log();
+        images = state.ui.selections.images;
+    } else if (state.ui.selections.series.length > 0) {
+        images = getImagesWhereSeriesIds(state, state.ui.selections.series).map(image => image.imageID);
+    } else if (state.ui.selections.studies.length > 0) {
+        images = getImagesWhereStudyIds(state, state.ui.selections.studies).map(image => image.imageID);
+    } else if (state.ui.selections.patients.length > 0) {
+        images = getImagesWherePatientIds(state, state.ui.selections.studies).map(image => image.imageID);
+    }
+    
     return {
-        images: state.ui.selections.images
+        images
     };
 }
 

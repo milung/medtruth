@@ -1,6 +1,6 @@
 import { uiReducer, UIState } from './UIReducer';
 import { OtherAction, ActionTypeKeys, ImageSelectedAction, 
-    SeriesSelectedAction, UploadDataDownloadedAction, Keys, ImagesAllUnselectedAction
+    SeriesSelectedAction, Keys, ImagesAllUnselectedAction, ItemSelectedAction, ItemTypes
 } from '../actions/actions';
 
 describe('UIReducer', () => {
@@ -22,7 +22,9 @@ describe('UIReducer', () => {
             isBlownUpShowed: false,
             selections: {
                 images: [],
-                series: []
+                series: [],
+                studies: [],
+                patients: []
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false
@@ -43,7 +45,9 @@ describe('UIReducer', () => {
             blownUpThumbnailId: '',
             selections: {
                 images: ['abcd1234'],
-                series: []
+                series: [],
+                studies: [],
+                patients: []
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false
@@ -71,7 +75,9 @@ describe('UIReducer', () => {
             blownUpThumbnailId: '',
             selections: {
                 images: ['abcd1234'],
-                series: []
+                series: [],
+                studies: [],
+                patients: []
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false
@@ -98,7 +104,9 @@ describe('UIReducer', () => {
             blownUpThumbnailId: '',
             selections: {
                 images: ['abcd1234'],
-                series: []
+                series: [],
+                studies: [],
+                patients: []
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false
@@ -126,7 +134,9 @@ describe('UIReducer', () => {
             blownUpThumbnailId: '',
             selections: {
                 images: ['abcd1234', 'abcd5678'],
-                series: []
+                series: [],
+                studies: [],
+                patients: []
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false
@@ -153,7 +163,9 @@ describe('UIReducer', () => {
             blownUpThumbnailId: '',
             selections: {
                 images: ['abcd1234', 'abcd5678'],
-                series: []
+                series: [],
+                studies: [],
+                patients: []
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false
@@ -180,7 +192,9 @@ describe('UIReducer', () => {
             blownUpThumbnailId: '',
             selections: {
                 images: [],
-                series: ['abcd1234']
+                series: ['abcd1234'],
+                studies: [],
+                patients: []
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false
@@ -208,7 +222,9 @@ describe('UIReducer', () => {
             blownUpThumbnailId: '',
             selections: {
                 images: [],
-                series: ['abcd1234']
+                series: ['abcd1234'],
+                studies: [],
+                patients: []
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false
@@ -235,7 +251,9 @@ describe('UIReducer', () => {
             blownUpThumbnailId: '',
             selections: {
                 images: [],
-                series: ['abcd1234']
+                series: ['abcd1234'],
+                studies: [],
+                patients: []
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false
@@ -263,7 +281,9 @@ describe('UIReducer', () => {
             blownUpThumbnailId: '',
             selections: {
                 images: [],
-                series: ['abcd1234', 'abcd5678']
+                series: ['abcd1234', 'abcd5678'],
+                studies: [],
+                patients: []
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false
@@ -277,30 +297,46 @@ describe('UIReducer', () => {
         expect(newState.selections.series.indexOf('abcd5678') === -1).toBeTruthy();
     });
 
-    it('should handle UploadDataDownloadedAction (deselect all series and images)', () => {
-
+    it('should handle simple ItemSelectedAction (select item)', () => {
         // given
-        let uploadDataDownloadedAction: UploadDataDownloadedAction = {
-            type: ActionTypeKeys.UPLOAD_DATA_DOWNLOADED,
-            upload: undefined
+        let action: ItemSelectedAction = {
+            type: ActionTypeKeys.ITEM_SELECTED,
+            itemId: 'imageID1',
+            itemType: ItemTypes.IMAGE,
+            keyPressed: Keys.NONE
         };
 
         let prevState: UIState = {
             isBlownUpShowed: false,
             blownUpThumbnailId: '',
             selections: {
-                images: ['1234', '4321'],
-                series: ['1234abcd', 'abcd1234']
+                images: [],
+                series: [],
+                studies: [],
+                patients: []
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false
         };
 
         // when
-        let newState: UIState = uiReducer(prevState, uploadDataDownloadedAction);
+        let newState: UIState = uiReducer(prevState, action);
 
         // then
-        expect(newState.selections.series.length).toBe(0);
-        expect(newState.selections.images.length).toBe(0);
+        expect(newState.selections.images.indexOf('imageID1') !== -1).toBeTruthy();
     });
+
+    it('should handle simple ItemSelectedAction (deselect item)', () => {
+        // given
+        let action: ItemSelectedAction = {
+            type: ActionTypeKeys.ITEM_SELECTED,
+            itemId: 'imageID1',
+            itemType: ItemTypes.IMAGE,
+            keyPressed: Keys.NONE
+        };
+
+
+    });
+
+
 });

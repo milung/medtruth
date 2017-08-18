@@ -5,15 +5,17 @@ import { ApiService } from '../api';
 import { getThumbnailImageURL } from '../constants';
 import { Keys } from '../actions/actions';
 
-export interface ImageProps {
-    imageID: number;
-    imageName: string;
+export interface OwnProps {
+    imageNumber: number;
+    imageID: string;
     isSelected: boolean;
+}
+export interface ImageProps {
     handleClick: (imageID: string, keyPressed: Keys) => void;
     blowUp: (imageID: string) => void;
     handleDouble: () => void;
 }
-export class ImageViewComponent extends React.Component<ImageProps, {}> {
+export class ImageViewComponent extends React.Component<OwnProps & ImageProps, {}> {
     constructor(props) {
         super(props);
 
@@ -23,8 +25,8 @@ export class ImageViewComponent extends React.Component<ImageProps, {}> {
     }
 
     componentDidMount() {
-        let thumbnailURI = getThumbnailImageURL(this.props.imageName);
-        let img = document.getElementById(this.props.imageID + '') as HTMLImageElement;
+        let thumbnailURI = getThumbnailImageURL(this.props.imageID);
+        let img = document.getElementById(this.props.imageNumber + '') as HTMLImageElement;
         if (img != null) {
             img.src = thumbnailURI;
         }
@@ -48,13 +50,13 @@ export class ImageViewComponent extends React.Component<ImageProps, {}> {
             keyPressed = Keys.CTRL;
         }
 
-        this.props.handleClick(this.props.imageName, keyPressed);
+        this.props.handleClick(this.props.imageID, keyPressed);
     }
 
     handleDoubleClick() {
         this.props.handleDouble();
         console.log('double click!');
-        this.props.blowUp(this.props.imageName);
+        this.props.blowUp(this.props.imageID);
     }
 
     // keyPressed(event) {
@@ -65,7 +67,7 @@ export class ImageViewComponent extends React.Component<ImageProps, {}> {
     render() {
         return (
             <img
-                id={this.props.imageID + ''}
+                id={this.props.imageNumber + ''}
                 style={imageStyle.img}
                 onClick={this.clickHandler}
                 onDoubleClick={this.handleDoubleClick}

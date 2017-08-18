@@ -15,7 +15,7 @@ export const routerPatients = Router();
 routerPatients.get('/', async (req, res) => {
     try {
         let data = await AzureDatabase.getAllPatients();
-        console.log(data);
+        console.log("Patiens:",data);
         res.json(data);
     } catch (e) {
         res.json({ error: "DB_ERROR" });

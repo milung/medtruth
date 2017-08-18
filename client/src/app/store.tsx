@@ -8,6 +8,7 @@ import { entitiesReducer } from '../reducers/EntitiesReducer';
 import { EntitiesState } from '../reducers/EntitiesReducer';
 import thunk from 'redux-thunk';
 import { applyMiddleware } from 'redux';
+import { fetchPatients, downloadLabelsAction } from "../actions/asyncActions";
 
 const rootReducer = combineReducers({
     entities: entitiesReducer,
@@ -28,3 +29,6 @@ const composeEnhancers = composeWithDevTools({
 export const store = createStore(rootReducer, composeEnhancers(
     applyMiddleware(thunk)
 ));
+
+store.dispatch(fetchPatients());
+store.dispatch(downloadLabelsAction());

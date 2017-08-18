@@ -2,8 +2,7 @@ import { filesUploaded, ActionTypeKeys, FilesUploadedAction,
     ThumbnailBlownUpAction, thumbnailBlownUp, ThumbnailBlownDownAction, 
     thumbnailBlownDown, ImageSelectedAction, selectedImage, ImageAnnotation, 
     ImageAnnotationAddedAction, imageAnnotationAdded, SeriesSelectedAction, 
-    seriesSelected, SeriesAllUnselectedAction, seriesAllUnselected, 
-    UploadJSON, UploadDataDownloadedAction, uploadDataDowloaded, Keys, 
+    seriesSelected, SeriesAllUnselectedAction, seriesAllUnselected, Keys, 
     ImagesAllUnselectedAction, imagesAllUnselected } from './actions';
 
 describe('actions', () => {
@@ -90,6 +89,7 @@ describe('actions', () => {
         //then
         expect(action).toEqual({
             type: ActionTypeKeys.IMAGE_ANNOTATION_ADDED,
+            imageID: '5d6s7vv',
             annotation: annot
         });
     });
@@ -119,20 +119,6 @@ describe('actions', () => {
         //then
         expect(action).toEqual({
             type: ActionTypeKeys.SERIES_ALL_UNSELECTED
-        });
-    });
-
-    it('should create an action UploadDataDownloadedAction', () => {
-        //given
-        let upLoad: UploadJSON = { uploadID: 12345, uploadDate: new Date(), studies: [] }
-
-        //when
-        let action: UploadDataDownloadedAction = uploadDataDowloaded(upLoad);
-
-        //then
-        expect(action).toEqual({
-            type: ActionTypeKeys.UPLOAD_DATA_DOWNLOADED,
-            upload: upLoad
         });
     });
 });
