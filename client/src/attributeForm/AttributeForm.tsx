@@ -84,6 +84,8 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
             inputIncorrect = true;
         }
 
+        if (this.props.images.length === 0) { inputIncorrect = true ;}
+
         return (
             <div >
                 <Grid style={{ position: 'fixed', paddingRight: 10 }} item="true" xs={12} sm={12} md={12}>
