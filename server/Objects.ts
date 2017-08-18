@@ -1,8 +1,6 @@
 
-
-
 export class JSONCreator {
-    getUploadJSON() {
+    /*getUploadJSON() {
         let uploadJSON = new UploadJSON();
 
         let patient=new PatientProps();
@@ -97,25 +95,25 @@ export class JSONCreator {
         // series.images.push("04f518349c32cfcbe820527cee910abb", 6);
         // series.images.push("052bd8d959567911ba4ae06ed8267f9b", 5);
     }
+    */
 }
 
+export class UploadJSON {
+    patientID: string;
+    patientName: string;
+    patientBirtday: number;
+    studies: StudyJSON[] = [];
+}
 
-// export class UploadJSON {
-//     uploadID: number;
-//     uploadDate: Date;
-//     studies: StudyJSON[] = [];
-// }
+export class StudyJSON {
+    studyDescription: string;
+    studyID: string;
+    series: SeriesJSON[] = [];
+}
 
-// export class StudyJSON {
-//     patientName: string;
-//     patientBirthday: number;
-//     studyDescription: string;
-//     studyID: string;
-//     series: SeriesJSON[] = [];
-// }
-
-export class Series {
-    seriesID: string;   
+export class SeriesJSON {
+    seriesID: string;
+    seriesDate: number;
     seriesDescription: string;
     thumbnailImageID: string;
     images: ImageJSON[] = [];
@@ -124,25 +122,6 @@ export class Series {
 export class ImageJSON {
     imageID: string;
     imageNumber: number;
-}
-
-
-export class UploadJSON {
-    listOfPatients:PatientProps[]=[];
-}
-
-export class PatientProps {
-    patientID: number;
-    patientName: string;
-    dateOfBirth: number;
-    studies: StudiesProps[]=[];
-}
-
-
-export class StudiesProps {
-    studyID: string;
-    studyDescription: string;
-    series: Series[]=[];
 }
 
 

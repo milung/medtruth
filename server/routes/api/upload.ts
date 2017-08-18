@@ -7,7 +7,6 @@ import * as lo from 'lodash';
 import { UploadController } from '../../controllers/upload';
 import { StatusCode, storagePath, imagePath } from '../../constants';
 import { AzureStorage, AzureDatabase } from '../../azure-service';
-import { JSONCreator } from "../../Objects";
 
 export const rootUpload = '/upload';
 export const routerUpload = express.Router();
@@ -77,32 +76,32 @@ routerUpload.post('/',
     Returns details about upload's id.
 */
 routerUpload.get('/:id', async (req, res) => {
-    //let id = Number.parseInt(req.params.id);
-    let jsonCreator=new JSONCreator();
-    let data=jsonCreator.getUploadJSON();
-    res.json(data);
+    let id = Number.parseInt(req.params.id);
+    
+    // let jsonCreator=new JSONCreator();
+    // let data=jsonCreator.getUploadJSON();
+    // res.json(data);
 
+    if (id === undefined) {
+        res.sendStatus(StatusCode.BadRequest);
+        return;
+    }
 
-    // if (id === undefined) {
-    //     res.sendStatus(StatusCode.BadRequest);
-    //     return;
-    // }
-
-    // if (id != -1) {
-    //     let responseJSON = await AzureDatabase.getUploadDocument(id);
-    //     if (responseJSON === undefined) {
-    //         res.sendStatus(StatusCode.NotFound);
-    //     } else {
-    //         res.json(responseJSON);
-    //     }
-    // } else {
-    //     let responseJSON = await AzureDatabase.getLastUpload();
-    //     if (responseJSON === undefined) {
-    //         res.sendStatus(StatusCode.NotFound);
-    //     } else {
-    //         res.json(responseJSON);
-    //     }
-    // }
+    if (id != -1) {
+        let responseJSON = await AzureDatabase.getUploadDocument(id);
+        if (responseJSON === undefined) {
+            res.sendStatus(StatusCode.NotFound);
+        } else {
+            res.json(responseJSON);
+        }
+    } else {
+        let responseJSON = await AzureDatabase.getLastUpload();
+        if (responseJSON === undefined) {
+            res.sendStatus(StatusCode.NotFound);
+        } else {
+            res.json(responseJSON);
+        }
+    }
 
 
 

@@ -39,10 +39,12 @@ export class ImageViewComponent extends React.Component<OwnProps & ConnectedStat
 
     componentDidMount() {
         let thumbnailURI = getThumbnailImageURL(this.props.imageID);
-        let img = document.getElementById(this.props.imageNumber + '') as HTMLImageElement;
+        console.log('imageView got thumbnail uri' + thumbnailURI);
+        let img = document.getElementById(this.props.imageID) as HTMLImageElement;
         if (img != null) {
             img.src = thumbnailURI;
         }
+        console.log('image set src ' + img.src);
     }
 
     /*
