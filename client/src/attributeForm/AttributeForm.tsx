@@ -10,7 +10,7 @@ import { State } from '../app/store';
 import { ImageAnnotation, ImagesAnnotationAddedAction, imagesAnnotationAddedAction } from '../actions/actions';
 import { ApiService } from '../api';
 import Paper from 'material-ui/Paper';
-import { addImagesAnnotationAction } from '../actions/asyncActions';
+import { addImagesAnnotationAction, downloadLabelsAction } from '../actions/asyncActions';
 import { getImagesWhereSeriesIds, getImagesWhereStudyIds, getImagesWherePatientIds } from "../selectors/selectors";
 
 export interface OwnState {
@@ -22,7 +22,7 @@ export interface ConnectedState {
 }
 
 export interface ConnectedDispatch {
-    addImagesAnnotation: (imageIds: string[], annotation: ImageAnnotation) => ImagesAnnotationAddedAction;
+    addImagesAnnotation: (imageIds: string[], annotation: ImageAnnotation) => Promise<void>;
 }
 
 export class AttributeFormComponent extends React.Component<ConnectedDispatch & ConnectedState, OwnState> {
@@ -146,7 +146,7 @@ function mapStateToProps(state: State): ConnectedState {
     } else if (state.ui.selections.studies.length > 0) {
         images = getImagesWhereStudyIds(state, state.ui.selections.studies).map(image => image.imageID);
     } else if (state.ui.selections.patients.length > 0) {
-        images = getImagesWherePatientIds(state, state.ui.selections.studies).map(image => image.imageID);
+        images = getImagesWherePatientIds(state, state.ui.selections.patients).map(image => image.imageID);
     }
     
     return {
@@ -156,8 +156,10 @@ function mapStateToProps(state: State): ConnectedState {
 
 function mapDispatchToProps(dispatch): ConnectedDispatch {
     return {
-        addImagesAnnotation: (imageIds: string[], annotation: ImageAnnotation) => 
-            dispatch(addImagesAnnotationAction(imageIds, annotation)),
+        addImagesAnnotation: async (imageIds: string[], annotation: ImageAnnotation) => {
+            await dispatch(addImagesAnnotationAction(imageIds, annotation));
+            await dispatch(downloadLabelsAction());
+        }
     };
 }
 

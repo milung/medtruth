@@ -1,45 +1,46 @@
 
 import {
     ImageAnnotation, imagesAnnotationAddedAction,
-    imagesAnnotationRemovedAction, labelsDowloadedAction,  
+    imagesAnnotationRemovedAction, labelsDowloadedAction,
     imagesAnnotationsDownloadedAction, PatientJSON, patientsFetched
 } from './actions';
 import { ApiService } from '../api';
+import { getImagesWherePatientIds } from "../selectors/selectors";
 
 export function addImagesAnnotationAction(imageIds: string[], annotation: ImageAnnotation) {
-    return (dispatch) => {
+    return async (dispatch) => {
         let promises = imageIds.map(imageId => ApiService.putAttributes(imageId, {
             key: annotation.key,
             value: annotation.value
         }));
 
-        Promise.all(promises).then(() => {
-            dispatch(imagesAnnotationAddedAction(imageIds, annotation));
-        });
+        await Promise.all(promises);
+
+        dispatch(imagesAnnotationAddedAction(imageIds, annotation));
+
     };
 }
 
 export function removeImagesAnnotationAction(imageIds: string[], label: string) {
-    return (dispatch) => {
+    return async (dispatch) => {
         let promises = imageIds.map(imageId => ApiService.deleteAttributes(imageId, [label]
         ));
 
-        Promise.all(promises).then(() => {
-            dispatch(imagesAnnotationRemovedAction(imageIds, label));
-        });
+        await Promise.all(promises);
+
+        dispatch(imagesAnnotationRemovedAction(imageIds, label));
+
     };
 }
 
 export function downloadLabelsAction() {
-    return (dispatch) => {
-        ApiService.getLabels().then(labels => {
-            dispatch(labelsDowloadedAction(labels));
-        });
+    return async (dispatch): Promise<void> => {
+        let labels: string[] = await ApiService.getLabels();
+        dispatch(labelsDowloadedAction(labels));
     };
 }
 
 export function downloadImageAnnotations(...imageIds: string[]) {
-    console.log('downloading image annotations');
     return async (dispatch) => {
         let promises = imageIds.map(imageId =>
             ApiService.getAttributes(imageId)
@@ -61,10 +62,22 @@ export function downloadImageAnnotations(...imageIds: string[]) {
     };
 }
 
+export function fetchPatientsImageAnnotations(patientId: string) {
+    return async (state, dispatch) => {
+        let patientsImageIds: string[] =
+            getImagesWherePatientIds(state, [patientId])
+                .map(image => image.imageID);
+
+        await downloadImageAnnotations(...patientsImageIds);
+    };
+}
+
 export function fetchPatients() {
     return async (dispatch) => {
         let patients: PatientJSON[] = await ApiService.getPatients();
 
         dispatch(patientsFetched(patients));
+
+        return patients;
     };
 }

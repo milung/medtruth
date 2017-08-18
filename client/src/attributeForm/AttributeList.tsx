@@ -33,9 +33,9 @@ export interface ListItem {
 }
 
 export interface ConnectedDispatch {
-    addImagesAnnotation: (imageIds: string[], annotation: ImageAnnotation) => ImagesAnnotationAddedAction;
-    removeImagesAnnotation: (imageIds: string[], label: string) => ImagesAnnotationRemovedAction;
-    downloadImageAnnotations: (imageIds: string[]) => ImagesAnnotationsDownloadedAction;
+    addImagesAnnotation: (imageIds: string[], annotation: ImageAnnotation) => Promise<void>;
+    removeImagesAnnotation: (imageIds: string[], label: string) => Promise<void>;
+    downloadImageAnnotations: (imageIds: string[]) => Promise<void>;
     //downloadAllLabels: () => LabelsDownloadedAction;
 }
 
@@ -56,22 +56,21 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
         console.log('COMPONENT WILL RECEIVE PROPS');
         console.log('COMPONENT next annotations', nextProps.annotations);
         console.log('COMPONENT old annotations', this.props.annotations);
-        if (nextProps.images !== this.props.images) {
-            this.updating = true;
-            await this.props.downloadImageAnnotations(this.props.images);
-        }
-        if (nextProps.annotations !== this.props.annotations || nextProps.images !== this.props.images) {
+        
+        if (nextProps.labels !== this.props.labels 
+            || nextProps.annotations !== this.props.annotations 
+            || nextProps.images !== this.props.images) {
             // if (nextProps.annotations.length !== 0) {
             console.log('UPDATED, COMPONENT WILL MOUNT');
             this.updating = true;
-            await this.receiveAttributes();
+            await this.receiveAttributes(nextProps);
         }
     }
 
-    async receiveAttributes() {
+    async receiveAttributes(props: ConnectedState) {
         //await this.setState({ wait: true }, async () => {
         // Get labels from Redux store
-        let labels: string[] = this.props.labels;
+        let labels: string[] = props.labels;
         console.log('labels', labels);
 
         // Even if no attributes are assigned to the image, the list of all labels should be shown
@@ -87,7 +86,7 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
             // equal or greater than 0: checked
 
             // If more than one thumbnail is selected
-            if (this.props.images.length >= 2) {
+            if (props.images.length >= 2) {
                 this.multipleSelected = true;
                 // Set initial values for labels
                 for (let label in labels) {
@@ -98,7 +97,7 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                 }
                 for (let label in labels) {
                     // Go through the array of annotations of selected images
-                    for (let imageAnnotations of this.props.annotations) {
+                    for (let imageAnnotations of props.annotations) {
                         // Go through the array of image's annotations
                         for (let annotations in imageAnnotations) {
                             if (imageAnnotations[annotations].key === labels[label]) {
@@ -118,8 +117,8 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                     if (occurences[label] === 0) {
                         checkboxes[label] = -10;
                         // If the sum doesn't check, set checkbox value to indeterminate
-                    } else if (sums[label] !== (values[label] * this.props.images.length) ||
-                        occurences[label] !== this.props.images.length) {
+                    } else if (sums[label] !== (values[label] * props.images.length) ||
+                        occurences[label] !== props.images.length) {
                         checkboxes[label] = -1;
                     } else {
                         checkboxes[label] = values[label];
@@ -129,15 +128,15 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                         value: checkboxes[label]
                     });
                 }
-            } else if (this.props.images.length === 1) {
+            } else if (props.images.length === 1) {
                 this.multipleSelected = false;
                 for (let label of labels) {
                     var labelFound = false;
-                    console.log('attributes', this.props.annotations);
+                    console.log('attributes', props.annotations);
                     let value;
-                    if (this.props.annotations.length !== 0) {
+                    if (props.annotations.length !== 0) {
                         // console.log('label ATTRIBUTES', resData.attributes);
-                        for (let data of this.props.annotations[0]) {
+                        for (let data of props.annotations[0]) {
                             if (data.key === label) {
                                 labelFound = true;
                                 value = data.value;
@@ -172,7 +171,7 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
     async componentDidMount() {
         console.log('COMPONENT DID MOUNT');
         await this.props.downloadImageAnnotations(this.props.images);
-        await this.receiveAttributes();
+        await this.receiveAttributes(this.props);
     }
 
     render() {
@@ -253,7 +252,7 @@ function mapStateToProps(state: State): ConnectedState {
     } else if (state.ui.selections.studies.length > 0) {
         images = getImagesWhereStudyIds(state, state.ui.selections.studies).map(image => image.imageID);
     } else if (state.ui.selections.patients.length > 0) {
-        images = getImagesWherePatientIds(state, state.ui.selections.studies).map(image => image.imageID);
+        images = getImagesWherePatientIds(state, state.ui.selections.patients).map(image => image.imageID);
     }
 
     // if (state.ui.selections.series.length !== 0 &&
@@ -279,12 +278,20 @@ function mapStateToProps(state: State): ConnectedState {
 
 function mapDispatchToProps(dispatch): ConnectedDispatch {
     return {
-        addImagesAnnotation: (imageIds: string[], annotation: ImageAnnotation) =>
-            dispatch(addImagesAnnotationAction(imageIds, annotation)),
-        removeImagesAnnotation: (imageIds: string[], label: string) =>
-            dispatch(removeImagesAnnotationAction(imageIds, label)),
-        downloadImageAnnotations: (imageIds: string[]) =>
-            dispatch(downloadImageAnnotations(...imageIds))
+        addImagesAnnotation: async (imageIds: string[], annotation: ImageAnnotation) => {
+            await dispatch(addImagesAnnotationAction(imageIds, annotation));
+            await dispatch(downloadLabelsAction());
+        },
+            
+        removeImagesAnnotation: async (imageIds: string[], label: string) => {
+            await dispatch(removeImagesAnnotationAction(imageIds, label));
+            await dispatch(downloadLabelsAction());
+        },
+            
+        downloadImageAnnotations: async (imageIds: string[]) => {
+            await dispatch(downloadImageAnnotations(...imageIds));
+        }
+            
         //downloadAllLabels: () => dispatch(downloadLabelsAction())
     };
 }

@@ -100,7 +100,7 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
                             {this.props.seriesDescription}
                         </Typography>
                     </CardContent>
-                    <Link to={this.getGalleryPath()}>
+                    <Link to={this.getGalleryPath()} onClick={event => { event.stopPropagation(); }}>
                         <a>
                             <img
                                 src={require('../icons/icon1.png')}

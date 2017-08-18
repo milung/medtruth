@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Card, { CardContent } from 'material-ui/Card';
 import Typography from 'material-ui/Typography';
-import { store, State } from '../app/store';
+import { State } from '../app/store';
 import { SeriesViewer } from './SeriesViewer';
 import { SeriesProps } from './SerieView';
 import { StudiesProps } from './StudyView';
