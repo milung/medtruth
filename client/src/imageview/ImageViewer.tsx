@@ -18,8 +18,8 @@ import {
 
 import { PatientProps } from '../imageview/PatientView';
 import { Link } from 'react-router-dom';
-import { ImageEntity } from "../reducers/EntitiesReducer";
-import { getImagesWhereSeriesId } from "../selectors/selectors";
+import { ImageEntity, PatientEntity, StudyEntity, SeriesEntity } from "../reducers/EntitiesReducer";
+import { getImagesWhereSeriesId, getPatientsWhereId, getStudiesWhereId, getSeriesesWhereId } from "../selectors/selectors";
 
 interface OwnProps {
     match: any;
@@ -27,6 +27,10 @@ interface OwnProps {
 interface ConnectedState {
     selectedImages: string[];
     imageList: ImageEntity[];
+    patients: PatientEntity[];
+    studies: StudyEntity[];
+    series: SeriesEntity[];
+
 }
 
 interface ConnectedDispatch {
@@ -109,60 +113,70 @@ class ImageViewerComponent extends React.Component<OwnProps & ConnectedDispatch 
     render() {
         console.log('IMAGE VIEWER RENDERING');
         console.log('image list', this.props.imageList);
-            return (
+        return (
 
-                <div style={imageStyle.imageViewerDiv}>
+            <div style={imageStyle.imageViewerDiv}>
 
-                    <Paper style={imageStyle.imageViewerPaper}>
+                <Paper style={imageStyle.imageViewerPaper}>
 
-                        {/* <div style={{ marginBottom: 32, width: '100%'}}>  */}
-                        <Grid container={true} gutter={16} >
-                            <Grid item="true" xs={1} sm={1} md={1} lg={1} xl={1}>
-                                <Link to={'/'} style={{ margin: 10 }}>
-                                    <img
-                                        src={require('../icons/arrow_back_black_36x36.png')}
-                                        // style={{ float: 'left', marginTop: '10', marginLeft: '10' }}
-                                        style={{ float: 'left', width: 30, height: 30 }}
-                                    />
-                                </Link>
-                            </Grid>
-                            <Grid item="true" xs={11} sm={11} md={11} lg={11} xl={11}>
-                                <div style={{ marginTop: '5px' }}>
-                                    {this.uploadDate} /
+                    {/* <div style={{ marginBottom: 32, width: '100%'}}>  */}
+                    <Grid container={true} gutter={16} >
+                        <Grid item="true" xs={1} sm={1} md={1} lg={1} xl={1}>
+                            <Link to={'/'} style={{ margin: 10 }}>
+                                <img
+                                    src={require('../icons/arrow_back_black_36x36.png')}
+                                    // style={{ float: 'left', marginTop: '10', marginLeft: '10' }}
+                                    style={{ float: 'left', width: 30, height: 30 }}
+                                />
+                            </Link>
+                        </Grid>
+
+                        <Grid item={true} xs={12} sm={12} md={12} style={imageStyle.seriesStyle} >                           
+                               <Typography type="body1" > Name: <b>{this.props.patients[0].patientName} </b></Typography>                                                  
+                               <Typography type="body1" >  Birthday:<b>{this.props.patients[0].patientBirthday}</b></Typography>                          
+                               <Typography type="body1" >  Study description:<b>{this.props.studies[0].studyDescription}</b></Typography>                          
+                               <Typography type="body1" >  Series description:<b>{this.props.series[0].seriesDescription}</b></Typography>  
+                        </Grid>
+
+                        <Grid item="true" xs={11} sm={11} md={11} lg={11} xl={11}>
+                            <div style={{ marginTop: '5px' }}>
+                                {this.uploadDate} /
                                     {this.patientName} /
                                     {this.seriesDescription}
-                                </div>
-                            </Grid>
+                            </div>
                         </Grid>
-                        {/* </div> */}
+                    </Grid>
+                    {/* </div> */}
 
-                        <Grid container={true} gutter={16} style={imageStyle.ImageViewGrid}>
-                            {this.props.imageList.map(value =>
-                                <Grid
-                                    item="false"
-                                    xs={6}
-                                    sm={3}
-                                    md={2}
-                                    style={imageStyle.seriesStyle}
-                                    key={value.imageID}
+                    <Grid container={true} gutter={16} style={imageStyle.ImageViewGrid}>
+                        {this.props.imageList.map(value =>
+                            <Grid
+                                item="false"
+                                xs={6}
+                                sm={3}
+                                md={2}
+                                style={imageStyle.seriesStyle}
+                                key={value.imageID}
+                            >
+                                <Card
+                                    style={{
+                                        ...imageStyle.imageViewerCard,
+                                        border: this.getImageBorderStyle(value.isSelected)
+                                    }}
                                 >
-                                    <Card
-                                        style={{
-                                            ...imageStyle.imageViewerCard,
-                                            border: this.getImageBorderStyle(value.isSelected)
-                                        }}
-                                    >
-                                        <ImageViewComponent {...{ ...value, handleClick: this.handleImageClick,
+                                    <ImageViewComponent {...{
+                                        ...value, handleClick: this.handleImageClick,
                                         handleDouble: this.handleDoubleClick, blowUp: this.props.blowUp,
-                                        isSelected: false }} />
-                                    </Card>
-                                </Grid>
-                            )
-                            }
-                        </Grid>
-                    </Paper>
-                </div>
-            );
+                                        isSelected: false
+                                    }} />
+                                </Card>
+                            </Grid>
+                        )
+                        }
+                    </Grid>
+                </Paper>
+            </div>
+        );
     }
 
     componentWillUnmount() {
@@ -172,9 +186,14 @@ class ImageViewerComponent extends React.Component<OwnProps & ConnectedDispatch 
 
 function mapStateToProps(state: State, props): ConnectedState {
     let seriesID = props.match.params.seriesID;
+    let patientID = props.match.params.patientID;
+    let studyID = props.match.params.studyID;
 
     return {
         selectedImages: state.ui.selections.images,
+        patients: getPatientsWhereId(state, [patientID]),
+        studies: getStudiesWhereId(state, [studyID]),
+        series: getSeriesesWhereId(state, [seriesID]),
         imageList: getImagesWhereSeriesId(state, seriesID)
     };
 }
