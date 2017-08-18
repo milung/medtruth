@@ -1,6 +1,4 @@
 
-
-/*
 export class JSONCreator {
     /*getUploadJSON() {
         let uploadJSON = new UploadJSON();
@@ -99,7 +97,7 @@ export class JSONCreator {
     }
     */
 }
-*/
+
 export class UploadJSON {
     patientID: string;
     patientName: string;
