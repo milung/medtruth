@@ -204,6 +204,10 @@ export namespace AzureDatabase {
         attributes: Attribute[];
     }
 
+    // export interface ImagesWithAttributesQuery {
+    //     imageIDs: string[];
+    // }
+
     export function putToAttributes(id, ...attributes: Attribute[]): Promise<AttributeQuery> {
         return new Promise<AttributeQuery>(async (resolve, reject) => {
             try {
@@ -302,6 +306,30 @@ export namespace AzureDatabase {
                     resolve(result);
                 }
                 else resolve({} as AttributeQuery);
+            } catch (e) {
+                reject({});
+            } finally {
+                close(conn.db);
+            }
+        });
+    }
+
+    /**
+     * Get the list of names of all images that have assigned at least one attribute. 
+     */
+    export function getImagesWithLabels(): Promise<string[]> {
+        return new Promise<string[]>(async (resolve, reject) => {
+            try {
+                var conn = await connectToAttributes();
+
+                let images: string[] = [];
+                let result = await conn.collection.find().toArray();
+                for (var image of result) {
+                    images.push(image.imageID);
+                }
+                if (result) {
+                    resolve(images);
+                } else resolve([]);
             } catch (e) {
                 reject({});
             } finally {

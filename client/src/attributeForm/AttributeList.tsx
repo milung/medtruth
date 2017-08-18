@@ -9,13 +9,14 @@ import { connect } from 'react-redux';
 import { State } from '../app/store';
 import {
     ImageAnnotation, imagesAnnotationAddedAction, ImagesAnnotationAddedAction,
-    ImagesAnnotationRemovedAction, ImagesAnnotationsDownloadedAction
+    ImagesAnnotationRemovedAction, ImagesAnnotationsDownloadedAction, LabelsDownloadedAction
 } from '../actions/actions';
 import * as _ from 'lodash';
 import { ImageEntity } from '../reducers/EntitiesReducer';
 import {
     removeImagesAnnotationAction, addImagesAnnotationAction,
-    downloadImageAnnotations
+    downloadImageAnnotations,
+    downloadLabelsAction
 } from '../actions/asyncActions';
 
 export interface OwnState {
@@ -25,6 +26,7 @@ export interface OwnState {
 export interface ConnectedState {
     images: string[];
     annotations: ImageAnnotation[][];
+    labels: string[];
 }
 
 export interface ListItem {
@@ -36,6 +38,7 @@ export interface ConnectedDispatch {
     addImagesAnnotation: (imageIds: string[], annotation: ImageAnnotation) => ImagesAnnotationAddedAction;
     removeImagesAnnotation: (imageIds: string[], label: string) => ImagesAnnotationRemovedAction;
     downloadImageAnnotations: (imageIds: string[]) => ImagesAnnotationsDownloadedAction;
+    //downloadAllLabels: () => LabelsDownloadedAction;
 }
 
 export class AttributeListComponent extends React.Component<ConnectedDispatch & ConnectedState, OwnState> {
@@ -69,7 +72,8 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
 
     async receiveAttributes() {
         //await this.setState({ wait: true }, async () => {
-        let labels: string[] = await ApiService.getLabels();
+        // Get labels from Redux store
+        let labels: string[] = this.props.labels;
         console.log('labels', labels);
 
         // Even if no attributes are assigned to the image, the list of all labels should be shown
@@ -258,7 +262,8 @@ function mapStateToProps(state: State): ConnectedState {
 
     return {
         images: state.ui.selections.images,
-        annotations: annotations
+        annotations: annotations,
+        labels: state.entities.labels
     };
 }
 
@@ -270,6 +275,7 @@ function mapDispatchToProps(dispatch): ConnectedDispatch {
             dispatch(removeImagesAnnotationAction(imageIds, label)),
         downloadImageAnnotations: (imageIds: string[]) =>
             dispatch(downloadImageAnnotations(...imageIds))
+        //downloadAllLabels: () => dispatch(downloadLabelsAction())
     };
 }
 
