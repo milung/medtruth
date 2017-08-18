@@ -15,29 +15,11 @@ export const routerPatients = Router();
 routerPatients.get('/', async (req, res) => {
     try {
         let data = await AzureDatabase.getAllPatients();
-        console.log(data);
+        console.log("Patiens:",data);
         res.json(data);
     } catch (e) {
         res.json({ error: "DB_ERROR" });
     }
-});
-
-//test route
-routerPatients.get('/test', async (req, res) => {
-    sharp({
-        create: {
-            width: 300,
-            height: 200,
-            channels: 4,
-            background: { r: 255, g: 0, b: 0, alpha: 128 }
-        }
-    })
-        .png()
-        .toFile('output.png', function (err) {
-            console.log("done");
-            
-        });
-    res.json({ state: "GOOD" });
 });
 
 
