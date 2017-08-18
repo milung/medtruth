@@ -3,6 +3,8 @@ import * as azure from 'azure-storage';
 import * as request from 'request';
 import { StatusCode } from './constants';
 import * as _ from 'lodash';
+import * as stream from 'stream';
+import * as PromiseBlueBird from 'bluebird';
 //import { db } from './server';
 
 import { MongoClient, Db, Collection, BulkWriteOpResultObject, FindAndModifyWriteOpResultObject, Cursor } from 'mongodb';
@@ -12,30 +14,68 @@ export namespace AzureStorage {
     const accountName = 'medtruth';
     const accountKey = 'fKbRBTAuaUOGJiuIXpjx2cG4Zgs2oZ2wYgunmRdNJ92oMdU1HbRjSv89JtLnmXS+LhlT0SzLMzKxjG/Vyt+GSQ==';
     export const blobService = azure.createBlobService(accountName, accountKey);
+    //blobService.logger.level = azure.Logger.LogLevels.DEBUG;  
     export const containerDicoms = 'dicoms';
-    export const containerImages = 'images';
+    //export const containerImages = 'images';
+    export const containerImages = 'test01';
+
+    
+
 
     export enum Status {
         SUCCESFUL,
         FAILED
     }
 
-    export function upload(container: string, blobName: string, filePath: string): Promise<Status> {
-        return new Promise<Status>((resolve, reject) => {
+    export function upload(container: string, blobName: string, filePath: string): PromiseBlueBird<Status> {
+        return new PromiseBlueBird<Status>((resolve, reject) => {
             blobService.createBlockBlobFromLocalFile(container, blobName, filePath,
                 (error, result, response) => {
-                    if (error === null) resolve(Status.SUCCESFUL);
-                    else reject(Status.FAILED);
+                    if (error === null) {
+                        console.log(blobName + " in azure storage [i]");
+                        resolve(Status.SUCCESFUL);
+                    }
+                    else {
+                        console.log(error);
+                        reject(Status.FAILED);
+                    }
                 });
         });
     }
 
-    export function toDicoms(blobName: string, filePath: string): Promise<Status> {
+
+    export function toDicoms(blobName: string, filePath: string): PromiseBlueBird<Status> {
         return upload(containerDicoms, blobName, filePath);
     }
 
-    export function toImages(blobName: string, filePath: string): Promise<Status> {
+    export function toImages(blobName: string, filePath: string): PromiseBlueBird<Status> {
         return upload(containerImages, blobName, filePath);
+    }
+
+    export function toTest(blobName: string, filePath: string): PromiseBlueBird<Status> {
+        return upload('test01', blobName, filePath);
+    }
+
+    export function uploadStream(container: string, blobName: string, buffer: Buffer): Promise<Status> {
+        return new Promise<Status>((resolve, reject) => {
+            var bufferStream = new stream.PassThrough();
+            bufferStream.end(buffer);
+            blobService.createBlockBlobFromStream(container, blobName, bufferStream, buffer.byteLength,
+                (error, result, response) => {
+                    if (error === null) {
+                        console.log(blobName + " in azure storage[t]");
+                        resolve(Status.SUCCESFUL);
+                    }
+                    else {
+                        console.log(blobName + " failed");
+                        reject(Status.FAILED);
+                    }
+                });
+        });
+    }
+
+    export function toImagesBuffer(blobName: string, buffer: Buffer): Promise<Status> {
+        return uploadStream(containerImages, blobName, buffer);
     }
 
     export function getURLforImage(image: string): Promise<string> {
@@ -66,8 +106,8 @@ export namespace AzureDatabase {
     export const localAddress = "localhost:27017/";
     export const localName = "medtruth";
     export const urlMedTruth = "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true";
-    export const url = (process.argv[2] === 'local' || process.env.NODE_ENV === 'development') ? "mongodb://" + localAddress + localName : urlMedTruth;
-    //export const url = "mongodb://" + localAddress + localName;
+    //export const url = (process.argv[2] === 'local' || process.env.NODE_ENV === 'development') ? "mongodb://" + localAddress + localName : urlMedTruth;
+    export const url = "mongodb://" + localAddress + localName;
 
     export enum Status {
         SUCCESFUL,
@@ -183,7 +223,7 @@ export namespace AzureDatabase {
 
                 let query = { patientID: { $exists: true } };
                 let result = await collection.find(query);
-                
+
                 resolve(result.toArray());
 
             } catch (e) {
@@ -341,8 +381,6 @@ export namespace AzureDatabase {
                 var conn = await connectToImages();
 
                 let query = { patientID: String(patientID) };
-                console.log("query");
-                console.log(query);
 
                 let result = await conn.collection.findOne(query);
                 if (result) resolve(result);
@@ -517,6 +555,26 @@ export namespace AzureDatabase {
                 }
             } catch (e) {
                 reject(Status.FAILED);
+            } finally {
+                close(conn.db);
+            }
+        });
+    }
+
+    export function getImagesWithLabels(): Promise<string[]> {
+        return new Promise<string[]>(async (resolve, reject) => {
+            try {
+                var conn = await connectToAttributes();
+                let images: string[] = [];
+                let result = await conn.collection.find().toArray();
+                for (var image of result) {
+                    images.push(image.imageID);
+                }
+                if (result) {
+                    resolve(images);
+                } else resolve([]);
+            } catch (e) {
+                reject({});
             } finally {
                 close(conn.db);
             }

@@ -7,6 +7,7 @@ import * as archiver from 'archiver';
 import { AzureStorage, AzureDatabase } from '../../azure-service';
 import { StatusCode } from '../../constants';
 import { json } from 'body-parser';
+import { DownloadController } from '../../controllers/download';
 
 export const rootDownload = '/download';
 export const routerDownload = express.Router();
@@ -26,32 +27,7 @@ routerDownload.options('/', (req, res) => {
     );
 });
 
-/*
-    Route:      GET '/download'
-    --------------------------------------------
-    // TODO: Think of a way how the download endpoint will work.
-*/
-routerDownload.get('/', (req, res) => {
-    // Create a new archiver with options set to ZIP format.
-    let archive = archiver('zip');
-
-    // Writes the response's header.
-    res.writeHead(StatusCode.OK, {
-        'Content-Type': 'application/zip',
-        'Content-Disposition': 'attachment; filename=Test.zip',
-    });
-
-    // Pipe the ziping to the response.
-    archive.pipe(res);
-
-    // Dynamically append to the zip file.
-    archive.append('Ahoj Feďo', { name: 'Pozdrav.txt' });
-
-    // Finalize the stream.
-    archive.finalize();
-});
-
-interface DownloadData {
+export interface DownloadData {
     labels: LabelStatus[],
     format: OutputType
 }
@@ -69,13 +45,34 @@ export enum OutputType {
     --------------------------------------------
     // TODO: Think of a way how the download endpoint will work.
 */
-routerDownload.post('/', json(), (req, res) => {
+routerDownload.post('/', json(), async (req, res) => {
     let data: DownloadData = req.body;
-    console.log(data);
-    console.log(data.format);
-    console.log(data.format == OutputType.REGRESSION_VALUE);
-    res.sendStatus(StatusCode.Accepted);
-});
+    let archive = archiver('zip');
+    let zippedFilename = "data.zip"
+    
+    var header = {
+        "Content-Type": "application/x-zip",
+        "Pragma": "public",
+        "Expires": "0",
+        "Cache-Control": "private, must-revalidate, post-check=0, pre-check=0",
+        "Content-disposition": 'attachment; filename="' + zippedFilename + '"'
+    };
+    res.writeHead(StatusCode.OK, header);
+    /*
+        // Writes the response's header.
+        res.writeHead(StatusCode.OK, {
+            'Content-Type': 'application/zip',
+            'Content-Disposition': 'attachment; filename=Test.zip',
+        });
+        */
 
+    // Pipe the ziping to the response.
+    archive.pipe(res);
+
+    await DownloadController.downloadImages(data, archive);
+
+    // Finalize the stream.
+    archive.finalize();
+});
 
 
