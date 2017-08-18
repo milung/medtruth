@@ -78,11 +78,11 @@ export interface SeriesSelectedAction {
     keyPressed: Keys;
 }
 
-export interface StudiesSelectedAction {
-    type: ActionTypeKeys.STUDIES_SELECTED;
-    id: string;
-    keyPressed: Keys;
-}
+// export interface StudiesSelectedAction {
+//     type: ActionTypeKeys.STUDIES_SELECTED;
+//     id: string;
+//     keyPressed: Keys;
+// }
 
 export interface SeriesAllUnselectedAction {
     type: ActionTypeKeys.SERIES_ALL_UNSELECTED;

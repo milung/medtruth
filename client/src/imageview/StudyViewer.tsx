@@ -10,17 +10,11 @@ import { StudyEntity } from "../reducers/EntitiesReducer";
 import { connect } from "react-redux";
 import { getStudies, getStudiesWherePatientId } from "../selectors/selectors";
 import { State } from "../app/store";
-
-// studyOne={
-//     studyID:"prva",
-//     studyDescription: "desciptions",
-//     series: null,
-
-// };
-// studiesData.push(studyOne);
+import { BackButton } from "./BackButton";
 
 interface OwnProps {
     match: any;
+    history: any;
 }
 
 interface ConnectedState {
@@ -31,58 +25,16 @@ export class StudyViewerComponent extends React.Component<OwnProps & ConnectedSt
 
     constructor() {
         super();
-        //studiesData = props.listOfStudies;
     }
-
-    // async componentDidMount() {
-    //     await this.receiveData(this.props.match.params.patientID);
-    // }
-
-    // patientID: patient.patientID,
-    // patientName: patient.patientName,
-    // dateOfBirth: patient.dateOfBirth,   
-    // async receiveData(patientID: string): Promise<void> {
-
-    //     this.setState({ wait: true });
-
-    //     let resData = await ApiService.getData(12345);
-
-    //     // this.props.uploadedDataDownloaded(resData);
-    //     console.log('got data', resData);
-    //     let tmpStudies = [];
-
-    //     for (let patient of resData.listOfPatients) {
-    //         // console.log("len ist of patients",resData.listOfPatients.length)
-    //         console.log('patient id' + typeof (patient.patientID) + ' ' + patient.patientID);
-    //         console.log('patient id match' + this.props.match.params.patientID + ' ' + this.props.match.params.patientID);
-
-    //         if (patient.patientID == this.props.match.params.patientID) {
-    //             console.log('patient ' + this.props.match.params.patientID + ' found');
-    //             console.log('patient studies', patient.studies);
-    //             for (let tmpStudy of patient.studies) {
-    //                 //  console.log("tmpStudy",tmpStudy)
-    //                 let study: StudiesProps = {
-    //                     // TODO REMOVE PATIENT ID
-    //                     patientID: this.props.match.params.patientID,
-    //                     studyID: tmpStudy.studyID,
-    //                     studyDescription: tmpStudy.studyDescription,
-    //                     series: null,
-    //                 };
-    //                 tmpStudies.push(study);
-    //             }
-    //         }
-    //         console.log('studies', tmpStudies);
-    //     }
-    //     this.studiesList = tmpStudies;
-    //     console.log('studies list', this.studiesList);
-    //     this.setState({ wait: false });
-    // }
 
     render() {
         console.log('render');
         console.log('render studies list', this.props.studiesList);
         return (
             <div style={{ marginLeft: 10, marginBottom: 10, marginRight: 10 }}>
+                <Grid item="true" xs={1} sm={1} md={1} lg={1} xl={1}>
+                    <BackButton history={this.props.history} />
+                </Grid>
                 <Typography type="display1" component="p" style={{ margin: 20 }}>
                     List of studies
                 </Typography>

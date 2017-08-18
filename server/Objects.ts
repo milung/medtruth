@@ -2,7 +2,7 @@
 
 
 export class JSONCreator {
-    getUploadJSON() {
+    /*getUploadJSON() {
         let uploadJSON = new UploadJSON();
 
         let patient=new PatientProps();
@@ -97,6 +97,7 @@ export class JSONCreator {
         // series.images.push("04f518349c32cfcbe820527cee910abb", 6);
         // series.images.push("052bd8d959567911ba4ae06ed8267f9b", 5);
     }
+    */
 }
 
 

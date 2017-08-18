@@ -76,7 +76,7 @@ export const imageStyle = {
         // padding: 10 
     },
     ImageViewGrid: {
-        marginTop: '28',
+        //marginTop: '28',
     }
 
 };

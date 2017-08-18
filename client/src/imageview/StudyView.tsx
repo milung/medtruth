@@ -5,7 +5,7 @@ import Typography from 'material-ui/Typography';
 import { ImageViewComponent } from './ImageView';
 import {
     SeriesSelectedAction, seriesSelected,
-    thumbnailBlownUp, ThumbnailBlownUpAction, Keys, StudiesSelectedAction
+    thumbnailBlownUp, ThumbnailBlownUpAction, Keys//, StudiesSelectedAction
 } from '../actions/actions';
 import { connect } from 'react-redux';
 import { State } from '../app/store';
@@ -114,7 +114,8 @@ function mapStateToProps(state: State, props: StudiesProps): StudiesProps & Conn
     };
 }
 
-function mapDispatchToProps(dispatch: Redux.Dispatch<StudiesSelectedAction>): ConnectedDispatch {
+//function mapDispatchToProps(dispatch: Redux.Dispatch<StudiesSelectedAction>): ConnectedDispatch {
+function mapDispatchToProps(dispatch): ConnectedDispatch {
     return {
         selectedStudies: (seriesID: string, keyPressed: Keys) => dispatch(seriesSelected(seriesID, keyPressed)),
         blowUp: (imageID: string) => dispatch(thumbnailBlownUp(imageID))

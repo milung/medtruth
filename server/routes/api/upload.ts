@@ -78,9 +78,9 @@ routerUpload.post('/',
 */
 routerUpload.get('/:id', async (req, res) => {
     //let id = Number.parseInt(req.params.id);
-    let jsonCreator=new JSONCreator();
-    let data=jsonCreator.getUploadJSON();
-    res.json(data);
+    // let jsonCreator = new JSONCreator();
+    // let data = jsonCreator.getUploadJSON();
+    // res.json(data);
 
 
     // if (id === undefined) {
