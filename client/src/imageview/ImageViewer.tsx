@@ -18,8 +18,8 @@ import {
 
 import { PatientProps } from '../imageview/PatientView';
 import { Link } from 'react-router-dom';
-import { ImageEntity } from "../reducers/EntitiesReducer";
-import { getImagesWhereSeriesId } from "../selectors/selectors";
+import { ImageEntity, PatientEntity, StudyEntity, SeriesEntity } from "../reducers/EntitiesReducer";
+import { getImagesWhereSeriesId, getStudiesWhereId, getPatientsWhereId, getSeriesesWhereId } from "../selectors/selectors";
 import { BackButton } from "./BackButton";
 
 interface OwnProps {
@@ -29,6 +29,10 @@ interface OwnProps {
 interface ConnectedState {
     selectedImages: string[];
     imageList: ImageEntity[];
+    patients: PatientEntity[];
+    studies: StudyEntity[];
+    series: SeriesEntity[];
+
 }
 
 interface ConnectedDispatch {
@@ -119,8 +123,13 @@ class ImageViewerComponent extends React.Component<OwnProps & ConnectedDispatch 
                 <Typography type="display1" component="p" style={{ margin: 20 }}>
                     List of images
                         </Typography>
-
-                <Grid container={true} gutter={16} style={imageStyle.ImageViewGrid}>
+                <Grid item={true} xs={12} sm={12} md={12} style={imageStyle.seriesStyle} >
+                    <Typography type="body1">Name: <b>{this.props.patients[0].patientName} </b></Typography>
+                    <Typography type="body1">Birthday: <b>{this.props.patients[0].patientBirthday}</b></Typography>
+                    <Typography type="body1">Study description: <b>{this.props.studies[0].studyDescription}</b></Typography>
+                    <Typography type="body1">Series description: <b>{this.props.series[0].seriesDescription}</b></Typography>
+                </Grid>
+                <Grid container={true} gutter={16} style={imageStyle.ImageViewGrid} >
                     {this.props.imageList.map((value, index) =>
                         <Grid
                             item="false"
@@ -130,18 +139,11 @@ class ImageViewerComponent extends React.Component<OwnProps & ConnectedDispatch 
                             style={imageStyle.seriesStyle}
                             key={index}
                         >
-                            <Card
-                                style={{
-                                    ...imageStyle.imageViewerCard,
-                                    border: this.getImageBorderStyle(value.isSelected)
-                                }}
-                            >
-                                <ImageViewComponent {...{
-                                    ...value, handleClick: this.handleImageClick,
-                                    handleDouble: this.handleDoubleClick, blowUp: this.props.blowUp,
-                                    isSelected: false
-                                }} />
-                            </Card>
+                            <ImageViewComponent {...{
+                                ...value, handleClick: this.handleImageClick,
+                                handleDouble: this.handleDoubleClick, blowUp: this.props.blowUp,
+                                isSelected: false
+                            }} />
                         </Grid>
                     )}
                 </Grid>
@@ -157,9 +159,14 @@ class ImageViewerComponent extends React.Component<OwnProps & ConnectedDispatch 
 
 function mapStateToProps(state: State, props): ConnectedState {
     let seriesID = props.match.params.seriesID;
+    let patientID = props.match.params.patientID;
+    let studyID = props.match.params.studyID;
 
     return {
         selectedImages: state.ui.selections.images,
+        patients: getPatientsWhereId(state, [patientID]),
+        studies: getStudiesWhereId(state, [studyID]),
+        series: getSeriesesWhereId(state, [seriesID]),
         imageList: getImagesWhereSeriesId(state, seriesID)
     };
 }

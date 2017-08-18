@@ -4,9 +4,9 @@ import { imageStyle } from '../styles/ComponentsStyle';
 import { SerieView, SeriesProps } from './SerieView';
 import { ApiService } from '../api';
 import Typography from 'material-ui/Typography';
-import { SeriesEntity } from "../reducers/EntitiesReducer";
+import { SeriesEntity, PatientEntity, StudyEntity } from "../reducers/EntitiesReducer";
 import { State } from "../app/store";
-import { getSeriesesWhereStudyId } from "../selectors/selectors";
+import { getSeriesesWhereStudyId, getPatientsWhereId, getStudiesWhereId } from "../selectors/selectors";
 import { connect } from "react-redux";
 import { BackButton } from "./BackButton";
 
@@ -23,6 +23,9 @@ interface OwnProps {
 
 interface ConnectedState {
     seriesList: SeriesEntity[];
+    patients: PatientEntity[];
+    studies: StudyEntity[];
+
 }
 
 export class SeriesViewerComponent extends React.Component<OwnProps & ConnectedState, {}> {
@@ -46,6 +49,11 @@ export class SeriesViewerComponent extends React.Component<OwnProps & ConnectedS
                 </Typography>
 
                 <Grid container={true} gutter={16}>
+                    <Grid item={true} xs={12} sm={12} md={12} style={imageStyle.seriesStyle} >
+                       <Typography type="body1">Name: <b>{this.props.patients[0].patientName}</b></Typography>
+                       <Typography type="body1">Birthday: <b>{this.props.patients[0].patientBirthday}</b></Typography>
+                       <Typography type="body1">Study description: <b>{this.props.studies[0].studyDescription}</b></Typography>
+                    </Grid>
                     {console.log("series list", this.props.seriesList)}
                     {this.props.seriesList.map((value, index) =>
                         <Grid item={true} xs={6} sm={3} md={2} style={imageStyle.seriesStyle} key={value.seriesID}>
@@ -62,7 +70,14 @@ function mapStateToProps(state: State, props): ConnectedState {
     let studyID = props.match.params.studyID;
     let patientID = props.match.params.patientID;
 
-    return { seriesList: getSeriesesWhereStudyId(state, studyID) };
+    let IDs = [];
+    IDs.push(patientID);
+
+    return {
+        seriesList: getSeriesesWhereStudyId(state, studyID),
+        patients: getPatientsWhereId(state, IDs),
+        studies: getStudiesWhereId(state, [studyID])
+    };
 }
 
 export const SeriesViewer = connect(mapStateToProps, null)(SeriesViewerComponent);
