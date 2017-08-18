@@ -13,11 +13,9 @@ import {
 } from '../actions/actions';
 import * as _ from 'lodash';
 import { ImageEntity } from '../reducers/EntitiesReducer';
-import {
-    removeImagesAnnotationAction, addImagesAnnotationAction,
-    downloadImageAnnotations,
-    downloadLabelsAction
-} from '../actions/asyncActions';
+import { removeImagesAnnotationAction, addImagesAnnotationAction, 
+    downloadImageAnnotations, downloadLabelsAction } from '../actions/asyncActions';
+import { getImagesWhereSeriesIds, getImagesWhereStudyIds, getImagesWherePatientIds } from "../selectors/selectors";
 
 export interface OwnState {
     checkboxes: number[];
@@ -244,7 +242,19 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
 function mapStateToProps(state: State): ConnectedState {
     let imagesFromState: string[] = [];
     let annotations: ImageAnnotation[][] = [];
-    let images: string[] = state.ui.selections.images;
+    
+    let images: string[] = [];
+
+    if (state.ui.selections.images.length > 0) {
+        console.log();
+        images = state.ui.selections.images;
+    } else if (state.ui.selections.series.length > 0) {
+        images = getImagesWhereSeriesIds(state, state.ui.selections.series).map(image => image.imageID);
+    } else if (state.ui.selections.studies.length > 0) {
+        images = getImagesWhereStudyIds(state, state.ui.selections.studies).map(image => image.imageID);
+    } else if (state.ui.selections.patients.length > 0) {
+        images = getImagesWherePatientIds(state, state.ui.selections.studies).map(image => image.imageID);
+    }
 
     // if (state.ui.selections.series.length !== 0 &&
     // state.entities.series.byId.get(getLastValue(state.ui.selections.series)) !== null) {

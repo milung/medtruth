@@ -18,22 +18,17 @@ import {
 
 import { PatientProps } from '../imageview/PatientView';
 import { Link } from 'react-router-dom';
-// import {imageStyle} from '../styles/ComponentsStyle'
+import { ImageEntity } from "../reducers/EntitiesReducer";
+import { getImagesWhereSeriesId } from "../selectors/selectors";
 
-interface GaleryProps {
-    uploadID: number;
-    studyID: string;
-    seriesID: string;
+interface OwnProps {
+    match: any;
 }
-
 interface ConnectedState {
     selectedImages: string[];
+    imageList: ImageEntity[];
 }
 
-interface ArrayOfImages {
-    wait: boolean;
-    imageList: ImageProps[];
-}
 interface ConnectedDispatch {
     blowUp: (imageID: string) => ThumbnailBlownUpAction;
     selectedImage: (imageID: string, keyPressedL: Keys) => ImageSelectedAction;
@@ -43,7 +38,7 @@ interface ConnectedDispatch {
 /**
  * Gallery component
  */
-class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispatch & ConnectedState, ArrayOfImages> {
+class ImageViewerComponent extends React.Component<OwnProps & ConnectedDispatch & ConnectedState, {}> {
     private timer = null;
 
     private patientName: string;
@@ -60,16 +55,11 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
     }
 
-    async componentDidMount() {
-        await this.receiveImages(this.props.uploadID, this.props.studyID, this.props.seriesID);
-        await this.receiveData(this.props.uploadID);
-    }
-
-    componentWillReceiveProps(nextProps: GaleryProps & ConnectedState) {
+    componentWillReceiveProps(nextProps) {
         if (nextProps.selectedImages !== this.props.selectedImages) {
-            let imageList: ImageProps[] = [...this.state.imageList];
+            let imageList: ImageEntity[] = [...this.props.imageList];
             for (let image in imageList) {
-                if (nextProps.selectedImages.indexOf(imageList[image].imageName) !== -1) {
+                if (nextProps.selectedImages.indexOf(imageList[image].imageID) !== -1) {
                     // image is now selected
 
                     if (!imageList[image].isSelected) {
@@ -99,7 +89,7 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
         }
         this.timer = setTimeout(
             () => {
-                console.log('clicked on ' + this.props.seriesID);
+                console.log('clicked on ' + this.props.match.params.seriesID);
                 this.props.selectedImage(imageID, keyPressed);
             },
             100
@@ -110,76 +100,15 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
         clearTimeout(this.timer);
     }
 
-    async receiveData(uploadID: number): Promise<void> {
-        let patId = 10;
-
-        this.setState({ wait: true });
-
-        let resData = await ApiService.getData(uploadID);
-
-        console.log(' data', resData);
-        let patients = [];
-
-        for (let patient of resData.studies) {
-            // let tempSeries = [];
-
-            for (let tmpSerie of patient.series) {
-                let serie = {
-                    seriesID: tmpSerie.seriesID,
-                    seriesDescription: tmpSerie.seriesDescription,
-                    studyID: patient.studyID,
-                    uploadID: resData.uploadID
-                };
-                if (serie.seriesID === this.props.seriesID) {
-                    this.seriesDescription = serie.seriesDescription;
-                }
-            }
-            let tempPatint = {
-                //  patientId: patId,
-                patientName: patient.patientName,
-                dateOfBirth: patient.patientBirthday,
-                studyDescription: patient.studyDescription,
-                //  series: tempSeries
-            };
-            this.patientName = tempPatint.patientName;
-        }
-        this.uploadDate = resData.uploadDate;
-        this.setState({ wait: false });
-
-    }
-
-    async receiveImages(uploadID: number, studyID: string, seriesID: string): Promise<void> {
-        this.setState({ wait: true });
-
-        let resData = await ApiService.getSeriesImages(+uploadID, studyID, seriesID);
-        console.log('resData: ', resData);
-        let tempImages = [];
-        if (resData) {
-            for (let data of resData) {
-                let tempImg: ImageProps = {
-                    imageID: data.imageNumber,
-                    imageName: data.imageID,
-                    handleClick: this.handleImageClick,
-                    blowUp: this.props.blowUp,
-                    handleDouble: this.handleDoubleClick,
-                    isSelected: false
-                };
-                tempImages.push(tempImg);
-            }
-            this.setState({ imageList: tempImages });
-        } else {
-            tempImages = [];
-            this.setState({ imageList: [] });
-        }
-        this.setState({ wait: false });
-    }
+    // TODO get images from state
 
     getImageBorderStyle(isSelected: boolean) {
         return isSelected ? '3px solid LightSeaGreen' : '3px solid white';
     }
 
     render() {
-        if (!this.state.wait) {
+        console.log('IMAGE VIEWER RENDERING');
+        console.log('image list', this.props.imageList);
             return (
 
                 <div style={imageStyle.imageViewerDiv}>
@@ -208,7 +137,7 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
                         {/* </div> */}
 
                         <Grid container={true} gutter={16} style={imageStyle.ImageViewGrid}>
-                            {this.state.imageList.map(value =>
+                            {this.props.imageList.map(value =>
                                 <Grid
                                     item="false"
                                     xs={6}
@@ -223,7 +152,9 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
                                             border: this.getImageBorderStyle(value.isSelected)
                                         }}
                                     >
-                                        <ImageViewComponent {...{ ...value, isSelected: false }} />
+                                        <ImageViewComponent {...{ ...value, handleClick: this.handleImageClick,
+                                        handleDouble: this.handleDoubleClick, blowUp: this.props.blowUp,
+                                        isSelected: false }} />
                                     </Card>
                                 </Grid>
                             )
@@ -232,9 +163,6 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
                     </Paper>
                 </div>
             );
-        } else {
-            return <div />;
-        }
     }
 
     componentWillUnmount() {
@@ -242,12 +170,12 @@ class ImageViewerComponent extends React.Component<GaleryProps & ConnectedDispat
     }
 }
 
-function mapStateToProps(state: State, props: GaleryProps): GaleryProps & ConnectedState {
+function mapStateToProps(state: State, props): ConnectedState {
+    let seriesID = props.match.params.seriesID;
+
     return {
-        uploadID: props.uploadID,
-        studyID: props.studyID,
-        seriesID: props.seriesID,
-        selectedImages: state.ui.selections.images
+        selectedImages: state.ui.selections.images,
+        imageList: getImagesWhereSeriesId(state, seriesID)
     };
 }
 

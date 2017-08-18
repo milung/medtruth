@@ -8,7 +8,7 @@ import { entitiesReducer } from '../reducers/EntitiesReducer';
 import { EntitiesState } from '../reducers/EntitiesReducer';
 import thunk from 'redux-thunk';
 import { applyMiddleware } from 'redux';
-import { downloadLabelsAction } from "../actions/asyncActions";
+import { fetchPatients, downloadLabelsAction } from "../actions/asyncActions";
 
 const rootReducer = combineReducers({
     entities: entitiesReducer,
@@ -31,4 +31,5 @@ export const store = createStore(rootReducer, composeEnhancers(
 ));
 
 // Download all labels for the first time
+store.dispatch(fetchPatients());
 store.dispatch(downloadLabelsAction());

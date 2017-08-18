@@ -26,13 +26,14 @@ export interface ImageEntity {
     imageID: string;
     series: string;
     imageNumber: number;
-    annotations: ImageAnnotation[];
+    annotations: ImageAnnotation[];  
+    isSelected: boolean;
 }
 
 export interface SeriesEntity {
     seriesID: string;
-    study: string;
-    seriesDate: number;
+    studyID: string;
+    patientID: string;
     seriesDescription: string;
     thumbnailImageID: string;
     images: string[];
@@ -40,7 +41,7 @@ export interface SeriesEntity {
 
 export interface StudyEntity {
     studyID: string;
-    patient: string;
+    patientID: string;
     studyDescription: string;
     series: string[];
 }
@@ -48,7 +49,7 @@ export interface StudyEntity {
 export interface PatientEntity {
     patientID: string;
     patientName: string;
-    patientBirtday: number;
+    patientBirthday: number;
     studies: string[];
 }
 
@@ -96,7 +97,7 @@ const processPatientsDataFetched = (prevState: EntitiesState, action: PatientsFe
         {},
         {
             processStrategy: (value, parent, key) => {
-                return { ...value, series: parent.seriesID, annotations: [] };
+                return { ...value, seriesID: parent.seriesID, annotations: [] };
             },
             idAttribute: 'imageID'
         }
@@ -108,7 +109,7 @@ const processPatientsDataFetched = (prevState: EntitiesState, action: PatientsFe
         },
         {
             processStrategy: (value, parent, key) => {
-                return { ...value, study: parent.studyID };
+                return { ...value, studyID: parent.studyID};
             },
             idAttribute: 'seriesID'
         }
@@ -121,7 +122,7 @@ const processPatientsDataFetched = (prevState: EntitiesState, action: PatientsFe
         },
         {
             processStrategy: (value, parent, key) => {
-                return { ...value, patient: parent.patientID };
+                return { ...value, patientID: parent.patientID };
             },
             idAttribute: 'studyID'
         }
@@ -203,7 +204,8 @@ const processImagesAnnotationsDownloadedAction =
                         imageID: key,
                         series: undefined,
                         imageNumber: undefined,
-                        annotations: []
+                        annotations: [],
+                        isSelected: image.isSelected
                     };
                 }
 
@@ -322,7 +324,8 @@ const processImageAnnotationAddedAction =
                 series: undefined,
                 imageID: action.imageID,
                 imageNumber: undefined,
-                annotations: []
+                annotations: [],
+                isSelected: imageEntity.isSelected
             };
             // if (imageAnnotation.value !== 0) {
             //     newImageEntity.annotations.push(imageAnnotation);

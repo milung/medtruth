@@ -58,7 +58,8 @@ describe('EntitiesReducer', () => {
             series: 'series',
             imageID: 'image1',
             imageNumber: undefined,
-            annotations: []
+            annotations: [],
+            isSelected: false
         };
 
         let prevState: EntitiesState = {
@@ -175,14 +176,16 @@ describe('EntitiesReducer', () => {
             imageID: 'testimageID1',
             series: undefined,
             imageNumber: undefined,
-            annotations: [annotation1, annotation2]
+            annotations: [annotation1, annotation2],
+            isSelected: false
         };
 
         let image2: ImageEntity = {
             imageID: 'testimageID2',
             series: undefined,
             imageNumber: undefined,
-            annotations: [annotation3]
+            annotations: [annotation3],
+            isSelected: false
         };
 
         let prevState: EntitiesState = {
@@ -232,14 +235,16 @@ describe('EntitiesReducer', () => {
             series: undefined,
             imageNumber: undefined,
             imageID: 'testimageID1',
-            annotations: [annotation1]
+            annotations: [annotation1],
+            isSelected: false
         };
 
         let image2: ImageEntity = {
             series: undefined,
             imageNumber: undefined,
             imageID: 'testimageID2',
-            annotations: []
+            annotations: [],
+            isSelected: false
         };
 
         let prevState: EntitiesState = {
@@ -323,7 +328,8 @@ describe('EntitiesReducer', () => {
                     key: 'krk',
                     value: 1
                 }
-            ]
+            ],
+            isSelected: false
         };
 
         let prevState: EntitiesState = {

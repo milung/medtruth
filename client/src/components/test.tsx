@@ -6,12 +6,12 @@ import { BlowUp } from './blowup';
 import { connect, Store } from 'react-redux';
 import { State } from '../app/store';
 import { SelectionStatus } from '../selectionStatus/SelectionStatus';
-import { ImageViewer } from '../gallery/ImageViewer';
 import { BrowserRouter } from 'react-router-dom';
 import { RouteMap } from '../router/routermap';
 import { ApiService } from '../api';
 import { store } from '../app/store';
 import { lastStudySelected } from '../actions/actions';
+import { ImageViewer } from "../imageview/ImageViewer";
 
 interface OwnProps {
     match: any;

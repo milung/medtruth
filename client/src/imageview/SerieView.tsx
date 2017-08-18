@@ -17,10 +17,9 @@ import { Link } from 'react-router-dom';
 export interface SeriesProps {
     seriesID: string;
     seriesDescription: string;
-    src: string;
-    imageID: number;
+    thumbnailImageID: string;    
     studyID: string;
-    uploadID: number;
+    patientID: string;  // TODO delete
 }
 
 export interface ConnectedDispatch {
@@ -82,23 +81,27 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
     }
 
     getGalleryPath(): string {
-        let uploaid: number = this.props.uploadID;
-        let study: string = this.props.studyID;
-        let series: string = this.props.seriesID;
-        return `/gallery/${uploaid}/${study}/${series}`;
+        // let uploaid: number = this.props.uploadID;
+        // let study: string = this.props.studyID;
+        // let series: string = this.props.seriesID;
+        // return `/gallery/${uploaid}/${study}/${series}`;
+
+        ///:seriesID/:patientID/:studyID"
+
+        return `/${this.props.seriesID}/${this.props.patientID}/${this.props.studyID}`;
     }
 
     render() {
         let borderStyle;
         this.props.seriesSelected ? borderStyle = '3px solid LightSeaGreen' : borderStyle = '3px solid white';
-
+        console.log('serieview path', this.getGalleryPath());
         return (
             <div >
                 <Card style={{ border: borderStyle }}>
                     <CardMedia>
                         <ImageViewComponent
-                            imageName={this.props.src}
-                            imageID={this.props.imageID}
+                            imageID={this.props.thumbnailImageID}
+                            imageNumber={0}
                             handleClick={this.handleImageClick}
                             blowUp={this.props.blowUp}
                             handleDouble={this.handleDoubleClick}
@@ -106,6 +109,9 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
                         />
                     </CardMedia>
                     <CardContent style={imageStyle.contentCenter}>
+                        <Typography type="title" component="p">
+                            {this.props.seriesID}
+                        </Typography>
                         <Typography type="body2" component="p">
                             {this.props.seriesDescription}
                         </Typography>
@@ -129,11 +135,10 @@ function mapStateToProps(state: State, props: SeriesProps): SeriesProps & Connec
     return {
         seriesID: props.seriesID,
         seriesDescription: props.seriesDescription,
-        src: props.src,
-        imageID: props.imageID,
+        thumbnailImageID: props.thumbnailImageID,
         studyID: props.studyID,
-        uploadID: props.uploadID,
-        seriesSelected: state.ui.selections.series.indexOf(props.seriesID) !== -1
+        seriesSelected: state.ui.selections.series.indexOf(props.seriesID) !== -1,
+        patientID: props.patientID
     };
 }
 

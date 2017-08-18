@@ -128,108 +128,14 @@ export class UploadController {
     }
 
     async parse() {
-        let patients = {};
-        //patients[0] = new objects.UploadJSON();
-        // get patients from database
-        let getPatients = this.responses.map(async (parse) => {
-            let conv = new DaikonConverter(storagePath + parse.filename);
-            let patientID = conv.getPatientID();
-            let patientAzure = await AzureDatabase.getPatientDocument(patientID);
-            patients[patientID] = patientAzure;
-        });
-        // w8 'till all patients are fetched
-        await Promise.all(getPatients)
+        // TODO: Refactor!
+        
+        let json = {uploadID: "123"};
+        //json.uploadID = new Date().getTime();
+        //json.uploadDate = new Date();
+        let studiesArray: Image[][][] = [];
 
-        // parse info from all dicom files and save to db
-        let parses = this.responses.forEach((parse) => {
-            if (parse.err) return;
-            console.log("patient parsing start");
-            let converter = new DaikonConverter(storagePath + parse.filename);
-            let patientID = converter.getPatientID();
-            let patientBirthday = converter.getPatientDateOfBirth();
-            let patientName = converter.getPatientName();
-            let studyID = converter.getStudyInstanceUID();
-            let studyFound: boolean = true;
-            let seriesFound: boolean = true;
-
-            let patient = patients[patientID];
-            if (patient == null) {
-                patient = new objects.UploadJSON();
-                patient.patientID = patientID;
-                patient.patientName = patientName;
-                patient.patientBirtday = patientBirthday;
-            }
-
-            let existingStudy = patient.studies.find((stud) => {
-                return stud.studyID === studyID;
-            });
-
-            if (existingStudy === undefined) {
-                studyFound = false;
-                existingStudy = new objects.StudyJSON();
-            }
-            existingStudy.studyID = converter.getStudyInstanceUID();
-            existingStudy.studyDescription = converter.getStudyDescription();
-
-            let seriesID = converter.getSeriesUID();
-            let existingSeries = existingStudy.series.find((seria) => {
-                return seria.seriesID === seriesID;
-            });
-
-            if (existingSeries === undefined) {
-                seriesFound = false;
-                existingSeries = new objects.SeriesJSON();
-                existingSeries.seriesID = seriesID;
-            }
-
-            existingSeries.seriesDescription = converter.getSeriesDescription();
-            existingSeries.seriesID = converter.getSeriesUID();
-
-            let newImage = {
-                imageID: parse.filename,
-                imageNumber: Number(converter.getImageNumber())
-            };
-            if (existingSeries.images.length > 0) {
-                let existingImage = existingSeries.images.find((image) => {
-                    return image.imageNumber === newImage.imageNumber;
-                });
-                if (existingImage == undefined) existingSeries.images.push(newImage);
-            } else {
-                existingSeries.images.push(newImage);
-            }
-
-            if (!seriesFound) {
-                existingStudy.series.push(existingSeries);
-            }
-
-            if (!studyFound) {
-                patient.studies.push(existingStudy);
-            }
-            patients[patientID] = patient;
-        });
-
-        for (var patientKey in patients) {
-            let patient = patients[patientKey];
-            for (var studyKey in patient.studies) {
-                let study = patient.studies[studyKey];
-                for (var seriesKey in study.series) {
-                    let series = study.series[seriesKey];
-                    let images = series.images;
-                    images.sort((a: Image, b: Image) => {
-                        if (a.imageNumber < b.imageNumber) return -1;
-                        if (a.imageNumber > b.imageNumber) return 1;
-                        return 0;
-                    });
-                    // In case of even numbers, for example 4, Math.round would give 3rd element as the middle one
-                    // Math.floor would return the 2nd element 
-                    var middle = images[Math.floor((images.length - 1) / 2)];
-                    //await this.createThumbnail(middle.imageID);
-                    series.thumbnailImageID = middle.imageID
-                }
-
-            }
-        }
-        return patients;
+        return json;
     }
 
     async createThumbnails() {
