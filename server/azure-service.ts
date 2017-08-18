@@ -355,30 +355,6 @@ export namespace AzureDatabase {
     }
 
     /**
-     * Get the list of names of all images that have assigned at least one attribute. 
-     */
-    export function getImagesWithLabels(): Promise<string[]> {
-        return new Promise<string[]>(async (resolve, reject) => {
-            try {
-                var conn = await connectToAttributes();
-
-                let images: string[] = [];
-                let result = await conn.collection.find().toArray();
-                for (var image of result) {
-                    images.push(image.imageID);
-                }
-                if (result) {
-                    resolve(images);
-                } else resolve([]);
-            } catch (e) {
-                reject({});
-            } finally {
-                close(conn.db);
-            }
-        });
-    }
-
-    /**
      * Returns Upload document with a specific ID.
      * @param uploadID
      */
@@ -589,6 +565,9 @@ export namespace AzureDatabase {
         });
     }
 
+    /**
+     * Get the list of names of all images that have assigned at least one attribute. 
+     */
     export function getImagesWithLabels(): Promise<string[]> {
         return new Promise<string[]>(async (resolve, reject) => {
             try {
