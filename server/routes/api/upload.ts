@@ -7,7 +7,6 @@ import * as lo from 'lodash';
 import { UploadController } from '../../controllers/upload';
 import { StatusCode, storagePath, imagePath } from '../../constants';
 import { AzureStorage, AzureDatabase } from '../../azure-service';
-import { JSONCreator } from "../../Objects";
 
 export const rootUpload = '/upload';
 export const routerUpload = express.Router();
@@ -82,7 +81,6 @@ routerUpload.get('/:id', async (req, res) => {
     // let jsonCreator=new JSONCreator();
     // let data=jsonCreator.getUploadJSON();
     // res.json(data);
-
 
     if (id === undefined) {
         res.sendStatus(StatusCode.BadRequest);

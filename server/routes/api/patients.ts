@@ -22,22 +22,4 @@ routerPatients.get('/', async (req, res) => {
     }
 });
 
-//test route
-routerPatients.get('/test', async (req, res) => {
-    sharp({
-        create: {
-            width: 300,
-            height: 200,
-            channels: 4,
-            background: { r: 255, g: 0, b: 0, alpha: 128 }
-        }
-    })
-        .png()
-        .toFile('output.png', function (err) {
-            console.log("done");
-            
-        });
-    res.json({ state: "GOOD" });
-});
-
 

@@ -5,7 +5,7 @@ import Typography from 'material-ui/Typography';
 import { ImageViewComponent } from './ImageView';
 import {
     SeriesSelectedAction, seriesSelected,
-    thumbnailBlownUp, ThumbnailBlownUpAction, Keys,// StudiesSelectedAction
+    thumbnailBlownUp, ThumbnailBlownUpAction, Keys//, StudiesSelectedAction
 } from '../actions/actions';
 import { connect } from 'react-redux';
 import { State } from '../app/store';

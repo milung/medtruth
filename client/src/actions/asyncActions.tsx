@@ -32,7 +32,6 @@ export function removeImagesAnnotationAction(imageIds: string[], label: string) 
 
 export function downloadLabelsAction() {
     return (dispatch) => {
-
         ApiService.getLabels().then(labels => {
             dispatch(labelsDowloadedAction(labels));
         });

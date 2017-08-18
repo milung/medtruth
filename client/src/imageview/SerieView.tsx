@@ -20,6 +20,7 @@ export interface SeriesProps {
     thumbnailImageID: string;    
     studyID: string;
     patientID: string;  // TODO delete
+    seriesNumber: number;
 }
 
 export interface ConnectedDispatch {
@@ -101,7 +102,7 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
                     <CardMedia>
                         <ImageViewComponent
                             imageID={this.props.thumbnailImageID}
-                            imageNumber={0}
+                            imageNumber={this.props.seriesNumber}
                             handleClick={this.handleImageClick}
                             blowUp={this.props.blowUp}
                             handleDouble={this.handleDoubleClick}
@@ -138,6 +139,7 @@ function mapStateToProps(state: State, props: SeriesProps): SeriesProps & Connec
         thumbnailImageID: props.thumbnailImageID,
         studyID: props.studyID,
         seriesSelected: state.ui.selections.series.indexOf(props.seriesID) !== -1,
+        seriesNumber: props.seriesNumber,
         patientID: props.patientID
     };
 }

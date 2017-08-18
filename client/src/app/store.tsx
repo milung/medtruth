@@ -30,5 +30,6 @@ export const store = createStore(rootReducer, composeEnhancers(
     applyMiddleware(thunk)
 ));
 
+// Download all labels for the first time
 store.dispatch(fetchPatients());
 store.dispatch(downloadLabelsAction());
