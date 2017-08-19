@@ -16,8 +16,8 @@ export namespace AzureStorage {
     export const blobService = azure.createBlobService(accountName, accountKey);
     //blobService.logger.level = azure.Logger.LogLevels.DEBUG;  
     export const containerDicoms = 'dicoms';
-    //export const containerImages = 'images';
-    export const containerImages = 'test01';
+    export const containerImages = 'images';
+    //export const containerImages = 'test01';
 
     
 
@@ -106,7 +106,9 @@ export namespace AzureDatabase {
     export const localAddress = "localhost:27017/";
     export const localName = "medtruth";
     export const urlMedTruth = "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true";
-    export const url = (process.argv[2] === 'local' || process.env.NODE_ENV === 'development') ? "mongodb://" + localAddress + localName : urlMedTruth;
+    export const url = urlMedTruth;
+    
+    //export const url = (process.argv[2] === 'local' || process.env.NODE_ENV === 'development') ? "mongodb://" + localAddress + localName : urlMedTruth;
     //export const url = "mongodb://" + localAddress + localName;
 
     export enum Status {
@@ -243,6 +245,10 @@ export namespace AzureDatabase {
         imageID: string;
         attributes: Attribute[];
     }
+
+    // export interface ImagesWithAttributesQuery {
+    //     imageIDs: string[];
+    // }
 
     export function putToAttributes(id, ...attributes: Attribute[]): Promise<AttributeQuery> {
         return new Promise<AttributeQuery>(async (resolve, reject) => {
@@ -561,6 +567,9 @@ export namespace AzureDatabase {
         });
     }
 
+    /**
+     * Get the list of names of all images that have assigned at least one attribute. 
+     */
     export function getImagesWithLabels(): Promise<string[]> {
         return new Promise<string[]>(async (resolve, reject) => {
             try {

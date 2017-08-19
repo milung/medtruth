@@ -317,9 +317,9 @@ export class UploadController {
 
     uploadImage(imageID: string) {
         return new PromiseBlueBird(async (resolve, reject) => {
-            let thumbnailPromise = this.createThumbnailSharp(imageID);
+            let pngPath: string = imagePath + imageID + ".png";
             try {
-                await thumbnailPromise;
+                await AzureStorage.toImages(imageID + ".png",pngPath);
                 resolve("OK");
             } catch (e) {
                 reject("NOT OK");

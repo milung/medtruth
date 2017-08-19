@@ -2,10 +2,9 @@ import * as React from 'react';
 import * as Redux from 'redux';
 import Card, { CardContent, CardMedia } from 'material-ui/Card';
 import Typography from 'material-ui/Typography';
-import { ImageViewComponent } from './ImageView';
 import {
     SeriesSelectedAction, seriesSelected,
-    thumbnailBlownUp, ThumbnailBlownUpAction, Keys,// StudiesSelectedAction
+    thumbnailBlownUp, ThumbnailBlownUpAction, Keys, ActionType, ItemSelectedAction, itemSelected, ItemTypes
 } from '../actions/actions';
 import { connect } from 'react-redux';
 import { State } from '../app/store';
@@ -27,46 +26,22 @@ interface OwnProps {
     match: any;
 }
 
-export interface ArrayOfStudies{
-    listOfStudies:StudiesProps[];
-}
-
 export interface ConnectedDispatch {
-    selectedStudies: (seriesID: string, keyPressed: Keys) => SeriesSelectedAction;
     blowUp: (imageID: string) => ThumbnailBlownUpAction;
+    selectItem: (itemId: string, keyPressed: Keys) => ItemSelectedAction;
 }
 
 export interface ConnectedState {
-    seriesSelected: boolean;
+    isSelected: boolean;
 }
 export class StudyViewComponent extends React.Component<OwnProps & StudiesProps & ConnectedDispatch & ConnectedState, StudiesProps> {
 
-    private timer = null;
-
     constructor(props) {
         super(props);
-        this.handleImageClick = this.handleImageClick.bind(this);
-        this.handleDoubleClick = this.handleDoubleClick.bind(this);    
+        this.clickHandler = this.clickHandler.bind(this);
     }
 
-    handleImageClick(imageID: string, keyPressed: Keys) {
-        if (this.timer) {
-            clearTimeout(this.timer);
-        }
-        this.timer = setTimeout(
-            () => {
-                console.log('clicked on ' + this.props.studyID);
-                this.props.selectedStudies(this.props.studyID, keyPressed);
-            },
-            100
-        );
-    }
-
-    handleDoubleClick() {
-        clearTimeout(this.timer);
-    }
-
-    getSeriePath(): string {      
+    getSeriePath(): string {
         ///patients/:patientID/studies/:studyID
         // let studyID = this.props.match.params.studyID; 
         // let patientID = this.props.match.params.patientID;
@@ -75,13 +50,28 @@ export class StudyViewComponent extends React.Component<OwnProps & StudiesProps 
         return `/studies/${this.props.studyID}/${this.props.patientID}`;
     }
 
+    clickHandler(event) {
+        let keyPressed: Keys = Keys.NONE;
+
+        if (event.ctrlKey) {
+            keyPressed = Keys.CTRL;
+        }
+
+        this.props.selectItem(this.props.studyID, keyPressed);
+    }
+
+    getBorderStyle(isSelected: boolean) {
+        return isSelected ? '3px solid LightSeaGreen' : '3px solid white';
+    }
+
     render() {
-        let borderStyle;
-        this.props.seriesSelected ? borderStyle = '3px solid LightSeaGreen' : borderStyle = '3px solid white';
         console.log('path' + this.getSeriePath());
         return (
             <div >
-                <Card style={{ border: borderStyle }}>                    
+                <Card
+                    onClick={this.clickHandler}
+                    style={{ border: this.getBorderStyle(this.props.isSelected) }}
+                >
                     <CardContent style={imageStyle.contentCenter}>
                         <Typography type="title" component="p">
                             {this.props.studyID}
@@ -94,7 +84,7 @@ export class StudyViewComponent extends React.Component<OwnProps & StudiesProps 
                         <a>
                             <img
                                 src={require('../icons/icon1.png')}
-                                style={{ float: 'right', marginBottom: '5', marginRight: '5' }}                               
+                                style={{ float: 'right', marginBottom: '5', marginRight: '5' }}
                             />
                         </a>
                     </Link>
@@ -109,17 +99,20 @@ function mapStateToProps(state: State, props: StudiesProps): StudiesProps & Conn
         // TODO REMOVE PATIENT ID
         patientID: props.patientID,
         studyID: props.studyID,
-        studyDescription: props.studyDescription,   
-        seriesSelected: state.ui.selections.series.indexOf(props.studyID) !== -1
+        studyDescription: props.studyDescription,
+        isSelected: isStudySelected(state, props.studyID)
     };
 }
 
-//function mapDispatchToProps(dispatch: Redux.Dispatch<StudiesSelectedAction>): ConnectedDispatch {
-function mapDispatchToProps(dispatch): ConnectedDispatch {
+function mapDispatchToProps(dispatch: Redux.Dispatch<ActionType>): ConnectedDispatch {
     return {
-        selectedStudies: (seriesID: string, keyPressed: Keys) => dispatch(seriesSelected(seriesID, keyPressed)),
-        blowUp: (imageID: string) => dispatch(thumbnailBlownUp(imageID))
+        blowUp: (imageID: string) => dispatch(thumbnailBlownUp(imageID)),
+        selectItem: (itemId: string, keyPressed: Keys) => dispatch(itemSelected(ItemTypes.STUDY, itemId, keyPressed))
     };
 }
 
 export const StudyView = connect(mapStateToProps, mapDispatchToProps)(StudyViewComponent);
+
+const isStudySelected = (state: State, studyId: string): boolean => {
+    return state.ui.selections.studies.indexOf(studyId) !== -1;
+};

@@ -26,7 +26,7 @@ export interface ImageEntity {
     imageID: string;
     series: string;
     imageNumber: number;
-    annotations: ImageAnnotation[];  
+    annotations: ImageAnnotation[];
     isSelected: boolean;
 }
 
@@ -109,7 +109,7 @@ const processPatientsDataFetched = (prevState: EntitiesState, action: PatientsFe
         },
         {
             processStrategy: (value, parent, key) => {
-                return { ...value, studyID: parent.studyID};
+                return { ...value, studyID: parent.studyID };
             },
             idAttribute: 'seriesID'
         }
@@ -308,7 +308,7 @@ const processImagesAnnotationRemovedAction =
 const processLabelsDownloadedAction =
     (prevState: EntitiesState, action: LabelsDownloadedAction): EntitiesState => {
         let newState: EntitiesState = { ...prevState };
-        newState.labels = action.labels;
+        newState.labels = [...action.labels];
         return newState;
     };
 

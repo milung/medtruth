@@ -3,33 +3,48 @@ import * as React from 'react';
 import { imageStyle } from '../styles/ComponentsStyle';
 import { ApiService } from '../api';
 import { getThumbnailImageURL } from '../constants';
-import { Keys } from '../actions/actions';
+import {
+    Keys, ThumbnailBlownUpAction, ItemSelectedAction,
+    thumbnailBlownUp, itemSelected, ItemTypes, ActionType
+} from '../actions/actions';
+import { connect } from 'react-redux';
+import Card from 'material-ui/Card';
+import { ImageComponent } from './Image';
+import * as Redux from 'redux';
+import { State } from '../app/store';
 
 export interface OwnProps {
     imageNumber: number;
     imageID: string;
+}
+
+export interface ConnectedDispatch {
+    blowUp: (imageID: string) => ThumbnailBlownUpAction;
+    selectItem: (itemId: string, keyPressed: Keys) => ItemSelectedAction;
+}
+
+export interface ConnectedState {
     isSelected: boolean;
 }
-export interface ImageProps {
-    handleClick: (imageID: string, keyPressed: Keys) => void;
-    blowUp: (imageID: string) => void;
-    handleDouble: () => void;
-}
-export class ImageViewComponent extends React.Component<OwnProps & ImageProps, {}> {
+
+export class ImageViewComponent extends React.Component<OwnProps & ConnectedState & ConnectedDispatch, {}> {
+    private timer = null;
     constructor(props) {
         super(props);
 
-        this.handleDoubleClick = this.handleDoubleClick.bind(this);
+        this.doubleClickHandler = this.doubleClickHandler.bind(this);
         this.clickHandler = this.clickHandler.bind(this);
         // this.getUrl = this.getUrl.bind(this);
     }
 
     componentDidMount() {
         let thumbnailURI = getThumbnailImageURL(this.props.imageID);
-        let img = document.getElementById(this.props.imageNumber + '') as HTMLImageElement;
+        console.log('imageView got thumbnail uri' + thumbnailURI);
+        let img = document.getElementById(this.props.imageID) as HTMLImageElement;
         if (img != null) {
             img.src = thumbnailURI;
         }
+        console.log('image set src ' + img.src);
     }
 
     /*
@@ -43,6 +58,11 @@ export class ImageViewComponent extends React.Component<OwnProps & ImageProps, {
     }
     */
 
+    doubleClickHandler() {
+        clearTimeout(this.timer);
+        this.props.blowUp(this.props.imageID);
+    }
+
     clickHandler(event) {
         let keyPressed: Keys = Keys.NONE;
 
@@ -50,28 +70,76 @@ export class ImageViewComponent extends React.Component<OwnProps & ImageProps, {
             keyPressed = Keys.CTRL;
         }
 
-        this.props.handleClick(this.props.imageID, keyPressed);
+        if (this.timer) {
+            clearTimeout(this.timer);
+        }
+
+        this.timer = setTimeout(
+            () => {
+                this.props.selectItem(this.props.imageID, keyPressed);
+            },
+            100
+        );
     }
 
-    handleDoubleClick() {
-        this.props.handleDouble();
-        console.log('double click!');
-        this.props.blowUp(this.props.imageID);
-    }
-
-    // keyPressed(event) {
-    //     console.log(event.keyCode);
-    //     this.setState(Object.assign({}, this.state, { open: false }));
+    // handleDoubleClick() {
+    //     this.props.handleDouble();
+    //     console.log('double click!');
+    //     this.props.blowUp(this.props.imageID);
     // }
+
+    // handleImageClick(imageID: string, keyPressed: Keys) {
+    //     if (this.timer) {
+    //         clearTimeout(this.timer);
+    //     }
+    //     this.timer = setTimeout(
+    //         () => {
+    //             console.log('clicked on ' + this.props.match.params.seriesID);
+    //             this.props.selectedImage(imageID, keyPressed);
+    //         },
+    //         100
+    //     );
+    // }
+
+    getBorderStyle(isSelected: boolean) {
+        return isSelected ? '3px solid LightSeaGreen' : '3px solid white';
+    }
 
     render() {
         return (
-            <img
-                id={this.props.imageNumber + ''}
-                style={imageStyle.img}
+            <Card
+                style={{
+                    ...imageStyle.imageViewerCard,
+                    border: this.getBorderStyle(this.props.isSelected)
+                }}
                 onClick={this.clickHandler}
-                onDoubleClick={this.handleDoubleClick}
-            />
+                
+            >
+                <ImageComponent imageID={this.props.imageID} handleDoubleClick={this.doubleClickHandler} />
+
+            </Card>
+
         );
     }
 }
+
+function mapStateToProps(state: State, props): OwnProps & ConnectedState {
+    return {
+        imageID: props.imageID,
+        imageNumber: props.imageNumber,
+        isSelected: isImageSelected(state, props.imageID)
+    };
+}
+
+function mapDispatchToProps(dispatch: Redux.Dispatch<ActionType>): ConnectedDispatch {
+    return {
+        blowUp: (imageID: string) => dispatch(thumbnailBlownUp(imageID)),
+        selectItem: (itemId: string, keyPressed: Keys) => dispatch(itemSelected(ItemTypes.IMAGE, itemId, keyPressed))
+    };
+}
+
+export const ImageView = connect(mapStateToProps, mapDispatchToProps)(ImageViewComponent);
+
+const isImageSelected = (state: State, imageId: string) => {
+    return state.ui.selections.images.indexOf(imageId) !== -1;
+};

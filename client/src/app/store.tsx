@@ -8,13 +8,8 @@ import { entitiesReducer } from '../reducers/EntitiesReducer';
 import { EntitiesState } from '../reducers/EntitiesReducer';
 import thunk from 'redux-thunk';
 import { applyMiddleware } from 'redux';
-import { fetchPatients, downloadLabelsAction } from "../actions/asyncActions";
-
-const rootReducer = combineReducers({
-    entities: entitiesReducer,
-    files: filesReducer,
-    ui: uiReducer
-});
+import { fetchPatients, downloadLabelsAction, downloadImageAnnotations } from '../actions/asyncActions';
+import { Store } from 'redux';
 
 export interface State {
     files: FilesState;
@@ -22,13 +17,42 @@ export interface State {
     entities: EntitiesState;
 }
 
+const rootReducer = combineReducers({
+    entities: entitiesReducer,
+    files: filesReducer,
+    ui: uiReducer
+});
+
 const composeEnhancers = composeWithDevTools({
     serialize: true
 });
 
-export const store = createStore(rootReducer, composeEnhancers(
-    applyMiddleware(thunk)
-));
+export const store = getStore();
 
-store.dispatch(fetchPatients());
-store.dispatch(downloadLabelsAction());
+export function getStore(): Store<{}> {
+
+    let store: Store<{}> = createStore(rootReducer, composeEnhancers(
+        applyMiddleware(thunk)
+    ));
+
+    initializeState(store);
+
+    return store;
+}
+
+function initializeState(store: Store<{}>) {
+    store.dispatch(fetchPatients()).then(patients => {
+        let imageIds: string[] = [];
+        patients.forEach(patient => {
+            patient.studies.forEach(study => {
+                study.series.forEach(series => {
+                    series.images.forEach(image => {
+                        imageIds.push(image.imageID);
+                    });
+                });
+            });
+        });
+        store.dispatch(downloadImageAnnotations(...imageIds));
+    });
+    store.dispatch(downloadLabelsAction());
+}

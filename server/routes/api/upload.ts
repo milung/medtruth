@@ -82,7 +82,6 @@ routerUpload.get('/:id', async (req, res) => {
     // let data=jsonCreator.getUploadJSON();
     // res.json(data);
 
-
     if (id === undefined) {
         res.sendStatus(StatusCode.BadRequest);
         return;

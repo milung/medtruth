@@ -2,33 +2,33 @@ import * as React from 'react';
 import * as Redux from 'redux';
 import Card, { CardContent, CardMedia } from 'material-ui/Card';
 import Typography from 'material-ui/Typography';
-import { ImageViewComponent } from './ImageView';
 import {
     SeriesSelectedAction, seriesSelected,
-    thumbnailBlownUp, ThumbnailBlownUpAction, Keys
+    thumbnailBlownUp, ThumbnailBlownUpAction, Keys, ItemSelectedAction, itemSelected, ItemTypes, ActionType
 } from '../actions/actions';
 import { connect } from 'react-redux';
 import { State } from '../app/store';
 import { imageStyle } from '../styles/ComponentsStyle';
 import Icon from 'material-ui/Icon';
 import { Link } from 'react-router-dom';
+import { ImageComponent } from "./Image";
 // import FontIcon from 'material-ui/Icon'
 
 export interface SeriesProps {
     seriesID: string;
     seriesDescription: string;
-    thumbnailImageID: string;    
+    thumbnailImageID: string;
     studyID: string;
     patientID: string;  // TODO delete
 }
 
 export interface ConnectedDispatch {
-    selectedSeries: (seriesID: string, keyPressed: Keys) => SeriesSelectedAction;
     blowUp: (imageID: string) => ThumbnailBlownUpAction;
+    selectItem: (itemId: string, keyPressed: Keys) => ItemSelectedAction;
 }
 
 export interface ConnectedState {
-    seriesSelected: boolean;
+    isSelected: boolean;
 }
 class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch & ConnectedState, {}> {
 
@@ -36,48 +36,13 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
 
     constructor(props) {
         super(props);
-        this.handleImageClick = this.handleImageClick.bind(this);
-        this.handleDoubleClick = this.handleDoubleClick.bind(this);
-        this.displayAlbum = this.displayAlbum.bind(this);
+        this.doubleClickHandler = this.doubleClickHandler.bind(this);
+        this.clickHandler = this.clickHandler.bind(this);
     }
 
-    handleImageClick(imageID: string, keyPressed: Keys) {
-        if (this.timer) {
-            clearTimeout(this.timer);
-        }
-        this.timer = setTimeout(
-            () => {
-                console.log('clicked on ' + this.props.seriesID);
-                this.props.selectedSeries(this.props.seriesID, keyPressed);
-            },
-            100
-        );
-    }
-
-    // handleImageClick(event: MouseEvent) {
-    //     let keyPressed: Keys = Keys.NONE;
-
-    //     if (event.ctrlKey) {
-    //         keyPressed = Keys.CTRL;
-    //     }
-
-    //     if (this.timer) {
-    //         clearTimeout(this.timer);
-    //     }
-    //     this.timer = setTimeout(
-    //         () => {
-    //             console.log('clicked on ' + this.props.seriesID);
-    //             this.props.selectedSeries(this.props.seriesID, keyPressed);
-    //         },
-    //         100
-    //     );
-    // }
-
-    handleDoubleClick() {
+    doubleClickHandler() {
         clearTimeout(this.timer);
-    }
-
-    displayAlbum() {
+        this.props.blowUp(this.props.thumbnailImageID);
     }
 
     getGalleryPath(): string {
@@ -91,21 +56,40 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
         return `/${this.props.seriesID}/${this.props.patientID}/${this.props.studyID}`;
     }
 
+    clickHandler(event) {
+        let keyPressed: Keys = Keys.NONE;
+
+        if (event.ctrlKey) {
+            keyPressed = Keys.CTRL;
+        }
+
+        if (this.timer) {
+            clearTimeout(this.timer);
+        }
+
+        this.timer = setTimeout(
+            () => {
+                this.props.selectItem(this.props.seriesID, keyPressed);
+            },
+            100
+        );
+    }
+
+    getBorderStyle(isSelected: boolean) {
+        return isSelected ? '3px solid LightSeaGreen' : '3px solid white';
+    }
+
     render() {
-        let borderStyle;
-        this.props.seriesSelected ? borderStyle = '3px solid LightSeaGreen' : borderStyle = '3px solid white';
-        console.log('serieview path', this.getGalleryPath());
         return (
             <div >
-                <Card style={{ border: borderStyle }}>
+                <Card
+                    onClick={this.clickHandler}
+                    style={{ border: this.getBorderStyle(this.props.isSelected) }}
+                >
                     <CardMedia>
-                        <ImageViewComponent
+                        <ImageComponent
                             imageID={this.props.thumbnailImageID}
-                            imageNumber={0}
-                            handleClick={this.handleImageClick}
-                            blowUp={this.props.blowUp}
-                            handleDouble={this.handleDoubleClick}
-                            isSelected={false}
+                            handleDoubleClick={this.doubleClickHandler}
                         />
                     </CardMedia>
                     <CardContent style={imageStyle.contentCenter}>
@@ -116,12 +100,11 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
                             {this.props.seriesDescription}
                         </Typography>
                     </CardContent>
-                    <Link to={this.getGalleryPath()}>
+                    <Link to={this.getGalleryPath()} onClick={event => { event.stopPropagation(); }}>
                         <a>
                             <img
                                 src={require('../icons/icon1.png')}
                                 style={{ float: 'right', marginBottom: '5', marginRight: '5' }}
-                                onClick={this.displayAlbum}
                             />
                         </a>
                     </Link>
@@ -137,16 +120,20 @@ function mapStateToProps(state: State, props: SeriesProps): SeriesProps & Connec
         seriesDescription: props.seriesDescription,
         thumbnailImageID: props.thumbnailImageID,
         studyID: props.studyID,
-        seriesSelected: state.ui.selections.series.indexOf(props.seriesID) !== -1,
-        patientID: props.patientID
+        patientID: props.patientID,
+        isSelected: isSeriesSelected(state, props.seriesID)
     };
 }
 
-function mapDispatchToProps(dispatch: Redux.Dispatch<SeriesSelectedAction>): ConnectedDispatch {
+function mapDispatchToProps(dispatch: Redux.Dispatch<ActionType>): ConnectedDispatch {
     return {
-        selectedSeries: (seriesID: string, keyPressed: Keys) => dispatch(seriesSelected(seriesID, keyPressed)),
-        blowUp: (imageID: string) => dispatch(thumbnailBlownUp(imageID))
+        blowUp: (imageID: string) => dispatch(thumbnailBlownUp(imageID)),
+        selectItem: (itemId: string, keyPressed: Keys) => dispatch(itemSelected(ItemTypes.SERIES, itemId, keyPressed))
     };
 }
 
 export const SerieView = connect(mapStateToProps, mapDispatchToProps)(SerieViewComponent);
+
+const isSeriesSelected = (state: State, seriesId: string): boolean => {
+    return state.ui.selections.series.indexOf(seriesId) !== -1;
+};
