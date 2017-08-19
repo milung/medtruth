@@ -1,11 +1,10 @@
 
 import * as axios from 'axios';
 import { LabelStatus, OutputType } from './components/downloadpopup';
-import * as filesaver from 'file-saver';
 
 export namespace ApiService {
-    const apiEndpoint = '/api';
-    //const apiEndpoint = 'http://localhost:8080/api'
+    //const apiEndpoint = '/api';
+    const apiEndpoint = 'http://localhost:8080/api'
     /* change this */
     const uriUpload = apiEndpoint + '/upload';
     const uriImages = apiEndpoint + '/images';
@@ -248,22 +247,30 @@ export namespace ApiService {
 
 
     export async function downloadData(data: DownloadData) {
-        
         const url = uriDownload;
-        
+
         let res = await axios.default({
             method: 'POST',
             url: url,
             headers: {
                 'Content-Type': 'application/json'
             },
-            responseType: 'arraybuffer',
             data: data
         });
+        let downloadID = res.data.id;
+        console.log('downloadID ', downloadID);
 
-        
+        // TRIGGERING DOWNLOAD
+        let click = function(node) {
+			var event = new MouseEvent("click");
+			node.dispatchEvent(event);
+		}
+        let save_link = document.createElementNS("http://www.w3.org/1999/xhtml", "a") as any;
+        save_link.href = '/api/download/' + downloadID;;
+        save_link.download = 'data.zip';
+        click(save_link);
 
-        filesaver.saveAs(new Blob([res.data]), "test.zip");
+
     }
 
 }

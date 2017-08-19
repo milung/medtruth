@@ -3,6 +3,7 @@ import * as express from 'express';
 import * as fs from 'fs';
 import * as jimp from 'jimp';
 import * as archiver from 'archiver';
+import * as uuid from 'uuid/v1';
 
 import { AzureStorage, AzureDatabase } from '../../azure-service';
 import { StatusCode } from '../../constants';
@@ -40,6 +41,10 @@ export interface LabelStatus {
 export enum OutputType {
     STATE_OF_LABEL, REGRESSION_VALUE
 }
+
+
+const dataForDownload  = {}
+
 /*
     Route:      POST '/download'
     --------------------------------------------
@@ -47,8 +52,24 @@ export enum OutputType {
 */
 routerDownload.post('/', json(), async (req, res) => {
     let data: DownloadData = req.body;
+    
+
+    let id = uuid();
+    dataForDownload[id] = data;
+    setTimeout(() => {
+        console.log(dataForDownload);
+        
+        delete dataForDownload[id];
+        console.log('po');
+        
+        console.log(dataForDownload);
+        
+    }, 5000);
+    res.json({id: id});
+    /*
     let archive = archiver('zip');
     let zippedFilename = "data.zip"
+    console.log("POST");
     
     var header = {
         "Content-Type": "application/x-zip",
@@ -58,21 +79,52 @@ routerDownload.post('/', json(), async (req, res) => {
         "Content-disposition": 'attachment; filename="' + zippedFilename + '"'
     };
     res.writeHead(StatusCode.OK, header);
-    /*
+ 
         // Writes the response's header.
         res.writeHead(StatusCode.OK, {
             'Content-Type': 'application/zip',
             'Content-Disposition': 'attachment; filename=Test.zip',
         });
-        */
+   
 
     // Pipe the ziping to the response.
     archive.pipe(res);
-
+    
     await DownloadController.downloadImages(data, archive);
 
     // Finalize the stream.
     archive.finalize();
+    */
 });
+    /*
+    Route:      POST '/download'
+    --------------------------------------------
+    // TODO: Think of a way how the download endpoint will work.
+*/
+routerDownload.get('/:id', async (req, res) => {
+    let data = dataForDownload[req.params.id];
+    if(data === null || data === undefined) res.sendStatus(StatusCode.BadRequest);
 
+    let archive = archiver('zip');
+    let zippedFilename = "data.zip"
+    console.log("GET");
+    
+    var header = {
+        "Content-Type": "application/x-zip",
+        "Pragma": "public",
+        "Expires": "0",
+        "Cache-Control": "private, must-revalidate, post-check=0, pre-check=0",
+        "Content-disposition": 'attachment; filename="' + zippedFilename + '"'
+    };
+    res.writeHead(StatusCode.OK, header);
 
+    // Pipe the ziping to the response.
+    archive.pipe(res);
+    
+    await DownloadController.downloadImages(data, archive);
+
+    // Finalize the stream.
+    archive.finalize();
+    
+});
+    
