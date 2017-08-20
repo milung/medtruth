@@ -269,8 +269,6 @@ export namespace ApiService {
         save_link.href = '/api/download/' + downloadID;;
         save_link.download = 'data.zip';
         click(save_link);
-
-
     }
 
 }

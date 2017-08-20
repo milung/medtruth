@@ -19,7 +19,7 @@ export namespace AzureStorage {
     export const containerImages = 'images';
     //export const containerImages = 'test01';
 
-    
+
 
 
     export enum Status {
@@ -295,34 +295,30 @@ export namespace AzureDatabase {
         return new Promise<void>(async (resolve, reject) => {
             try {
                 var conn = await connectToAttributes();
+                let origResult = null;
 
-                let filter = { imageID: id };
-                let update = {
-                    $pull: {
-                        attributes: {
-                            key: {
-                                $in: labelsToRemove
-                            }
+                try {
+                    labelsToRemove.forEach(label => {
+                        if (origResult == null) {
+                            origResult = removeLabelFromAttribute(id, label, conn);
+                        } else {
+                            removeLabelFromAttribute(id, label, conn);
                         }
-                    }
-                };
-                let options = {
-                    returnOriginal: true
-                };
-                let result: FindAndModifyWriteOpResultObject<any>
-                    = await conn.collection.findOneAndUpdate(filter, update, options);
+                    });
 
-                if (!result.ok) {
+                } catch (error) {
+                    console.log("CATCH");
+                    console.log(error);
                     reject();
-                    return;
                 }
 
-                if (result.value === undefined) {
+
+                if (origResult.value === undefined) {
                     resolve();
                     return;
                 }
 
-                let originalLabels = result.value.attributes.map(attr => attr.key);
+                let originalLabels = origResult.value.attributes.map(attr => attr.key);
                 let removedLabels: string[] = _(originalLabels).intersection(labelsToRemove).value();
                 removeFromLabels(removedLabels);
                 resolve();
@@ -330,6 +326,30 @@ export namespace AzureDatabase {
                 reject();
             } finally {
                 close(conn.db);
+            }
+        });
+    }
+
+    function removeLabelFromAttribute(id, labelToRemove: string, conn: Connection): Promise<void> {
+        return new Promise<any>(async (resolve, reject) => {
+            let filter = { imageID: id };
+            let update = {
+                $pull: {
+                    attributes: {
+                        key: labelToRemove
+                    }
+                }
+            };
+            let options = {
+                returnOriginal: true
+            };
+            try {
+                let result = await conn.collection.findOneAndUpdate(filter, update, options);
+                resolve(result);
+            } catch (e) {
+                console.log("CATCH");
+                console.log(e);
+                reject();
             }
         });
     }
