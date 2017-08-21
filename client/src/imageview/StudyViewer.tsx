@@ -48,7 +48,7 @@ export class StudyViewerComponent extends React.Component<OwnProps & ConnectedSt
         console.log('render studies list', this.props.studiesList);
         return (
             <div style={{ marginLeft: 10, marginBottom: 10, marginRight: 10 }}>
-                <Grid item="true" xs={1} sm={1} md={1} lg={1} xl={1}>
+                <Grid item={true} xs={1} sm={1} md={1} lg={1} xl={1}>
                     <BackButton history={this.props.history} />
                 </Grid>
                 <Typography type="display1" component="p" style={{ margin: 20 }}>
