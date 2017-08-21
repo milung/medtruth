@@ -34,7 +34,7 @@ export class PatientViewComponent extends React.Component<PatientProps & Connect
     constructor(props) {
         super(props);
 
-        this.convertDate = this.convertDate.bind(this);
+        //this.convertDate = this.convertDate.bind(this);
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
         this.clickHandler = this.clickHandler.bind(this);
     }
@@ -69,6 +69,7 @@ export class PatientViewComponent extends React.Component<PatientProps & Connect
     }
 
     render() {
+        console.log('birthday', this.props.patientBirthday);
         return (
             <div id={this.props.patientID + ''} >
 
@@ -86,7 +87,7 @@ export class PatientViewComponent extends React.Component<PatientProps & Connect
                             Patient name: {this.props.patientName}
                         </Typography>
                         <Typography type="body2" component="p">
-                            Date of birth: {this.convertDate(this.props.patientBirthday)}
+                            Date of birth: {convertDate(this.props.patientBirthday)}
                         </Typography>
                         {/* <Typography type="body2" component="p">
                             Study description: {this.props.studyDescription}
@@ -106,17 +107,6 @@ export class PatientViewComponent extends React.Component<PatientProps & Connect
                 </Card>
             </div>
         );
-    }
-
-    private convertDate(millisecond: number): string {
-        console.log('date number', millisecond);
-        if (millisecond === -1) {
-            return 'Date not specified.';
-        }
-        var d = new Date(millisecond);
-        var datestring = ('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2) + '/' +
-            d.getFullYear();
-        return datestring;
     }
 }
 
@@ -139,3 +129,14 @@ export const PatientView = connect(mapStateToProps, mapDispatchToProps)(PatientV
 const isPatientSelected = (state: State, patientId: string): boolean => {
     return state.ui.selections.patients.indexOf(patientId) !== -1;
 };
+
+export function convertDate(millisecond: number): string {
+        console.log('date number', millisecond);
+        if (millisecond === -1) {
+            return 'Date not specified.';
+        }
+        var d = new Date(millisecond);
+        var datestring = ('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2) + '/' +
+            d.getFullYear();
+        return datestring;
+    }

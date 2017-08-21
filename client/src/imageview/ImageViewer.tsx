@@ -16,7 +16,7 @@ import {
     imagesAllUnselected, AllItemsUnselectedAction, allItemsUnselected
 } from '../actions/actions';
 
-import { PatientProps } from '../imageview/PatientView';
+import { PatientProps, convertDate } from '../imageview/PatientView';
 import { Link } from 'react-router-dom';
 import { ImageEntity, PatientEntity, StudyEntity, SeriesEntity } from "../reducers/EntitiesReducer";
 import { getImagesWhereSeriesId, getStudiesWhereId, getPatientsWhereId, getSeriesesWhereId } from "../selectors/selectors";
@@ -103,7 +103,7 @@ class ImageViewerComponent extends React.Component<OwnProps & ConnectedDispatch 
                         </Typography>
                 <Grid item={true} xs={12} sm={12} md={12} style={imageStyle.seriesStyle} >
                     <Typography type="body1">Name: <b>{this.props.patients[0].patientName} </b></Typography>
-                    <Typography type="body1">Birthday: <b>{this.props.patients[0].patientBirthday}</b></Typography>
+                    <Typography type="body1">Birthday: <b>{convertDate(this.props.patients[0].patientBirthday)}</b></Typography>
                     <Typography type="body1">Study description: <b>{this.props.studies[0].studyDescription}</b></Typography>
                     <Typography type="body1">Series description: <b>{this.props.series[0].seriesDescription}</b></Typography>
                 </Grid>

@@ -11,6 +11,7 @@ import { connect } from "react-redux";
 import { AllItemsUnselectedAction, ActionType, allItemsUnselected } from "../actions/actions";
 import * as Redux from 'redux';
 import { BackButton } from "./BackButton";
+import { convertDate } from "./PatientView";
 
 // export interface ArrayOfSeries {
 //     list: SeriesProps[];
@@ -57,7 +58,7 @@ export class SeriesViewerComponent extends React.Component<OwnProps & ConnectedS
                 <Grid container={true} gutter={16}>
                     <Grid item={true} xs={12} sm={12} md={12} style={imageStyle.seriesStyle} >
                        <Typography type="body1">Name: <b>{this.props.patients[0].patientName}</b></Typography>
-                       <Typography type="body1">Birthday: <b>{this.props.patients[0].patientBirthday}</b></Typography>
+                       <Typography type="body1">Birthday: <b>{convertDate(this.props.patients[0].patientBirthday)}</b></Typography>
                        <Typography type="body1">Study description: <b>{this.props.studies[0].studyDescription}</b></Typography>
                     </Grid>
                     {console.log("series list", this.props.seriesList)}

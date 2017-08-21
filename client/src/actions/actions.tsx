@@ -264,7 +264,7 @@ export interface ImageLabel {
 export class PatientJSON {
     patientID: string;
     patientName: string;
-    patientBirtday: number;
+    patientBirthday: number;
     studies: StudyJSON[] = [];
 }
 export class StudyJSON {
