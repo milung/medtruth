@@ -99,15 +99,16 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
                         <Typography type="body2" component="p">
                             {this.props.seriesDescription}
                         </Typography>
+                        <Link to={this.getGalleryPath()} onClick={event => { event.stopPropagation(); }}>
+                            <a>
+                                <img
+                                    src={require('../icons/icon1.png')}
+                                    style={{ float: 'right', marginBottom: '5', marginRight: '5' }}
+                                />
+                            </a>
+                        </Link>
                     </CardContent>
-                    <Link to={this.getGalleryPath()} onClick={event => { event.stopPropagation(); }}>
-                        <a>
-                            <img
-                                src={require('../icons/icon1.png')}
-                                style={{ float: 'right', marginBottom: '5', marginRight: '5' }}
-                            />
-                        </a>
-                    </Link>
+
                 </Card>
             </div>
         );

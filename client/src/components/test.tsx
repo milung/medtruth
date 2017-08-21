@@ -5,7 +5,7 @@ import { PatientViewer } from '../imageview/PatientViewer';
 import { BlowUp } from './blowup';
 import { connect, Store } from 'react-redux';
 import { State } from '../app/store';
-import { SelectionStatus } from '../selectionStatus/SelectionStatus';
+// import { SelectionStatus } from '../selectionStatus/SelectionStatus';
 import { BrowserRouter } from 'react-router-dom';
 import { RouteMap } from '../router/routermap';
 import { ApiService } from '../api';
