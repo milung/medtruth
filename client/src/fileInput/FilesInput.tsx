@@ -7,6 +7,14 @@ interface FilesInputProps {
 }
 
 export class FilesInputComponent extends React.Component<FilesInputProps, {}> {
+
+    componentDidMount(){
+        let input = document.getElementById("file");
+        input .setAttribute('webkitdirectory','true');
+        console.log("SET TO TRUE");
+        
+    }
+    
     render() {
         var handleFilesInputChangeEvent = (e: any) => {
             if (e.target.files.length === 0) { return; }
@@ -19,9 +27,9 @@ export class FilesInputComponent extends React.Component<FilesInputProps, {}> {
                     multiple={true} 
                     disabled={this.props.disabled}
                     type="file" 
-                    id="file" 
+                    id="file"
                     onChange={handleFilesInputChangeEvent} 
-                />
+                /> 
         );
     }
 }
