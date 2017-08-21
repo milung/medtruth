@@ -76,9 +76,13 @@ export namespace DownloadController {
 
             for (let image of imagesToWrite) {
                 let resData = await AzureDatabase.getAttributes(image);
+                console.log("image: ", image);
+                console.log("imageID: ", resData.imageID);
+                console.log("attribute: ", resData.attributes);
                 stringOfValues += "|labels ";
                 if (data) {
                     for (let label of data.labels) {
+                        console.log("label: ", label);
                         let writed = false;
                         if (resData.attributes) {
                             for (let attribute of resData.attributes) {
@@ -93,9 +97,9 @@ export namespace DownloadController {
 
                                     } else {
                                         if (attribute.value !== 0) {
-                                            stringOfValues += '1.0 ';
+                                            stringOfValues += '1 ';
                                         } else {
-                                            stringOfValues += '0.0 ';
+                                            stringOfValues += '0 ';
                                         }
                                     }
                                     writed = true;
@@ -104,12 +108,15 @@ export namespace DownloadController {
 
                             }
                         }
-                        if (!writed && label.selected) {
+                        if (!writed && label.selected && data.format === 1) {
                             // if(labels.format===1){
                             // values.push(0.0);
                             stringOfValues += "0.0 ";
                             console.log("false: ", 0);
                             //}                  
+                        } else if(!writed && label.selected && data.format === 0) {
+                            stringOfValues += "0 ";
+                            console.log("false: ", 0);
                         }
                     }
                     // console.log("values: ", values);
