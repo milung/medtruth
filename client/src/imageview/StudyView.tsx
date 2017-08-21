@@ -79,8 +79,7 @@ export class StudyViewComponent extends React.Component<OwnProps & StudiesProps 
                         <Typography type="body2" component="p">
                             {this.props.studyDescription}
                         </Typography>
-                    </CardContent>
-                    <Link to={this.getSeriePath()}>
+                         <Link to={this.getSeriePath()}>
                         <a>
                             <img
                                 src={require('../icons/icon1.png')}
@@ -88,6 +87,9 @@ export class StudyViewComponent extends React.Component<OwnProps & StudiesProps 
                             />
                         </a>
                     </Link>
+
+                    </CardContent>
+                   
                 </Card>
             </div>
         );

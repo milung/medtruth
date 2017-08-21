@@ -409,14 +409,14 @@ describe('EntitiesReducer', () => {
 
         let patient1: PatientJSON = {
             patientID: 'patientID1',
-            patientBirtday: undefined,
+            patientBirthday: undefined,
             patientName: undefined,
             studies: [study1]
         };
 
         let patient2: PatientJSON = {
             patientID: 'patientID2',
-            patientBirtday: undefined,
+            patientBirthday: undefined,
             patientName: undefined,
             studies: []
         };
@@ -473,14 +473,14 @@ describe('EntitiesReducer', () => {
 
         expect(newState.patients.byId.get('patientID1')).toEqual({
             patientID: 'patientID1',
-            patientBirtday: undefined,
+            patientBirthday: undefined,
             patientName: undefined,
             studies: ['studyID1']
         });
 
         expect(newState.patients.byId.get('patientID2')).toEqual({
             patientID: 'patientID2',
-            patientBirtday: undefined,
+            patientBirthday: undefined,
             patientName: undefined,
             studies: []
         });

@@ -172,7 +172,7 @@ export class UploadController {
                 patient = new objects.UploadJSON();
                 patient.patientID = patientID;
                 patient.patientName = patientName;
-                patient.patientBirtday = patientBirthday;
+                patient.patientBirthday = patientBirthday;
             }
 
             let existingStudy = patient.studies.find((stud) => {

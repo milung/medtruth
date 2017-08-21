@@ -101,7 +101,7 @@ export class JSONCreator {
 export class UploadJSON {
     patientID: string;
     patientName: string;
-    patientBirtday: number;
+    patientBirthday: number;
     studies: StudyJSON[] = [];
 }
 
