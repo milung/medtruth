@@ -63,6 +63,8 @@
     "start": "node out/server.js local",
     "build": "tsc",
     "test": "cls && jest",
-    "debug": "node --inspect-brk=5858 out/server.js"
+    "debug": "node --inspect-brk=5858 out/server.js",
+    "woof": "tsc && node out/server.js local"
+
   }
 }

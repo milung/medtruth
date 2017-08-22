@@ -64,12 +64,13 @@ export class UploadController {
         let json = await this.parse();
         console.log("inserting to db");
         console.log(json);
-
+        var db = await AzureDatabase.connect();
         for (let key in json) {
             console.log('inserting ' + key);
 
-            await AzureDatabase.updateToImageCollection(json[key]);
+            await AzureDatabase.updateToImageCollectionDB(json[key], db);
         }
+        db.close();
 
         //await createThumbnails;
 
@@ -147,14 +148,30 @@ export class UploadController {
         let imagesToUpload: ImageInfoData[] = [];
         //patients[0] = new objects.UploadJSON();
         // get patients from database
+        try {
+            var db = await AzureDatabase.connect();
+        } catch (error) {
+            console.log("create");
+            console.log(error);
+        }
+
+
         let getPatients = this.responses.map(async (parse) => {
             let conv = new DaikonConverter(storagePath + parse.filename);
             let patientID = conv.getPatientID();
-            let patientAzure = await AzureDatabase.getPatientDocument(patientID);
-            patients[patientID] = patientAzure;
+            try {
+                let patientAzure = await AzureDatabase.getPatientDocumentDB(patientID, db);
+                patients[patientID] = patientAzure;
+            } catch (error) {
+                console.log("patientazure");
+                console.log(error);
+            }
         });
         // w8 'till all patients are fetched
-        await Promise.all(getPatients)
+        await Promise.all(getPatients);
+        db.close();
+
+
 
         // parse info from all dicom files and save to db
         let parses = this.responses.forEach((parse) => {
@@ -273,12 +290,12 @@ export class UploadController {
                     return serie.seriesID === imageData.series;
                 }); if (existingSeries === undefined) return;
                 console.log(existingSeries.images);
-                _.remove(existingSeries.images,{
+                _.remove(existingSeries.images, {
                     imageID: imageData.imageID
                 });
 
                 console.log(existingSeries.images);
-                
+
 
                 return;
             }
@@ -319,7 +336,7 @@ export class UploadController {
         return new PromiseBlueBird(async (resolve, reject) => {
             let pngPath: string = imagePath + imageID + ".png";
             try {
-                await AzureStorage.toImages(imageID + ".png",pngPath);
+                await AzureStorage.toImages(imageID + ".png", pngPath);
                 resolve("OK");
             } catch (e) {
                 reject("NOT OK");

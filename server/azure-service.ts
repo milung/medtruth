@@ -100,6 +100,33 @@ export namespace AzureStorage {
             })
         });
     }
+
+
+    export function deleteImageAndThumbnail(image: string) {
+        return new PromiseBlueBird(async (resolve, reject) => {
+            try {
+                let name = image + ".png";
+                let thumbnail = image + "_.png";
+                // delete image
+                let imgPromimse = blobService.deleteBlobIfExists(containerImages, name, (error, result, response) => {
+                });
+                // delete thumbnail
+                let thmbPromise = blobService.deleteBlobIfExists(containerImages, thumbnail, (error, result, response) => {
+                });
+
+                await PromiseBlueBird.all([imgPromimse,thmbPromise]);
+                console.log('[deleted] ' +name);
+                
+                resolve();
+            } catch (e) {
+                console.log("service deleteImageAndThumbnail");
+                
+                console.log(e);
+                
+                reject({});
+            }
+        });
+    }
 }
 
 export namespace AzureDatabase {
@@ -190,6 +217,36 @@ export namespace AzureDatabase {
         return new Promise<Status>(async (resolve, reject) => {
             try {
                 var db = await connect();
+                let collection = await db.collection('images');
+                let query = { patientID: String(object.patientID) };
+                await collection.update(query, object,
+                    {
+                        upsert: true
+                    }, (error, result) => {
+                        if (error) {
+                            console.log('error');
+                            console.log(error);
+                            reject(Status.FAILED);
+                        }
+                        else {
+
+                            resolve(Status.SUCCESFUL);
+                        }
+                    });
+            } catch (e) {
+                console.log('error');
+                console.log(e);
+                reject(Status.FAILED);
+            } finally {
+                close(db);
+            }
+        });
+    }
+
+
+    export function updateToImageCollectionDB(object, db): Promise<Status> {
+        return new Promise<Status>(async (resolve, reject) => {
+            try {
                 let collection = await db.collection('images');
                 let query = { patientID: String(object.patientID) };
                 await collection.update(query, object,
@@ -419,6 +476,26 @@ export namespace AzureDatabase {
     }
 
     /**
+    * Returns Upload document with a specific ID.
+    * @param patientID
+    */
+    export function getPatientDocumentDB(patientID: string, db): Promise<string> {
+        return new Promise<string>(async (resolve, reject) => {
+            try {
+
+                let query = { patientID: String(patientID) };
+                let collection = await db.collection('images');
+
+                let result = await collection.findOne(query);
+                if (result) resolve(result);
+                else resolve(result);
+            } catch (e) {
+                reject(Status.FAILED);
+            }
+        });
+    }
+
+    /**
      * Returns JSON object of the last Upload document in MongoDB.
      */
     export function getLastUpload(): Promise<string> {
@@ -457,7 +534,7 @@ export namespace AzureDatabase {
             try {
                 var conn = await connectToImages();
                 let query = { uploadID: req.uploadID };
-                let result = await conn.collection.findOne(query);
+                let result: UploadJSON = await conn.collection.findOne(query);
 
                 // TODO: Refactor!
                 if (result) {
@@ -489,15 +566,13 @@ export namespace AzureDatabase {
 
     export function removeFromLabels(labels: string[]): Promise<Status> {
         return new Promise<Status>(async (resolve, reject) => {
-
+           
             if (!labels || labels.length === 0) {
                 resolve(Status.SUCCESFUL);
                 return;
             }
-
             try {
                 var conn = await connectToLabels();
-
                 // remove where count is equal 1
                 await conn.collection.deleteMany({
                     label: {
@@ -505,7 +580,6 @@ export namespace AzureDatabase {
                     },
                     count: 1
                 });
-
                 // decrement count
                 let updateObjects: {}[] = labels.map(label => {
                     return {
@@ -608,4 +682,20 @@ export namespace AzureDatabase {
             }
         });
     }
+
+    export function deleteAllPatients() {
+        return new Promise(async (resolve, reject) => {
+            try {
+                var conn = await connectToImages();
+                conn.collection.remove({});
+                resolve();
+            } catch (e) {
+                reject({});
+            } finally {
+                close(conn.db);
+            }
+        });
+    }
+
+
 }
