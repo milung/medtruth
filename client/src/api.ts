@@ -11,6 +11,7 @@ export namespace ApiService {
     const uriDownload = apiEndpoint + '/download';
     const uriLabels = apiEndpoint + '/labels';
     const uriPatients = apiEndpoint + '/patients';
+    const uriDelete = apiEndpoint + '/delete';
 
     /*
         Route:      POST '/upload'
@@ -267,5 +268,20 @@ export namespace ApiService {
         saveLink.href = '/api/download/' + downloadID;
         saveLink.download = 'data.zip';
         click(saveLink);
+    }
+
+    export async function deleteAll() {
+        // const url = uriPatients;
+        const url = uriDelete;
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'DELETE',
+            url: url,
+            headers: {}
+        });
+
+        return res.data;
+
+        // return res.status === Status.SUCCESFUL ? true : false;
     }
 }

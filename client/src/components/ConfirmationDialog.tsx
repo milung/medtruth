@@ -3,24 +3,16 @@ import * as Redux from 'redux';
 import Button from 'material-ui/Button';
 import Checkbox from 'material-ui/Checkbox';
 import List, { ListItem, ListItemText } from 'material-ui/List';
-import Dialog, {
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-} from 'material-ui/Dialog';
+import Dialog, { DialogActions, DialogContent, DialogContentText, DialogTitle } from 'material-ui/Dialog';
 import { DeleteDialogState, deleteDialogStateChange } from "../actions/actions";
 import { State } from "../app/store";
 import { connect } from "react-redux";
 import Typography from 'material-ui/Typography';
+import { ApiService } from "../api";
 
 interface OwnState {
     deleteAll: boolean;
 }
-
-// interface OwnState {
-//     open: boolean;
-// }
 
 interface ConnectedState {
     showDialog: boolean;
@@ -45,8 +37,19 @@ class ConfirmationDialogComponent extends React.Component<ConnectedDispatch & Co
         this.props.changeDialogState(false);
     };
 
-    handleRequestOk() {
+    async handleRequestOk() {
         console.log("ok; delete all is " + this.state.deleteAll);
+
+        if (this.state.deleteAll) {
+            // Delete everything
+            console.log('deleting everything');
+            let resData = await ApiService.deleteAll();
+            console.log(resData);
+        } else {
+            // Delete selected
+            console.log('deleting selected');
+        }
+
         this.props.changeDialogState(false);
     };
 
@@ -69,14 +72,14 @@ class ConfirmationDialogComponent extends React.Component<ConnectedDispatch & Co
                     <DialogContent>
                         <DialogContentText>
                             {/* {(this.props.deleteAll) ? "Are you sure you want to remove everything?" : */}
-                            "Are you sure you want to delete selected items?"
+                            "Do you want to delete selected items?"
                             <p/>
                             <Checkbox
                                 checked={this.state.deleteAll}
                                 onClick={event => (this.handleCheck())}
                             />
                             {/* <Typography color='accent'> */}
-                                I want to delete <b>EVERYTHING!</b>
+                                No, I want to delete <b>EVERYTHING</b>!
                             {/* </Typography> */}
                         </DialogContentText>
                     </DialogContent>

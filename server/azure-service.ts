@@ -605,37 +605,51 @@ export namespace AzureDatabase {
         });
     }
 
-    export function removeAll(): Promise<void> {
-        return new Promise<void>(async (resolve, reject) => {
-            // Delete everything from attributes MongoDB collection 
-            try {
-                var conn = await connectToAttributes();
-                let result = await conn.collection.deleteMany({});
-                console.log(result);
-            } catch (e) {
-                reject({});
-            } finally {
-                close(conn.db);
-            }
-            // Delete everything from labels MongoDB collection
-            try {
-                var conn = await connectToLabels();
-                let result = await conn.collection.deleteMany({});
-                console.log(result);
-            } catch (e) {
-                reject({});
-            } finally {
-                close(conn.db);
-            }
-            // Delete everything from images MongoDB collection
+    /**
+     * Remove everything from MongoDB and Azure Blob Storage
+     */
+    export function removeAll(): Promise<any> {
+        return new Promise<any>(async (resolve, reject) => {
+            // Save the list of blob names before deleting everything from images collection
 
+            // Drop the whole mongoDB database
+            console.log('droping database');
+            let db = await connect();
+            try {
+                let result = await db.dropDatabase();
+                console.log('result', result);
+                resolve(result);
+            } catch (e) {
+                reject();
+            }
             // Delete each image from blob storage
 
             // Delete each dicom from blob storage
         });
     }
 
-    export function removeAttributes(): Promise<void> {
-        return new Promise<void>(() => {});
+    /** 
+     * Remove particular studies of a particular patient
+     */
+    export function removePatientsStudies(patient: string, studies: string[]): Promise<any> {
+        return new Promise<any>(async (resolve, reject) => {
+            // db.getCollection('images').update({"patientID":"2008.9.23.12.48.59"},{"$unset":{"studies" : 1}});
+            var conn = await connectToImages();
+            let filter = { patientID: patient };
+            let update = {
+                $unset: {
+                    // studies: study
+                    studies: { $in: studies }
+                }
+            };
+
+            try {
+                let result = await conn.collection.update(filter, update);
+                resolve(result);
+            } catch (e) {
+                reject();
+            }
+        });
     }
+
 }

@@ -128,6 +128,5 @@ routerImages.delete('/:id/assign', json(), async (req, res) => {
     } catch (e) {
         res.sendStatus(500);
     }
-    
 });
 
