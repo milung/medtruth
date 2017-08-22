@@ -11,15 +11,13 @@ import { State } from '../app/store';
 import { imageStyle } from '../styles/ComponentsStyle';
 import Icon from 'material-ui/Icon';
 import { Link } from 'react-router-dom';
-//import { ArrayOfSeries } from "./SeriesViewer";
-
-// import FontIcon from 'material-ui/Icon'
+import { SeriesEntity } from "../reducers/EntitiesReducer";
+import { getSeriesesWhereStudyId } from "../selectors/selectors";
 
 export interface StudiesProps {
-    patientID: string;  // TODO REMOVE PATIENT ID
+    patientID: string;  
     studyID: string;
     studyDescription: string;
-    //series: ArrayOfSeries;
 }
 
 interface OwnProps {
@@ -33,6 +31,7 @@ export interface ConnectedDispatch {
 
 export interface ConnectedState {
     isSelected: boolean;
+    seriesOfStudie: SeriesEntity[];
 }
 export class StudyViewComponent extends React.Component<OwnProps & StudiesProps & ConnectedDispatch & ConnectedState, StudiesProps> {
 
@@ -42,11 +41,6 @@ export class StudyViewComponent extends React.Component<OwnProps & StudiesProps 
     }
 
     getSeriePath(): string {
-        ///patients/:patientID/studies/:studyID
-        // let studyID = this.props.match.params.studyID; 
-        // let patientID = this.props.match.params.patientID;
-        // return `/patients/${patientID}/studies/${studyID}`;
-        // TODO get patientID from redux
         return `/studies/${this.props.studyID}/${this.props.patientID}`;
     }
 
@@ -72,12 +66,12 @@ export class StudyViewComponent extends React.Component<OwnProps & StudiesProps 
                     onClick={this.clickHandler}
                     style={{ border: this.getBorderStyle(this.props.isSelected) }}
                 >
-                    <CardContent style={imageStyle.contentCenter}>
-                        <Typography type="title" component="p">
-                            {this.props.studyID}
+                    <CardContent style={imageStyle.contentCenter}>                        
+                        <Typography type="body2" component="p">
+                            Study description: <b>{this.props.studyDescription}</b>
                         </Typography>
                         <Typography type="body2" component="p">
-                            {this.props.studyDescription}
+                            Number of series: <b>{this.props.seriesOfStudie.length}</b>
                         </Typography>
                          <Link to={this.getSeriePath()}>
                         <a>
@@ -98,11 +92,11 @@ export class StudyViewComponent extends React.Component<OwnProps & StudiesProps 
 
 function mapStateToProps(state: State, props: StudiesProps): StudiesProps & ConnectedState {
     return {
-        // TODO REMOVE PATIENT ID
         patientID: props.patientID,
         studyID: props.studyID,
         studyDescription: props.studyDescription,
-        isSelected: isStudySelected(state, props.studyID)
+        isSelected: isStudySelected(state, props.studyID),
+        seriesOfStudie: getSeriesesWhereStudyId(state, props.studyID)
     };
 }
 

@@ -6,10 +6,10 @@ import { getThumbnailImageURL } from '../constants';
 import { Keys } from '../actions/actions';
 
 export interface OwnProps {
-    //imageNumber: number;
+    // imageNumber: number;
     imageID: string;
     handleDoubleClick: () => void;
-    //isSelected: boolean;
+    // isSelected: boolean;
 }
 
 export class ImageComponent extends React.Component<OwnProps, {}> {

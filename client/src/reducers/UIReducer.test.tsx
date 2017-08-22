@@ -50,7 +50,8 @@ describe('UIReducer', () => {
                 patients: []
             },
             lastViewedStudyID: '',
-            showDownloadPopUP: false
+            showDownloadPopUP: false,
+            showDeleteDialog: false
         };
 
         // when
@@ -80,7 +81,8 @@ describe('UIReducer', () => {
                 patients: []
             },
             lastViewedStudyID: '',
-            showDownloadPopUP: false
+            showDownloadPopUP: false,
+            showDeleteDialog: false
         };
 
         // when
@@ -109,7 +111,8 @@ describe('UIReducer', () => {
                 patients: []
             },
             lastViewedStudyID: '',
-            showDownloadPopUP: false
+            showDownloadPopUP: false,
+            showDeleteDialog: false
         };
 
         // when
@@ -139,7 +142,8 @@ describe('UIReducer', () => {
                 patients: []
             },
             lastViewedStudyID: '',
-            showDownloadPopUP: false
+            showDownloadPopUP: false,
+            showDeleteDialog: false
 
         };
 
@@ -168,7 +172,8 @@ describe('UIReducer', () => {
                 patients: []
             },
             lastViewedStudyID: '',
-            showDownloadPopUP: false
+            showDownloadPopUP: false,
+            showDeleteDialog: false
         };
 
         // when
@@ -197,7 +202,8 @@ describe('UIReducer', () => {
                 patients: []
             },
             lastViewedStudyID: '',
-            showDownloadPopUP: false
+            showDownloadPopUP: false,
+            showDeleteDialog: false
         };
 
         // when
@@ -227,7 +233,8 @@ describe('UIReducer', () => {
                 patients: []
             },
             lastViewedStudyID: '',
-            showDownloadPopUP: false
+            showDownloadPopUP: false,
+            showDeleteDialog: false
         };
 
         // when
@@ -256,7 +263,8 @@ describe('UIReducer', () => {
                 patients: []
             },
             lastViewedStudyID: '',
-            showDownloadPopUP: false
+            showDownloadPopUP: false,
+            showDeleteDialog: false
         };
 
         // when
@@ -286,7 +294,8 @@ describe('UIReducer', () => {
                 patients: []
             },
             lastViewedStudyID: '',
-            showDownloadPopUP: false
+            showDownloadPopUP: false,
+            showDeleteDialog: false
         };
 
         // when
@@ -316,7 +325,8 @@ describe('UIReducer', () => {
                 patients: []
             },
             lastViewedStudyID: '',
-            showDownloadPopUP: false
+            showDownloadPopUP: false,
+            showDeleteDialog: false
         };
 
         // when
@@ -334,9 +344,5 @@ describe('UIReducer', () => {
             itemType: ItemTypes.IMAGE,
             keyPressed: Keys.NONE
         };
-
-
     });
-
-
 });

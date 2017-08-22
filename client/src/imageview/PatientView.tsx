@@ -9,12 +9,14 @@ import { Link } from 'react-router-dom';
 import { ItemSelectedAction, Keys, ActionType, itemSelected, ItemTypes } from '../actions/actions';
 import * as Redux from 'redux';
 import { connect } from 'react-redux';
+import { getStudiesWherePatientId } from "../selectors/selectors";
+import { StudyEntity } from "../reducers/EntitiesReducer";
 
 export interface PatientProps {
     patientID: string;
     patientName: string;
     patientBirthday: number;
-    // studies: StudiesProps[];
+    
 }
 
 export interface PatientList {
@@ -23,6 +25,8 @@ export interface PatientList {
 
 export interface ConnectedState {
     isSelected: boolean;
+    studiesOfPatient: StudyEntity[];
+    //numberOfStudies: number;
 }
 
 export interface ConnectedDispatch {
@@ -34,7 +38,7 @@ export class PatientViewComponent extends React.Component<PatientProps & Connect
     constructor(props) {
         super(props);
 
-        //this.convertDate = this.convertDate.bind(this);
+        // this.convertDate = this.convertDate.bind(this);
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
         this.clickHandler = this.clickHandler.bind(this);
     }
@@ -84,14 +88,14 @@ export class PatientViewComponent extends React.Component<PatientProps & Connect
                             style={{ float: 'left', width: 60, height: 60, paddingRight: 20 }}
                         />
                         <Typography type="body2" component="p">
-                            Patient name: {this.props.patientName}
+                            Patient name: <b>{this.props.patientName}</b>
                         </Typography>
                         <Typography type="body2" component="p">
-                            Date of birth: {convertDate(this.props.patientBirthday)}
+                            Date of birth: <b>{convertDate(this.props.patientBirthday)}</b>
                         </Typography>
-                        {/* <Typography type="body2" component="p">
-                            Study description: {this.props.studyDescription}
-                        </Typography> */}
+                        <Typography type="body2" component="p">
+                            Number of studies: <b>{this.props.studiesOfPatient.length}</b>
+                        </Typography> 
                         <Link to={'/patients/' + this.props.patientID}>
                             <a>
                                 <img
@@ -114,7 +118,8 @@ function mapStateToProps(state: State, props): ConnectedState & PatientProps {
 
     return {
         isSelected: isPatientSelected(state, props.patientID),
-        ...props
+        ...props,
+        studiesOfPatient: getStudiesWherePatientId(state, props.patientID)
     };
 }
 
@@ -131,12 +136,12 @@ const isPatientSelected = (state: State, patientId: string): boolean => {
 };
 
 export function convertDate(millisecond: number): string {
-        console.log('date number', millisecond);
-        if (millisecond === -1) {
-            return 'Date not specified.';
-        }
-        var d = new Date(millisecond);
-        var datestring = ('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2) + '/' +
-            d.getFullYear();
-        return datestring;
+    console.log('date number', millisecond);
+    if (millisecond === -1) {
+        return 'Date not specified.';
     }
+    var d = new Date(millisecond);
+    var datestring = ('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2) + '/' +
+        d.getFullYear();
+    return datestring;
+}

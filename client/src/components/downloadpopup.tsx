@@ -159,8 +159,12 @@ class DownloadPopupComponent extends React.Component<OwnProps & ConnectedState &
                         </Button>
                     </Toolbar>
                 </AppBar>
-                <ListItem dense button key={'outputState'}
-                    onClick={event => (this.selectFormatState())}>
+                <ListItem
+                    dense="true"
+                    button="true"
+                    key={'outputState'}
+                    onClick={event => (this.selectFormatState())}
+                >
                     <ListItemText primary={`Labels format: state`} />
                     <ListItemSecondaryAction>
                         <Checkbox
@@ -169,8 +173,12 @@ class DownloadPopupComponent extends React.Component<OwnProps & ConnectedState &
                         />
                     </ListItemSecondaryAction>
                 </ListItem>
-                <ListItem dense button key={'outputReggresion'}
-                    onClick={event => (this.selectFormatReggresion())}>
+                <ListItem
+                    dense="true"
+                    button="true"
+                    key={'outputReggresion'}
+                    onClick={event => (this.selectFormatReggresion())}
+                >
                     <ListItemText primary={`Labels format: regression value`} />
                     <ListItemSecondaryAction>
                         <Checkbox
@@ -179,8 +187,12 @@ class DownloadPopupComponent extends React.Component<OwnProps & ConnectedState &
                         />
                     </ListItemSecondaryAction>
                 </ListItem>
-                <ListItem dense button key={'selectAll'}
-                    onClick={event => (this.selectAllLabels())}>
+                <ListItem
+                    dense="true"
+                    button="true"
+                    key={'selectAll'}
+                    onClick={event => (this.selectAllLabels())}
+                >
                     <ListItemText primary={`Select / Unselect all items`} />
                     <ListItemSecondaryAction>
                         <Checkbox
@@ -193,8 +205,12 @@ class DownloadPopupComponent extends React.Component<OwnProps & ConnectedState &
                 <Divider />
                 <List>
                     {this.state.labels.map((value) =>
-                        <ListItem dense button key={value.labelName}
-                            onClick={event => (this.checkBoxClickHandler(event, value))}>
+                        <ListItem
+                            dense="true"
+                            button="true"
+                            key={value.labelName}
+                            onClick={event => (this.checkBoxClickHandler(event, value))}
+                        >
                             <ListItemText primary={`Label: ${value.labelName}`} />
                             <ListItemSecondaryAction>
                                 <Checkbox

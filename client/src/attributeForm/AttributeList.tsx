@@ -15,7 +15,7 @@ import * as _ from 'lodash';
 import { ImageEntity } from '../reducers/EntitiesReducer';
 import { removeImagesAnnotationAction, addImagesAnnotationAction, 
     downloadImageAnnotations, downloadLabelsAction } from '../actions/asyncActions';
-import { getImagesWhereSeriesIds, getImagesWhereStudyIds, getImagesWherePatientIds } from "../selectors/selectors";
+import { getImagesWhereSeriesIds, getImagesWhereStudyIds, getImagesWherePatientIds } from '../selectors/selectors';
 
 export interface OwnState {
     checkboxes: number[];
@@ -36,7 +36,7 @@ export interface ConnectedDispatch {
     addImagesAnnotation: (imageIds: string[], annotation: ImageAnnotation) => Promise<void>;
     removeImagesAnnotation: (imageIds: string[], label: string) => Promise<void>;
     downloadImageAnnotations: (imageIds: string[]) => Promise<void>;
-    //downloadAllLabels: () => LabelsDownloadedAction;
+    // downloadAllLabels: () => LabelsDownloadedAction;
 }
 
 export class AttributeListComponent extends React.Component<ConnectedDispatch & ConnectedState, OwnState> {
@@ -68,7 +68,7 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
     }
 
     async receiveAttributes(props: ConnectedState) {
-        //await this.setState({ wait: true }, async () => {
+        // await this.setState({ wait: true }, async () => {
         // Get labels from Redux store
         let labels: string[] = props.labels;
         console.log('labels', labels);
@@ -205,13 +205,15 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                                                     checkboxes[i] < 0 ? checkboxes[i] = 1 : checkboxes[i] = -10;
                                                     console.log('new checkboxes', checkboxes);
                                                     console.log('deleting attribute ', deletingAttribute);
-                                                    this.setState({
-                                                        checkboxes: checkboxes,
-                                                        //wait: true
-                                                    }, async () => {
+                                                    this.setState(
+                                                        { checkboxes: checkboxes }, async () => {
                                                         if (deletingAttribute) {
-                                                            // If the checkbox gets unchecked, remove the annotation from Redux state and db
-                                                            await this.props.removeImagesAnnotation(this.props.images, item.key);
+                                                            // If the checkbox gets unchecked, 
+                                                            // remove the annotation from Redux state and db
+                                                            await this.props.removeImagesAnnotation(
+                                                                this.props.images, 
+                                                                item.key
+                                                            );
                                                         } else {
                                                             // Otherwise add/update the annotation
                                                             await this.props.addImagesAnnotation(this.props.images, {
@@ -292,7 +294,7 @@ function mapDispatchToProps(dispatch): ConnectedDispatch {
             await dispatch(downloadImageAnnotations(...imageIds));
         }
             
-        //downloadAllLabels: () => dispatch(downloadLabelsAction())
+        // downloadAllLabels: () => dispatch(downloadLabelsAction())
     };
 }
 

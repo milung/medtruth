@@ -2,7 +2,6 @@
 import { State } from '../app/store';
 import { ImageEntity, SeriesEntity, StudyEntity, PatientEntity, EntitiesState } from '../reducers/EntitiesReducer';
 
-
 // get all
 export const getImages = (state: State) => {
     return state.entities.images.byId;
