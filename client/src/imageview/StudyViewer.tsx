@@ -57,7 +57,7 @@ export class StudyViewerComponent extends React.Component<OwnProps & ConnectedSt
 
                 <Grid container={true} gutter={16}>
                     <Grid item={true} xs={12} sm={12} md={12} style={imageStyle.seriesStyle} >                     
-                        <Typography type="body1">Name: <b>{this.props.patients[0].patientName}</b></Typography>                      
+                        <Typography type="body1">Patient name: <b>{this.props.patients[0].patientName}</b></Typography>                      
                         {/* <Typography type="body1">Birthday: <b>{convertDate(this.props.patients[0].patientBirthday)}</b></Typography> */}
                     </Grid>
                     {this.props.studiesList.map(value =>
