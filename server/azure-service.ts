@@ -128,13 +128,27 @@ export namespace AzureDatabase {
                 if (!indexExists) {
                     await conn.collection.createIndex({ label: 1 }, { unique: true, name: "label_1" });
                 }
-                
+
                 indexExists = await conn.collection.indexExists("label_1");
                 if (indexExists) {
                     console.log('created index label_1 on collection labels');
                     resolve();
                 } else {
                     console.log('error: index label_1 on collection labels not created');
+                    reject();
+                }
+
+                indexExists = await conn.collection.indexExists("imageID_1");
+                if (!indexExists) {
+                    await conn.collection.createIndex({ imageID: 1 }, { unique: true, name: "imageID_1" });
+                }
+
+                indexExists = await conn.collection.indexExists("imageID_1");
+                if (indexExists) {
+                    console.log('created index imageID_1 on collection attributes');
+                    resolve();
+                } else {
+                    console.log('error: index imageID_1 on collection attributes not created');
                     reject();
                 }
 
@@ -316,6 +330,71 @@ export namespace AzureDatabase {
             } finally {
                 close(conn.db);
             }
+        });
+    }
+
+    export function putAttributeToImages(imageIDs: string[], attribute: Attribute): Promise<Status> {
+        return new Promise<Status>(async () => {
+            let conn = await connectToAttributes();
+            let updateObjects = imageIDs.map(imageID => ({
+                updateOne: {
+                    filter: { imageID },
+                    update: {
+                        $setOnInsert: {
+                            attributes: [
+                                attribute
+                            ]
+                        }
+                    }
+                },
+                upsert: true
+            }));
+
+            let result: BulkWriteOpResultObject = await conn.collection.bulkWrite(updateObjects);
+
+            let addedAttributesCount = result.upsertedCount;
+
+            let updateObjects2 = imageIDs.map(imageID => ({
+                updateOne: {
+                    filter: {
+                        imageID,
+                        attributes: {
+                            $not: {
+                                $elemMatch: {
+                                    label: attribute.key
+                                }
+                            }
+                        }
+                    },
+                    udate: {
+                        $push: {
+                            attributes: attribute
+                        }
+                    }
+                }
+            }));
+
+            result = await conn.collection.bulkWrite(updateObjects2);
+
+            addedAttributesCount += result.modifiedCount;
+
+            let updateObjects3 = imageIDs.map(imageID => ({
+                updateOne: {
+                    filter: {
+                        imageID,
+                        "attributes.label": attribute.key
+                    },
+                    udate: {
+                        $set: {
+                            "attribute.$.label": attribute.value
+                        }
+                    }
+                }
+            }));
+
+            result = await conn.collection.bulkWrite(updateObjects3);
+
+            putToLabels2(attribute.key, addedAttributesCount);
         });
     }
 
@@ -550,6 +629,38 @@ export namespace AzureDatabase {
 
                 await conn.collection.bulkWrite(updateObjects);
                 resolve(Status.SUCCESFUL);
+            } catch (e) {
+                reject(Status.FAILED);
+            } finally {
+                close(conn.db);
+            }
+        });
+    }
+
+    export function putToLabels2(label: string, count: number): Promise<Status> {
+        return new Promise<Status>(async (resolve, reject) => {
+            try {
+                var conn = await connectToLabels();
+                let result = await conn.collection.updateOne(
+                    {
+                        label
+                    },
+                    {
+                        $inc: {
+                            count: count
+                        }
+                    },
+                    {
+                        upsert: true
+                    }
+                );
+
+                if (result.result.ok) {
+                    resolve(Status.SUCCESFUL);
+                } else {
+                    reject(Status.FAILED);
+                }
+
             } catch (e) {
                 reject(Status.FAILED);
             } finally {
