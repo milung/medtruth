@@ -751,19 +751,58 @@ export namespace AzureDatabase {
         return new Promise<any>(async (resolve, reject) => {
             // Save the list of blob names before deleting everything from images collection
 
-            // Drop the whole mongoDB database
-            console.log('droping database');
-            let db = await connect();
-            try {
-                let result = await db.dropDatabase();
-                console.log('result', result);
-                resolve(result);
-            } catch (e) {
-                reject();
-            }
+            // Delete everything from attributes MongoDB collection 
+            await removeFromCollection('attributes');
+            // Delete everything from labels MongoDB collection
+            await removeFromCollection('labels');
+            // Delete everything from images MongoDB collection
+            await removeFromCollection('images');
+
+            resolve();
+
+            // // Drop the whole mongoDB database
+            // console.log('droping database');
+            // let db = await connect();
+            // try {
+            //     let result = await db.dropDatabase();
+            //     console.log('result', result);
+            //     resolve(result);
+            // } catch (e) {
+            //     reject();
+            // }
+
             // Delete each image from blob storage
 
             // Delete each dicom from blob storage
+        });
+    }
+
+    export function removeFromCollection(collection: string): Promise<void> {
+        return new Promise<void>(async (resolve, reject) => {
+            var conn;
+            switch (collection) {
+                case 'attributes':
+                    conn = await connectToAttributes();
+                    break;
+                case 'labels':
+                    conn = await connectToLabels();
+                    break;
+                case 'images':
+                    conn = await connectToImages();
+                    break;
+                default:
+                    break;
+            }
+            try {
+                // var conn = await connectToLabels();
+                let result = await conn.collection.deleteMany({});
+                console.log(result);
+                resolve();
+            } catch (e) {
+                reject({});
+            } finally {
+                close(conn.db);
+            }
         });
     }
 
