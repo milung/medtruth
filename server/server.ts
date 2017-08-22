@@ -2,6 +2,7 @@
 import * as express from 'express';
 import { routes } from './routes';
 import { StatusCode } from './constants';
+import { AzureDatabase } from "./azure-service";
 
 // Set-up a server, with routes and static public files.
 export const server = express();
@@ -22,10 +23,16 @@ server.use((req, res, next) => {
         );
 })
 
-// Listen and serve.
+// Initialize database, listen and serve.
 const port = 8080;
-server.listen(process.env.PORT || port, () => {
-    console.log("Listening on port", port);
+
+AzureDatabase.initialize().then(() => {
+    server.listen(process.env.PORT || port, () => {
+        console.log("Listening on port", port);
+    });
+    console.log("viva la continuous integration");
+
+}, () => {
+    console.log("Error when initializing database.");
 });
 
-console.log("viva la continuous integration");
