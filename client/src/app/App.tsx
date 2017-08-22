@@ -27,13 +27,7 @@ export default class App extends React.Component<{}, {}> {
                         <Tab label={<DownloadButton />} />
                         {/* <Tab icon={<DeleteIcon />} label={<ConfirmationDialog deleteAll={false}/>}/>
                         <Tab icon={<DeleteForeverIcon />} label={<ConfirmationDialog deleteAll={true}/>}/> */}
-
-                        {/* <Tab icon={<DeleteIcon />} label={<ConfirmationDialog deleteAll={false}/>}/> */}
                         <Tab label={<DeleteButton />}/>
-                        
-                        {/* <IconButton aria-label="Delete">
-                            <DeleteIcon />
-                        </IconButton> */}
                     </Tabs>
                 </AppBar>
                 <div style={{ paddingTop: '50px', margin: '0 auto' }}>

@@ -2,10 +2,12 @@ import * as React from 'react';
 import * as Redux from 'redux';
 import { ButtonComponent } from './Button';
 import { ApiService } from '../api';
-
+// import DeleteIcon from 'material-ui-icons/Delete';
+import Icon from 'material-ui/Icon';
 import { connect } from 'react-redux';
 import { DeleteDialogState, deleteDialogStateChange } from '../actions/actions';
-
+import DeleteIcon from 'material-ui-icons/Delete';
+import DeleteForeverIcon from 'material-ui-icons/DeleteForever';
 
 interface ConnectedDispatch {
     changeDialogState: (state: boolean) => DeleteDialogState;
@@ -27,12 +29,18 @@ class DeleteButtonComponent extends React.Component<ConnectedDispatch, {}> {
 
     render() {
         return (
+            <div>
+            
             <a
                 onClick={this.showDialog}
                 style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}
             >
-                DELETE
+                {/* <DeleteIcon /> */}
+                <DeleteForeverIcon />
+                {/* <Icon color="error">delete</Icon> */}
+                {/* DELETE */}
             </a>
+            </div>
         );
     }
 }
