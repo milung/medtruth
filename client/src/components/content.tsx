@@ -8,6 +8,7 @@ import { SelectionStatus } from '../selectionStatus/SelectionStatus';
 import { BrowserRouter } from 'react-router-dom';
 import { RouteMap } from '../router/routermap';
 import { DownloadPopUp } from './downloadpopup';
+import { ConfirmationDialog } from "./ConfirmationDialog";
 
 interface OwnProps {
 }
@@ -27,6 +28,7 @@ class ContentComponent extends React.Component<OwnProps & ConnectedState, OwnSta
             <div>
                 <BlowUp />
                 <DownloadPopUp />
+                <ConfirmationDialog />
                 <BrowserRouter >
                     <RouteMap />
                 </BrowserRouter >

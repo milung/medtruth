@@ -8,7 +8,7 @@ interface OwnProps {
 
 export class BackButton extends React.Component<OwnProps, {}> {
 
-    constructor(props) {
+    constructor(props: OwnProps) {
         super(props);
     }
 
@@ -20,6 +20,6 @@ export class BackButton extends React.Component<OwnProps, {}> {
                 style={{ margin: 10, float: 'left', width: 30, height: 30 }}
                 onClick={this.props.history.goBack}
             />
-        )
+        );
     }
 }

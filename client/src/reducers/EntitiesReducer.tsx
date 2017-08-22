@@ -169,7 +169,7 @@ const processPatientsDataFetched = (prevState: EntitiesState, action: PatientsFe
 
 function createMapFromObject<T>(obj: Object): Map<string, T> {
     let map: Map<string, T> = new Map();
-    if(obj == undefined) return map;
+    if (obj === undefined) { return map; }
  
     Object.keys(obj).forEach(key => {
         map.set(key, obj[key]);

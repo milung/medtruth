@@ -11,7 +11,7 @@ import { State } from '../app/store';
 import { imageStyle } from '../styles/ComponentsStyle';
 import Icon from 'material-ui/Icon';
 import { Link } from 'react-router-dom';
-import { ImageComponent } from "./Image";
+import { ImageComponent } from './Image';
 // import FontIcon from 'material-ui/Icon'
 
 export interface SeriesProps {
@@ -46,13 +46,6 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
     }
 
     getGalleryPath(): string {
-        // let uploaid: number = this.props.uploadID;
-        // let study: string = this.props.studyID;
-        // let series: string = this.props.seriesID;
-        // return `/gallery/${uploaid}/${study}/${series}`;
-
-        ///:seriesID/:patientID/:studyID"
-
         return `/${this.props.seriesID}/${this.props.patientID}/${this.props.studyID}`;
     }
 

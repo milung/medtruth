@@ -14,13 +14,10 @@ export namespace AzureStorage {
     const accountName = 'medtruth';
     const accountKey = 'fKbRBTAuaUOGJiuIXpjx2cG4Zgs2oZ2wYgunmRdNJ92oMdU1HbRjSv89JtLnmXS+LhlT0SzLMzKxjG/Vyt+GSQ==';
     export const blobService = azure.createBlobService(accountName, accountKey);
-    //blobService.logger.level = azure.Logger.LogLevels.DEBUG;  
+    // blobService.logger.level = azure.Logger.LogLevels.DEBUG;  
     export const containerDicoms = 'dicoms';
     export const containerImages = 'images';
-    //export const containerImages = 'test01';
-
-
-
+    // export const containerImages = 'test01';
 
     export enum Status {
         SUCCESFUL,
@@ -42,7 +39,6 @@ export namespace AzureStorage {
                 });
         });
     }
-
 
     export function toDicoms(blobName: string, filePath: string): PromiseBlueBird<Status> {
         return upload(containerDicoms, blobName, filePath);
@@ -607,5 +603,39 @@ export namespace AzureDatabase {
                 close(conn.db);
             }
         });
+    }
+
+    export function removeAll(): Promise<void> {
+        return new Promise<void>(async (resolve, reject) => {
+            // Delete everything from attributes MongoDB collection 
+            try {
+                var conn = await connectToAttributes();
+                let result = await conn.collection.deleteMany({});
+                console.log(result);
+            } catch (e) {
+                reject({});
+            } finally {
+                close(conn.db);
+            }
+            // Delete everything from labels MongoDB collection
+            try {
+                var conn = await connectToLabels();
+                let result = await conn.collection.deleteMany({});
+                console.log(result);
+            } catch (e) {
+                reject({});
+            } finally {
+                close(conn.db);
+            }
+            // Delete everything from images MongoDB collection
+
+            // Delete each image from blob storage
+
+            // Delete each dicom from blob storage
+        });
+    }
+
+    export function removeAttributes(): Promise<void> {
+        return new Promise<void>(() => {});
     }
 }

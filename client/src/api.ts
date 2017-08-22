@@ -4,7 +4,7 @@ import { LabelStatus, OutputType } from './components/downloadpopup';
 
 export namespace ApiService {
     const apiEndpoint = '/api';
-    //const apiEndpoint = 'http://localhost:8080/api'
+    // const apiEndpoint = 'http://localhost:8080/api'
     /* change this */
     const uriUpload = apiEndpoint + '/upload';
     const uriImages = apiEndpoint + '/images';
@@ -244,8 +244,6 @@ export namespace ApiService {
         format: OutputType;
     }
 
-
-
     export async function downloadData(data: DownloadData) {
         const url = uriDownload;
 
@@ -261,14 +259,13 @@ export namespace ApiService {
         console.log('downloadID ', downloadID);
 
         // TRIGGERING DOWNLOAD
-        let click = function(node) {
-			var event = new MouseEvent("click");
-			node.dispatchEvent(event);
-		}
-        let save_link = document.createElementNS("http://www.w3.org/1999/xhtml", "a") as any;
-        save_link.href = '/api/download/' + downloadID;;
-        save_link.download = 'data.zip';
-        click(save_link);
+        let click = (node) => {
+            var event = new MouseEvent('click');
+            node.dispatchEvent(event);
+        };
+        let saveLink = document.createElementNS('http://www.w3.org/1999/xhtml', 'a') as any;
+        saveLink.href = '/api/download/' + downloadID;
+        saveLink.download = 'data.zip';
+        click(saveLink);
     }
-
 }

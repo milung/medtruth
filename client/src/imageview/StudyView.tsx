@@ -11,15 +11,11 @@ import { State } from '../app/store';
 import { imageStyle } from '../styles/ComponentsStyle';
 import Icon from 'material-ui/Icon';
 import { Link } from 'react-router-dom';
-//import { ArrayOfSeries } from "./SeriesViewer";
-
-// import FontIcon from 'material-ui/Icon'
 
 export interface StudiesProps {
-    patientID: string;  // TODO REMOVE PATIENT ID
+    patientID: string;  
     studyID: string;
     studyDescription: string;
-    //series: ArrayOfSeries;
 }
 
 interface OwnProps {
@@ -42,11 +38,6 @@ export class StudyViewComponent extends React.Component<OwnProps & StudiesProps 
     }
 
     getSeriePath(): string {
-        ///patients/:patientID/studies/:studyID
-        // let studyID = this.props.match.params.studyID; 
-        // let patientID = this.props.match.params.patientID;
-        // return `/patients/${patientID}/studies/${studyID}`;
-        // TODO get patientID from redux
         return `/studies/${this.props.studyID}/${this.props.patientID}`;
     }
 
@@ -96,7 +87,6 @@ export class StudyViewComponent extends React.Component<OwnProps & StudiesProps 
 
 function mapStateToProps(state: State, props: StudiesProps): StudiesProps & ConnectedState {
     return {
-        // TODO REMOVE PATIENT ID
         patientID: props.patientID,
         studyID: props.studyID,
         studyDescription: props.studyDescription,

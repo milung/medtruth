@@ -11,6 +11,7 @@ export enum ActionTypeKeys {
     OTHER_ACTION = 'OTHER_ACTION',
     LAST_STUDY_SELECTED = 'LAST_STUDY_SELECTED',
     DOWNLOAD_POPUP_STATE_CHANGE = 'DOWNLOAD_POPUP_STATE_CHANGE',
+    DELETE_DIALOG_STATE_CHANGE = 'DELETE_DIALOG_STATE_CHANGE',
     LABELS_DOWNLOADED = 'LABELS_DOWNLOADED',
     IMAGES_ANNOTATION_REMOVED = 'IMAGES_ANNOTATION_REMOVED',
     IMAGES_ANNOTATION_ADDED = 'IMAGES_ANNOTATION_ADDED',
@@ -50,6 +51,11 @@ export interface ThumbnailBlownDownAction {
 export interface DownloadStatePopup {
     type: ActionTypeKeys.DOWNLOAD_POPUP_STATE_CHANGE;
     showDownloadPopUP: boolean;
+}
+
+export interface DeleteDialogState {
+    type: ActionTypeKeys.DELETE_DIALOG_STATE_CHANGE;
+    showDeleteDialog: boolean;
 }
 
 // export interface ImagesSelectedAction {
@@ -189,6 +195,11 @@ export const downloadPopupStateChange = (state: boolean): DownloadStatePopup => 
     showDownloadPopUP: state
 });
 
+export const deleteDialogStateChange = (state: boolean): DeleteDialogState => ({
+    type: ActionTypeKeys.DELETE_DIALOG_STATE_CHANGE,
+    showDeleteDialog: state
+});
+
 export const labelsDowloadedAction = (labels: string[]): LabelsDownloadedAction => ({
     type: ActionTypeKeys.LABELS_DOWNLOADED,
     labels
@@ -241,6 +252,7 @@ export type ActionType =
     | OtherAction
     | LastStudySelected
     | DownloadStatePopup
+    | DeleteDialogState
     | LastStudySelected
     | LabelsDownloadedAction
     | ImagesAnnotationRemovedAction
