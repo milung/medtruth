@@ -31,7 +31,7 @@ class DeleteButtonComponent extends React.Component<ConnectedDispatch, {}> {
                 onClick={this.showDialog}
                 style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}
             >
-                DELETE ALL
+                DELETE
             </a>
         );
     }
@@ -43,4 +43,4 @@ function mapDispatchToProps(dispatch: Redux.Dispatch<DeleteDialogState>): Connec
     };
 }
 
-export const DeleteAllButton = connect(null, mapDispatchToProps)(DeleteButtonComponent);
+export const DeleteButton = connect(null, mapDispatchToProps)(DeleteButtonComponent);

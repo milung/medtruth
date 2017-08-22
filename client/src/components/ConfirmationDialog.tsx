@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as Redux from 'redux';
 import Button from 'material-ui/Button';
+import Checkbox from 'material-ui/Checkbox';
 import List, { ListItem, ListItemText } from 'material-ui/List';
 import Dialog, {
     DialogActions,
@@ -11,8 +12,9 @@ import Dialog, {
 import { DeleteDialogState, deleteDialogStateChange } from "../actions/actions";
 import { State } from "../app/store";
 import { connect } from "react-redux";
+import Typography from 'material-ui/Typography';
 
-interface OwnProps {
+interface OwnState {
     deleteAll: boolean;
 }
 
@@ -28,29 +30,35 @@ interface ConnectedDispatch {
     changeDialogState: (state: boolean) => DeleteDialogState;
 }
 
-class ConfirmationDialogComponent extends React.Component<OwnProps & ConnectedDispatch & ConnectedState, {}> {
+class ConfirmationDialogComponent extends React.Component<ConnectedDispatch & ConnectedState, OwnState> {
     constructor(props) {
         super(props);
         this.handleRequestClose = this.handleRequestClose.bind(this);
         this.handleRequestOk = this.handleRequestOk.bind(this);
-        // this.state = {
-        //     open: true,
-        // };
+        this.state = {
+            deleteAll: false,
+        };
     }
-    
+
     handleRequestClose() {
-        console.log("handle cancel");
+        console.log("cancel; delete all is " + this.state.deleteAll);
         this.props.changeDialogState(false);
     };
 
     handleRequestOk() {
-        console.log("handle ok");
+        console.log("ok; delete all is " + this.state.deleteAll);
         this.props.changeDialogState(false);
     };
 
+    handleCheck() {
+        this.setState({
+            deleteAll: !this.state.deleteAll,
+        }, () => {
+            console.log("new checked " + this.state.deleteAll);
+        })
+    }
+
     render() {
-        console.log("delete confirmation dialog, delete all " + this.props.deleteAll);
-        console.log('delete dialog open ' + this.props.showDialog);
         return (
             <div>
                 {/* <Button onClick={() => this.setState({ open: true })}>Open alert dialog</Button> */}
@@ -60,8 +68,16 @@ class ConfirmationDialogComponent extends React.Component<OwnProps & ConnectedDi
                     </DialogTitle>
                     <DialogContent>
                         <DialogContentText>
-                            {(this.props.deleteAll) ? "Are you sure you want to remove everything?" :
-                                "Are you sure you want to delete selected items?"}
+                            {/* {(this.props.deleteAll) ? "Are you sure you want to remove everything?" : */}
+                            "Are you sure you want to delete selected items?"
+                            <p/>
+                            <Checkbox
+                                checked={this.state.deleteAll}
+                                onClick={event => (this.handleCheck())}
+                            />
+                            {/* <Typography color='accent'> */}
+                                I want to delete <b>EVERYTHING!</b>
+                            {/* </Typography> */}
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>

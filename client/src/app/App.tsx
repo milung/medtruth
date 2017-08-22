@@ -11,7 +11,7 @@ import { PatientViewer } from '../imageview/PatientViewer';
 import DeleteIcon from 'material-ui-icons/Delete';
 import DeleteForeverIcon from 'material-ui-icons/DeleteForever';
 // import ConfirmationDialog from "../components/ConfirmationDialog";
-import { DeleteAllButton } from "../button/DeleteAllButton";
+import { DeleteButton } from "../button/DeleteButton";
 
 var injectTapEventPlugin = require('react-tap-event-plugin');
 injectTapEventPlugin();
@@ -29,7 +29,7 @@ export default class App extends React.Component<{}, {}> {
                         <Tab icon={<DeleteForeverIcon />} label={<ConfirmationDialog deleteAll={true}/>}/> */}
 
                         {/* <Tab icon={<DeleteIcon />} label={<ConfirmationDialog deleteAll={false}/>}/> */}
-                        <Tab label={<DeleteAllButton />}/>
+                        <Tab label={<DeleteButton />}/>
                         
                         {/* <IconButton aria-label="Delete">
                             <DeleteIcon />
