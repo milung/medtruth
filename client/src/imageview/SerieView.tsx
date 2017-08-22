@@ -11,7 +11,9 @@ import { State } from '../app/store';
 import { imageStyle } from '../styles/ComponentsStyle';
 import Icon from 'material-ui/Icon';
 import { Link } from 'react-router-dom';
-import { ImageComponent } from './Image';
+import { ImageComponent } from "./Image";
+import { ImageEntity } from "../reducers/EntitiesReducer";
+import { getImagesWhereSeriesId } from "../selectors/selectors";
 // import FontIcon from 'material-ui/Icon'
 
 export interface SeriesProps {
@@ -29,6 +31,7 @@ export interface ConnectedDispatch {
 
 export interface ConnectedState {
     isSelected: boolean;
+    imagesOfSerie: ImageEntity[];
 }
 class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch & ConnectedState, {}> {
 
@@ -85,22 +88,23 @@ class SerieViewComponent extends React.Component<SeriesProps & ConnectedDispatch
                             handleDoubleClick={this.doubleClickHandler}
                         />
                     </CardMedia>
-                    <CardContent style={imageStyle.contentCenter}>
-                        <Typography type="title" component="p">
-                            {this.props.seriesID}
+                    <CardContent style={imageStyle.contentCenter}>                        
+                        <Typography type="body2" component="p">
+                            Series description: <b>{this.props.seriesDescription}</b>
                         </Typography>
                         <Typography type="body2" component="p">
-                            {this.props.seriesDescription}
+                            Number of images: <b>{this.props.imagesOfSerie.length}</b>
                         </Typography>
+                        <Link to={this.getGalleryPath()} onClick={event => { event.stopPropagation(); }}>
+                            <a>
+                                <img
+                                    src={require('../icons/icon1.png')}
+                                    style={{ float: 'right', marginBottom: '5', marginRight: '5' }}
+                                />
+                            </a>
+                        </Link>
                     </CardContent>
-                    <Link to={this.getGalleryPath()} onClick={event => { event.stopPropagation(); }}>
-                        <a>
-                            <img
-                                src={require('../icons/icon1.png')}
-                                style={{ float: 'right', marginBottom: '5', marginRight: '5' }}
-                            />
-                        </a>
-                    </Link>
+
                 </Card>
             </div>
         );
@@ -114,7 +118,8 @@ function mapStateToProps(state: State, props: SeriesProps): SeriesProps & Connec
         thumbnailImageID: props.thumbnailImageID,
         studyID: props.studyID,
         patientID: props.patientID,
-        isSelected: isSeriesSelected(state, props.seriesID)
+        isSelected: isSeriesSelected(state, props.seriesID),
+        imagesOfSerie: getImagesWhereSeriesId(state, props.seriesID)
     };
 }
 

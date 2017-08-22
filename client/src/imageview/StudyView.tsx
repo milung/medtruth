@@ -11,6 +11,8 @@ import { State } from '../app/store';
 import { imageStyle } from '../styles/ComponentsStyle';
 import Icon from 'material-ui/Icon';
 import { Link } from 'react-router-dom';
+import { SeriesEntity } from "../reducers/EntitiesReducer";
+import { getSeriesesWhereStudyId } from "../selectors/selectors";
 
 export interface StudiesProps {
     patientID: string;  
@@ -29,6 +31,7 @@ export interface ConnectedDispatch {
 
 export interface ConnectedState {
     isSelected: boolean;
+    seriesOfStudie: SeriesEntity[];
 }
 export class StudyViewComponent extends React.Component<OwnProps & StudiesProps & ConnectedDispatch & ConnectedState, StudiesProps> {
 
@@ -63,15 +66,14 @@ export class StudyViewComponent extends React.Component<OwnProps & StudiesProps 
                     onClick={this.clickHandler}
                     style={{ border: this.getBorderStyle(this.props.isSelected) }}
                 >
-                    <CardContent style={imageStyle.contentCenter}>
-                        <Typography type="title" component="p">
-                            {this.props.studyID}
+                    <CardContent style={imageStyle.contentCenter}>                        
+                        <Typography type="body2" component="p">
+                            Study description: <b>{this.props.studyDescription}</b>
                         </Typography>
                         <Typography type="body2" component="p">
-                            {this.props.studyDescription}
+                            Number of series: <b>{this.props.seriesOfStudie.length}</b>
                         </Typography>
-                    </CardContent>
-                    <Link to={this.getSeriePath()}>
+                         <Link to={this.getSeriePath()}>
                         <a>
                             <img
                                 src={require('../icons/icon1.png')}
@@ -79,6 +81,9 @@ export class StudyViewComponent extends React.Component<OwnProps & StudiesProps 
                             />
                         </a>
                     </Link>
+
+                    </CardContent>
+                   
                 </Card>
             </div>
         );
@@ -90,7 +95,8 @@ function mapStateToProps(state: State, props: StudiesProps): StudiesProps & Conn
         patientID: props.patientID,
         studyID: props.studyID,
         studyDescription: props.studyDescription,
-        isSelected: isStudySelected(state, props.studyID)
+        isSelected: isStudySelected(state, props.studyID),
+        seriesOfStudie: getSeriesesWhereStudyId(state, props.studyID)
     };
 }
 
