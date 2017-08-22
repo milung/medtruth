@@ -146,13 +146,13 @@ export namespace AzureDatabase {
     export function initialize(): Promise<void> {
         return new Promise<void>(async (resolve, reject) => {
             try {
-                var conn = await connectToLabels();
-                let indexExists: boolean = await conn.collection.indexExists("label_1");
+                var connLabels = await connectToLabels();
+                let indexExists: boolean = await connLabels.collection.indexExists("label_1");
                 if (!indexExists) {
-                    await conn.collection.createIndex({ label: 1 }, { unique: true, name: "label_1" });
+                    await connLabels.collection.createIndex({ label: 1 }, { unique: true, name: "label_1" });
                 }
 
-                indexExists = await conn.collection.indexExists("label_1");
+                indexExists = await connLabels.collection.indexExists("label_1");
                 if (indexExists) {
                     console.log('created index label_1 on collection labels');
                     resolve();
@@ -161,12 +161,13 @@ export namespace AzureDatabase {
                     reject();
                 }
 
-                indexExists = await conn.collection.indexExists("imageID_1");
+                var connAttributes = await connectToAttributes();
+                indexExists = await connAttributes.collection.indexExists("imageID_1");
                 if (!indexExists) {
-                    await conn.collection.createIndex({ imageID: 1 }, { unique: true, name: "imageID_1" });
+                    await connAttributes.collection.createIndex({ imageID: 1 }, { unique: true, name: "imageID_1" });
                 }
 
-                indexExists = await conn.collection.indexExists("imageID_1");
+                indexExists = await connAttributes.collection.indexExists("imageID_1");
                 if (indexExists) {
                     console.log('created index imageID_1 on collection attributes');
                     resolve();
@@ -180,7 +181,8 @@ export namespace AzureDatabase {
                 console.log(e);
                 reject();
             } finally {
-                close(conn.db);
+                close(connLabels.db);
+                close(connAttributes.db);
             }
         });
     }
@@ -387,67 +389,75 @@ export namespace AzureDatabase {
     }
 
     export function putAttributeToImages(imageIDs: string[], attribute: Attribute): Promise<Status> {
-        return new Promise<Status>(async () => {
-            let conn = await connectToAttributes();
-            let updateObjects = imageIDs.map(imageID => ({
-                updateOne: {
-                    filter: { imageID },
-                    update: {
-                        $setOnInsert: {
-                            attributes: [
-                                attribute
-                            ]
-                        }
-                    }
-                },
-                upsert: true
-            }));
+        return new Promise<Status>(async (resolve, reject) => {
+            try {
+                var conn = await connectToAttributes();
+                let updateObjects = imageIDs.map(imageID => ({
+                    updateOne: {
+                        filter: { imageID },
+                        update: {
+                            $setOnInsert: {
+                                attributes: [
+                                    attribute
+                                ]
+                            }
+                        },
+                        upsert: true
+                    },
+                }));
 
-            let result: BulkWriteOpResultObject = await conn.collection.bulkWrite(updateObjects);
+                let result: BulkWriteOpResultObject = await conn.collection.bulkWrite(updateObjects);
 
-            let addedAttributesCount = result.upsertedCount;
+                let addedAttributesCount = result.upsertedCount;
 
-            let updateObjects2 = imageIDs.map(imageID => ({
-                updateOne: {
-                    filter: {
-                        imageID,
-                        attributes: {
-                            $not: {
-                                $elemMatch: {
-                                    label: attribute.key
+                let updateObjects2 = imageIDs.map(imageID => ({
+                    updateOne: {
+                        filter: {
+                            imageID,
+                            attributes: {
+                                $not: {
+                                    $elemMatch: {
+                                        key: attribute.key
+                                    }
                                 }
                             }
-                        }
-                    },
-                    udate: {
-                        $push: {
-                            attributes: attribute
-                        }
-                    }
-                }
-            }));
-
-            result = await conn.collection.bulkWrite(updateObjects2);
-
-            addedAttributesCount += result.modifiedCount;
-
-            let updateObjects3 = imageIDs.map(imageID => ({
-                updateOne: {
-                    filter: {
-                        imageID,
-                        "attributes.label": attribute.key
-                    },
-                    udate: {
-                        $set: {
-                            "attribute.$.label": attribute.value
+                        },
+                        update: {
+                            $push: {
+                                attributes: attribute
+                            }
                         }
                     }
-                }
-            }));
+                }));
 
-            result = await conn.collection.bulkWrite(updateObjects3);
+                result = await conn.collection.bulkWrite(updateObjects2);
 
-            putToLabels2(attribute.key, addedAttributesCount);
+                addedAttributesCount += result.modifiedCount;
+
+                let updateObjects3 = imageIDs.map(imageID => ({
+                    updateOne: {
+                        filter: {
+                            imageID,
+                            "attributes.key": attribute.key
+                        },
+                        update: {
+                            $set: {
+                                "attributes.$.value": attribute.value
+                            }
+                        }
+                    }
+                }));
+
+                result = await conn.collection.bulkWrite(updateObjects3);
+
+                await putToLabels2(attribute.key, addedAttributesCount);
+                resolve();
+            } catch (e) {
+                console.log(e);
+                reject();
+            } finally {
+                close(conn.db);
+            }
         });
     }
 
@@ -728,11 +738,11 @@ export namespace AzureDatabase {
                 if (result.result.ok) {
                     resolve(Status.SUCCESFUL);
                 } else {
-                    reject(Status.FAILED);
+                    reject();
                 }
 
             } catch (e) {
-                reject(Status.FAILED);
+                reject();
             } finally {
                 close(conn.db);
             }

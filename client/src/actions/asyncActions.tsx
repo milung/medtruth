@@ -9,15 +9,12 @@ import { getImagesWherePatientIds } from '../selectors/selectors';
 
 export function addImagesAnnotationAction(imageIds: string[], annotation: ImageAnnotation) {
     return async (dispatch) => {
-        let promises = imageIds.map(imageId => ApiService.putAttributes(imageId, {
-            key: annotation.key,
-            value: annotation.value
-        }));
-
-        await Promise.all(promises);
-
-        dispatch(imagesAnnotationAddedAction(imageIds, annotation));
-
+        try {
+            await ApiService.putAttributeToImages(imageIds, annotation);
+            dispatch(imagesAnnotationAddedAction(imageIds, annotation));
+        } catch (e) {
+            console.log(e);
+        }
     };
 }
 
