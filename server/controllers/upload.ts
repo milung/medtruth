@@ -75,13 +75,13 @@ export class UploadController {
         //await createThumbnails;
 
         // Cleanup.
-        /*files.forEach((file) => {
+        files.forEach((file) => {
             //console.log("[Deleting files] file: " + file.path);
             fs.unlink(file.path, () => { });
             //console.log("[Deleting files] image: " + file.filename);
             fs.unlink(imagePath + file.filename + ".png", () => { });
             console.log("[Deleting files] file: " + file.filename + " OK ✔️");
-        });*/
+        });
 
         // Grab all ChainStatuses and map them to UploadStatuses.
         let statuses: UploadStatus[] = this.responses.map((upload) => {
