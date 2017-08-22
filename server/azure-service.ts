@@ -560,7 +560,7 @@ export namespace AzureDatabase {
             try {
                 var conn = await connectToImages();
                 let query = { uploadID: req.uploadID };
-                let result = await conn.collection.findOne(query);
+                let result: UploadJSON = await conn.collection.findOne(query);
 
                 // TODO: Refactor!
                 if (result) {
