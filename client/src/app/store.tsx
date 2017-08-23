@@ -40,21 +40,19 @@ export function getStore(): Store<{}> {
     return store;
 }
 
-async function initializeState(store: Store<{}>) {
-    let patients = await store.dispatch(fetchPatients());
-
-    let imageIds: string[] = [];
-    patients.forEach(patient => {
-        patient.studies.forEach(study => {
-            study.series.forEach(series => {
-                series.images.forEach(image => {
-                    imageIds.push(image.imageID);
+function initializeState(store: Store<{}>) {
+    store.dispatch(fetchPatients()).then(patients => {
+        let imageIds: string[] = [];
+        patients.forEach(patient => {
+            patient.studies.forEach(study => {
+                study.series.forEach(series => {
+                    series.images.forEach(image => {
+                        imageIds.push(image.imageID);
+                    });
                 });
             });
         });
+        store.dispatch(downloadImageAnnotations(...imageIds));
     });
-
-    await store.dispatch(downloadImageAnnotations(...imageIds));
-
-    await store.dispatch(downloadLabelsAction());
+    store.dispatch(downloadLabelsAction());
 }
