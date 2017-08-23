@@ -1,4 +1,3 @@
-
 import * as React from 'react';
 import * as Redux from 'redux';
 import { connect } from 'react-redux';

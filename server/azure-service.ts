@@ -96,6 +96,33 @@ export namespace AzureStorage {
             })
         });
     }
+
+
+    export function deleteImageAndThumbnail(image: string) {
+        return new PromiseBlueBird(async (resolve, reject) => {
+            try {
+                let name = image + ".png";
+                let thumbnail = image + "_.png";
+                // delete image
+                let imgPromimse = blobService.deleteBlobIfExists(containerImages, name, (error, result, response) => {
+                });
+                // delete thumbnail
+                let thmbPromise = blobService.deleteBlobIfExists(containerImages, thumbnail, (error, result, response) => {
+                });
+
+                await PromiseBlueBird.all([imgPromimse,thmbPromise]);
+                console.log('[deleted] ' +name);
+                
+                resolve();
+            } catch (e) {
+                console.log("service deleteImageAndThumbnail");
+                
+                console.log(e);
+                
+                reject({});
+            }
+        });
+    }
 }
 
 export namespace AzureDatabase {
@@ -119,13 +146,13 @@ export namespace AzureDatabase {
     export function initialize(): Promise<void> {
         return new Promise<void>(async (resolve, reject) => {
             try {
-                var conn = await connectToLabels();
-                let indexExists: boolean = await conn.collection.indexExists("label_1");
+                var connLabels = await connectToLabels();
+                let indexExists: boolean = await connLabels.collection.indexExists("label_1");
                 if (!indexExists) {
-                    await conn.collection.createIndex({ label: 1 }, { unique: true, name: "label_1" });
+                    await connLabels.collection.createIndex({ label: 1 }, { unique: true, name: "label_1" });
                 }
 
-                indexExists = await conn.collection.indexExists("label_1");
+                indexExists = await connLabels.collection.indexExists("label_1");
                 if (indexExists) {
                     console.log('created index label_1 on collection labels');
                     resolve();
@@ -134,12 +161,13 @@ export namespace AzureDatabase {
                     reject();
                 }
 
-                indexExists = await conn.collection.indexExists("imageID_1");
+                var connAttributes = await connectToAttributes();
+                indexExists = await connAttributes.collection.indexExists("imageID_1");
                 if (!indexExists) {
-                    await conn.collection.createIndex({ imageID: 1 }, { unique: true, name: "imageID_1" });
+                    await connAttributes.collection.createIndex({ imageID: 1 }, { unique: true, name: "imageID_1" });
                 }
 
-                indexExists = await conn.collection.indexExists("imageID_1");
+                indexExists = await connAttributes.collection.indexExists("imageID_1");
                 if (indexExists) {
                     console.log('created index imageID_1 on collection attributes');
                     resolve();
@@ -153,7 +181,8 @@ export namespace AzureDatabase {
                 console.log(e);
                 reject();
             } finally {
-                close(conn.db);
+                close(connLabels.db);
+                close(connAttributes.db);
             }
         });
     }
@@ -228,6 +257,36 @@ export namespace AzureDatabase {
         return new Promise<Status>(async (resolve, reject) => {
             try {
                 var db = await connect();
+                let collection = await db.collection('images');
+                let query = { patientID: String(object.patientID) };
+                await collection.update(query, object,
+                    {
+                        upsert: true
+                    }, (error, result) => {
+                        if (error) {
+                            console.log('error');
+                            console.log(error);
+                            reject(Status.FAILED);
+                        }
+                        else {
+
+                            resolve(Status.SUCCESFUL);
+                        }
+                    });
+            } catch (e) {
+                console.log('error');
+                console.log(e);
+                reject(Status.FAILED);
+            } finally {
+                close(db);
+            }
+        });
+    }
+
+
+    export function updateToImageCollectionDB(object, db): Promise<Status> {
+        return new Promise<Status>(async (resolve, reject) => {
+            try {
                 let collection = await db.collection('images');
                 let query = { patientID: String(object.patientID) };
                 await collection.update(query, object,
@@ -330,67 +389,75 @@ export namespace AzureDatabase {
     }
 
     export function putAttributeToImages(imageIDs: string[], attribute: Attribute): Promise<Status> {
-        return new Promise<Status>(async () => {
-            let conn = await connectToAttributes();
-            let updateObjects = imageIDs.map(imageID => ({
-                updateOne: {
-                    filter: { imageID },
-                    update: {
-                        $setOnInsert: {
-                            attributes: [
-                                attribute
-                            ]
-                        }
-                    }
-                },
-                upsert: true
-            }));
+        return new Promise<Status>(async (resolve, reject) => {
+            try {
+                var conn = await connectToAttributes();
+                let updateObjects = imageIDs.map(imageID => ({
+                    updateOne: {
+                        filter: { imageID },
+                        update: {
+                            $setOnInsert: {
+                                attributes: [
+                                    attribute
+                                ]
+                            }
+                        },
+                        upsert: true
+                    },
+                }));
 
-            let result: BulkWriteOpResultObject = await conn.collection.bulkWrite(updateObjects);
+                let result: BulkWriteOpResultObject = await conn.collection.bulkWrite(updateObjects);
 
-            let addedAttributesCount = result.upsertedCount;
+                let addedAttributesCount = result.upsertedCount;
 
-            let updateObjects2 = imageIDs.map(imageID => ({
-                updateOne: {
-                    filter: {
-                        imageID,
-                        attributes: {
-                            $not: {
-                                $elemMatch: {
-                                    label: attribute.key
+                let updateObjects2 = imageIDs.map(imageID => ({
+                    updateOne: {
+                        filter: {
+                            imageID,
+                            attributes: {
+                                $not: {
+                                    $elemMatch: {
+                                        key: attribute.key
+                                    }
                                 }
                             }
-                        }
-                    },
-                    udate: {
-                        $push: {
-                            attributes: attribute
-                        }
-                    }
-                }
-            }));
-
-            result = await conn.collection.bulkWrite(updateObjects2);
-
-            addedAttributesCount += result.modifiedCount;
-
-            let updateObjects3 = imageIDs.map(imageID => ({
-                updateOne: {
-                    filter: {
-                        imageID,
-                        "attributes.label": attribute.key
-                    },
-                    udate: {
-                        $set: {
-                            "attribute.$.label": attribute.value
+                        },
+                        update: {
+                            $push: {
+                                attributes: attribute
+                            }
                         }
                     }
-                }
-            }));
+                }));
 
-            result = await conn.collection.bulkWrite(updateObjects3);
+                result = await conn.collection.bulkWrite(updateObjects2);
 
-            putToLabels2(attribute.key, addedAttributesCount);
+                addedAttributesCount += result.modifiedCount;
+
+                let updateObjects3 = imageIDs.map(imageID => ({
+                    updateOne: {
+                        filter: {
+                            imageID,
+                            "attributes.key": attribute.key
+                        },
+                        update: {
+                            $set: {
+                                "attributes.$.value": attribute.value
+                            }
+                        }
+                    }
+                }));
+
+                result = await conn.collection.bulkWrite(updateObjects3);
+
+                await putToLabels2(attribute.key, addedAttributesCount);
+                resolve();
+            } catch (e) {
+                console.log(e);
+                reject();
+            } finally {
+                close(conn.db);
+            }
         });
     }
 
@@ -522,6 +589,26 @@ export namespace AzureDatabase {
     }
 
     /**
+    * Returns Upload document with a specific ID.
+    * @param patientID
+    */
+    export function getPatientDocumentDB(patientID: string, db): Promise<string> {
+        return new Promise<string>(async (resolve, reject) => {
+            try {
+
+                let query = { patientID: String(patientID) };
+                let collection = await db.collection('images');
+
+                let result = await collection.findOne(query);
+                if (result) resolve(result);
+                else resolve(result);
+            } catch (e) {
+                reject(Status.FAILED);
+            }
+        });
+    }
+
+    /**
      * Returns JSON object of the last Upload document in MongoDB.
      */
     export function getLastUpload(): Promise<string> {
@@ -560,7 +647,7 @@ export namespace AzureDatabase {
             try {
                 var conn = await connectToImages();
                 let query = { uploadID: req.uploadID };
-                let result = await conn.collection.findOne(query);
+                let result: UploadJSON = await conn.collection.findOne(query);
 
                 // TODO: Refactor!
                 if (result) {
@@ -592,15 +679,13 @@ export namespace AzureDatabase {
 
     export function removeFromLabels(labels: string[]): Promise<Status> {
         return new Promise<Status>(async (resolve, reject) => {
-
+           
             if (!labels || labels.length === 0) {
                 resolve(Status.SUCCESFUL);
                 return;
             }
-
             try {
                 var conn = await connectToLabels();
-
                 // remove where count is equal 1
                 await conn.collection.deleteMany({
                     label: {
@@ -608,7 +693,6 @@ export namespace AzureDatabase {
                     },
                     count: 1
                 });
-
                 // decrement count
                 let updateObjects: {}[] = labels.map(label => {
                     return {
@@ -654,11 +738,11 @@ export namespace AzureDatabase {
                 if (result.result.ok) {
                     resolve(Status.SUCCESFUL);
                 } else {
-                    reject(Status.FAILED);
+                    reject();
                 }
 
             } catch (e) {
-                reject(Status.FAILED);
+                reject();
             } finally {
                 close(conn.db);
             }
@@ -829,5 +913,21 @@ export namespace AzureDatabase {
             }
         });
     }
+
+
+    export function deleteAllPatients() {
+        return new Promise(async (resolve, reject) => {
+            try {
+                var conn = await connectToImages();
+                conn.collection.remove({});
+                resolve();
+            } catch (e) {
+                reject({});
+            } finally {
+                close(conn.db);
+            }
+        });
+    }
+
 
 }
