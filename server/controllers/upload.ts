@@ -166,7 +166,7 @@ export class UploadController {
                 console.log("patientazure");
                 console.log(error);
             }
-        });
+        }, { concurrency: 5 });
         // w8 'till all patients are fetched
         await Promise.all(getPatients);
         db.close();
