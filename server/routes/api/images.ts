@@ -130,7 +130,7 @@ routerImages.delete('/:id/assign', json(), async (req, res) => {
     }
 });
 
-routerImages.put('/assign', json(), async (req, res) => {
+routerImages.delete('/assign', json(), async (req, res) => {
     let imageIDs: string[] = req.body.imageIDs;
     let attribute: Attribute = req.body.attribute;
     try {
