@@ -279,7 +279,6 @@ export class UploadController {
 
                 console.log(existingSeries.images);
                 
-
                 return;
             }
         });

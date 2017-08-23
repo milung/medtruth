@@ -13,6 +13,8 @@ export enum ActionTypeKeys {
     DOWNLOAD_POPUP_STATE_CHANGE = 'DOWNLOAD_POPUP_STATE_CHANGE',
     DELETE_DIALOG_STATE_CHANGE = 'DELETE_DIALOG_STATE_CHANGE',
     LABELS_DOWNLOADED = 'LABELS_DOWNLOADED',
+    REMOVED_ALL = 'REMOVED_ALL',
+    REMOVED_SELECTED = 'REMOVED_SELECTED',
     IMAGES_ANNOTATION_REMOVED = 'IMAGES_ANNOTATION_REMOVED',
     IMAGES_ANNOTATION_ADDED = 'IMAGES_ANNOTATION_ADDED',
     IMAGES_ANNOTATIONS_DOWNLOADED = 'IMAGES_ANNOTATIONS_DOWNLOADED',
@@ -106,6 +108,16 @@ export interface LastStudySelected {
 export interface LabelsDownloadedAction {
     type: ActionTypeKeys.LABELS_DOWNLOADED;
     labels: string[];
+}
+
+export interface RemovedAllAction {
+    type: ActionTypeKeys.REMOVED_ALL;
+}
+
+export interface RemovedSelectedAction {
+    type: ActionTypeKeys.REMOVED_SELECTED;
+    itemType: ItemTypes;
+    itemId: string;
 }
 
 export interface ImagesAnnotationRemovedAction {
@@ -205,6 +217,16 @@ export const labelsDowloadedAction = (labels: string[]): LabelsDownloadedAction 
     labels
 });
 
+export const removedAllAction = (): RemovedAllAction => ({
+    type: ActionTypeKeys.REMOVED_ALL
+});
+
+export const removedSelectedAction = (itemType: ItemTypes, itemId: string): RemovedSelectedAction => ({
+    type: ActionTypeKeys.REMOVED_SELECTED,
+    itemType,
+    itemId
+});
+
 export const imagesAnnotationRemovedAction = (imageIds: string[], label: string): ImagesAnnotationRemovedAction => ({
     type: ActionTypeKeys.IMAGES_ANNOTATION_REMOVED,
     imageIds,
@@ -255,6 +277,8 @@ export type ActionType =
     | DeleteDialogState
     | LastStudySelected
     | LabelsDownloadedAction
+    | RemovedAllAction
+    | RemovedSelectedAction
     | ImagesAnnotationRemovedAction
     | ImagesAnnotationAddedAction
     | ImagesAnnotationsDownloadedAction

@@ -1,7 +1,7 @@
 import {
     ActionType, ActionTypeKeys, ImageAnnotation,
     ImageAnnotationAddedAction, PatientJSON, LabelsDownloadedAction, ImagesAnnotationRemovedAction,
-    ImagesAnnotationAddedAction, ImagesAnnotationsDownloadedAction, PatientsFetchedAction, ImageJSON
+    ImagesAnnotationAddedAction, ImagesAnnotationsDownloadedAction, PatientsFetchedAction, ImageJSON, RemovedAllAction, RemovedSelectedAction
 } from '../actions/actions';
 
 import { normalize, schema } from 'normalizr';
@@ -85,6 +85,10 @@ export function entitiesReducer(
             return processImagesAnnotationsDownloadedAction(prevState, action);
         case ActionTypeKeys.PATIENTS_FETCHED:
             return processPatientsDataFetched(prevState, action);
+        case ActionTypeKeys.REMOVED_ALL:
+            return processRemovedAllAction(prevState, action);
+        case ActionTypeKeys.REMOVED_SELECTED:
+            return processRemovedSelectedAction(prevState, action);
         default:
             return prevState;
     }
@@ -368,3 +372,13 @@ const processImageAnnotationAddedAction =
         newState.images.byId.set(newImageEntity.imageID, newImageEntity);
         return newState;
     };
+
+const processRemovedAllAction = (prevState: EntitiesState, action: RemovedAllAction): EntitiesState => {
+    // TODO delete all entities from the store 
+    return null;
+}
+
+const processRemovedSelectedAction = (prevState: EntitiesState, action: RemovedSelectedAction): EntitiesState => {
+    // TODO delete selected entities from the state
+    return null;
+}
