@@ -1,6 +1,7 @@
 
 import * as axios from 'axios';
 import { LabelStatus, OutputType } from './components/downloadpopup';
+import { ItemTypes } from "./actions/actions";
 
 export namespace ApiService {
     const apiEndpoint = '/api';
@@ -302,6 +303,28 @@ export namespace ApiService {
 
         return res.data;
 
+        // return res.status === Status.SUCCESFUL ? true : false;
+    }
+
+    export interface DeleteSelectedData {
+        itemType: ItemTypes,
+        patient: string,
+        study: string,
+        series: string,
+        IDs: string[]           // array of IDs of items to be deleted 
+    }
+
+    export async function deleteSelected(data: DeleteSelectedData) {
+        const url = uriDelete;
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'POST',
+            url: url,
+            headers: {},
+            data: data
+        });
+
+        return res.data;
         // return res.status === Status.SUCCESFUL ? true : false;
     }
 }

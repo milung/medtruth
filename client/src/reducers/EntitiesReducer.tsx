@@ -24,7 +24,7 @@ export interface EntitiesState {
 
 export interface ImageEntity {
     imageID: string;
-    series: string;
+    seriesID: string;
     imageNumber: number;
     annotations: ImageAnnotation[];
     isSelected: boolean;
@@ -208,7 +208,7 @@ const processImagesAnnotationsDownloadedAction =
                 } else {
                     newImage = {
                         imageID: key,
-                        series: undefined,
+                        seriesID: undefined,
                         imageNumber: undefined,
                         annotations: [],
                         isSelected: image.isSelected
@@ -327,7 +327,7 @@ const processImageAnnotationAddedAction =
 
         if (imageEntity === undefined) {
             newImageEntity = {
-                series: undefined,
+                seriesID: undefined,
                 imageID: action.imageID,
                 imageNumber: undefined,
                 annotations: [],
