@@ -122,6 +122,13 @@ export class SeriesJSON {
 export class ImageJSON {
     imageID: string;
     imageNumber: number;
+    commited: true;
+}
+
+export class TemporaryJSON{
+    uploadID: number;
+    failed: boolean;
+    patients: UploadJSON[] = []
 }
 
 

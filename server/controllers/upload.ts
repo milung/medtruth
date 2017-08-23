@@ -11,6 +11,7 @@ import { StatusCode, storagePath, imagePath } from '../constants';
 import * as sharp from 'sharp';
 import * as PromiseBlueBird from 'bluebird';
 import * as _ from 'lodash';
+import { ImageJSON } from "../Objects";
 
 // Upload status to notify client which files have been succesful.
 interface UploadStatus {
@@ -217,10 +218,12 @@ export class UploadController {
             existingSeries.seriesDescription = converter.getSeriesDescription();
             existingSeries.seriesID = converter.getSeriesUID();
 
-            let newImage = {
+            let newImage: ImageJSON = {
                 imageID: parse.filename,
-                imageNumber: Number(converter.getImageNumber())
+                imageNumber: Number(converter.getImageNumber()),
+                commited: true
             };
+            
             if (existingSeries.images.length > 0) {
                 let existingImage = existingSeries.images.find((image) => {
                     return image.imageNumber === newImage.imageNumber;

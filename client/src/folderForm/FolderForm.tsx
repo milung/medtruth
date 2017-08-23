@@ -33,6 +33,8 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
         super();
         this.loadFile = this.loadFile.bind(this);
         this.sendFile = this.sendFile.bind(this);
+        this.loadFileSocket = this.loadFileSocket.bind(this);
+
         this.filesData = [];
         this.state = {
             readingFiles: false,
@@ -50,6 +52,7 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
         let filesInvalid: boolean = false;
 
         files.forEach((file) => {
+
             if (file === undefined) {
                 fileUndefined = true;
             } else if (!FileUtils.validFile(file.name.toLowerCase(), validFileExtensions)) {
@@ -67,7 +70,6 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
             });
             return;
         }
-
         this.setState({ readingFiles: true });
         FileUtils.getFilesData(files).then(async (filesData: ArrayBuffer[]) => {
             this.filesData = filesData;
@@ -83,7 +85,26 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
         });
     }
 
-    async sendFile(): Promise<void> {
+
+    async loadFileSocket(files: File[]) {
+        console.log('uploading');
+        
+        //this.setState({ uploadingFiles: true });
+        await ApiService.uploadSocket(files, () => {});
+        console.log("DONE");
+        //this.setState({ uploadingFiles: false })
+    }
+
+
+    async sendFile() {
+        this.setState({ uploadingFiles: true });
+        await ApiService.uploadSocket(this.filesData, () => {
+        });
+        console.log("DONE");
+        this.setState({ uploadingFiles: false })
+
+
+        /*
         // Upload the data to the server.
         this.setState({ uploadingFiles: true });
         let resUpload = await ApiService.upload(...this.filesData);
@@ -104,7 +125,11 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
                 folderFormError: 'Error (' + resUpload.errorMessage + ') when uploading files to server.'
             });
         }
+
+        */
     }
+
+
 
     isSendButtonActive(): boolean {
         if (this.state.filesRead === true) {
@@ -148,12 +173,12 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
     }
 
     render() {
-        let uploading = this.state.uploadingFiles 
-        ? <CircularProgress mode="indeterminate" color="#F44336" size={20}/> 
-        : 'UPLOAD';
+        let uploading = this.state.uploadingFiles
+            ? <CircularProgress mode="indeterminate" color="#F44336" size={20} />
+            : 'UPLOAD';
         return (
-            <div style={{display: 'block'}}>
-                <FilesInputComponent disabled={this.state.uploadingFiles} onFilesInput={this.loadFile} />
+            <div style={{ display: 'block' }}>
+                <FilesInputComponent disabled={this.state.uploadingFiles} onFilesInput={this.loadFileSocket} />
                 {uploading}
             </div>
         );

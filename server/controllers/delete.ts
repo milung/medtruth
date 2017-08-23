@@ -1,7 +1,7 @@
 import { DownloadData } from '../routes/api/download';
 import { ImageOperations } from "./imageResizing";
 import * as PromiseBlueBird from 'bluebird';
-import { AzureDatabase } from "../azure-service";
+import { AzureDatabase, AzureStorage } from "../azure-service";
 import * as _ from 'lodash';
 import { UploadJSON } from "../Objects";
 
@@ -36,5 +36,13 @@ export namespace DeleteController {
         });
         console.log("merged");
         return patientImages;
+    }
+
+    async function deleteImages(images: string[]) {
+        let removeAll = images.map((image) => {
+            return AzureStorage.deleteImageAndThumbnail(image);
+        }, { concurrency: 10 });
+        // w8 'till all patients are fetched
+        await Promise.all(removeAll);
     }
 }

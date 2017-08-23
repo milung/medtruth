@@ -110,15 +110,15 @@ export namespace AzureStorage {
                 let thmbPromise = blobService.deleteBlobIfExists(containerImages, thumbnail, (error, result, response) => {
                 });
 
-                await PromiseBlueBird.all([imgPromimse,thmbPromise]);
-                console.log('[deleted] ' +name);
-                
+                await PromiseBlueBird.all([imgPromimse, thmbPromise]);
+                console.log('[deleted] ' + name);
+
                 resolve();
             } catch (e) {
                 console.log("service deleteImageAndThumbnail");
-                
+
                 console.log(e);
-                
+
                 reject({});
             }
         });
@@ -130,8 +130,9 @@ export namespace AzureDatabase {
     export const localName = "medtruth";
     export const urlMedTruth = "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true";
     //export const url = urlMedTruth;
-    export const url = (process.argv[2] === 'local' || process.env.NODE_ENV === 'development') ? "mongodb://" + localAddress + localName : urlMedTruth;
-    //export const url = "mongodb://" + localAddress + localName;
+    //export const url = (process.argv[2] === 'local' || process.env.NODE_ENV === 'development') ? "mongodb://" + localAddress + localName : urlMedTruth;
+    export const url = "mongodb://" + localAddress + localName;
+    //export const url = "mongodb://localhost:C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==@localhost:10255/admin?ssl=true&3t.sslSelfSignedCerts=true";
 
     export enum Status {
         SUCCESFUL,
@@ -191,8 +192,14 @@ export namespace AzureDatabase {
     export function connect(): Promise<Db> {
         return new Promise<Db>(async (resolve, reject) => {
             MongoClient.connect(url, function (err, database) {
-                if (err) reject(null)
-                else resolve(database);
+                if (err) {
+                    console.log(err);
+
+                    reject(null)
+                }
+                else {
+                    resolve(database);
+                }
             });
         });
     }
@@ -214,6 +221,13 @@ export namespace AzureDatabase {
         let collection = await db.collection('labels');
         return { db: db, collection: collection };
     }
+
+    async function connectToTemporeryPatients(): Promise<Connection> {
+        let db = await connect();
+        let collection = await db.collection('temporerypatients');
+        return { db: db, collection: collection };
+    }
+
 
     // Close the database only if it's not null.
     export function close(db: Db): void {
@@ -669,7 +683,7 @@ export namespace AzureDatabase {
 
     export function removeFromLabels(labels: string[]): Promise<Status> {
         return new Promise<Status>(async (resolve, reject) => {
-           
+
             if (!labels || labels.length === 0) {
                 resolve(Status.SUCCESFUL);
                 return;
