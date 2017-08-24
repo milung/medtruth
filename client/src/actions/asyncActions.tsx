@@ -81,3 +81,22 @@ export function fetchPatients() {
         return patients;
     };
 }
+
+export function initializeState() {
+    return async (dispatch) => {
+        let patients: PatientJSON[] = await dispatch(fetchPatients());
+        let imageIds: string[] = [];
+        patients.forEach(patient => {
+            patient.studies.forEach(study => {
+                study.series.forEach(series => {
+                    series.images.forEach(image => {
+                        imageIds.push(image.imageID);
+                    });
+                });
+            });
+        });
+        dispatch(downloadImageAnnotations(...imageIds));
+
+        dispatch(downloadLabelsAction());
+    };
+}

@@ -8,7 +8,8 @@ import { entitiesReducer } from '../reducers/EntitiesReducer';
 import { EntitiesState } from '../reducers/EntitiesReducer';
 import thunk from 'redux-thunk';
 import { applyMiddleware } from 'redux';
-import { fetchPatients, downloadLabelsAction, downloadImageAnnotations } from '../actions/asyncActions';
+import { fetchPatients, downloadLabelsAction, 
+    downloadImageAnnotations, initializeState } from '../actions/asyncActions';
 import { Store } from 'redux';
 
 export interface State {
@@ -35,24 +36,7 @@ export function getStore(): Store<{}> {
         applyMiddleware(thunk)
     ));
 
-    initializeState(store);
+    store.dispatch(initializeState());
 
     return store;
-}
-
-function initializeState(store: Store<{}>) {
-    store.dispatch(fetchPatients()).then(patients => {
-        let imageIds: string[] = [];
-        patients.forEach(patient => {
-            patient.studies.forEach(study => {
-                study.series.forEach(series => {
-                    series.images.forEach(image => {
-                        imageIds.push(image.imageID);
-                    });
-                });
-            });
-        });
-        store.dispatch(downloadImageAnnotations(...imageIds));
-    });
-    store.dispatch(downloadLabelsAction());
 }
