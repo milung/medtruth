@@ -2,7 +2,7 @@
 import {
     ImageAnnotation, imagesAnnotationAddedAction,
     imagesAnnotationRemovedAction, labelsDowloadedAction,
-    imagesAnnotationsDownloadedAction, PatientJSON, patientsFetched
+    imagesAnnotationsDownloadedAction, PatientJSON, patientsFetched, ItemTypes, removedSelectedAction, removedAllAction
 } from './actions';
 import { ApiService } from '../api';
 import { getImagesWherePatientIds } from '../selectors/selectors';
@@ -81,3 +81,46 @@ export function fetchPatients() {
         return patients;
     };
 }
+
+export function initializeState() {
+    return async (dispatch) => {
+        let patients: PatientJSON[] = await dispatch(fetchPatients());
+        let imageIds: string[] = [];
+        patients.forEach(patient => {
+            patient.studies.forEach(study => {
+                study.series.forEach(series => {
+                    series.images.forEach(image => {
+                        imageIds.push(image.imageID);
+                    });
+                });
+            });
+        });
+        dispatch(downloadImageAnnotations(...imageIds));
+
+        dispatch(downloadLabelsAction());
+    };
+}
+
+export function deleteSelected(
+    itemType: ItemTypes, patientID: string, studyID: string, seriesID: string, IDs: string[]) {
+
+    return async (dispatch) => {
+        let resData = await ApiService.deleteSelected({
+            itemType: itemType,
+            patient: patientID,
+            study: studyID,
+            series: seriesID,
+            IDs: IDs
+        });
+
+        dispatch(removedSelectedAction(itemType, IDs));
+    };
+}
+
+export function deleteAll() {
+    return async (dispatch) => {
+        await ApiService.deleteAll();
+        dispatch(removedAllAction());
+    };
+}
+ 

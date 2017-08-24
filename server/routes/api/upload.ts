@@ -102,8 +102,5 @@ routerUpload.get('/:id', async (req, res) => {
             res.json(responseJSON);
         }
     }
-
-
-
 });
 

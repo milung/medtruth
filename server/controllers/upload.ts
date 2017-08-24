@@ -48,7 +48,6 @@ export class UploadController {
         this.createThumbnailSharp = this.createThumbnailSharp.bind(this);
         this.uploadImageToAzure = this.uploadImageToAzure.bind(this);
         this.uploadImage = this.uploadImage.bind(this);
-
     }
 
     Root = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -60,8 +59,8 @@ export class UploadController {
         console.time('end');
         // Convert, upload and parse the files.
         await this.convert(files);
-        //let createThumbnails = this.createThumbnails();
-        //await this.upload();
+        // let createThumbnails = this.createThumbnails();
+        // await this.upload();
         let json = await this.parse();
         console.log("inserting to db");
         console.log(json);
@@ -73,7 +72,7 @@ export class UploadController {
         }
         db.close();
 
-        //await createThumbnails;
+        // await createThumbnails;
 
         // Cleanup.
         files.forEach((file) => {
@@ -89,7 +88,7 @@ export class UploadController {
             return { name: upload.name, id: upload.id, err: upload.err };
         });
         // Then assign a unique_id and UploadStatuses.
-        //req.params.statuses = { upload_id: json.uploadID, statuses: statuses };
+        // req.params.statuses = { upload_id: json.uploadID, statuses: statuses };
         console.timeEnd('end');
         next();
     }
@@ -147,7 +146,7 @@ export class UploadController {
     async parse() {
         let patients = {};
         let imagesToUpload: ImageInfoData[] = [];
-        //patients[0] = new objects.UploadJSON();
+        // patients[0] = new objects.UploadJSON();
         // get patients from database
         try {
             var db = await AzureDatabase.connect();
@@ -155,7 +154,6 @@ export class UploadController {
             console.log("create");
             console.log(error);
         }
-
 
         let getPatients = this.responses.map(async (parse) => {
             let conv = new DaikonConverter(storagePath + parse.filename);
@@ -171,8 +169,6 @@ export class UploadController {
         // w8 'till all patients are fetched
         await Promise.all(getPatients);
         db.close();
-
-
 
         // parse info from all dicom files and save to db
         let parses = this.responses.forEach((parse) => {
@@ -297,7 +293,6 @@ export class UploadController {
                 });
 
                 console.log(existingSeries.images);
-
 
                 return;
             }

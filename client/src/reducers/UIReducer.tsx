@@ -1,7 +1,7 @@
 
 import {
     ActionTypeKeys, ActionType, SeriesSelectedAction, Keys, ImageSelectedAction,
-    ItemSelectedAction, ItemTypes, AllItemsUnselectedAction
+    ItemSelectedAction, ItemTypes, AllItemsUnselectedAction, RemovedAllAction, RemovedSelectedAction
 } from '../actions/actions';
 
 export interface UIState {
@@ -68,7 +68,6 @@ export function uiReducer(
             return newState;
         case ActionTypeKeys.LAST_STUDY_SELECTED:
             console.log('ActionTypeKeys.LAST_STUDY_SELECTED');
-
             newState = Object.assign({}, prevState);
             newState.lastViewedStudyID = action.lastStudyID;
             return newState;
