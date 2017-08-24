@@ -33,18 +33,7 @@ server.get('*', async function (req, res) {
 // Initialize database, listen and serve.
 const port = 8080;
 
-// AzureDatabase.initialize().then(() => {
-//     server.listen(process.env.PORT || port, () => {
-//         console.log("Listening on port", port);
-//     });
-//     console.log("viva la continuous integration");
-
-// }, () => {
-//     console.log("Error when initializing database.");
-// });
-
 server.listen(process.env.PORT || port, () => {
     console.log("Listening on port", port);
 });
 console.log("viva la continuous integration");
-

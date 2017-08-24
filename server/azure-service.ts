@@ -143,48 +143,6 @@ export namespace AzureDatabase {
         collection: Collection
     }
 
-    export function initialize(): Promise<void> {
-        return new Promise<void>(async (resolve, reject) => {
-            try {
-                var conn = await connectToLabels();
-                let indexExists: boolean = await conn.collection.indexExists("label_1");
-                if (!indexExists) {
-                    await conn.collection.createIndex({ label: 1 }, { unique: true, name: "label_1" });
-                }
-
-                indexExists = await conn.collection.indexExists("label_1");
-                if (indexExists) {
-                    console.log('created index label_1 on collection labels');
-                    resolve();
-                } else {
-                    console.log('error: index label_1 on collection labels not created');
-                    reject();
-                }
-
-                indexExists = await conn.collection.indexExists("imageID_1");
-                if (!indexExists) {
-                    await conn.collection.createIndex({ imageID: 1 }, { unique: true, name: "imageID_1" });
-                }
-
-                indexExists = await conn.collection.indexExists("imageID_1");
-                if (indexExists) {
-                    console.log('created index imageID_1 on collection attributes');
-                    resolve();
-                } else {
-                    console.log('error: index imageID_1 on collection attributes not created');
-                    reject();
-                }
-
-            } catch (e) {
-                console.log('error');
-                console.log(e);
-                reject();
-            } finally {
-                close(conn.db);
-            }
-        });
-    }
-
     /**
      * Initialize connection to MongoDB.
      */
