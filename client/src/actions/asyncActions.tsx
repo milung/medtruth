@@ -2,7 +2,7 @@
 import {
     ImageAnnotation, imagesAnnotationAddedAction,
     imagesAnnotationRemovedAction, labelsDowloadedAction,
-    imagesAnnotationsDownloadedAction, PatientJSON, patientsFetched, ItemTypes, removedSelectedAction
+    imagesAnnotationsDownloadedAction, PatientJSON, patientsFetched, ItemTypes, removedSelectedAction, removedAllAction
 } from './actions';
 import { ApiService } from '../api';
 import { getImagesWherePatientIds } from '../selectors/selectors';
@@ -114,6 +114,13 @@ export function deleteSelected(
         });
 
         dispatch(removedSelectedAction(itemType, IDs));
+    };
+}
+
+export function deleteAll() {
+    return async (dispatch) => {
+        await ApiService.deleteAll();
+        dispatch(removedAllAction());
     };
 }
  

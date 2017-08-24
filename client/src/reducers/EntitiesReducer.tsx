@@ -92,10 +92,30 @@ export function entitiesReducer(
             return processRemovedSelectedAction(prevState, action);
         case ActionTypeKeys.REMOVED_SELECTED:
             return processRemovedSelectedAction(prevState, action);
+        case ActionTypeKeys.REMOVED_ALL:
+            return processRemovedAllAction(prevState, action);
         default:
             return prevState;
     }
 }
+
+const processRemovedAllAction = (prevState: EntitiesState, action: RemovedAllAction): EntitiesState => {
+    let newState: EntitiesState = { ...prevState };
+    newState.images = {
+        byId: new Map()
+    };
+    newState.series = {
+        byId: new Map()
+    };
+    newState.studies = {
+        byId: new Map()
+    };
+    newState.patients = {
+        byId: new Map()
+    };
+    newState.labels = [];
+    return newState;
+};
 
 const processRemovedSelectedAction = (prevState: EntitiesState, action: RemovedSelectedAction): EntitiesState => {
 
@@ -528,13 +548,3 @@ const processImageAnnotationAddedAction =
         newState.images.byId.set(newImageEntity.imageID, newImageEntity);
         return newState;
     };
-
-const processRemovedAllAction = (prevState: EntitiesState, action: RemovedAllAction): EntitiesState => {
-    // TODO delete all entities from the store 
-    return null;
-};
-
-// const processRemovedSelectedAction = (prevState: EntitiesState, action: RemovedSelectedAction): EntitiesState => {
-//     // TODO delete selected entities from the state
-//     return null;
-// }
