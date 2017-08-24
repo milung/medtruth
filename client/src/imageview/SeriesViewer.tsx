@@ -42,7 +42,6 @@ export class SeriesViewerComponent extends React.Component<OwnProps & ConnectedS
     }
 
     render() {
-
         console.log('patientID', this.props.match.params.patientID);
         console.log('studyID', this.props.match.params.studyID);
 
@@ -57,9 +56,10 @@ export class SeriesViewerComponent extends React.Component<OwnProps & ConnectedS
 
                 <Grid container={true} gutter={16}>
                     <Grid item={true} xs={12} sm={12} md={12} style={imageStyle.seriesStyle} >
-                       <Typography type="body1">Patient name: <b>{this.props.patients[0].patientName}</b></Typography>
+                        
+                       <Typography type="body1">Patient name: <b>{this.props.patients[0] !== undefined ? this.props.patients[0].patientName : ''}</b></Typography>
                        {/* <Typography type="body1">Birthday: <b>{convertDate(this.props.patients[0].patientBirthday)}</b></Typography> */}
-                       <Typography type="body1">Study description: <b>{this.props.studies[0].studyDescription}</b></Typography>
+                       <Typography type="body1">Study description: <b>{this.props.studies[0] !== undefined ? this.props.studies[0].studyDescription : ''}</b></Typography>
                     </Grid>
                     {console.log("series list", this.props.seriesList)}
                     {this.props.seriesList.map((value) =>

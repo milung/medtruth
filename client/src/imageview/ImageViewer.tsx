@@ -102,10 +102,10 @@ class ImageViewerComponent extends React.Component<OwnProps & ConnectedDispatch 
                     List of images
                         </Typography>
                 <Grid item={true} xs={12} sm={12} md={12} style={imageStyle.seriesStyle} >
-                    <Typography type="body1">Name: <b>{this.props.patients[0].patientName} </b></Typography>
+                    <Typography type="body1">Name: <b>{this.props.patients[0] !== undefined ? this.props.patients[0].patientName : ''} </b></Typography>
                     {/* <Typography type="body1">Birthday: <b>{convertDate(this.props.patients[0].patientBirthday)}</b></Typography> */}
-                    <Typography type="body1">Study description: <b>{this.props.studies[0].studyDescription}</b></Typography>
-                    <Typography type="body1">Series description: <b>{this.props.series[0].seriesDescription}</b></Typography>
+                    <Typography type="body1">Study description: <b>{this.props.studies[0] !== undefined ? this.props.studies[0].studyDescription : ''}</b></Typography>
+                    <Typography type="body1">Series description: <b>{this.props.series[0] !== undefined ? this.props.series[0].seriesDescription : ''}</b></Typography>
                 </Grid>
                 <Grid container={true} gutter={16} style={imageStyle.ImageViewGrid} >
                     {this.props.imageList.map((value, index) =>

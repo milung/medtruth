@@ -4,6 +4,8 @@ import { routes } from './routes';
 import { StatusCode } from './constants';
 import { AzureDatabase } from "./azure-service";
 
+var path = require('path');
+
 // Set-up a server, with routes and static public files.
 export const server = express();
 
@@ -14,14 +16,19 @@ server.use(express.static('public/'));
 server.use(routes);
 
 // As a last resort, send a NotFound status.
-server.use((req, res, next) => {
-    res.status(StatusCode.NotFound)
-        .json(
-        {
-            message: 'Route not found'
-        }
-        );
-})
+// server.use((req, res, next) => {   
+//     console.log("window.history.state: ", history.state); 
+//     res.status(StatusCode.NotFound)
+//         .json(
+//         {
+//             message: 'Route not found',
+//         }        
+//         );
+// })
+
+server.get('*', async function(req, res) {
+    res.sendFile(path.resolve(__dirname, '../public', 'index.html'));
+});
 
 // Initialize database, listen and serve.
 const port = 8080;
