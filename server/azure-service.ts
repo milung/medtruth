@@ -8,19 +8,16 @@ import * as PromiseBlueBird from 'bluebird';
 //import { db } from './server';
 
 import { MongoClient, Db, Collection, BulkWriteOpResultObject, FindAndModifyWriteOpResultObject, Cursor } from 'mongodb';
-import { UploadJSON } from "./Objects";
+import { UploadJSON, StudyJSON, SeriesJSON, ImageJSON } from "./Objects";
 
 export namespace AzureStorage {
     const accountName = 'medtruth';
     const accountKey = 'fKbRBTAuaUOGJiuIXpjx2cG4Zgs2oZ2wYgunmRdNJ92oMdU1HbRjSv89JtLnmXS+LhlT0SzLMzKxjG/Vyt+GSQ==';
     export const blobService = azure.createBlobService(accountName, accountKey);
-    //blobService.logger.level = azure.Logger.LogLevels.DEBUG;  
+    // blobService.logger.level = azure.Logger.LogLevels.DEBUG;  
     export const containerDicoms = 'dicoms';
     export const containerImages = 'images';
-    //export const containerImages = 'test01';
-
-
-
+    // export const containerImages = 'test01';
 
     export enum Status {
         SUCCESFUL,
@@ -42,7 +39,6 @@ export namespace AzureStorage {
                 });
         });
     }
-
 
     export function toDicoms(blobName: string, filePath: string): PromiseBlueBird<Status> {
         return upload(containerDicoms, blobName, filePath);
@@ -100,6 +96,33 @@ export namespace AzureStorage {
             })
         });
     }
+
+
+    export function deleteImageAndThumbnail(image: string) {
+        return new PromiseBlueBird(async (resolve, reject) => {
+            try {
+                let name = image + ".png";
+                let thumbnail = image + "_.png";
+                // delete image
+                let imgPromimse = blobService.deleteBlobIfExists(containerImages, name, (error, result, response) => {
+                });
+                // delete thumbnail
+                let thmbPromise = blobService.deleteBlobIfExists(containerImages, thumbnail, (error, result, response) => {
+                });
+
+                await PromiseBlueBird.all([imgPromimse, thmbPromise]);
+                console.log('[deleted] ' + name);
+
+                resolve();
+            } catch (e) {
+                console.log("service deleteImageAndThumbnail");
+
+                console.log(e);
+
+                reject({});
+            }
+        });
+    }
 }
 
 export namespace AzureDatabase {
@@ -128,13 +151,27 @@ export namespace AzureDatabase {
                 if (!indexExists) {
                     await conn.collection.createIndex({ label: 1 }, { unique: true, name: "label_1" });
                 }
-                
+
                 indexExists = await conn.collection.indexExists("label_1");
                 if (indexExists) {
                     console.log('created index label_1 on collection labels');
                     resolve();
                 } else {
                     console.log('error: index label_1 on collection labels not created');
+                    reject();
+                }
+
+                indexExists = await conn.collection.indexExists("imageID_1");
+                if (!indexExists) {
+                    await conn.collection.createIndex({ imageID: 1 }, { unique: true, name: "imageID_1" });
+                }
+
+                indexExists = await conn.collection.indexExists("imageID_1");
+                if (indexExists) {
+                    console.log('created index imageID_1 on collection attributes');
+                    resolve();
+                } else {
+                    console.log('error: index imageID_1 on collection attributes not created');
                     reject();
                 }
 
@@ -244,6 +281,36 @@ export namespace AzureDatabase {
         });
     }
 
+
+    export function updateToImageCollectionDB(object, db): Promise<Status> {
+        return new Promise<Status>(async (resolve, reject) => {
+            try {
+                let collection = await db.collection('images');
+                let query = { patientID: String(object.patientID) };
+                await collection.update(query, object,
+                    {
+                        upsert: true
+                    }, (error, result) => {
+                        if (error) {
+                            console.log('error');
+                            console.log(error);
+                            reject(Status.FAILED);
+                        }
+                        else {
+
+                            resolve(Status.SUCCESFUL);
+                        }
+                    });
+            } catch (e) {
+                console.log('error');
+                console.log(e);
+                reject(Status.FAILED);
+            } finally {
+                close(db);
+            }
+        });
+    }
+
     export function getAllPatients() {
         return new Promise<any>(async (resolve, reject) => {
             try {
@@ -316,6 +383,71 @@ export namespace AzureDatabase {
             } finally {
                 close(conn.db);
             }
+        });
+    }
+
+    export function putAttributeToImages(imageIDs: string[], attribute: Attribute): Promise<Status> {
+        return new Promise<Status>(async () => {
+            let conn = await connectToAttributes();
+            let updateObjects = imageIDs.map(imageID => ({
+                updateOne: {
+                    filter: { imageID },
+                    update: {
+                        $setOnInsert: {
+                            attributes: [
+                                attribute
+                            ]
+                        }
+                    }
+                },
+                upsert: true
+            }));
+
+            let result: BulkWriteOpResultObject = await conn.collection.bulkWrite(updateObjects);
+
+            let addedAttributesCount = result.upsertedCount;
+
+            let updateObjects2 = imageIDs.map(imageID => ({
+                updateOne: {
+                    filter: {
+                        imageID,
+                        attributes: {
+                            $not: {
+                                $elemMatch: {
+                                    label: attribute.key
+                                }
+                            }
+                        }
+                    },
+                    udate: {
+                        $push: {
+                            attributes: attribute
+                        }
+                    }
+                }
+            }));
+
+            result = await conn.collection.bulkWrite(updateObjects2);
+
+            addedAttributesCount += result.modifiedCount;
+
+            let updateObjects3 = imageIDs.map(imageID => ({
+                updateOne: {
+                    filter: {
+                        imageID,
+                        "attributes.label": attribute.key
+                    },
+                    udate: {
+                        $set: {
+                            "attribute.$.label": attribute.value
+                        }
+                    }
+                }
+            }));
+
+            result = await conn.collection.bulkWrite(updateObjects3);
+
+            putToLabels2(attribute.key, addedAttributesCount);
         });
     }
 
@@ -447,6 +579,26 @@ export namespace AzureDatabase {
     }
 
     /**
+    * Returns Upload document with a specific ID.
+    * @param patientID
+    */
+    export function getPatientDocumentDB(patientID: string, db): Promise<string> {
+        return new Promise<string>(async (resolve, reject) => {
+            try {
+
+                let query = { patientID: String(patientID) };
+                let collection = await db.collection('images');
+
+                let result = await collection.findOne(query);
+                if (result) resolve(result);
+                else resolve(result);
+            } catch (e) {
+                reject(Status.FAILED);
+            }
+        });
+    }
+
+    /**
      * Returns JSON object of the last Upload document in MongoDB.
      */
     export function getLastUpload(): Promise<string> {
@@ -485,7 +637,7 @@ export namespace AzureDatabase {
             try {
                 var conn = await connectToImages();
                 let query = { uploadID: req.uploadID };
-                let result = await conn.collection.findOne(query);
+                let result: UploadJSON = await conn.collection.findOne(query);
 
                 // TODO: Refactor!
                 if (result) {
@@ -522,10 +674,8 @@ export namespace AzureDatabase {
                 resolve(Status.SUCCESFUL);
                 return;
             }
-
             try {
                 var conn = await connectToLabels();
-
                 // remove where count is equal 1
                 await conn.collection.deleteMany({
                     label: {
@@ -533,7 +683,6 @@ export namespace AzureDatabase {
                     },
                     count: 1
                 });
-
                 // decrement count
                 let updateObjects: {}[] = labels.map(label => {
                     return {
@@ -550,6 +699,38 @@ export namespace AzureDatabase {
 
                 await conn.collection.bulkWrite(updateObjects);
                 resolve(Status.SUCCESFUL);
+            } catch (e) {
+                reject(Status.FAILED);
+            } finally {
+                close(conn.db);
+            }
+        });
+    }
+
+    export function putToLabels2(label: string, count: number): Promise<Status> {
+        return new Promise<Status>(async (resolve, reject) => {
+            try {
+                var conn = await connectToLabels();
+                let result = await conn.collection.updateOne(
+                    {
+                        label
+                    },
+                    {
+                        $inc: {
+                            count: count
+                        }
+                    },
+                    {
+                        upsert: true
+                    }
+                );
+
+                if (result.result.ok) {
+                    resolve(Status.SUCCESFUL);
+                } else {
+                    reject(Status.FAILED);
+                }
+
             } catch (e) {
                 reject(Status.FAILED);
             } finally {
@@ -636,4 +817,210 @@ export namespace AzureDatabase {
             }
         });
     }
+
+    /**
+     * Remove everything from MongoDB and Azure Blob Storage
+     */
+    export function removeAll(): Promise<any> {
+        return new Promise<any>(async (resolve, reject) => {
+            // Delete everything from attributes MongoDB collection 
+            await removeFromCollection('attributes');
+            // Delete everything from labels MongoDB collection
+            await removeFromCollection('labels');
+            // Delete everything from images MongoDB collection
+            await removeFromCollection('images');
+
+            resolve();
+
+            // // Drop the whole mongoDB database
+            // console.log('droping database');
+            // let db = await connect();
+            // try {
+            //     let result = await db.dropDatabase();
+            //     console.log('result', result);
+            //     resolve(result);
+            // } catch (e) {
+            //     reject();
+            // }
+        });
+    }
+
+    export function removeFromCollection(collection: string): Promise<void> {
+        return new Promise<void>(async (resolve, reject) => {
+            var conn;
+            try {
+                switch (collection) {
+                    case 'attributes':
+                        conn = await connectToAttributes();
+                        break;
+                    case 'labels':
+                        conn = await connectToLabels();
+                        break;
+                    case 'images':
+                        conn = await connectToImages();
+                        break;
+                    default:
+                        break;
+                }
+                // var conn = await connectToLabels();
+                let result = await conn.collection.deleteMany({});
+                console.log(result);
+                resolve();
+            } catch (e) {
+                reject({});
+            } finally {
+                close(conn.db);
+            }
+        });
+    }
+
+    /** 
+     * Remove patient's document from MongoDB
+     */
+    export function removePatient(patient: string): Promise<any> {
+        return new Promise<any>(async (resolve, reject) => {
+            let filter = { patientID: patient };
+
+            try {
+                var conn = await connectToImages();
+                let result = await conn.collection.remove(filter);
+                console.log('SUCCESSFULLY REMOVED PATIENT', result);
+                resolve();
+            } catch (e) {
+                reject({});
+            } finally {
+                close(conn.db);
+            }
+        })
+    };
+
+    /** 
+     * Remove particular study of a particular patient
+     */
+    export function removePatientsStudy(patient: string, study: string): Promise<any> {
+        return new Promise<any>(async (resolve, reject) => {
+            let filter = { patientID: patient };
+            let update = {
+                $pull: {
+                    studies: {
+                        studyID: study
+                    }
+                }
+            };
+            let options = {
+                returnOriginal: false
+            };
+            try {
+                var conn = await connectToImages();
+                let result = await conn.collection.findOneAndUpdate(filter, update, options);
+                resolve(result);
+            } catch (e) {
+                reject();
+            }
+        });
+    }
+
+    /**
+     * Remove particular series from patient's study
+     * @param patientID 
+     * @param studyID 
+     * @param seriesID 
+     */
+    export function removeStudySeries(patientID: string, studyID: string, seriesID: string): Promise<any> {
+        console.log('PATIENT ' + patientID + ' STUDY ' + studyID + ' SERIES ' + seriesID);
+        return new Promise<any>(async (resolve, reject) => {
+            let filter = { patientID: patientID };
+            try {
+                var conn = await connectToImages();
+                // Get the old document
+                let oldDocument: UploadJSON = await conn.collection.findOne(filter);
+                let newDocument: UploadJSON = oldDocument;
+                let newSeries: SeriesJSON[] = [];
+                for (var studyIndex in newDocument.studies) {
+                    // Find the study
+                    var study = newDocument.studies[studyIndex];
+                    if (study.studyID === studyID) {
+                        console.log('study found');
+                        // Find the series
+                        let index: number = study.series.findIndex(series =>
+                            series.seriesID === seriesID
+                        );
+                        // Remove the series from the array of series
+                        if (index !== -1) {
+                            console.log('series found');
+                            newSeries =
+                                [...study.series.slice(0, index),
+                                ...study.series.slice(index + 1)];
+                        }
+                        // Set new series
+                        newDocument.studies[studyIndex].series = newSeries;
+                    }
+                }
+                let result = await conn.collection.findOneAndReplace(filter, newDocument);
+                resolve();
+            } catch (e) {
+                reject();
+            }
+        })
+    };
+
+    export function removeSeriesImage(patientID: string, studyID: string, seriesID: string, imageID: string): Promise<any> {
+        console.log('PATIENT ' + patientID + ' STUDY ' + studyID + ' SERIES ' + seriesID + ' IMAGE ' + imageID);
+        return new Promise<any>(async (resolve, reject) => {
+            let filter = { patientID: patientID };
+            try {
+                var conn = await connectToImages();
+                // Get the old document
+                let oldDocument: UploadJSON = await conn.collection.findOne(filter);
+                let newDocument: UploadJSON = oldDocument;
+                let newImages: ImageJSON[] = [];
+                for (var studyIndex in newDocument.studies) {
+                    var study = newDocument.studies[studyIndex];
+                    // Find the study
+                    if (study.studyID === studyID) {
+                        console.log('study found');
+                        for (var seriesIndex in study.series) {
+                            // Find the series
+                            if (study.series[seriesIndex].seriesID === seriesID) {
+                                console.log('series found');
+                                // Find the image
+                                let index: number = study.series[seriesIndex].images.findIndex(image =>
+                                    image.imageID === imageID
+                                );
+                                // Remove the image from the array of images
+                                if (index !== -1) {
+                                    console.log('image found');
+                                    newImages =
+                                        [...study.series[seriesIndex].images.slice(0, index),
+                                        ...study.series[seriesIndex].images.slice(index + 1)];
+                                }
+                                // Set new images
+                                newDocument.studies[studyIndex].series[seriesIndex].images = newImages;
+                            }
+                        }
+                    }
+                }
+                let result = await conn.collection.findOneAndReplace(filter, newDocument);
+                resolve();
+            } catch (e) {
+                reject();
+            }
+        })
+    };
+
+    export function deleteAllPatients() {
+        return new Promise(async (resolve, reject) => {
+            try {
+                var conn = await connectToImages();
+                conn.collection.remove({});
+                resolve();
+            } catch (e) {
+                reject({});
+            } finally {
+                close(conn.db);
+            }
+        });
+    }
+
+
 }

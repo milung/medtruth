@@ -1,7 +1,7 @@
 import {
     ActionType, ActionTypeKeys, ImageAnnotation,
     ImageAnnotationAddedAction, PatientJSON, LabelsDownloadedAction, ImagesAnnotationRemovedAction,
-    ImagesAnnotationAddedAction, ImagesAnnotationsDownloadedAction, PatientsFetchedAction, ImageJSON
+    ImagesAnnotationAddedAction, ImagesAnnotationsDownloadedAction, PatientsFetchedAction, ImageJSON, RemovedAllAction, RemovedSelectedAction
 } from '../actions/actions';
 
 import { normalize, schema } from 'normalizr';
@@ -24,7 +24,7 @@ export interface EntitiesState {
 
 export interface ImageEntity {
     imageID: string;
-    series: string;
+    seriesID: string;
     imageNumber: number;
     annotations: ImageAnnotation[];
     isSelected: boolean;
@@ -85,6 +85,10 @@ export function entitiesReducer(
             return processImagesAnnotationsDownloadedAction(prevState, action);
         case ActionTypeKeys.PATIENTS_FETCHED:
             return processPatientsDataFetched(prevState, action);
+        case ActionTypeKeys.REMOVED_ALL:
+            return processRemovedAllAction(prevState, action);
+        case ActionTypeKeys.REMOVED_SELECTED:
+            return processRemovedSelectedAction(prevState, action);
         default:
             return prevState;
     }
@@ -169,7 +173,7 @@ const processPatientsDataFetched = (prevState: EntitiesState, action: PatientsFe
 
 function createMapFromObject<T>(obj: Object): Map<string, T> {
     let map: Map<string, T> = new Map();
-    if(obj == undefined) return map;
+    if (obj === undefined) { return map; }
  
     Object.keys(obj).forEach(key => {
         map.set(key, obj[key]);
@@ -204,7 +208,7 @@ const processImagesAnnotationsDownloadedAction =
                 } else {
                     newImage = {
                         imageID: key,
-                        series: undefined,
+                        seriesID: undefined,
                         imageNumber: undefined,
                         annotations: [],
                         isSelected: image.isSelected
@@ -323,7 +327,7 @@ const processImageAnnotationAddedAction =
 
         if (imageEntity === undefined) {
             newImageEntity = {
-                series: undefined,
+                seriesID: undefined,
                 imageID: action.imageID,
                 imageNumber: undefined,
                 annotations: [],
@@ -368,3 +372,13 @@ const processImageAnnotationAddedAction =
         newState.images.byId.set(newImageEntity.imageID, newImageEntity);
         return newState;
     };
+
+const processRemovedAllAction = (prevState: EntitiesState, action: RemovedAllAction): EntitiesState => {
+    // TODO delete all entities from the store 
+    return null;
+}
+
+const processRemovedSelectedAction = (prevState: EntitiesState, action: RemovedSelectedAction): EntitiesState => {
+    // TODO delete selected entities from the state
+    return null;
+}

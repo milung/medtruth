@@ -1,5 +1,8 @@
 
-import { ActionTypeKeys, ActionType, SeriesSelectedAction, Keys, ImageSelectedAction, ItemSelectedAction, ItemTypes, AllItemsUnselectedAction } from '../actions/actions';
+import {
+    ActionTypeKeys, ActionType, SeriesSelectedAction, Keys, ImageSelectedAction,
+    ItemSelectedAction, ItemTypes, AllItemsUnselectedAction, RemovedAllAction, RemovedSelectedAction
+} from '../actions/actions';
 
 export interface UIState {
     isBlownUpShowed: boolean;
@@ -12,6 +15,7 @@ export interface UIState {
     };
     lastViewedStudyID: string;
     showDownloadPopUP: boolean;
+    showDeleteDialog: boolean;
 }
 
 const initialState: UIState = {
@@ -24,7 +28,8 @@ const initialState: UIState = {
         patients: []
     },
     lastViewedStudyID: '',
-    showDownloadPopUP: false
+    showDownloadPopUP: false,
+    showDeleteDialog: false
 };
 
 export function uiReducer(
@@ -63,13 +68,16 @@ export function uiReducer(
             return newState;
         case ActionTypeKeys.LAST_STUDY_SELECTED:
             console.log('ActionTypeKeys.LAST_STUDY_SELECTED');
-
             newState = Object.assign({}, prevState);
             newState.lastViewedStudyID = action.lastStudyID;
             return newState;
         case ActionTypeKeys.DOWNLOAD_POPUP_STATE_CHANGE:
             newState = Object.assign({}, prevState);
             newState.showDownloadPopUP = action.showDownloadPopUP;
+            return newState;
+        case ActionTypeKeys.DELETE_DIALOG_STATE_CHANGE:
+            newState = Object.assign({}, prevState);
+            newState.showDeleteDialog = action.showDeleteDialog;
             return newState;
         case ActionTypeKeys.ITEM_SELECTED:
             return handleItemSelectedAction(prevState, action);

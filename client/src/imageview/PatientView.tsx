@@ -38,7 +38,7 @@ export class PatientViewComponent extends React.Component<PatientProps & Connect
     constructor(props) {
         super(props);
 
-        //this.convertDate = this.convertDate.bind(this);
+        // this.convertDate = this.convertDate.bind(this);
         this.handleDoubleClick = this.handleDoubleClick.bind(this);
         this.clickHandler = this.clickHandler.bind(this);
     }
@@ -93,7 +93,7 @@ export class PatientViewComponent extends React.Component<PatientProps & Connect
                         <Typography type="body2" component="p">
                             Date of birth: <b>{convertDate(this.props.patientBirthday)}</b>
                         </Typography>
-                         <Typography type="body2" component="p">
+                        <Typography type="body2" component="p">
                             Number of studies: <b>{this.props.studiesOfPatient.length}</b>
                         </Typography> 
                         <Link to={'/patients/' + this.props.patientID}>
@@ -136,12 +136,12 @@ const isPatientSelected = (state: State, patientId: string): boolean => {
 };
 
 export function convertDate(millisecond: number): string {
-        console.log('date number', millisecond);
-        if (millisecond === -1) {
-            return 'Date not specified.';
-        }
-        var d = new Date(millisecond);
-        var datestring = ('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2) + '/' +
-            d.getFullYear();
-        return datestring;
+    console.log('date number', millisecond);
+    if (millisecond === -1) {
+        return 'Date not specified.';
     }
+    var d = new Date(millisecond);
+    var datestring = ('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2) + '/' +
+        d.getFullYear();
+    return datestring;
+}

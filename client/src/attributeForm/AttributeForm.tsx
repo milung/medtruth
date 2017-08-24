@@ -11,7 +11,7 @@ import { ImageAnnotation, ImagesAnnotationAddedAction, imagesAnnotationAddedActi
 import { ApiService } from '../api';
 import Paper from 'material-ui/Paper';
 import { addImagesAnnotationAction, downloadLabelsAction } from '../actions/asyncActions';
-import { getImagesWhereSeriesIds, getImagesWhereStudyIds, getImagesWherePatientIds } from "../selectors/selectors";
+import { getImagesWhereSeriesIds, getImagesWhereStudyIds, getImagesWherePatientIds } from '../selectors/selectors';
 
 export interface OwnState {
     keyFieldValue: string;
@@ -84,7 +84,7 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
             inputIncorrect = true;
         }
 
-        if (this.props.images.length === 0) { inputIncorrect = true ;}
+        if (this.props.images.length === 0) { inputIncorrect = true; }
 
         return (
             <div >

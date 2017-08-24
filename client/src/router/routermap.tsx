@@ -20,7 +20,7 @@ export const RouteMap = () => (
             <Route path="/:patientID/:studyID" component={SeriesViewer}/>
             <Route path="/:patientID/:studyID/:seriesID" component={InnerComponent}/> */}
 
-            <Route path="/" exact component={Gallery} />
+            <Route path="/" exact={true} component={Gallery} />
             {/* <Route path="/gallery/:uploadID/:study/:series" component={InnerComponent} />  */}
 
             {/* <Route path="/" exact > 

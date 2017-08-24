@@ -55,7 +55,7 @@ describe('EntitiesReducer', () => {
         };
 
         let imageEntity: ImageEntity = {
-            series: 'series',
+            seriesID: 'series',
             imageID: 'image1',
             imageNumber: undefined,
             annotations: [],
@@ -174,7 +174,7 @@ describe('EntitiesReducer', () => {
 
         let image1: ImageEntity = {
             imageID: 'testimageID1',
-            series: undefined,
+            seriesID: undefined,
             imageNumber: undefined,
             annotations: [annotation1, annotation2],
             isSelected: false
@@ -182,7 +182,7 @@ describe('EntitiesReducer', () => {
 
         let image2: ImageEntity = {
             imageID: 'testimageID2',
-            series: undefined,
+            seriesID: undefined,
             imageNumber: undefined,
             annotations: [annotation3],
             isSelected: false
@@ -232,7 +232,7 @@ describe('EntitiesReducer', () => {
         };
 
         let image1: ImageEntity = {
-            series: undefined,
+            seriesID: undefined,
             imageNumber: undefined,
             imageID: 'testimageID1',
             annotations: [annotation1],
@@ -240,7 +240,7 @@ describe('EntitiesReducer', () => {
         };
 
         let image2: ImageEntity = {
-            series: undefined,
+            seriesID: undefined,
             imageNumber: undefined,
             imageID: 'testimageID2',
             annotations: [],
@@ -320,7 +320,7 @@ describe('EntitiesReducer', () => {
         };
 
         let image2: ImageEntity = {
-            series: undefined,
+            seriesID: undefined,
             imageID: 'imageID2',
             imageNumber: undefined,
             annotations: [

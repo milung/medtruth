@@ -5,7 +5,7 @@ import {
     imagesAnnotationsDownloadedAction, PatientJSON, patientsFetched
 } from './actions';
 import { ApiService } from '../api';
-import { getImagesWherePatientIds } from "../selectors/selectors";
+import { getImagesWherePatientIds } from '../selectors/selectors';
 
 export function addImagesAnnotationAction(imageIds: string[], annotation: ImageAnnotation) {
     return async (dispatch) => {

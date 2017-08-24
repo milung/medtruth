@@ -26,20 +26,25 @@ server.use(routes);
 //         );
 // })
 
-server.get('*', async function(req, res) {
+server.get('*', async function (req, res) {
     res.sendFile(path.resolve(__dirname, '../public', 'index.html'));
 });
 
 // Initialize database, listen and serve.
 const port = 8080;
 
-AzureDatabase.initialize().then(() => {
-    server.listen(process.env.PORT || port, () => {
-        console.log("Listening on port", port);
-    });
-    console.log("viva la continuous integration");
+// AzureDatabase.initialize().then(() => {
+//     server.listen(process.env.PORT || port, () => {
+//         console.log("Listening on port", port);
+//     });
+//     console.log("viva la continuous integration");
 
-}, () => {
-    console.log("Error when initializing database.");
+// }, () => {
+//     console.log("Error when initializing database.");
+// });
+
+server.listen(process.env.PORT || port, () => {
+    console.log("Listening on port", port);
 });
+console.log("viva la continuous integration");
 

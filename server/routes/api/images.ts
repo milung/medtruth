@@ -128,6 +128,18 @@ routerImages.delete('/:id/assign', json(), async (req, res) => {
     } catch (e) {
         res.sendStatus(500);
     }
-    
 });
+
+routerImages.delete('/assign', json(), async (req, res) => {
+    let imageIDs: string[] = req.body.imageIDs;
+    let attribute: Attribute = req.body.attribute;
+    try {
+        await AzureDatabase.putAttributeToImages(imageIDs, attribute);
+        res.sendStatus(200);
+    } catch (e) {
+        res.sendStatus(500);
+    }
+});
+
+
 
