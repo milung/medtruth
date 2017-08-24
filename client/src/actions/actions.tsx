@@ -117,7 +117,7 @@ export interface RemovedAllAction {
 export interface RemovedSelectedAction {
     type: ActionTypeKeys.REMOVED_SELECTED;
     itemType: ItemTypes;
-    itemId: string;
+    itemIDs: string[];
 }
 
 export interface ImagesAnnotationRemovedAction {
@@ -221,10 +221,10 @@ export const removedAllAction = (): RemovedAllAction => ({
     type: ActionTypeKeys.REMOVED_ALL
 });
 
-export const removedSelectedAction = (itemType: ItemTypes, itemId: string): RemovedSelectedAction => ({
+export const removedSelectedAction = (itemType: ItemTypes, itemIDs: string[]): RemovedSelectedAction => ({
     type: ActionTypeKeys.REMOVED_SELECTED,
     itemType,
-    itemId
+    itemIDs
 });
 
 export const imagesAnnotationRemovedAction = (imageIds: string[], label: string): ImagesAnnotationRemovedAction => ({

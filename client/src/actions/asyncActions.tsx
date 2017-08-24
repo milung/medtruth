@@ -2,7 +2,7 @@
 import {
     ImageAnnotation, imagesAnnotationAddedAction,
     imagesAnnotationRemovedAction, labelsDowloadedAction,
-    imagesAnnotationsDownloadedAction, PatientJSON, patientsFetched
+    imagesAnnotationsDownloadedAction, PatientJSON, patientsFetched, ItemTypes, removedSelectedAction
 } from './actions';
 import { ApiService } from '../api';
 import { getImagesWherePatientIds } from '../selectors/selectors';
@@ -100,3 +100,20 @@ export function initializeState() {
         dispatch(downloadLabelsAction());
     };
 }
+
+export function deleteSelected(
+    itemType: ItemTypes, patientID: string, studyID: string, seriesID: string, IDs: string[]) {
+
+    return async (dispatch) => {
+        let resData = await ApiService.deleteSelected({
+            itemType: itemType,
+            patient: patientID,
+            study: studyID,
+            series: seriesID,
+            IDs: IDs
+        });
+
+        dispatch(removedSelectedAction(itemType, IDs));
+    };
+}
+ 

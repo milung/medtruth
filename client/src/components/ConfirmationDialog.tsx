@@ -4,13 +4,14 @@ import Button from 'material-ui/Button';
 import Checkbox from 'material-ui/Checkbox';
 import List, { ListItem, ListItemText } from 'material-ui/List';
 import Dialog, { DialogActions, DialogContent, DialogContentText, DialogTitle } from 'material-ui/Dialog';
-import { DeleteDialogState, deleteDialogStateChange, ItemTypes } from "../actions/actions";
+import { DeleteDialogState, deleteDialogStateChange, ItemTypes, allItemsUnselected } from "../actions/actions";
 import { State } from "../app/store";
 import { connect } from "react-redux";
 import Typography from 'material-ui/Typography';
 import { ApiService } from "../api";
 import { getStudiesWhereId, getSeriesesWhereId, getImagesWhereId } from "../selectors/selectors";
 import { StudyEntity, SeriesEntity, ImageEntity } from "../reducers/EntitiesReducer";
+import { deleteSelected } from '../actions/asyncActions';
 
 interface OwnState {
     deleteAll: boolean;
@@ -29,6 +30,8 @@ interface ConnectedState {
 
 interface ConnectedDispatch {
     changeDialogState: (state: boolean) => DeleteDialogState;
+    deleteSelected: (itemType: ItemTypes, patientID: string, 
+                     studyID: string, seriesID: string, IDs: string[]) => void;
 }
 
 class ConfirmationDialogComponent extends React.Component<ConnectedDispatch & ConnectedState, OwnState> {
@@ -89,13 +92,14 @@ class ConfirmationDialogComponent extends React.Component<ConnectedDispatch & Co
                 console.log('NOTHING SELECTED');
             }
             if (!nothingSelected) {
-                let resData = await ApiService.deleteSelected({
-                    itemType: itemType,
-                    patient: patient,
-                    study: study,
-                    series: series,
-                    IDs: IDs
-                });
+                // let resData = await ApiService.deleteSelected({
+                //     itemType: itemType,
+                //     patient: patient,
+                //     study: study,
+                //     series: series,
+                //     IDs: IDs
+                // });
+                this.props.deleteSelected(itemType, patient, study, series, IDs);
             }
             console.log('deleting selected');
         }
@@ -201,6 +205,12 @@ function mapStateToProps(state: State): ConnectedState {
 function mapDispatchToProps(dispatch: Redux.Dispatch<DeleteDialogState>): ConnectedDispatch {
     return {
         changeDialogState: (show: boolean) => dispatch(deleteDialogStateChange(show)),
+        deleteSelected: (
+            itemType: ItemTypes, patientID: string, studyID: string, seriesID: string, IDs: string[]) => {
+                dispatch(allItemsUnselected());
+                dispatch(deleteSelected(itemType, patientID, studyID, seriesID, IDs));
+            }
+            
     };
 }
 
