@@ -130,8 +130,8 @@ export namespace AzureDatabase {
     export const localName = "medtruth";
     export const urlMedTruth = "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true";
     //export const url = urlMedTruth;
-    //export const url = (process.argv[2] === 'local' || process.env.NODE_ENV === 'development') ? "mongodb://" + localAddress + localName : urlMedTruth;
-    export const url = "mongodb://" + localAddress + localName;
+    export const url = (process.argv[2] === 'local' || process.env.NODE_ENV === 'development') ? "mongodb://" + localAddress + localName : urlMedTruth;
+    //export const url = "mongodb://" + localAddress + localName;
     //export const url = "mongodb://localhost:C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==@localhost:10255/admin?ssl=true&3t.sslSelfSignedCerts=true";
 
     export enum Status {
@@ -225,6 +225,7 @@ export namespace AzureDatabase {
     async function connectToTemporeryPatients(): Promise<Connection> {
         let db = await connect();
         let collection = await db.collection('temporerypatients');
+       
         return { db: db, collection: collection };
     }
 
@@ -343,6 +344,32 @@ export namespace AzureDatabase {
             }
         });
     }
+
+    export function insertToTemporeryPatients(uploadID: number, patient: UploadJSON) {
+        return new PromiseBlueBird<any>(async (resolve, reject) => {
+            try {
+                var connection = await connectToTemporeryPatients();
+
+                let query = { uploadID: uploadID };
+                let result = await connection.collection.updateOne(query,
+                    {
+                        $push: { patients: patient }
+                    },
+                    {
+                        upsert: true
+                    });
+                    console.log(result);
+                    
+                resolve();
+
+            } catch (e) {
+                reject({});
+            } finally {
+                close(connection.db);
+            }
+        });
+    }
+
 
     interface Attribute {
         key: string;
@@ -574,8 +601,8 @@ export namespace AzureDatabase {
     * Returns Upload document with a specific ID.
     * @param patientID
     */
-    export function getPatientDocument(patientID: string): Promise<string> {
-        return new Promise<string>(async (resolve, reject) => {
+    export function getPatientDocument(patientID: string): Promise<UploadJSON> {
+        return new Promise<UploadJSON>(async (resolve, reject) => {
             try {
                 var conn = await connectToImages();
 

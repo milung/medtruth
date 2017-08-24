@@ -6,7 +6,7 @@ import * as io from 'socket.io-client';
 
 export namespace ApiService {
     const apiEndpoint = '/api';
-    // const apiEndpoint = 'http://localhost:8080/api'
+    //const apiEndpoint = 'http://localhost:8000/api'
     /* change this */
     const uriUpload = apiEndpoint + '/upload';
     const uriImages = apiEndpoint + '/images';
@@ -21,12 +21,14 @@ export namespace ApiService {
             // Right after we connect.
             up.on('connect', () => {
                 // Connect to the upload socket point.
-                up.emit('upload', {});
+                up.emit(':upload', {});
                 // Whenever we receive an 'ok' status, we send files over the wire.
-                up.on('ok', async () => {
+                up.on(':upload.ok', async () => {
                     // If we sent all the files, notify the server to end.
                     if (data.length === 0) {
-                        up.emit('end', {});
+                        console.log('UPLOAD END');
+                        
+                        up.emit(':upload.end', {});
                         up.disconnect();
                         // Resolve this promise.
                         res();
@@ -34,13 +36,13 @@ export namespace ApiService {
                     } else {
                         let blob = data.pop();
                         let stream = ios.createStream();
-                        ios(up).emit('data', stream, { size: blob.size });
+                        ios(up).emit(':upload.data', stream, { size: blob.size });
                         ios.createBlobReadStream(blob, { highWaterMark: 5000000 }).pipe(stream);
                         // Callback for the onUpload event.
                         onUpload();
                     }
                 });
-                up.on('error', () => {
+                up.on(':upload.error', () => {
                     rej();
                 });
             });

@@ -220,8 +220,7 @@ export class UploadController {
 
             let newImage: ImageJSON = {
                 imageID: parse.filename,
-                imageNumber: Number(converter.getImageNumber()),
-                commited: true
+                imageNumber: Number(converter.getImageNumber())
             };
             
             if (existingSeries.images.length > 0) {

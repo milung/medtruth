@@ -89,11 +89,12 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
     async loadFileSocket(files: File[]) {
         console.log('uploading');
         
-        //this.setState({ uploadingFiles: true });
+        this.setState({ uploadingFiles: true });
         await ApiService.uploadSocket(files, () => {});
         console.log("DONE");
-        //this.setState({ uploadingFiles: false })
+        this.setState({ uploadingFiles: false })
     }
+
 
 
     async sendFile() {

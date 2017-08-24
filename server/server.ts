@@ -3,10 +3,12 @@ import * as express from 'express';
 import * as socketio from 'socket.io';
 import * as http from 'http';
 import { routes } from './routes';
-import { StatusCode } from './constants';
+import { StatusCode, storagePath } from './constants';
 import { AzureDatabase } from "./azure-service";
 import * as ios from 'socket.io-stream';
 import * as fs from 'fs';
+import * as uuid from 'uuid/v1';
+import { Controller, UploadFiles } from "./controllers/uploadSocket";
 
 // Set-up a server, with routes and static public files.
 export const server = express();
@@ -25,26 +27,29 @@ function handleEvents(socket: SocketIO.Socket) {
         console.log(msg);
     })
 
-    socket.on('upload', () => {
-           // Emit an ok, that we are ready to accept files.
-           socket.emit('ok', {});
-           
-                   let index = 1;
-                   // Event that receives stream data.
-                   ios(socket).on('data', (stream) => {
-                       // Pipe the stream to a temporary file.
-                       stream.pipe(fs.createWriteStream('uploads/' + index.toString()))
-                       // After the stream has been done, emit an 'ok' event.
-                       .on('finish', () => {
-                           socket.emit('ok', {});
-                           index++;
-                       });
-                   });
-           
-                   // Event that disconnects the socket, after receiving an end event.
-                   socket.on('end', () => {
-                       socket.disconnect();
-                   })
+    socket.on(':upload', () => {
+        // Emit an ok, that we are ready to accept files.
+        socket.emit(':upload.ok', {});
+        let uploadController = new UploadFiles();
+
+        // Event that receives stream data.
+        ios(socket).on(':upload.data', (stream) => {
+            // Pipe the stream to a temporary file.
+            let id = uuid();
+            stream.pipe(fs.createWriteStream(storagePath + id))
+                // After the stream has been done, emit an 'ok' event.
+                .on('finish', () => {
+                    socket.emit(':upload.ok', {});
+                    uploadController.handleFile(id);
+                });
+        });
+
+        // Event that disconnects the socket, after receiving an end event.
+        socket.on(':upload.end', () => {
+            console.log("disconnecting socket");
+            uploadController.finish();
+            socket.disconnect();
+        })
     });
 }
 
@@ -63,7 +68,7 @@ server.use((req, res, next) => {
 })
 
 // Initialize database, listen and serve.
-const port = 8000;
+const port = 8080;
 
 AzureDatabase.connect();
 
