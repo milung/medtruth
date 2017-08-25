@@ -1024,6 +1024,27 @@ export namespace AzureDatabase {
         })
     };
 
+    export function removeImageLabels(imageID: string): Promise<string[]> {
+        return new Promise<string[]>(async (resolve, reject) => {
+            let filter = { imageID: imageID};
+            try {
+                var conn = await connectToAttributes();
+                // Find corresponding labels document for the image and get the attribute names
+                var labelsDocument = await conn.collection.findOne(filter);
+                var attributes = labelsDocument.attributes;
+                var attributeNames: string[] = [];
+                for (var attribute of attributes) {
+                    attributeNames.push(attribute.key);
+                }
+                // Delete the labels document
+                let result = await conn.collection.remove(filter);
+                resolve(attributeNames);
+            } catch (e) {
+                reject([]);
+            }
+        });
+    }
+
     export function deleteAllPatients() {
         return new Promise(async (resolve, reject) => {
             try {
