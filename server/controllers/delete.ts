@@ -6,6 +6,10 @@ import * as _ from 'lodash';
 import { UploadJSON } from "../Objects";
 import { DeleteData, DeleteSelectedData, ItemTypes } from "../routes/api/delete";
 
+interface Label {
+    label: string;
+    count: number;
+}
 export namespace DeleteController {
     export const removeAllData = () => {
         return new PromiseBlueBird<boolean>(async (resolve, reject) => {
@@ -21,9 +25,7 @@ export namespace DeleteController {
             console.log('imagesToDelete', imagesToDelete);
 
             // Delete each image and corresponding thumbnail from blob storage
-            _.forEach(imagesToDelete, async(image) => {
-                await AzureStorage.deleteImageAndThumbnail(image);
-            })
+            await deleteImages(imagesToDelete);
 
             // Delete everything from MongoDB connections
             await AzureDatabase.removeAll();
@@ -65,12 +67,34 @@ export namespace DeleteController {
             }
             console.log('IMAGES', images);
             
-            // Delete images from blob storage
-            // TODO do this in batches, Kiko knows
-            for (var image of images) {
-                await AzureStorage.deleteImageAndThumbnail(image);
-            }
+            // Delete images and corresponding thumbnails from blob storage
+            await deleteImages(images);
+
+            // Delete each image's attributes document 
             resolve(true);
+            let attributesMap: Map<string, number> = new Map<string, number>();
+            for (var image of images) {
+                let imageAttributes = await AzureDatabase.removeImageLabels(image);
+                // Map deleted labels and their counts
+                for (var attribute of imageAttributes) {
+                    if (!attributesMap.has(attribute)) {
+                        attributesMap.set(attribute, 1);
+                    } else {
+                        var oldValue: number = attributesMap.get(attribute);
+                        attributesMap.set(attribute, oldValue + 1);
+                    }
+                }
+            }
+            console.log('map', attributesMap);
+            var labels: Label[] = [];
+            attributesMap.forEach(function(value, key) {
+                // Set negative count for each label
+                labels.push({ label: key, count: 0 - value });
+            });
+            console.log('labels array', labels);
+
+            // Change each label's documents according to the changed count
+            let result = await AzureDatabase.updateLabels(labels);
         });
     }
 
