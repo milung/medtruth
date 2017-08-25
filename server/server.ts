@@ -15,7 +15,7 @@ var path = require('path');
 // Set-up a server, with routes and static public files.
 export const server = express();
 const httpserver = http.createServer(server);
-const io = socketio(httpserver);
+const io = socketio(httpserver, { transports: ['websocket'] });
 
 // Serve public files.
 server.use(express.static('public/'));

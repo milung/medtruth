@@ -18,7 +18,7 @@ export namespace ApiService {
 
     export function uploadSocket(data: any[], onUpload: () => void) : Promise<any>{
         return new Promise((res, rej) => {
-            let up = io();
+            let up = io({ transports: ['websocket'] });
             // Right after we connect.
             up.on('connect', () => {
                 // Connect to the upload socket point.
