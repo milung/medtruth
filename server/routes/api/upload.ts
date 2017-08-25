@@ -15,7 +15,7 @@ export const routerUpload = express.Router();
 
 // Middleware for extending the response's timeout for uploading larger files.
 const extendTimeout = (req, res, next) => {
-    res.setTimeout(180000, () => {
+    res.setTimeout(360000, () => {
         res.sendStatus(StatusCode.GatewayTimeout);
     });
     next();
