@@ -28,12 +28,12 @@ export namespace ApiService {
                     // If we sent all the files, notify the server to end.
                     if (data.length === 0) {
                         console.log('UPLOAD END');
-                        
+
                         up.emit(':upload.end', {});
                         up.disconnect();
                         // Resolve this promise.
                         res();
-                    // Otherwise, emit a 'data' action, that sends the files.
+                        // Otherwise, emit a 'data' action, that sends the files.
                     } else {
                         let blob = data.pop();
                         let stream = ios.createStream();
@@ -183,6 +183,19 @@ export namespace ApiService {
         });
 
         return { ...res.data };
+    }
+
+    export async function deleteAttributes2(imageIDs: string[], labelToRemove: string) {
+        const url = uriImages + '/assign';
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'DELETE',
+            url: url,
+            headers: { 'Content-Type': 'application/json' },
+            data: { imageIDs, labelToRemove }
+        });
+
+        return res.status === Status.SUCCESFUL ? true : false;
     }
 
     export async function deleteAttributes(id: string, labels: string[]) {

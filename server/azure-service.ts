@@ -183,7 +183,7 @@ export namespace AzureDatabase {
     async function connectToTemporeryPatients(): Promise<Connection> {
         let db = await connect();
         let collection = await db.collection('temporerypatients');
-       
+
         return { db: db, collection: collection };
     }
 
@@ -278,8 +278,6 @@ export namespace AzureDatabase {
                 console.log('error');
                 console.log(e);
                 reject(Status.FAILED);
-            } finally {
-                close(db);
             }
         });
     }
@@ -316,8 +314,8 @@ export namespace AzureDatabase {
                     {
                         upsert: true
                     });
-                    console.log(result);
-                    
+                console.log(result);
+
                 resolve();
 
             } catch (e) {
@@ -385,71 +383,6 @@ export namespace AzureDatabase {
         });
     }
 
-    export function putAttributeToImages(imageIDs: string[], attribute: Attribute): Promise<Status> {
-        return new Promise<Status>(async () => {
-            let conn = await connectToAttributes();
-            let updateObjects = imageIDs.map(imageID => ({
-                updateOne: {
-                    filter: { imageID },
-                    update: {
-                        $setOnInsert: {
-                            attributes: [
-                                attribute
-                            ]
-                        }
-                    }
-                },
-                upsert: true
-            }));
-
-            let result: BulkWriteOpResultObject = await conn.collection.bulkWrite(updateObjects);
-
-            let addedAttributesCount = result.upsertedCount;
-
-            let updateObjects2 = imageIDs.map(imageID => ({
-                updateOne: {
-                    filter: {
-                        imageID,
-                        attributes: {
-                            $not: {
-                                $elemMatch: {
-                                    label: attribute.key
-                                }
-                            }
-                        }
-                    },
-                    udate: {
-                        $push: {
-                            attributes: attribute
-                        }
-                    }
-                }
-            }));
-
-            result = await conn.collection.bulkWrite(updateObjects2);
-
-            addedAttributesCount += result.modifiedCount;
-
-            let updateObjects3 = imageIDs.map(imageID => ({
-                updateOne: {
-                    filter: {
-                        imageID,
-                        "attributes.label": attribute.key
-                    },
-                    udate: {
-                        $set: {
-                            "attribute.$.label": attribute.value
-                        }
-                    }
-                }
-            }));
-
-            result = await conn.collection.bulkWrite(updateObjects3);
-
-            putToLabels2(attribute.key, addedAttributesCount);
-        });
-    }
-
     export function removeFromAttributes(id, labelsToRemove: string[]): Promise<void> {
         return new Promise<void>(async (resolve, reject) => {
             try {
@@ -483,6 +416,41 @@ export namespace AzureDatabase {
                 resolve();
             } catch (e) {
                 reject();
+            } finally {
+                close(conn.db);
+            }
+        });
+    }
+
+    export function removeFromAttributes2(imageIDs: string[], labelToRemove: string) {
+        return new Promise<void>(async (resolve, reject) => {
+            try {
+                var conn = await connectToAttributes();
+                let updateObjects = imageIDs.map(imageID => ({
+                    updateOne: {
+                        filter: {
+                            imageID
+                        },
+                        update: {
+                            $pull: {
+                                attributes: {
+                                    key: labelToRemove
+                                }
+                            }
+                        }
+                    }
+                }));
+
+                let result: BulkWriteOpResultObject = await conn.collection.bulkWrite(updateObjects);
+
+                let removedLabelsCount: number = result.modifiedCount;
+                await updateLabels({
+                    label: labelToRemove,
+                    count: -removedLabelsCount
+                });
+                resolve();
+            } catch (e) {
+                reject(e)
             } finally {
                 close(conn.db);
             }
@@ -666,6 +634,52 @@ export namespace AzureDatabase {
         });
     }
 
+    interface Label {
+        label: string;
+        count: number;
+    }
+
+    export function updateLabels(...labels: Label[]): Promise<Status> {
+        return new Promise<Status>(async (resolve, reject) => {
+
+            if (!labels || labels.length === 0) {
+                resolve(Status.SUCCESFUL);
+                return;
+            }
+
+            try {
+                var conn = await connectToLabels();
+
+                let updateObjects: {}[] = labels.map(label => {
+                    return {
+                        updateOne: {
+                            filter: {
+                                _id: label.label,
+                            },
+                            update: {
+                                $inc: { count: label.count }
+                            },
+                            upsert: true
+                        }
+                    }
+                });
+
+                await conn.collection.bulkWrite(updateObjects);
+
+                // delete where count is 0
+                await conn.collection.deleteMany({
+                    count: 0
+                });
+
+                resolve(Status.SUCCESFUL);
+            } catch (e) {
+                reject(Status.FAILED);
+            } finally {
+                close(conn.db);
+            }
+        });
+    }
+
     export function removeFromLabels(labels: string[]): Promise<Status> {
         return new Promise<Status>(async (resolve, reject) => {
 
@@ -675,19 +689,13 @@ export namespace AzureDatabase {
             }
             try {
                 var conn = await connectToLabels();
-                // remove where count is equal 1
-                await conn.collection.deleteMany({
-                    label: {
-                        $in: labels
-                    },
-                    count: 1
-                });
+
                 // decrement count
                 let updateObjects: {}[] = labels.map(label => {
                     return {
                         updateOne: {
                             filter: {
-                                label,
+                                _id: label,
                             },
                             update: {
                                 $inc: { count: -1 }
@@ -697,6 +705,15 @@ export namespace AzureDatabase {
                 });
 
                 await conn.collection.bulkWrite(updateObjects);
+
+                // delete where count is 0
+                await conn.collection.deleteMany({
+                    _id: {
+                        $in: labels
+                    },
+                    count: 0
+                });
+
                 resolve(Status.SUCCESFUL);
             } catch (e) {
                 reject(Status.FAILED);
@@ -752,7 +769,7 @@ export namespace AzureDatabase {
                     return {
                         updateOne: {
                             filter: {
-                                label
+                                _id: label
                             },
                             update: {
                                 $inc: { count: 1 }
@@ -777,8 +794,8 @@ export namespace AzureDatabase {
                 var conn = await connectToLabels();
 
                 let labels = await conn.collection
-                    .find({ count: { $gt: 0 } })
-                    .map(lab => lab.label)
+                    .find()
+                    .map(lab => lab._id)
                     .toArray();
 
                 if (labels) {

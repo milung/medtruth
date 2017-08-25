@@ -23,10 +23,7 @@ export function addImagesAnnotationAction(imageIds: string[], annotation: ImageA
 
 export function removeImagesAnnotationAction(imageIds: string[], label: string) {
     return async (dispatch) => {
-        let promises = imageIds.map(imageId => ApiService.deleteAttributes(imageId, [label]
-        ));
-
-        await Promise.all(promises);
+        await ApiService.deleteAttributes2(imageIds, label);
 
         dispatch(imagesAnnotationRemovedAction(imageIds, label));
 
