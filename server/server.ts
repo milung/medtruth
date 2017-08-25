@@ -14,12 +14,14 @@ var path = require('path');
 
 // Set-up a server, with routes and static public files.
 export const server = express();
-const httpserver = http.createServer(server);
-const io = socketio(httpserver);
+
+//const httpserver = http.createServer(server);
+//const io = socketio(httpserver, { transports: ['websocket'] });
 
 // Serve public files.
 server.use(express.static('public/'));
 
+/*
 // On connection, handle socket events.
 io.on('connection', handleEvents);
 
@@ -54,7 +56,7 @@ function handleEvents(socket: SocketIO.Socket) {
         })
     });
 }
-
+*/
 // Serve routes.
 server.use(routes);
 
@@ -75,11 +77,11 @@ server.get('*', async function (req, res) {
 });
 
 // Initialize database, listen and serve.
-const port = 8080;
+const port = process.env.PORT || 8080;
 
 AzureDatabase.connect();
 
-httpserver.listen(process.env.PORT || port, () => {
+server.listen(port, () => {
     console.log("Listening on port", port);
 });
 console.log("viva la continuous integration");

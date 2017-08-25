@@ -47,42 +47,44 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
     }
 
     loadFile(files: File[]) {
-        let invalidFileNames: string[] = [];
-        let fileUndefined: boolean = false;
-        let filesInvalid: boolean = false;
-
-        files.forEach((file) => {
-
-            if (file === undefined) {
-                fileUndefined = true;
-            } else if (!FileUtils.validFile(file.name.toLowerCase(), validFileExtensions)) {
-                filesInvalid = true;
-                invalidFileNames.push(file.name);
-            }
-        });
-
-        if (fileUndefined || filesInvalid) {
-            let errorMessage: string = fileUndefined ? 'File undefined. ' : '';
-            errorMessage += filesInvalid ? 'Files have invalid extension: ' + invalidFileNames.join(', ') : '';
-            this.setState({
-                filesRead: false,
-                folderFormError: errorMessage
-            });
-            return;
-        }
-        this.setState({ readingFiles: true });
-        FileUtils.getFilesData(files).then(async (filesData: ArrayBuffer[]) => {
-            this.filesData = filesData;
-            let fileNames: string[] = files.map((file) => file.name);
-            this.setState({
-                readingFiles: false,
-                filesRead: true,
-                fileNames: fileNames,
-                folderFormError: '',
-                filesUploaded: false
-            });
-            await this.sendFile();
-        });
+        console.log("load files");
+        
+        let invalidFileNames: string[] = []; 
+        let fileUndefined: boolean = false; 
+        let filesInvalid: boolean = false; 
+ 
+        files.forEach((file) => { 
+            if (file === undefined) { 
+                fileUndefined = true; 
+            } else if (!FileUtils.validFile(file.name.toLowerCase(), validFileExtensions)) { 
+                filesInvalid = true; 
+                invalidFileNames.push(file.name); 
+            } 
+        }); 
+ 
+        if (fileUndefined || filesInvalid) { 
+            let errorMessage: string = fileUndefined ? 'File undefined. ' : ''; 
+            errorMessage += filesInvalid ? 'Files have invalid extension: ' + invalidFileNames.join(', ') : ''; 
+            this.setState({ 
+                filesRead: false, 
+                folderFormError: errorMessage 
+            }); 
+            return; 
+        } 
+ 
+        this.setState({ readingFiles: true }); 
+        FileUtils.getFilesData(files).then(async (filesData: ArrayBuffer[]) => { 
+            this.filesData = filesData; 
+            let fileNames: string[] = files.map((file) => file.name); 
+            this.setState({ 
+                readingFiles: false, 
+                filesRead: true, 
+                fileNames: fileNames, 
+                folderFormError: '', 
+                filesUploaded: false 
+            }); 
+            await this.sendFile(); 
+        }); 
     }
 
 
@@ -98,14 +100,6 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
 
 
     async sendFile() {
-        this.setState({ uploadingFiles: true });
-        await ApiService.uploadSocket(this.filesData, () => {
-        });
-        console.log("DONE");
-        this.setState({ uploadingFiles: false })
-
-
-        /*
         // Upload the data to the server.
         this.setState({ uploadingFiles: true });
         let resUpload = await ApiService.upload(...this.filesData);
@@ -127,7 +121,7 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
             });
         }
 
-        */
+        
     }
 
 
@@ -179,7 +173,7 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
             : 'UPLOAD';
         return (
             <div style={{ display: 'block' }}>
-                <FilesInputComponent disabled={this.state.uploadingFiles} onFilesInput={this.loadFileSocket} />
+                <FilesInputComponent disabled={this.state.uploadingFiles} onFilesInput={this.loadFile} />
                 {uploading}
             </div>
         );
