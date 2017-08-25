@@ -12,6 +12,7 @@ import { FilesUploadedAction, filesUploaded } from '../actions/actions';
 import { Button } from 'material-ui';
 import { CircularProgress } from 'material-ui';
 import { red } from 'material-ui/colors/red';
+import { initializeState } from "../actions/asyncActions";
 
 interface OwnState {
     readingFiles: boolean;
@@ -23,7 +24,7 @@ interface OwnState {
 }
 
 interface ConnectedDispatch {
-    filesUploaded: (uploadID: number) => FilesUploadedAction;
+    filesUploaded: (uploadID: number) => void;
 }
 
 export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnState> {
@@ -182,8 +183,10 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
 
 function mapDispatchToProps(dispatch: Redux.Dispatch<FilesUploadedAction>): ConnectedDispatch {
     return {
-        filesUploaded: (uploadID) =>
-            dispatch(filesUploaded(uploadID)),
+        filesUploaded: (uploadID) => {
+            dispatch(filesUploaded(uploadID));
+            dispatch(initializeState());
+        }
     };
 }
 
