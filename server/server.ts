@@ -15,13 +15,13 @@ var path = require('path');
 // Set-up a server, with routes and static public files.
 export const server = express();
 
-//const httpserver = http.createServer(server);
-//const io = socketio(httpserver, { transports: ['websocket'] });
+const httpserver = http.createServer(server);
+const io = socketio(httpserver, { transports: ['websocket'] });
 
 // Serve public files.
 server.use(express.static('public/'));
 
-/*
+
 // On connection, handle socket events.
 io.on('connection', handleEvents);
 
@@ -33,7 +33,7 @@ function handleEvents(socket: SocketIO.Socket) {
 
     socket.on(':upload', () => {
         // Emit an ok, that we are ready to accept files.
-        socket.emit(':upload.ok', {});
+        socket.emit(':upload.ok', {transports: ['websocket','polling']});
         let uploadController = new UploadFiles();
 
         // Event that receives stream data.
@@ -56,7 +56,7 @@ function handleEvents(socket: SocketIO.Socket) {
         })
     });
 }
-*/
+
 // Serve routes.
 server.use(routes);
 
@@ -81,7 +81,7 @@ const port = process.env.PORT || 8080;
 
 AzureDatabase.connect();
 
-server.listen(port, () => {
+httpserver.listen(port, () => {
     console.log("Listening on port", port);
 });
 console.log("viva la continuous integration");
