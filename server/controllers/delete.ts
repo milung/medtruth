@@ -88,12 +88,13 @@ export namespace DeleteController {
             console.log('map', attributesMap);
             var labels: Label[] = [];
             attributesMap.forEach(function(value, key) {
-                labels.push({ label: key, count: value });
+                // Set negative count for each label
+                labels.push({ label: key, count: 0 - value });
             });
             console.log('labels array', labels);
 
-            // TODO Change each label's documents according to the changed count
-
+            // Change each label's documents according to the changed count
+            let result = await AzureDatabase.updateLabels(labels);
         });
     }
 

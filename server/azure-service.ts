@@ -444,10 +444,10 @@ export namespace AzureDatabase {
                 let result: BulkWriteOpResultObject = await conn.collection.bulkWrite(updateObjects);
 
                 let removedLabelsCount: number = result.modifiedCount;
-                await updateLabels({
+                await updateLabels([{
                     label: labelToRemove,
                     count: -removedLabelsCount
-                });
+                }]);
                 resolve();
             } catch (e) {
                 reject(e)
@@ -639,7 +639,7 @@ export namespace AzureDatabase {
         count: number;
     }
 
-    export function updateLabels(...labels: Label[]): Promise<Status> {
+    export function updateLabels(labels: Label[]): Promise<Status> {
         return new Promise<Status>(async (resolve, reject) => {
 
             if (!labels || labels.length === 0) {
