@@ -173,7 +173,7 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
             : 'UPLOAD';
         return (
             <div style={{ display: 'block' }}>
-                <FilesInputComponent disabled={this.state.uploadingFiles} onFilesInput={this.loadFileSocket} />
+                <FilesInputComponent disabled={this.state.uploadingFiles} onFilesInput={this.loadFile} />
                 {uploading}
             </div>
         );
