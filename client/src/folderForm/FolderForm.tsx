@@ -12,7 +12,7 @@ import { FilesUploadedAction, filesUploaded } from '../actions/actions';
 import { Button } from 'material-ui';
 import { CircularProgress } from 'material-ui';
 import { red } from 'material-ui/colors/red';
-import { initializeState } from "../actions/asyncActions";
+import { initializeState } from '../actions/asyncActions';
 
 interface OwnState {
     readingFiles: boolean;
@@ -48,7 +48,7 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
     }
 
     loadFile(files: File[]) {
-        console.log("load files");
+        console.log('load files');
         
         let invalidFileNames: string[] = []; 
         let fileUndefined: boolean = false; 
@@ -88,17 +88,14 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
         }); 
     }
 
-
     async loadFileSocket(files: File[]) {
         console.log('uploading');
         
         this.setState({ uploadingFiles: true });
         await ApiService.uploadSocket(files, () => {});
-        console.log("DONE");
-        this.setState({ uploadingFiles: false })
+        console.log('DONE');
+        this.setState({ uploadingFiles: false });
     }
-
-
 
     async sendFile() {
         // Upload the data to the server.
@@ -121,11 +118,7 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
                 folderFormError: 'Error (' + resUpload.errorMessage + ') when uploading files to server.'
             });
         }
-
-        
     }
-
-
 
     isSendButtonActive(): boolean {
         if (this.state.filesRead === true) {

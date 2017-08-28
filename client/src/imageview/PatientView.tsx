@@ -9,8 +9,8 @@ import { Link } from 'react-router-dom';
 import { ItemSelectedAction, Keys, ActionType, itemSelected, ItemTypes } from '../actions/actions';
 import * as Redux from 'redux';
 import { connect } from 'react-redux';
-import { getStudiesWherePatientId } from "../selectors/selectors";
-import { StudyEntity } from "../reducers/EntitiesReducer";
+import { getStudiesWherePatientId } from '../selectors/selectors';
+import { StudyEntity } from '../reducers/EntitiesReducer';
 
 export interface PatientProps {
     patientID: string;
@@ -26,7 +26,6 @@ export interface PatientList {
 export interface ConnectedState {
     isSelected: boolean;
     studiesOfPatient: StudyEntity[];
-    //numberOfStudies: number;
 }
 
 export interface ConnectedDispatch {

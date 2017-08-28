@@ -8,10 +8,7 @@ import { FolderForm } from '../folderForm/FolderForm';
 import { FlatButton, IconButton } from 'material-ui';
 import { DownloadButton } from '../button/DownloadButton';
 import { PatientViewer } from '../imageview/PatientViewer';
-import DeleteIcon from 'material-ui-icons/Delete';
-import DeleteForeverIcon from 'material-ui-icons/DeleteForever';
-// import ConfirmationDialog from "../components/ConfirmationDialog";
-import { DeleteButton } from "../button/DeleteButton";
+import { DeleteButton } from '../button/DeleteButton';
 
 var injectTapEventPlugin = require('react-tap-event-plugin');
 injectTapEventPlugin();
@@ -25,8 +22,6 @@ export default class App extends React.Component<{}, {}> {
                         <Tab label={'Medtruth'} style={{ fontStyle: 'bold', color: '#F44336' }} />
                         <Tab label={<label htmlFor="file"> <FolderForm /></label>} />
                         <Tab label={<DownloadButton />} />
-                        {/* <Tab icon={<DeleteIcon />} label={<ConfirmationDialog deleteAll={false}/>}/>
-                        <Tab icon={<DeleteForeverIcon />} label={<ConfirmationDialog deleteAll={true}/>}/> */}
                         <Tab label={<DeleteButton />}/>
                     </Tabs>
                 </AppBar>

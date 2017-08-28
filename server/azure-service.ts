@@ -5,7 +5,7 @@ import { StatusCode } from './constants';
 import * as _ from 'lodash';
 import * as stream from 'stream';
 import * as PromiseBlueBird from 'bluebird';
-//import { db } from './server';
+// import { db } from './server';
 
 import { MongoClient, Db, Collection, BulkWriteOpResultObject, FindAndModifyWriteOpResultObject, Cursor } from 'mongodb';
 import { UploadJSON, StudyJSON, SeriesJSON, ImageJSON } from "./Objects";
@@ -97,7 +97,6 @@ export namespace AzureStorage {
         });
     }
 
-
     export function deleteImageAndThumbnail(image: string) {
         return new PromiseBlueBird(async (resolve, reject) => {
             try {
@@ -129,10 +128,7 @@ export namespace AzureDatabase {
     export const localAddress = "localhost:27017/";
     export const localName = "medtruth";
     export const urlMedTruth = "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true";
-    //export const url = urlMedTruth;
     export const url = (process.argv[2] === 'local' || process.env.NODE_ENV === 'development') ? "mongodb://" + localAddress + localName : urlMedTruth;
-    //export const url = "mongodb://" + localAddress + localName;
-    //export const url = "mongodb://localhost:C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==@localhost:10255/admin?ssl=true&3t.sslSelfSignedCerts=true";
 
     export enum Status {
         SUCCESFUL,
@@ -180,13 +176,12 @@ export namespace AzureDatabase {
         return { db: db, collection: collection };
     }
 
-    async function connectToTemporeryPatients(): Promise<Connection> {
+    async function connectToTemporaryPatients(): Promise<Connection> {
         let db = await connect();
         let collection = await db.collection('temporerypatients');
 
         return { db: db, collection: collection };
     }
-
 
     // Close the database only if it's not null.
     export function close(db: Db): void {
@@ -254,7 +249,6 @@ export namespace AzureDatabase {
         });
     }
 
-
     export function updateToImageCollectionDB(object, db): Promise<Status> {
         return new Promise<Status>(async (resolve, reject) => {
             try {
@@ -301,10 +295,10 @@ export namespace AzureDatabase {
         });
     }
 
-    export function insertToTemporeryPatients(uploadID: number, patient: UploadJSON) {
+    export function insertToTemporaryPatients(uploadID: number, patient: UploadJSON) {
         return new PromiseBlueBird<any>(async (resolve, reject) => {
             try {
-                var connection = await connectToTemporeryPatients();
+                var connection = await connectToTemporaryPatients();
 
                 let query = { uploadID: uploadID };
                 let result = await connection.collection.updateOne(query,
@@ -325,7 +319,6 @@ export namespace AzureDatabase {
             }
         });
     }
-
 
     interface Attribute {
         key: string;
@@ -481,6 +474,10 @@ export namespace AzureDatabase {
         });
     }
 
+    /**
+     * Get attributes of a particular image from attributes collection.
+     * @param id 
+     */
     export function getAttributes(id): Promise<AttributeQuery> {
         return new Promise<AttributeQuery>(async (resolve, reject) => {
             try {
@@ -585,9 +582,9 @@ export namespace AzureDatabase {
         });
     }
 
-    /* 
-        GetImagesBySeriesID returns all images by it's series ID.
-    */
+    /**
+     * GetImagesBySeriesID returns all images by it's series ID.
+     */
     interface SeriesRequest {
         uploadID: number;
         studyID: string;
@@ -666,7 +663,7 @@ export namespace AzureDatabase {
 
                 await conn.collection.bulkWrite(updateObjects);
 
-                // delete where count is 0
+                // Delete where count is 0
                 await conn.collection.deleteMany({
                     count: 0
                 });
@@ -690,7 +687,7 @@ export namespace AzureDatabase {
             try {
                 var conn = await connectToLabels();
 
-                // decrement count
+                // Decrement count
                 let updateObjects: {}[] = labels.map(label => {
                     return {
                         updateOne: {
@@ -706,7 +703,7 @@ export namespace AzureDatabase {
 
                 await conn.collection.bulkWrite(updateObjects);
 
-                // delete where count is 0
+                // Delete where count is 0
                 await conn.collection.deleteMany({
                     _id: {
                         $in: labels
@@ -835,7 +832,7 @@ export namespace AzureDatabase {
     }
 
     /**
-     * Remove everything from MongoDB and Azure Blob Storage
+     * Remove everything from MongoDB and Azure Blob Storage.
      */
     export function removeAll(): Promise<any> {
         return new Promise<any>(async (resolve, reject) => {
@@ -847,17 +844,6 @@ export namespace AzureDatabase {
             await removeFromCollection('images');
 
             resolve();
-
-            // // Drop the whole mongoDB database
-            // console.log('droping database');
-            // let db = await connect();
-            // try {
-            //     let result = await db.dropDatabase();
-            //     console.log('result', result);
-            //     resolve(result);
-            // } catch (e) {
-            //     reject();
-            // }
         });
     }
 
@@ -891,7 +877,7 @@ export namespace AzureDatabase {
     }
 
     /** 
-     * Remove patient's document from MongoDB
+     * Remove patient's document from MongoDB.
      */
     export function removePatient(patient: string): Promise<any> {
         return new Promise<any>(async (resolve, reject) => {
@@ -911,7 +897,7 @@ export namespace AzureDatabase {
     };
 
     /** 
-     * Remove particular study of a particular patient
+     * Remove particular study of a particular patient.
      */
     export function removePatientsStudy(patient: string, study: string): Promise<any> {
         return new Promise<any>(async (resolve, reject) => {
@@ -937,7 +923,7 @@ export namespace AzureDatabase {
     }
 
     /**
-     * Remove particular series from patient's study
+     * Remove particular series from patient's study.
      * @param patientID 
      * @param studyID 
      * @param seriesID 
@@ -980,6 +966,13 @@ export namespace AzureDatabase {
         })
     };
 
+    /**
+     * Remove particular image from series.
+     * @param patientID 
+     * @param studyID 
+     * @param seriesID 
+     * @param imageID 
+     */
     export function removeSeriesImage(patientID: string, studyID: string, seriesID: string, imageID: string): Promise<any> {
         console.log('PATIENT ' + patientID + ' STUDY ' + studyID + ' SERIES ' + seriesID + ' IMAGE ' + imageID);
         return new Promise<any>(async (resolve, reject) => {
@@ -1024,6 +1017,10 @@ export namespace AzureDatabase {
         })
     };
 
+    /**
+     * Remove image's document from attributes collection.
+     * @param imageID 
+     */
     export function removeImageLabels(imageID: string): Promise<string[]> {
         return new Promise<string[]>(async (resolve, reject) => {
             let filter = { imageID: imageID};
@@ -1058,6 +1055,4 @@ export namespace AzureDatabase {
             }
         });
     }
-
-
 }

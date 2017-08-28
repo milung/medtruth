@@ -57,7 +57,7 @@ export class SeriesViewerComponent extends React.Component<OwnProps & ConnectedS
                 <Grid container={true} gutter={16}>
                     <Grid item={true} xs={12} sm={12} md={12} style={imageStyle.seriesStyle} >
                         <Typography type="body1">
-                           Patient name: <b>{this.props.patients[0] !== undefined ? this.props.patients[0].patientName : ''}</b>
+                            Patient name: <b>{this.props.patients[0] !== undefined ? this.props.patients[0].patientName : ''}</b>
                         </Typography>
                         <Typography type="body1">
                             Study description: <b>{this.props.studies[0] !== undefined ? this.props.studies[0].studyDescription : ''}</b>

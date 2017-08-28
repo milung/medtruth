@@ -4,13 +4,13 @@ import Button from 'material-ui/Button';
 import Checkbox from 'material-ui/Checkbox';
 import List, { ListItem, ListItemText } from 'material-ui/List';
 import Dialog, { DialogActions, DialogContent, DialogContentText, DialogTitle } from 'material-ui/Dialog';
-import { DeleteDialogState, deleteDialogStateChange, ItemTypes, allItemsUnselected } from "../actions/actions";
-import { State } from "../app/store";
-import { connect } from "react-redux";
+import { DeleteDialogState, deleteDialogStateChange, ItemTypes, allItemsUnselected } from '../actions/actions';
+import { State } from '../app/store';
+import { connect } from 'react-redux';
 import Typography from 'material-ui/Typography';
-import { ApiService } from "../api";
-import { getStudiesWhereId, getSeriesesWhereId, getImagesWhereId } from "../selectors/selectors";
-import { StudyEntity, SeriesEntity, ImageEntity } from "../reducers/EntitiesReducer";
+import { ApiService } from '../api';
+import { getStudiesWhereId, getSeriesesWhereId, getImagesWhereId } from '../selectors/selectors';
+import { StudyEntity, SeriesEntity, ImageEntity } from '../reducers/EntitiesReducer';
 import { deleteSelected, deleteAll } from '../actions/asyncActions';
 
 interface OwnState {
@@ -30,8 +30,13 @@ interface ConnectedState {
 
 interface ConnectedDispatch {
     changeDialogState: (state: boolean) => DeleteDialogState;
-    deleteSelected: (itemType: ItemTypes, patientID: string,
-        studyID: string, seriesID: string, IDs: string[]) => void;
+    deleteSelected: (
+        itemType: ItemTypes, 
+        patientID: string,
+        studyID: string, 
+        seriesID: string, 
+        IDs: string[]
+    ) => void;
     deleteAll: () => void;
 }
 
@@ -46,16 +51,12 @@ class ConfirmationDialogComponent extends React.Component<ConnectedDispatch & Co
     }
 
     handleRequestClose() {
-        console.log("cancel; delete all is " + this.state.deleteAll);
         this.props.changeDialogState(false);
-    };
+    }
 
     async handleRequestOk() {
-        console.log("ok; delete all is " + this.state.deleteAll);
-
         if (this.state.deleteAll) {
             // Delete everything
-            console.log('deleting everything');
             // let resData = await ApiService.deleteAll();
             // console.log(resData);
             this.props.deleteAll();
@@ -111,17 +112,13 @@ class ConfirmationDialogComponent extends React.Component<ConnectedDispatch & Co
         console.log('studies', this.props.studies);
         console.log('series', this.props.series);
         console.log('images', this.props.images);
-
-        // TODO Dispatch redux action
         this.props.changeDialogState(false);
-    };
+    }
 
     handleCheck() {
         this.setState({
             deleteAll: !this.state.deleteAll,
-        }, () => {
-            console.log("new checked " + this.state.deleteAll);
-        })
+        });
     }
 
     render() {
@@ -130,7 +127,7 @@ class ConfirmationDialogComponent extends React.Component<ConnectedDispatch & Co
                 {/* <Button onClick={() => this.setState({ open: true })}>Open alert dialog</Button> */}
                 <Dialog open={this.props.showDialog} onRequestClose={this.handleRequestClose}>
                     <DialogTitle>
-                        {"Delete confirmation"}
+                        {'Delete confirmation'}
                     </DialogTitle>
                     <DialogContent>
                         <DialogContentText>
@@ -180,17 +177,12 @@ function mapStateToProps(state: State): ConnectedState {
         // If at least one image is selected, get patientID, studyID and seriesID from state
         let image = state.ui.selections.images[0];
         let images: ImageEntity[] = getImagesWhereId(state, [image]);
-        console.log('image entity', images[0]);
         seriesID = images[0].seriesID;
         let series: SeriesEntity[] = getSeriesesWhereId(state, [seriesID]);
         studyID = series[0].studyID;
         let studies: StudyEntity[] = getStudiesWhereId(state, [studyID]);
         patientID = studies[0].patientID;
     }
-
-    console.log('patientID', patientID);
-    console.log('studyID', studyID);
-    console.log('seriesID', seriesID);
 
     return {
         showDialog: state.ui.showDeleteDialog,

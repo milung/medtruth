@@ -11,8 +11,8 @@ import { State } from '../app/store';
 import { imageStyle } from '../styles/ComponentsStyle';
 import Icon from 'material-ui/Icon';
 import { Link } from 'react-router-dom';
-import { SeriesEntity } from "../reducers/EntitiesReducer";
-import { getSeriesesWhereStudyId } from "../selectors/selectors";
+import { SeriesEntity } from '../reducers/EntitiesReducer';
+import { getSeriesesWhereStudyId } from '../selectors/selectors';
 
 export interface StudiesProps {
     patientID: string;  

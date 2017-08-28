@@ -3,11 +3,11 @@ import * as axios from 'axios';
 import { LabelStatus, OutputType } from './components/downloadpopup';
 import * as ios from 'socket.io-stream';
 import * as io from 'socket.io-client';
-import { ItemTypes } from "./actions/actions";
+import { ItemTypes } from './actions/actions';
 
 export namespace ApiService {
     const apiEndpoint = '/api';
-    //const apiEndpoint = 'http://localhost:8000/api'
+    // const apiEndpoint = 'http://localhost:8000/api'
     /* change this */
     const uriUpload = apiEndpoint + '/upload';
     const uriImages = apiEndpoint + '/images';
@@ -16,9 +16,9 @@ export namespace ApiService {
     const uriPatients = apiEndpoint + '/patients';
     const uriDelete = apiEndpoint + '/delete';
 
-    export function uploadSocket(data: any[], onUpload: () => void) : Promise<any>{
+    export function uploadSocket(data: any[], onUpload: () => void): Promise<any> {
         return new Promise((res, rej) => {
-            let up = io({ forceJSONP: true,transports: ['websocket']});
+            let up = io({ forceJSONP: true, transports: ['websocket'] });
             // Right after we connect.
             up.on('connect', () => {
                 // Connect to the upload socket point.
@@ -336,11 +336,11 @@ export namespace ApiService {
     }
 
     export interface DeleteSelectedData {
-        itemType: ItemTypes,
-        patient: string,
-        study: string,
-        series: string,
-        IDs: string[]           // array of IDs of items to be deleted 
+        itemType: ItemTypes;
+        patient: string;
+        study: string;
+        series: string;
+        IDs: string[];        // array of IDs of items to be deleted 
     }
 
     export async function deleteSelected(data: DeleteSelectedData) {

@@ -8,11 +8,10 @@ interface FilesInputProps {
 
 export class FilesInputComponent extends React.Component<FilesInputProps, {}> {
 
-    componentDidMount(){
-        let input = document.getElementById("file");
-        input .setAttribute('webkitdirectory','true');
-        console.log("SET TO TRUE");
-        
+    componentDidMount() {
+        let input = document.getElementById('file');
+        input.setAttribute('webkitdirectory','true');
+        console.log('SET TO TRUE');
     }
     
     render() {

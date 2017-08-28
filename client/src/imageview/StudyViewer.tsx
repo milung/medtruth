@@ -30,8 +30,8 @@ interface ConnectedDispatch {
 
 export class StudyViewerComponent extends React.Component<OwnProps & ConnectedState & ConnectedDispatch, {}> {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
     }
 
     render() {
@@ -52,9 +52,9 @@ export class StudyViewerComponent extends React.Component<OwnProps & ConnectedSt
                             Patient name: <b>{this.props.patients[0] !== undefined ? this.props.patients[0].patientName : ''}</b>
                         </Typography>                      
                     </Grid>
-                    {this.props.studiesList.map(value =>
+                    {this.props.studiesList.map((value, index) =>
                         // <Grid item={true} xs={6} sm={3} md={2} style={imageStyle.seriesStyle} //key={value.seriesID}>
-                        <Grid item={true} xs={12} sm={12} md={12} style={imageStyle.seriesStyle} >
+                        <Grid item={true} xs={12} sm={12} md={12} style={imageStyle.seriesStyle} key={index}>
                             <StudyView {...value} />
                         </Grid>
                     )}
