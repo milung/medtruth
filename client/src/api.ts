@@ -356,4 +356,21 @@ export namespace ApiService {
         return res.data;
         // return res.status === Status.SUCCESFUL ? true : false;
     }
+
+    export interface AttributeQuery {
+        imageID: string;
+        attributes: Attribute[];
+    }
+
+    export async function fetchAllAttributes(): Promise<AttributeQuery[]> {
+        const url = uriImages + '/assign';
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'GET',
+            url: url,
+            headers: {}
+        });
+
+        return res.data;
+    }
 }

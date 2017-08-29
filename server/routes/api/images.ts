@@ -41,6 +41,15 @@ routerImages.get('/latest', json(), (req, res) => {
     res.sendStatus(StatusCode.NotImplemented);
 });
 
+routerImages.get('/assign', async (req, res) => {
+    try {
+        let result: AzureDatabase.AttributeQuery[] = await AzureDatabase.getAllAttributes();
+        res.json(result);
+    } catch (e) {
+        res.sendStatus(500);
+    }
+});
+
 /*
     Route:      GET '/images/:id'
     Expects:    Parameter 'id'
@@ -124,6 +133,17 @@ routerImages.delete('/:id/assign', json(), async (req, res) => {
     let labels: string[] = req.body.labels;
     try {
         await AzureDatabase.removeFromAttributes(id, labels);
+        res.sendStatus(200);
+    } catch (e) {
+        res.sendStatus(500);
+    }
+});
+
+routerImages.put('/assign', json(), async (req, res) => {
+    let imageIDs: string[] = req.body.imageIDs;
+    let attribute: Attribute = req.body.attribute;
+    try {
+        await AzureDatabase.putAttribute(imageIDs, attribute);
         res.sendStatus(200);
     } catch (e) {
         res.sendStatus(500);

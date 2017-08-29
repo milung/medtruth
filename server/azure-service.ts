@@ -376,6 +376,18 @@ export namespace AzureDatabase {
         });
     }
 
+    export function putAttribute(imageIDs: string[], attribute: Attribute): Promise<Status> {
+        return new Promise<Status>(async (resolve, reject) => {
+            try {
+                let promises = imageIDs.map(imageID => putToAttributes(imageID, attribute));
+                await Promise.all(promises);
+                resolve(Status.SUCCESFUL);
+            } catch (e) {
+                reject(Status.FAILED);
+            }
+        });
+    }
+
     export function removeFromAttributes(id, labelsToRemove: string[]): Promise<void> {
         return new Promise<void>(async (resolve, reject) => {
             try {
@@ -493,6 +505,31 @@ export namespace AzureDatabase {
                 else resolve({} as AttributeQuery);
             } catch (e) {
                 reject({});
+            } finally {
+                close(conn.db);
+            }
+        });
+    }
+
+    /**
+     * Get all attributes from attributes collection.
+     * @param id 
+     */
+    export function getAllAttributes(): Promise<AttributeQuery[]> {
+        return new Promise<AttributeQuery[]>(async (resolve, reject) => {
+            try {
+                var conn = await connectToAttributes();
+                let result: AttributeQuery[] = await conn.collection.find().toArray();
+
+                let attributes = result.filter(elem => elem.attributes.length > 0);
+                
+                if (attributes) {
+                    resolve(attributes);
+                } else {
+                    resolve([] as AttributeQuery[]);
+                }
+            } catch (e) {
+                reject(e);
             } finally {
                 close(conn.db);
             }
@@ -1023,7 +1060,7 @@ export namespace AzureDatabase {
      */
     export function removeImageLabels(imageID: string): Promise<string[]> {
         return new Promise<string[]>(async (resolve, reject) => {
-            let filter = { imageID: imageID};
+            let filter = { imageID: imageID };
             try {
                 var conn = await connectToAttributes();
                 // Find corresponding labels document for the image and get the attribute names
