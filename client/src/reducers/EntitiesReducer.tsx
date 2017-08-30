@@ -28,7 +28,6 @@ export interface ImageEntity {
     seriesID: string;
     imageNumber: number;
     annotations: ImageAnnotation[];
-    isSelected: boolean;
 }
 
 export interface SeriesEntity {
@@ -386,8 +385,7 @@ const processImagesAnnotationsDownloadedAction =
                         imageID: key,
                         seriesID: undefined,
                         imageNumber: undefined,
-                        annotations: [],
-                        isSelected: image.isSelected
+                        annotations: []
                     };
                 }
 
@@ -506,8 +504,7 @@ const processImageAnnotationAddedAction =
                 seriesID: undefined,
                 imageID: action.imageID,
                 imageNumber: undefined,
-                annotations: [],
-                isSelected: imageEntity.isSelected
+                annotations: []
             };
             // if (imageAnnotation.value !== 0) {
             //     newImageEntity.annotations.push(imageAnnotation);

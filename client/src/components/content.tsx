@@ -8,21 +8,14 @@ import { State } from '../app/store';
 import { BrowserRouter } from 'react-router-dom';
 import { RouteMap } from '../router/routermap';
 import { DownloadPopUp } from './downloadpopup';
-import { ConfirmationDialog } from "./ConfirmationDialog";
-
-interface OwnProps {
-}
-
-interface OwnState {
-
-}
+import { ConfirmationDialog } from './ConfirmationDialog';
 
 interface ConnectedState {
     showBlowUp: boolean;
     imageID: string;
 }
 
-class ContentComponent extends React.Component<OwnProps & ConnectedState, OwnState> {
+class ContentComponent extends React.Component<ConnectedState, {}> {
     render() {
         return (
             <div>

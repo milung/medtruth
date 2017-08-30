@@ -35,8 +35,6 @@ export interface ListItem {
 export interface ConnectedDispatch {
     addImagesAnnotation: (imageIds: string[], annotation: ImageAnnotation) => Promise<void>;
     removeImagesAnnotation: (imageIds: string[], label: string) => Promise<void>;
-    downloadImageAnnotations: (imageIds: string[]) => Promise<void>;
-    // downloadAllLabels: () => LabelsDownloadedAction;
 }
 
 export class AttributeListComponent extends React.Component<ConnectedDispatch & ConnectedState, OwnState> {
@@ -170,7 +168,6 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
 
     async componentDidMount() {
         console.log('COMPONENT DID MOUNT');
-        await this.props.downloadImageAnnotations(this.props.images);
         await this.receiveAttributes(this.props);
     }
 
@@ -288,13 +285,7 @@ function mapDispatchToProps(dispatch): ConnectedDispatch {
         removeImagesAnnotation: async (imageIds: string[], label: string) => {
             await dispatch(removeImagesAnnotationAction(imageIds, label));
             await dispatch(downloadLabelsAction());
-        },
-            
-        downloadImageAnnotations: async (imageIds: string[]) => {
-            await dispatch(downloadImageAnnotations(...imageIds));
         }
-            
-        // downloadAllLabels: () => dispatch(downloadLabelsAction())
     };
 }
 

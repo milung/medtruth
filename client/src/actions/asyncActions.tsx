@@ -82,18 +82,7 @@ export function fetchPatients() {
 export function initializeState() {
     return async (dispatch) => {
         let patients: PatientJSON[] = await dispatch(fetchPatients());
-        let imageIds: string[] = [];
-        patients.forEach(patient => {
-            patient.studies.forEach(study => {
-                study.series.forEach(series => {
-                    series.images.forEach(image => {
-                        imageIds.push(image.imageID);
-                    });
-                });
-            });
-        });
-        dispatch(downloadImageAnnotations(...imageIds));
-
+        dispatch(fetchAllAttributes());
         dispatch(downloadLabelsAction());
     };
 }
@@ -118,6 +107,19 @@ export function deleteAll() {
     return async (dispatch) => {
         await ApiService.deleteAll();
         dispatch(removedAllAction());
+    };
+}
+
+export function fetchAllAttributes() {
+    return async  (dispatch) => {
+        let imagesAnnotations: ApiService.AttributeQuery[] = await ApiService.fetchAllAttributes();
+        let imagesAnnotationsMap: Map<string, ImageAnnotation[]> = new Map();
+        imagesAnnotations.forEach(imageAnnotations => {
+            if (imageAnnotations.attributes) {
+                imagesAnnotationsMap.set(imageAnnotations.imageID, imageAnnotations.attributes);
+            }
+        });
+        dispatch(imagesAnnotationsDownloadedAction(imagesAnnotationsMap));
     };
 }
  

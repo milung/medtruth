@@ -3,7 +3,7 @@ import * as axios from 'axios';
 import { LabelStatus, OutputType } from './components/downloadpopup';
 import * as ios from 'socket.io-stream';
 import * as io from 'socket.io-client';
-import { ItemTypes } from "./actions/actions";
+import { ItemTypes } from './actions/actions';
 
 export namespace ApiService {
     const apiEndpoint = '/api';
@@ -341,11 +341,11 @@ export namespace ApiService {
     }
 
     export interface DeleteSelectedData {
-        itemType: ItemTypes,
-        patient: string,
-        study: string,
-        series: string,
-        IDs: string[]           // array of IDs of items to be deleted 
+        itemType: ItemTypes;
+        patient: string;
+        study: string;
+        series: string;
+        IDs: string[];        // array of IDs of items to be deleted 
     }
 
     export async function deleteSelected(data: DeleteSelectedData) {
@@ -360,5 +360,22 @@ export namespace ApiService {
 
         return res.data;
         // return res.status === Status.SUCCESFUL ? true : false;
+    }
+
+    export interface AttributeQuery {
+        imageID: string;
+        attributes: Attribute[];
+    }
+
+    export async function fetchAllAttributes(): Promise<AttributeQuery[]> {
+        const url = uriImages + '/assign';
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'GET',
+            url: url,
+            headers: {}
+        });
+
+        return res.data;
     }
 }

@@ -11,9 +11,9 @@ import { State } from '../app/store';
 import { imageStyle } from '../styles/ComponentsStyle';
 import Icon from 'material-ui/Icon';
 import { Link } from 'react-router-dom';
-import { ImageComponent } from "./Image";
-import { ImageEntity } from "../reducers/EntitiesReducer";
-import { getImagesWhereSeriesId } from "../selectors/selectors";
+import { ImageComponent } from './Image';
+import { ImageEntity } from '../reducers/EntitiesReducer';
+import { getImagesWhereSeriesId } from '../selectors/selectors';
 // import FontIcon from 'material-ui/Icon'
 
 export interface SeriesProps {
@@ -21,7 +21,7 @@ export interface SeriesProps {
     seriesDescription: string;
     thumbnailImageID: string;
     studyID: string;
-    patientID: string;  // TODO delete
+    patientID: string; 
 }
 
 export interface ConnectedDispatch {

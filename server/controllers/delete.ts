@@ -104,7 +104,7 @@ export namespace DeleteController {
         _.forEach(patient.studies, (study) => {
             _.forEach(study.series, (serie => {
                 _.forEach(serie.images, (image) => {
-                    patientImages.push(image);
+                    patientImages.push(image.imageID);
                 });
             }));
         });
