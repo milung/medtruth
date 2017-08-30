@@ -27,7 +27,8 @@ describe('UIReducer', () => {
                 patients: []
             },
             lastViewedStudyID: '',
-            showDownloadPopUP: false
+             showDeleteDialog: false,
+             showUploadDialog:false
         });
     });
 
@@ -51,7 +52,8 @@ describe('UIReducer', () => {
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false,
-            showDeleteDialog: false
+             showDeleteDialog: false,
+             showUploadDialog:false
         };
 
         // when
@@ -82,7 +84,8 @@ describe('UIReducer', () => {
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false,
-            showDeleteDialog: false
+             showDeleteDialog: false,
+             showUploadDialog:false
         };
 
         // when
@@ -112,7 +115,8 @@ describe('UIReducer', () => {
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false,
-            showDeleteDialog: false
+             showDeleteDialog: false,
+             showUploadDialog:false
         };
 
         // when
@@ -143,7 +147,8 @@ describe('UIReducer', () => {
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false,
-            showDeleteDialog: false
+             showDeleteDialog: false,
+             showUploadDialog:false
 
         };
 
@@ -173,7 +178,8 @@ describe('UIReducer', () => {
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false,
-            showDeleteDialog: false
+             showDeleteDialog: false,
+             showUploadDialog:false
         };
 
         // when
@@ -203,7 +209,8 @@ describe('UIReducer', () => {
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false,
-            showDeleteDialog: false
+             showDeleteDialog: false,
+             showUploadDialog:false
         };
 
         // when
@@ -234,7 +241,8 @@ describe('UIReducer', () => {
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false,
-            showDeleteDialog: false
+             showDeleteDialog: false,
+             showUploadDialog:false
         };
 
         // when
@@ -264,7 +272,8 @@ describe('UIReducer', () => {
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false,
-            showDeleteDialog: false
+             showDeleteDialog: false,
+             showUploadDialog:false
         };
 
         // when
@@ -295,7 +304,8 @@ describe('UIReducer', () => {
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false,
-            showDeleteDialog: false
+            showDeleteDialog: false,
+            showUploadDialog:false
         };
 
         // when
@@ -326,7 +336,8 @@ describe('UIReducer', () => {
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false,
-            showDeleteDialog: false
+            showDeleteDialog: false,
+            showUploadDialog:false,
         };
 
         // when

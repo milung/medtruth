@@ -5,10 +5,10 @@ import { connect } from 'react-redux';
 import { FileUtils } from '../fileform/FileUtils';
 import { validFileExtensions } from '../constants';
 import { ApiService } from '../api';
-import { FilesInputComponent } from '../fileInput/FilesInput';
+import { FilesInputComponent, FilesInput } from '../fileInput/FilesInput';
 // import { ButtonComponent } from '../button/Button';
 // import { OneLineInformationComponent } from '../oneLineInformation/OneLineInformation';
-import { FilesUploadedAction, filesUploaded } from '../actions/actions';
+import { FilesUploadedAction, filesUploaded, UploadDialogState, uploadDialogStateChange } from '../actions/actions';
 import { Button } from 'material-ui';
 import { CircularProgress } from 'material-ui';
 import { red } from 'material-ui/colors/red';
@@ -23,11 +23,19 @@ interface OwnState {
     fileNames: string[];
 }
 
-interface ConnectedDispatch {
-    filesUploaded: (uploadID: number) => void;
+export interface OwnProps extends React.Props<any>{
+    isfolderForm: boolean;
+    buttonName: string;
+    buttonId:string;
 }
 
-export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnState> {
+
+interface ConnectedDispatch {
+    filesUploaded: (uploadID: number) => void;
+    changeDialogState: (state: boolean) => UploadDialogState;
+}
+
+class FolderFormComponent extends React.Component<ConnectedDispatch & OwnProps, OwnState > {
     private filesData: ArrayBuffer[];
 
     constructor() {
@@ -62,7 +70,9 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
                 invalidFileNames.push(file.name); 
             } 
         }); 
- 
+        
+    
+
         if (fileUndefined || filesInvalid) { 
             let errorMessage: string = fileUndefined ? 'File undefined. ' : ''; 
             errorMessage += filesInvalid ? 'Files have invalid extension: ' + invalidFileNames.join(', ') : ''; 
@@ -88,13 +98,60 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
         }); 
     }
 
+    
+    showDialog() {
+        this.props.changeDialogState(true);
+    }
+
     async loadFileSocket(files: File[]) {
-        console.log('uploading');
         
-        this.setState({ uploadingFiles: true });
-        await ApiService.uploadSocket(files, () => {});
-        console.log('DONE');
-        this.setState({ uploadingFiles: false });
+        //no files seleced
+        if(files.length==0){            
+            this.showDialog();
+            return null;
+        }
+       
+
+
+        let invalidFileNames: string[] = [];
+        let fileUndefined: boolean = false;
+        let filesInvalid: boolean = false;     
+        console.log("FILES",files);
+
+       
+        files.forEach((file) => {
+             console.log("FILES",file.name);
+            if (file === undefined) {
+                 this.showDialog();
+                console.log("UNDEFINE",file.name);
+                
+               // fileUndefined = true;
+            }
+           else if (!FileUtils.validFile(file.name.toLowerCase(), validFileExtensions)) {
+                filesInvalid = true;
+                invalidFileNames.push(file.name);
+            }
+            console.log("Invalid",invalidFileNames)
+        });
+
+        
+        //  if (filesInvalid && invalidFileNames.length!=files.length) {
+        //      alert("Ok,but there are some unsupported files in your folder")
+        //  }
+
+        //all seleted files are unsupported
+        if(invalidFileNames.length==files.length){
+       // if (fileUndefined && filesInvalid) {
+            this.showDialog();
+            console.log("Invalid file",filesInvalid)
+        }
+       
+        else {
+            this.setState({ uploadingFiles: true });
+            await ApiService.uploadSocket(files, () => { });
+            await console.log("DONE ");
+            this.setState({ uploadingFiles: false })
+        }
     }
 
     async sendFile() {
@@ -164,23 +221,23 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
     render() {
         let uploading = this.state.uploadingFiles
             ? <CircularProgress mode="indeterminate" color="#F44336" size={20} />
-            : 'UPLOAD';
+            :  this.props.buttonName;
         return (
             <div style={{ display: 'block' }}>
-                <FilesInputComponent disabled={this.state.uploadingFiles} onFilesInput={this.loadFileSocket} />
+               <FilesInput disabled={this.state.uploadingFiles} onFilesInput={this.loadFileSocket} isfolderForm={this.props.isfolderForm} buttonId={this.props.buttonId} />
                 {uploading}
             </div>
         );
     }
 }
 
-function mapDispatchToProps(dispatch: Redux.Dispatch<FilesUploadedAction>): ConnectedDispatch {
+function mapDispatchToProps(dispatch: Redux.Dispatch<FilesUploadedAction & UploadDialogState>): ConnectedDispatch {
     return {
-        filesUploaded: (uploadID) => {
-            dispatch(filesUploaded(uploadID));
-            dispatch(initializeState());
-        }
+        filesUploaded: (uploadID) =>
+            dispatch(filesUploaded(uploadID)),
+        changeDialogState: (show: boolean) => dispatch(uploadDialogStateChange(show)),
     };
 }
 
-export const FolderForm = connect(null, mapDispatchToProps)(FolderFormComponent);
+//export const FolderForm = connect(null, mapDispatchToProps)(FolderFormComponent);
+export  const FolderForm =  connect<{}, {}, OwnProps>(null, mapDispatchToProps) (FolderFormComponent);

@@ -16,6 +16,7 @@ export interface UIState {
     lastViewedStudyID: string;
     showDownloadPopUP: boolean;
     showDeleteDialog: boolean;
+    showUploadDialog: boolean;
 }
 
 const initialState: UIState = {
@@ -29,7 +30,8 @@ const initialState: UIState = {
     },
     lastViewedStudyID: '',
     showDownloadPopUP: false,
-    showDeleteDialog: false
+    showDeleteDialog: false,
+    showUploadDialog: false
 };
 
 export function uiReducer(
@@ -79,6 +81,10 @@ export function uiReducer(
             newState = Object.assign({}, prevState);
             newState.showDeleteDialog = action.showDeleteDialog;
             return newState;
+        case ActionTypeKeys.UPLOAD_DIALOG_STATE_CHANGE:
+            newState = Object.assign({}, prevState);
+            newState.showUploadDialog = action.showUploadDialog;
+            return newState;    
         case ActionTypeKeys.ITEM_SELECTED:
             return handleItemSelectedAction(prevState, action);
         case ActionTypeKeys.ALL_ITEMS_UNSELECTED:
