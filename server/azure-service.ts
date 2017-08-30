@@ -8,7 +8,7 @@ import * as PromiseBlueBird from 'bluebird';
 //import { db } from './server';
 
 import { MongoClient, Db, Collection, BulkWriteOpResultObject, FindAndModifyWriteOpResultObject, Cursor } from 'mongodb';
-import { UploadJSON, StudyJSON, SeriesJSON, ImageJSON } from "./Objects";
+import { UploadJSON, StudyJSON, SeriesJSON, ImageJSON, TerminatedUpload } from "./Objects";
 
 export namespace AzureStorage {
     const accountName = 'medtruth';
@@ -17,7 +17,7 @@ export namespace AzureStorage {
     // blobService.logger.level = azure.Logger.LogLevels.DEBUG;  
     export const containerDicoms = 'dicoms';
     export const containerImages = 'images';
-    // export const containerImages = 'test01';
+    //export const containerImages = 'test';
 
     export enum Status {
         SUCCESFUL,
@@ -101,6 +101,7 @@ export namespace AzureStorage {
     export function deleteImageAndThumbnail(image: string) {
         return new PromiseBlueBird(async (resolve, reject) => {
             try {
+                
                 let name = image + ".png";
                 let thumbnail = image + "_.png";
                 // delete image
@@ -132,8 +133,7 @@ export namespace AzureDatabase {
     //export const url = urlMedTruth;
     export const url = (process.argv[2] === 'local' || process.env.NODE_ENV === 'development') ? "mongodb://" + localAddress + localName : urlMedTruth;
     //export const url = "mongodb://" + localAddress + localName;
-    //export const url = "mongodb://localhost:C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==@localhost:10255/admin?ssl=true&3t.sslSelfSignedCerts=true";
-
+    
     export enum Status {
         SUCCESFUL,
         FAILED
@@ -149,16 +149,22 @@ export namespace AzureDatabase {
      */
     export function connect(): Promise<Db> {
         return new Promise<Db>(async (resolve, reject) => {
-            MongoClient.connect(url, function (err, database) {
-                if (err) {
-                    console.log(err);
+            try{
+                MongoClient.connect(url, function (err, database) {
+                    if (err) {
+                        console.log(err);
+    
+                        reject(null)
+                    }
+                    else {
+                        resolve(database);
+                    }
+                });
+            }catch(err){
+                reject(null);
+            }
 
-                    reject(null)
-                }
-                else {
-                    resolve(database);
-                }
-            });
+
         });
     }
 
@@ -180,9 +186,9 @@ export namespace AzureDatabase {
         return { db: db, collection: collection };
     }
 
-    async function connectToTemporeryPatients(): Promise<Connection> {
+    async function connectToTerminatedUpload(): Promise<Connection> {
         let db = await connect();
-        let collection = await db.collection('temporerypatients');
+        let collection = await db.collection('terminateduploads');
 
         return { db: db, collection: collection };
     }
@@ -301,23 +307,16 @@ export namespace AzureDatabase {
         });
     }
 
-    export function insertToTemporeryPatients(uploadID: number, patient: UploadJSON) {
+    export function insertToTerminatedUpload(terminated: TerminatedUpload) {
         return new PromiseBlueBird<any>(async (resolve, reject) => {
             try {
-                var connection = await connectToTemporeryPatients();
+                var connection = await connectToTerminatedUpload();
 
-                let query = { uploadID: uploadID };
-                let result = await connection.collection.updateOne(query,
-                    {
-                        $push: { patients: patient }
-                    },
-                    {
-                        upsert: true
-                    });
+                let result = await connection.collection.insertOne(terminated);
+
                 console.log(result);
 
                 resolve();
-
             } catch (e) {
                 reject({});
             } finally {
@@ -909,6 +908,39 @@ export namespace AzureDatabase {
             }
         })
     };
+
+    export function getTerminatedUpload(id: number){
+        return new Promise<any>(async (resolve, reject) => {
+            let filter = { _id: id };
+
+            try {
+                var conn = await connectToTerminatedUpload();
+                let result = await conn.collection.findOne(filter);
+                resolve(result);
+            } catch (e) {
+                reject({});
+            } finally {
+                close(conn.db);
+            }
+        })
+    }
+
+    export function removeTerminatedUpload(id: number){
+        return new Promise<any>(async (resolve, reject) => {
+            let filter = { _id: id };
+
+            try {
+                var conn = await connectToTerminatedUpload();
+                let result = await conn.collection.remove(filter);
+                console.log('SUCCESSFULLY REMOVED TERMINATED UPLOAD', result);
+                resolve();
+            } catch (e) {
+                reject({});
+            } finally {
+                close(conn.db);
+            }
+        })
+    }
 
     /** 
      * Remove particular study of a particular patient

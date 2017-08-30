@@ -8,6 +8,7 @@ import { ItemTypes } from "./actions/actions";
 export namespace ApiService {
     const apiEndpoint = '/api';
     //const apiEndpoint = 'http://localhost:8000/api'
+
     /* change this */
     const uriUpload = apiEndpoint + '/upload';
     const uriImages = apiEndpoint + '/images';
@@ -16,7 +17,7 @@ export namespace ApiService {
     const uriPatients = apiEndpoint + '/patients';
     const uriDelete = apiEndpoint + '/delete';
 
-    export function uploadSocket(data: any[], onUpload: () => void) : Promise<any>{
+    export function uploadSocket(data: File[], onUpload: () => void) : Promise<any>{
         return new Promise((res, rej) => {
             let up = io();
             // Right after we connect.
@@ -35,9 +36,9 @@ export namespace ApiService {
                         res();
                         // Otherwise, emit a 'data' action, that sends the files.
                     } else {
-                        let blob = data.pop();
+                        let blob = data.pop();                        
                         let stream = ios.createStream();
-                        ios(up).emit(':upload.data', stream, { size: blob.size });
+                        ios(up).emit(':upload.data', stream, { size: blob.size, name: blob.name });
                         ios.createBlobReadStream(blob, { highWaterMark: 5000000 }).pipe(stream);
                         // Callback for the onUpload event.
                         onUpload();
@@ -46,6 +47,10 @@ export namespace ApiService {
                 up.on(':upload.error', () => {
                     rej();
                 });
+                up.on(':upload.completed',(data) => {
+                    console.log("THIS FELLA IS DONE");
+                    console.log(data);
+                })
             });
         });
     }

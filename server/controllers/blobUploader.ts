@@ -13,22 +13,28 @@ interface BlobUpload {
 export class BlobStorageUploader {
     private promises: BlobUpload[];
     private uploadDONE: boolean;
+    private uploadTerminated: boolean;
     private promiseRunning: number;
     private maxPromiseRunning: number;
+    private unresolvedUploads: number;
+
     private successfulUploads;
     private onDone;
     private finished: boolean;
     constructor(onDone: () => void) {
         this.promises = [];
         this.uploadDONE = false;
+        this.uploadTerminated = false;
         this.promiseRunning = 0;
         this.maxPromiseRunning = 10;
         this.successfulUploads = 0;
+        this.unresolvedUploads = 0;
         this.onDone = onDone;
         this.finished = false
     }
 
     public async promiseAdded() {
+        // if promise is avaliable and i can run one i will
         if (this.promises.length > 0 && this.promiseRunning < this.maxPromiseRunning) {
             this.promiseRunning++;
             // pop promise to be executed
@@ -44,16 +50,27 @@ export class BlobStorageUploader {
                 } catch (error) {
                     uploadblob.resolve(false);
                 } finally {
-                    this.promiseRunning--;
-                    console.log('done: ' + this.successfulUploads);
-                    this.promiseAdded();
+                    this.done();
                 }
             } else {
-                this.promiseRunning--;
-                this.promiseAdded();
+                this.done();
             }
         }
         this.checkEndOfExecution();
+    }
+
+    private done() {
+        this.promiseRunning--;
+        this.unresolvedUploads--;
+        console.log('done: ' + this.successfulUploads);
+        this.promiseAdded();
+    }
+
+    public incrementUploadCounter() {
+        this.unresolvedUploads++;
+    }
+    public decrementUploadCounter() {
+        this.unresolvedUploads--;
     }
 
     public upload(id: string, uploadDONE: boolean) {
@@ -132,15 +149,26 @@ export class BlobStorageUploader {
 
     public setUploadDone = (uploadDONE: boolean) => {
         this.uploadDONE = uploadDONE;
-        this.checkEndOfExecution();
+        //this.checkEndOfExecution();
     };
 
-    checkEndOfExecution = () => {
+    private checkEndOfExecution() {
+        console.log('promiseRunning ',this.promiseRunning);
+        console.log('files to upload ',this.unresolvedUploads);
+
         // if we are finish and onDone was never called before we done
-        if (this.promises.length == 0 && this.promiseRunning == 0 &&
-            this.uploadDONE && this.finished == false) {
-            this.finished = true;
-            this.onDone();
+        if (this.promises.length <= 0 &&
+            this.promiseRunning <= 0 &&
+            (this.uploadDONE || this.uploadTerminated)&&
+            this.finished == false &&
+            this.unresolvedUploads <= 0) {
+                this.finished = true;
+                this.onDone();
         }
+    }
+
+    public setUploadTerminated(){
+        this.uploadTerminated = true;
+        this.checkEndOfExecution();
     }
 }

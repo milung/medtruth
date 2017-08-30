@@ -4,43 +4,68 @@ import { Converter } from "../converter";
 import * as PromiseBB from 'bluebird';
 import { AzureDatabase, AzureStorage } from "../azure-service";
 import { DaikonConverter } from "../daikon/daikon";
-import { UploadJSON, StudyJSON, SeriesJSON, ImageJSON } from "../Objects";
+import { UploadJSON, StudyJSON, SeriesJSON, ImageJSON, TerminatedUpload } from "../Objects";
 import { BlobStorageUploader } from "./blobUploader";
-import { Merger } from "./objectMerger";
+import { Merger } from "../merger/objectMerger";
 
 export class UploadFiles {
     private uploads: UploadJSON[];
     private uploadID: number;
     private uploadDONE: boolean;
+    private uploadTerminated: boolean;
     private blobUploader: BlobStorageUploader;
+    private filesToDelete: string[];
 
     constructor() {
         this.uploads = [];
+        this.filesToDelete = [];
         this.uploadID = new Date().getTime();
         this.uploadDONE = false;
+        this.uploadTerminated = false;
         this.blobUploader = new BlobStorageUploader(this.onDone);
         console.time('upload');
     }
 
     public handleFile = async (id: string) => {
-        return new PromiseBB<boolean>(async (resolve, reject) => {
-            await Controller.convertFile(id);
-            let patient = await Controller.parse(id, this.uploadID);
-            if (patient != null || patient != undefined) {
-                try {
-                    let successful = await this.blobUploader.upload(id, this.uploadDONE);
-                    if (successful) {
-                        this.uploads.push(patient);
-                        resolve(true);
-                    } else { resolve(false); }
-                } catch (ee) {
-                    resolve(false)
-                } finally {
-                    Controller.removeFiles(id);
-                }
-            } else {
+        return new PromiseBB<FileStatus>(async (resolve, reject) => {
+            // wait until file is converted to png
+            try {
+                await Controller.convertFile(id);
+            } catch (e) {
+                this.blobUploader.decrementUploadCounter();
                 Controller.removeFiles(id);
+                resolve(FileStatus.CONVERTION_FAIL);
+                return;
             }
+            // parse file
+            try {
+                let patient = await Controller.parse(id);
+                if (patient != null || patient != undefined) {
+                    try {
+                        let successful = await this.blobUploader.upload(id, this.uploadDONE);
+                        if (successful) {
+                            this.uploads.push(patient);
+                            resolve(FileStatus.OK);
+                        } else { resolve(FileStatus.AZURE_STORAGE_FAIL); }
+                    } catch (error) {
+                        this.blobUploader.decrementUploadCounter();
+                        resolve(FileStatus.AZURE_STORAGE_FAIL);
+                        console.log(error);
+                    } finally {
+                        Controller.removeFiles(id);
+                    }
+                } else {
+                    this.blobUploader.decrementUploadCounter();
+                    Controller.removeFiles(id);
+                    resolve(FileStatus.FILE_ALREADY_EXISTS);
+                }
+
+            } catch (err) {
+                this.blobUploader.decrementUploadCounter();
+                Controller.removeFiles(id);
+                resolve(FileStatus.DATABASE_CONNECTION_FAIL);
+            }
+
 
         });
     }
@@ -53,39 +78,48 @@ export class UploadFiles {
 
     public onDone = async () => {
         console.log("ON DONE");
-        
-        let patients = {};
-        try {
-            var db = await AzureDatabase.connect();
-        } catch (error) {return;}
-
-        let getPatients = this.uploads.map(async (patient) => {
-            try {
-                let patientAzure = await AzureDatabase.getPatientDocumentDB(patient.patientID, db);
-                patients[patient.patientID] = patientAzure;
-            } catch (error) {
-                console.log("patientazure");
-                console.log(error);
-            }
-        }, { concurrency: 5 });
-        // w8 'till all patients are fetched
-        await Promise.all(getPatients);
-
-        //  merge fetched patients with current upload
-
-        let newPatients = Merger.patientsMerger(patients, this.uploads);
-
-        for (let key in newPatients) {
-            console.log('inserting ' + key);
-            await AzureDatabase.updateToImageCollectionDB(newPatients[key], db);
+        // if upload was terminated and dodnt finish properly
+        if (this.uploadTerminated && !this.uploadDONE) {
+            this.instertToTerminatedUpload();
+        } else {
+            Merger.mergePatientsToDB(this.uploads);
         }
-
-        db.close();
-        console.timeEnd('upload');
     }
 
+    public async instertToTerminatedUpload() {
+        console.log("instertToTerminatedUpload");
+        
+        let upload: TerminatedUpload = new TerminatedUpload();
+        upload._id = this.uploadID;
+        upload.patients = this.uploads;
+        
+        try{
+            let patientAzure = await AzureDatabase.insertToTerminatedUpload(upload);
+            console.log("instertToTerminatedUpload DONE");
+        }catch(er){
+            console.log('error insterting to temrinated uploads');
+            console.log(er);
+            
+        }
+        
+    }
 
+    public incrementUploadCounter() {
+        this.blobUploader.incrementUploadCounter();
+    }
 
+    public decrementUploadCounter() {
+        this.blobUploader.decrementUploadCounter();
+    }
+
+    public getFilesTodelete(): string[] {
+        return this.filesToDelete;
+    }
+
+    public setUploadTerminated() {
+        this.uploadTerminated = true;
+        this.blobUploader.setUploadTerminated();
+    }
 }
 
 export namespace Controller {
@@ -102,7 +136,7 @@ export namespace Controller {
     }
 
 
-    export const parse = (id: string, uploadID: number) => {
+    export const parse = (id: string) => {
         return new PromiseBB<UploadJSON>(async (resolve, reject) => {
             let converter = new DaikonConverter(storagePath + id);
 
@@ -128,18 +162,19 @@ export namespace Controller {
             patient.studies.push(study);
 
             // check if image is in database
-            let exists = await doesImageExistsInDb(patient.patientID,
-                study.studyID,
-                series.seriesID,
-                newImage.imageNumber);
-            //
+            try {
+                let exists = await doesImageExistsInDb(patient.patientID,
+                    study.studyID,
+                    series.seriesID,
+                    newImage.imageNumber);
+                console.log(series.seriesID + " image number " + newImage.imageNumber + " exists: " + exists);
 
-            console.log(series.seriesID+" image number " + newImage.imageNumber+ " exists: "+exists);
-            
-            if (exists) resolve(null);
+                if (exists) resolve(null);
+                resolve(patient);
+            } catch (err) {
+                reject();
+            }
 
-            //await AzureDatabase.insertToTemporeryPatients(uploadID,patient);
-            resolve(patient);
         });
 
     }
@@ -172,7 +207,7 @@ export namespace Controller {
             try {
                 patientAzure = await AzureDatabase.getPatientDocument(patientID);
             } catch (err) {
-                resolve(false);
+                reject();
             }
 
             if (notExists(patientAzure)) return resolve(false);
@@ -199,4 +234,18 @@ export namespace Controller {
     const notExists = (object: any) => {
         return (object == null || object == undefined);
     };
+}
+
+export interface UploadStatus {
+    fileName: string;
+    id: string;
+    fileStatus: FileStatus;
+}
+
+export enum FileStatus {
+    OK,
+    CONVERTION_FAIL,
+    FILE_ALREADY_EXISTS,
+    AZURE_STORAGE_FAIL,
+    DATABASE_CONNECTION_FAIL
 }

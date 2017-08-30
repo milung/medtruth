@@ -1,4 +1,6 @@
 
+import { UploadStatus } from "./controllers/uploadSocket";
+
 export class JSONCreator {
     /*getUploadJSON() {
         let uploadJSON = new UploadJSON();
@@ -124,9 +126,9 @@ export class ImageJSON {
     imageNumber: number;
 }
 
-export class TemporaryPatient{
-    uploadID: number;
-    failed: boolean;
+export class TerminatedUpload{
+    _id: number;
+    filesStatus: UploadStatus[];
     patients: UploadJSON[] = []
 }
 

@@ -7,7 +7,8 @@ import * as lo from 'lodash';
 import { UploadController } from '../../controllers/upload';
 import { StatusCode, storagePath, imagePath } from '../../constants';
 import { AzureStorage, AzureDatabase } from '../../azure-service';
-
+import { Merger } from "../../merger/objectMerger";
+import { TerminatedUpload } from "../../Objects";
 export const rootUpload = '/upload';
 export const routerUpload = express.Router();
 
@@ -103,4 +104,40 @@ routerUpload.get('/:id', async (req, res) => {
         }
     }
 });
+
+
+routerUpload.get('/terminated/', async (req, res) => {
+    res.json({status: 'OK'});
+});
+
+
+
+
+routerUpload.get('/keep/:id', async (req, res) => {
+    let id = Number.parseInt(req.params.id);
+    try{
+        let upload: TerminatedUpload = await AzureDatabase.getTerminatedUpload(id);
+        let patients = upload.patients;
+        console.log("patients ",patients);        
+        await Merger.mergePatientsToDB(patients);
+        console.log("merged");
+        
+        await AzureDatabase.removeTerminatedUpload(id);
+        console.log("REMOVED");
+        
+        res.json(StatusCode.OK);
+    }catch(err){
+        console.log(err);
+        
+        res.sendStatus(StatusCode.BadRequest);
+    }
+  
+});
+
+routerUpload.get('/delete/:id', async (req, res) => {
+    let id = Number.parseInt(req.params.id);
+
+    res.json({status: 'OK'});
+});
+
 
