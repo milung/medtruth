@@ -94,7 +94,7 @@ export namespace DeleteController {
             console.log('labels array', labels);
 
             // Change each label's documents according to the changed count
-            let result = await AzureDatabase.updateLabels(labels);
+            // let result = await AzureDatabase.updateLabels(labels); // tracking labels count does not function
         });
     }
 
