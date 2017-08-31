@@ -1,5 +1,6 @@
 import { uiReducer, UIState } from './UIReducer';
-import { OtherAction, ActionTypeKeys, ImageSelectedAction, 
+import {
+    OtherAction, ActionTypeKeys, ImageSelectedAction,
     SeriesSelectedAction, Keys, ImagesAllUnselectedAction, ItemSelectedAction, ItemTypes
 } from '../actions/actions';
 
@@ -27,8 +28,12 @@ describe('UIReducer', () => {
                 patients: []
             },
             lastViewedStudyID: '',
-             showDeleteDialog: false,
-             showUploadDialog:false
+            showDeleteDialog: false,
+            showUploadDialog: false,
+            showDownloadPopUP: false,
+            saving: {
+                addedImagesAnnotation: false
+            }
         });
     });
 
@@ -57,7 +62,10 @@ describe('UIReducer', () => {
             terminatedUploads: [],
             uploading: false,
             uploadingText: '',
-             showUploadDialog:false
+            showUploadDialog: false,
+            saving: {
+                addedImagesAnnotation: false
+            }
         };
 
         // when
@@ -93,7 +101,10 @@ describe('UIReducer', () => {
             terminatedUploads: [],
             uploading: false,
             uploadingText: '',
-             showUploadDialog:false
+            showUploadDialog: false,
+            saving: {
+                addedImagesAnnotation: false
+            }
         };
 
         // when
@@ -128,7 +139,10 @@ describe('UIReducer', () => {
             terminatedUploads: [],
             uploading: false,
             uploadingText: '',
-             showUploadDialog:false
+            showUploadDialog: false,
+            saving: {
+                addedImagesAnnotation: false
+            }
         };
 
         // when
@@ -164,7 +178,10 @@ describe('UIReducer', () => {
             terminatedUploads: [],
             uploading: false,
             uploadingText: '',
-             showUploadDialog:false
+            showUploadDialog: false,
+            saving: {
+                addedImagesAnnotation: false
+            }
 
         };
 
@@ -199,7 +216,10 @@ describe('UIReducer', () => {
             terminatedUploads: [],
             uploading: false,
             uploadingText: '',
-             showUploadDialog:false
+            showUploadDialog: false,
+            saving: {
+                addedImagesAnnotation: false
+            }
         };
 
         // when
@@ -234,7 +254,10 @@ describe('UIReducer', () => {
             terminatedUploads: [],
             uploading: false,
             uploadingText: '',
-             showUploadDialog:false
+            showUploadDialog: false,
+            saving: {
+                addedImagesAnnotation: false
+            }
         };
 
         // when
@@ -270,7 +293,10 @@ describe('UIReducer', () => {
             terminatedUploads: [],
             uploading: false,
             uploadingText: '',
-             showUploadDialog:false
+            showUploadDialog: false,
+            saving: {
+                addedImagesAnnotation: false
+            }
         };
 
         // when
@@ -305,7 +331,10 @@ describe('UIReducer', () => {
             terminatedUploads: [],
             uploading: false,
             uploadingText: '',
-            showUploadDialog:false
+            showUploadDialog: false,
+            saving: {
+                addedImagesAnnotation: false
+            }
         };
 
         // when
@@ -341,7 +370,10 @@ describe('UIReducer', () => {
             terminatedUploads: [],
             uploading: false,
             uploadingText: '',
-            showUploadDialog:false
+            showUploadDialog: false,
+            saving: {
+                addedImagesAnnotation: false
+            }
         };
 
         // when
@@ -377,7 +409,10 @@ describe('UIReducer', () => {
             terminatedUploads: [],
             uploading: false,
             uploadingText: '',
-            showUploadDialog:false,
+            showUploadDialog: false,
+            saving: {
+                addedImagesAnnotation: false
+            }
         };
 
         // when

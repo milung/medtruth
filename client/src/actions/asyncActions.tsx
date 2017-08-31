@@ -2,31 +2,25 @@
 import {
     ImageAnnotation, imagesAnnotationAddedAction,
     imagesAnnotationRemovedAction, labelsDowloadedAction,
-    imagesAnnotationsDownloadedAction, PatientJSON, patientsFetched, ItemTypes, removedSelectedAction, removedAllAction
+    imagesAnnotationsDownloadedAction, PatientJSON, patientsFetched, 
+    ItemTypes, removedSelectedAction, removedAllAction, addImagesAnnotationStart
 } from './actions';
 import { ApiService } from '../api';
 import { getImagesWherePatientIds } from '../selectors/selectors';
 
-export function addImagesAnnotationAction(imageIds: string[], annotation: ImageAnnotation) {
+export function addImagesAnnotationAction(imageIDs: string[], annotation: ImageAnnotation) {
     return async (dispatch) => {
-        let promises = imageIds.map(imageId => ApiService.putAttributes(imageId, {
-            key: annotation.key,
-            value: annotation.value
-        }));
-
-        await Promise.all(promises);
-
-        dispatch(imagesAnnotationAddedAction(imageIds, annotation));
-
+        dispatch(addImagesAnnotationStart());
+        await ApiService.putAttribute(imageIDs, annotation);
+        dispatch(imagesAnnotationAddedAction(imageIDs, annotation));
     };
 }
 
 export function removeImagesAnnotationAction(imageIds: string[], label: string) {
     return async (dispatch) => {
-        await ApiService.deleteAttributes2(imageIds, label);
+        await ApiService.deleteAttributes(imageIds, label);
 
         dispatch(imagesAnnotationRemovedAction(imageIds, label));
-
     };
 }
 
@@ -34,38 +28,6 @@ export function downloadLabelsAction() {
     return async (dispatch): Promise<void> => {
         let labels: string[] = await ApiService.getLabels();
         dispatch(labelsDowloadedAction(labels));
-    };
-}
-
-export function downloadImageAnnotations(...imageIds: string[]) {
-    return async (dispatch) => {
-        let promises = imageIds.map(imageId =>
-            ApiService.getAttributes(imageId)
-        );
-
-        let imagesAnnotationsMap: Map<string, ImageAnnotation[]> = new Map();
-        let imagesAnnotations = await Promise.all(promises);
-        imagesAnnotations.forEach(imageAnnotations => {
-            if (imageAnnotations.attributes) {
-                imagesAnnotationsMap.set(imageAnnotations.imageID, imageAnnotations.attributes.map(attr => (
-                    {
-                        key: attr.key,
-                        value: attr.value
-                    }
-                )));
-            }
-        });
-        dispatch(imagesAnnotationsDownloadedAction(imagesAnnotationsMap));
-    };
-}
-
-export function fetchPatientsImageAnnotations(patientId: string) {
-    return async (state, dispatch) => {
-        let patientsImageIds: string[] =
-            getImagesWherePatientIds(state, [patientId])
-                .map(image => image.imageID);
-
-        await downloadImageAnnotations(...patientsImageIds);
     };
 }
 

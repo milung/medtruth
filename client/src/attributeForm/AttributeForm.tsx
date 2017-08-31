@@ -19,6 +19,7 @@ export interface OwnState {
 }
 export interface ConnectedState {
     images: string[];
+    wait: boolean;
 }
 
 export interface ConnectedDispatch {
@@ -71,6 +72,18 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
         });
     }
 
+    getCursorStyle() {
+        return this.props.wait ? 'wait' : 'auto';
+    }
+    
+    getAssignButtonCursorStyle() {
+        return this.props.wait ? 'wait' : 'pointer';
+    }
+
+    getTextFieldCursorStyle() {
+        return this.props.wait ? 'wait' : 'text';
+    }
+
     render() {
         var inputIncorrect;
 
@@ -88,8 +101,14 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
 
         return (
             <div >
-                <Grid style={{ position: 'fixed', paddingRight: 10 }} item="true" xs={12} sm={12} md={12}>
-                    <Paper style={{ padding: 10 }}>
+                <Grid 
+                    style={{ position: 'fixed', paddingRight: 10 }} 
+                    item="true" 
+                    xs={12} 
+                    sm={12} 
+                    md={12}
+                >
+                    <Paper style={{ padding: 10, cursor: this.getCursorStyle() }}>
                         <div>
                             <TextField
                                 required="true"
@@ -97,7 +116,7 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
                                 id="keyField"
                                 label="Label"
                                 margin="dense"
-                                style={{ width: '100%' }}
+                                style={{ width: '100%', cursor: this.getTextFieldCursorStyle() }}
                                 value={this.state.keyFieldValue}
                                 onChange={this.handleKeyFieldChange}
                             />
@@ -106,7 +125,7 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
                                 id="valueField"
                                 label="Value"
                                 margin="dense"
-                                style={{ width: '50%' }}
+                                style={{ width: '50%', cursor: this.getTextFieldCursorStyle() }}
                                 value={this.state.valueFieldValue}
                                 onChange={this.handleValueFieldChange}
                             />
@@ -117,7 +136,8 @@ export class AttributeFormComponent extends React.Component<ConnectedDispatch & 
                                 raised="true"
                                 color="primary"
                                 onClick={this.handleClick}
-                                style={{ float: 'right', marginTop: 20, marginBottom: 20 }}
+                                style={{ float: 'right', marginTop: 20, marginBottom: 20, 
+                                    cursor: this.getAssignButtonCursorStyle() }}
                             >
                                 Assign
                             </Button>
@@ -150,7 +170,8 @@ function mapStateToProps(state: State): ConnectedState {
     }
     
     return {
-        images
+        images,
+        wait: state.ui.saving.addedImagesAnnotation
     };
 }
 

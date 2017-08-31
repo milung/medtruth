@@ -26,7 +26,8 @@ export enum ActionTypeKeys {
     ALL_ITEMS_UNSELECTED = 'ALL_ITEMS_UNSELECTED',
     TERMINATED_DIALOG_STATE_CHANGE = 'TERMINATED_DIALOG_STATE_CHANGE',
     ADD_TERMINATED_UPLOADS = 'ADD_TERMINATED_UPLOADS',
-    CHANGE_UPLOAD_STATUS = 'CHANGE_UPLOAD_STATUS'
+    CHANGE_UPLOAD_STATUS = 'CHANGE_UPLOAD_STATUS',
+    ADD_IMAGES_ANNOTATION_START = 'ADD_IMAGES_ANNOTATION_START'
 }
 
 export enum ItemTypes {
@@ -180,6 +181,10 @@ export interface AllItemsUnselectedAction {
     type: ActionTypeKeys.ALL_ITEMS_UNSELECTED;
 }
 
+export interface AddImagesAnnotationStart {
+    type: ActionTypeKeys.ADD_IMAGES_ANNOTATION_START;
+}
+
 export const filesUploaded = (uploadID: number): FilesUploadedAction => ({
     type: ActionTypeKeys.FILES_UPLOADED,
     uploadID
@@ -311,6 +316,10 @@ export const allItemsUnselected = (): AllItemsUnselectedAction => ({
     type: ActionTypeKeys.ALL_ITEMS_UNSELECTED
 });
 
+export const addImagesAnnotationStart = (): AddImagesAnnotationStart => ({
+    type: ActionTypeKeys.ADD_IMAGES_ANNOTATION_START
+}); 
+
 export type ActionType =
     | FilesUploadedAction
     | ThumbnailBlownUpAction
@@ -337,7 +346,8 @@ export type ActionType =
     | ImagesAnnotationsDownloadedAction
     | PatientsFetchedAction
     | ItemSelectedAction
-    | AllItemsUnselectedAction;
+    | AllItemsUnselectedAction
+    | AddImagesAnnotationStart;
 
 export interface ImageAnnotation {
     key: string;

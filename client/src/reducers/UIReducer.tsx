@@ -1,7 +1,8 @@
 
 import {
     ActionTypeKeys, ActionType, SeriesSelectedAction, Keys, ImageSelectedAction,
-    ItemSelectedAction, ItemTypes, AllItemsUnselectedAction, RemovedAllAction, RemovedSelectedAction
+    ItemSelectedAction, ItemTypes, AllItemsUnselectedAction, RemovedAllAction, 
+    RemovedSelectedAction, AddImagesAnnotationStart, ImagesAnnotationAddedAction
 } from '../actions/actions';
 import { TerminatedUpload } from "../objects";
 
@@ -22,6 +23,9 @@ export interface UIState {
     uploading: boolean;
     uploadingText: string;
     showUploadDialog: boolean;
+    saving: {
+        addedImagesAnnotation: boolean
+    };
 }
 
 const initialState: UIState = {
@@ -40,7 +44,10 @@ const initialState: UIState = {
     terminatedUploads: [],
     uploading: false,
     uploadingText: '',
-    showUploadDialog: false
+    showUploadDialog: false,
+    saving: {
+        addedImagesAnnotation: false
+    }
 };
 
 export function uiReducer(
@@ -111,9 +118,27 @@ export function uiReducer(
             return handleItemSelectedAction(prevState, action);
         case ActionTypeKeys.ALL_ITEMS_UNSELECTED:
             return handleAllItemsUnselectedAction(prevState, action);
+        case ActionTypeKeys.ADD_IMAGES_ANNOTATION_START:
+            return handleAddImagesAnnotationStart(prevState, action);
+        case ActionTypeKeys.IMAGES_ANNOTATION_ADDED:
+            return handleImagesAnnotationAdded(prevState, action);
         default:
             return prevState;
     }
+}
+
+function handleImagesAnnotationAdded(prevState: UIState, action: ImagesAnnotationAddedAction): UIState {
+    let newState: UIState = {...prevState};
+    newState.saving = {...prevState.saving};
+    newState.saving.addedImagesAnnotation = false;
+    return newState;
+}
+
+function handleAddImagesAnnotationStart(prevState: UIState, action: AddImagesAnnotationStart): UIState {
+    let newState: UIState = {...prevState};
+    newState.saving = {...prevState.saving};
+    newState.saving.addedImagesAnnotation = true;
+    return newState;
 }
 
 function handleAllItemsUnselectedAction(prevState: UIState, action: AllItemsUnselectedAction) {

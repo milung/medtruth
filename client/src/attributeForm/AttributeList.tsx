@@ -13,8 +13,7 @@ import {
 } from '../actions/actions';
 import * as _ from 'lodash';
 import { ImageEntity } from '../reducers/EntitiesReducer';
-import { removeImagesAnnotationAction, addImagesAnnotationAction, 
-    downloadImageAnnotations, downloadLabelsAction } from '../actions/asyncActions';
+import { removeImagesAnnotationAction, addImagesAnnotationAction, downloadLabelsAction } from '../actions/asyncActions';
 import { getImagesWhereSeriesIds, getImagesWhereStudyIds, getImagesWherePatientIds } from '../selectors/selectors';
 
 export interface OwnState {
@@ -25,6 +24,7 @@ export interface ConnectedState {
     images: string[];
     annotations: ImageAnnotation[][];
     labels: string[];
+    wait: boolean;
 }
 
 export interface ListItem {
@@ -171,12 +171,20 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
         await this.receiveAttributes(this.props);
     }
 
+    getCursorStyle() {
+        return this.props.wait ? 'wait' : 'auto';
+    }
+
+    getCheckboxCursorStyle() {
+        return this.props.wait ? 'wait' : 'pointer';
+    }
+
     render() {
         console.log('ATTRIBUTE LIST ITEMS', this.state.listItems);
         console.log('STATE CHECKBOXES', this.state.checkboxes);
         return (
             <div>
-                <Paper style={{ maxHeight: '65vh', overflowY: 'auto', width: '100%' }}>
+                <Paper style={{ maxHeight: '65vh', overflowY: 'auto', width: '100%', cursor: this.getCursorStyle() }}>
                     <Table bodyStyle={{ height: 'inherit', overflowX: 'auto' }}>
                         <TableHead>
                             <TableRow>
@@ -190,6 +198,7 @@ export class AttributeListComponent extends React.Component<ConnectedDispatch & 
                                     <TableRow key={i}>
                                         <TableCell checkbox="true" >
                                             <Checkbox
+                                                style={{ cursor: this.getCheckboxCursorStyle() }}
                                                 checked={this.state.checkboxes[i] >= 0}
                                                 indeterminate={this.state.checkboxes[i] === -1}
                                                 onChange={async (event: object, checked: boolean) => {
@@ -271,7 +280,8 @@ function mapStateToProps(state: State): ConnectedState {
     return {
         images,
         annotations: annotations,
-        labels: state.entities.labels
+        labels: state.entities.labels,
+        wait: state.ui.saving.addedImagesAnnotation
     };
 }
 
