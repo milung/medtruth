@@ -88,12 +88,12 @@ interface Attribute {
     value: number;
 }
 
-routerImages.put('/:id/assign', json(), async (req, res) => {
-    let id = req.params.id;
-    let attributes: Attribute[] = req.body.attributes;
-    let result = await AzureDatabase.putToAttributes(id, ...attributes);
-    res.json(result);
-});
+// routerImages.put('/:id/assign', json(), async (req, res) => {
+//     let id = req.params.id;
+//     let attributes: Attribute[] = req.body.attributes;
+//     let result = await AzureDatabase.putToAttributes(id, ...attributes);
+//     res.json(result);
+// });
 
 /*
     Route:      GET '/images/:id/assign'
@@ -128,16 +128,16 @@ routerImages.post('/series', json(), async (req, res) => {
     }
 });
 
-routerImages.delete('/:id/assign', json(), async (req, res) => {
-    let id = req.params.id;
-    let labels: string[] = req.body.labels;
-    try {
-        await AzureDatabase.removeFromAttributes(id, labels);
-        res.sendStatus(200);
-    } catch (e) {
-        res.sendStatus(500);
-    }
-});
+// routerImages.delete('/:id/assign', json(), async (req, res) => {
+//     let id = req.params.id;
+//     let labels: string[] = req.body.labels;
+//     try {
+//         await AzureDatabase.removeFromAttributes(id, labels);
+//         res.sendStatus(200);
+//     } catch (e) {
+//         res.sendStatus(500);
+//     }
+// });
 
 routerImages.put('/assign', json(), async (req, res) => {
     let imageIDs: string[] = req.body.imageIDs;
@@ -146,6 +146,7 @@ routerImages.put('/assign', json(), async (req, res) => {
         await AzureDatabase.putAttribute(imageIDs, attribute);
         res.sendStatus(200);
     } catch (e) {
+        console.log(e);
         res.sendStatus(500);
     }
 });

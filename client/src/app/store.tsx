@@ -8,8 +8,7 @@ import { entitiesReducer } from '../reducers/EntitiesReducer';
 import { EntitiesState } from '../reducers/EntitiesReducer';
 import thunk from 'redux-thunk';
 import { applyMiddleware } from 'redux';
-import { fetchPatients, downloadLabelsAction, 
-    downloadImageAnnotations, initializeState } from '../actions/asyncActions';
+import { fetchPatients, downloadLabelsAction, initializeState } from '../actions/asyncActions';
 import { Store } from 'redux';
 
 export interface State {
