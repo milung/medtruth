@@ -4,10 +4,12 @@ import { LabelStatus, OutputType } from './components/downloadpopup';
 import * as ios from 'socket.io-stream';
 import * as io from 'socket.io-client';
 import { ItemTypes } from './actions/actions';
+import { store } from "./app/store";
+import { changeUploadStatus } from "./actions/actions";
 
 export namespace ApiService {
     const apiEndpoint = '/api';
-    //const apiEndpoint = 'http://localhost:8000/api'
+    //const apiEndpoint = 'http://localhost:8080/api'
 
     /* change this */
     const uriUpload = apiEndpoint + '/upload';
@@ -22,6 +24,8 @@ export namespace ApiService {
             let up = io();
             // Right after we connect.
             up.on('connect', () => {
+                let filesDone = 0;
+                let allFilesNumber = data.length;
                 // Connect to the upload socket point.
                 up.emit(':upload', {});
                 // Whenever we receive an 'ok' status, we send files over the wire.
@@ -31,9 +35,8 @@ export namespace ApiService {
                         console.log('UPLOAD END');
 
                         up.emit(':upload.end', {});
-                        up.disconnect();
                         // Resolve this promise.
-                        res();
+
                         // Otherwise, emit a 'data' action, that sends the files.
                     } else {
                         let blob = data.pop();                        
@@ -50,7 +53,14 @@ export namespace ApiService {
                 up.on(':upload.completed',(data) => {
                     console.log("THIS FELLA IS DONE");
                     console.log(data);
-                })
+                    filesDone++;
+                    let status = "Files completed: "+filesDone+"/"+allFilesNumber;
+                    store.dispatch(changeUploadStatus(true,status));
+                });
+                up.on(':upload.alldone', ()=>{
+                    up.disconnect();
+                    res();
+                });
             });
         });
     }
@@ -378,4 +388,42 @@ export namespace ApiService {
 
         return res.data;
     }
+
+    export async function fetchAllTerminatedUploads(): Promise<AttributeQuery[]> {
+        const url = uriUpload + '/terminated/list';
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'GET',
+            url: url,
+            headers: {}
+        });
+
+        return res.data;
+    }
+
+    export async function keepTerminatedUpload(id: number){
+        const url = uriUpload + '/keep/'+id;
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'GET',
+            url: url,
+            headers: {}
+        });
+
+        
+    }
+
+    export async function removeTerminatedUpload(id: number) {
+        const url = uriUpload + '/delete/'+id;
+
+        let res: axios.AxiosResponse = await axios.default({
+            method: 'GET',
+            url: url,
+            headers: {}
+        });
+
+        
+    }
+
+    
 }

@@ -15,14 +15,18 @@ export class UploadFiles {
     private uploadTerminated: boolean;
     private blobUploader: BlobStorageUploader;
     private filesToDelete: string[];
+    private fileStatuses: UploadStatus[];
+    private endCallback: () => void;
 
-    constructor() {
+    constructor(callback: () => void) {
         this.uploads = [];
         this.filesToDelete = [];
+        this.fileStatuses = [];
         this.uploadID = new Date().getTime();
         this.uploadDONE = false;
         this.uploadTerminated = false;
         this.blobUploader = new BlobStorageUploader(this.onDone);
+        this.endCallback = callback;
         console.time('upload');
     }
 
@@ -34,7 +38,8 @@ export class UploadFiles {
             } catch (e) {
                 this.blobUploader.decrementUploadCounter();
                 Controller.removeFiles(id);
-                resolve(FileStatus.CONVERTION_FAIL);
+                resolve(FileStatus.CONVERSION_FAIL);
+                this.checkEndOfExecution();
                 return;
             }
             // parse file
@@ -51,6 +56,7 @@ export class UploadFiles {
                         this.blobUploader.decrementUploadCounter();
                         resolve(FileStatus.AZURE_STORAGE_FAIL);
                         console.log(error);
+                        this.checkEndOfExecution();
                     } finally {
                         Controller.removeFiles(id);
                     }
@@ -58,12 +64,14 @@ export class UploadFiles {
                     this.blobUploader.decrementUploadCounter();
                     Controller.removeFiles(id);
                     resolve(FileStatus.FILE_ALREADY_EXISTS);
+                    this.checkEndOfExecution();
                 }
 
             } catch (err) {
                 this.blobUploader.decrementUploadCounter();
                 Controller.removeFiles(id);
                 resolve(FileStatus.DATABASE_CONNECTION_FAIL);
+                this.checkEndOfExecution();
             }
 
 
@@ -74,6 +82,7 @@ export class UploadFiles {
         console.log("FINISH");
         this.uploadDONE = true;
         this.blobUploader.setUploadDone(this.uploadDONE);
+        this.checkEndOfExecution();
     }
 
     public onDone = async () => {
@@ -82,26 +91,28 @@ export class UploadFiles {
         if (this.uploadTerminated && !this.uploadDONE) {
             this.instertToTerminatedUpload();
         } else {
-            Merger.mergePatientsToDB(this.uploads);
+            await Merger.mergePatientsToDB(this.uploads);
+            this.endCallback();
         }
     }
 
     public async instertToTerminatedUpload() {
         console.log("instertToTerminatedUpload");
-        
+
         let upload: TerminatedUpload = new TerminatedUpload();
+        upload.filesStatus = this.fileStatuses;
         upload._id = this.uploadID;
         upload.patients = this.uploads;
-        
-        try{
+
+        try {
             let patientAzure = await AzureDatabase.insertToTerminatedUpload(upload);
             console.log("instertToTerminatedUpload DONE");
-        }catch(er){
+        } catch (er) {
             console.log('error insterting to temrinated uploads');
             console.log(er);
-            
+
         }
-        
+        this.endCallback();
     }
 
     public incrementUploadCounter() {
@@ -120,6 +131,13 @@ export class UploadFiles {
         this.uploadTerminated = true;
         this.blobUploader.setUploadTerminated();
     }
+    public addUploadStatus(status: UploadStatus) {
+        this.fileStatuses.push(status);
+    }
+
+    public checkEndOfExecution() {
+        this.blobUploader.checkEndOfExecution();
+    }
 }
 
 export namespace Controller {
@@ -134,7 +152,6 @@ export namespace Controller {
             }
         });
     }
-
 
     export const parse = (id: string) => {
         return new PromiseBB<UploadJSON>(async (resolve, reject) => {
@@ -234,6 +251,7 @@ export namespace Controller {
     const notExists = (object: any) => {
         return (object == null || object == undefined);
     };
+
 }
 
 export interface UploadStatus {
@@ -244,7 +262,7 @@ export interface UploadStatus {
 
 export enum FileStatus {
     OK,
-    CONVERTION_FAIL,
+    CONVERSION_FAIL,
     FILE_ALREADY_EXISTS,
     AZURE_STORAGE_FAIL,
     DATABASE_CONNECTION_FAIL

@@ -1,4 +1,6 @@
 
+import { TerminatedUpload } from "../objects";
+
 export enum ActionTypeKeys {
     FILES_UPLOADED = 'FILES_UPLOADED',
     THUMBNAIL_BLOWN_UP = 'THUMBNAIL_BLOWN_UP',
@@ -20,7 +22,10 @@ export enum ActionTypeKeys {
     IMAGES_ANNOTATIONS_DOWNLOADED = 'IMAGES_ANNOTATIONS_DOWNLOADED',
     PATIENTS_FETCHED = 'PATIENTS_FETCHED',
     ITEM_SELECTED = 'ITEM_SELECTED',
-    ALL_ITEMS_UNSELECTED = 'ALL_ITEMS_UNSELECTED'
+    ALL_ITEMS_UNSELECTED = 'ALL_ITEMS_UNSELECTED',
+    TERMINATED_DIALOG_STATE_CHANGE = 'TERMINATED_DIALOG_STATE_CHANGE',
+    ADD_TERMINATED_UPLOADS = 'ADD_TERMINATED_UPLOADS',
+    CHANGE_UPLOAD_STATUS = 'CHANGE_UPLOAD_STATUS'
 }
 
 export enum ItemTypes {
@@ -53,6 +58,22 @@ export interface ThumbnailBlownDownAction {
 export interface DownloadStatePopup {
     type: ActionTypeKeys.DOWNLOAD_POPUP_STATE_CHANGE;
     showDownloadPopUP: boolean;
+}
+
+export interface TerminatedDialogPopup {
+    type: ActionTypeKeys.TERMINATED_DIALOG_STATE_CHANGE;
+    showTerminatedUploads: boolean;
+}
+
+export interface AddTerminatedUploads {
+    type: ActionTypeKeys.ADD_TERMINATED_UPLOADS;
+    terminatedUploads: TerminatedUpload[];
+}
+
+export interface ChangeUploadStatus {
+    type: ActionTypeKeys.CHANGE_UPLOAD_STATUS;
+    uploading: boolean;
+    uploadingText: string;
 }
 
 export interface DeleteDialogState {
@@ -207,6 +228,23 @@ export const downloadPopupStateChange = (state: boolean): DownloadStatePopup => 
     showDownloadPopUP: state
 });
 
+export const terminatedPopupStateChange = (state: boolean): TerminatedDialogPopup => ({
+    type: ActionTypeKeys.TERMINATED_DIALOG_STATE_CHANGE,
+    showTerminatedUploads: state
+});
+
+export const addTerminatedUploads = (uploads: TerminatedUpload[]): AddTerminatedUploads => ({
+    type: ActionTypeKeys.ADD_TERMINATED_UPLOADS,
+    terminatedUploads: uploads
+});
+
+export const changeUploadStatus = (uploading: boolean, status: string): ChangeUploadStatus => ({
+    type: ActionTypeKeys.CHANGE_UPLOAD_STATUS,
+    uploading: uploading,
+    uploadingText: status
+});
+
+
 export const deleteDialogStateChange = (state: boolean): DeleteDialogState => ({
     type: ActionTypeKeys.DELETE_DIALOG_STATE_CHANGE,
     showDeleteDialog: state
@@ -240,7 +278,7 @@ export const imagesAnnotationAddedAction =
         annotation
     });
 
-export const imagesAnnotationsDownloadedAction = 
+export const imagesAnnotationsDownloadedAction =
     (imagesAnnotations: Map<string, ImageAnnotation[]>): ImagesAnnotationsDownloadedAction => ({
         type: ActionTypeKeys.IMAGES_ANNOTATIONS_DOWNLOADED,
         imagesAnnotations
@@ -275,6 +313,9 @@ export type ActionType =
     | LastStudySelected
     | DownloadStatePopup
     | DeleteDialogState
+    | TerminatedDialogPopup
+    | AddTerminatedUploads
+    | ChangeUploadStatus
     | LastStudySelected
     | LabelsDownloadedAction
     | RemovedAllAction

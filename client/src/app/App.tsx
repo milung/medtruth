@@ -9,12 +9,22 @@ import { FlatButton, IconButton } from 'material-ui';
 import { DownloadButton } from '../button/DownloadButton';
 import { PatientViewer } from '../imageview/PatientViewer';
 import { DeleteButton } from '../button/DeleteButton';
+import { TerminatedButton } from "../button/TerminatedButton";
+import { State } from "./store";
+import { connect } from "react-redux";
+import { OneLineInformationComponent } from "../oneLineInformation/OneLineInformation";
 
 var injectTapEventPlugin = require('react-tap-event-plugin');
 injectTapEventPlugin();
 
-export default class App extends React.Component<{}, {}> {
+interface ConnectedState {
+    disabled: boolean;
+    uploading: boolean;
+    text: string
+}
+export class AppComponent extends React.Component<ConnectedState, {}> {
     render() {
+        let disabled = this.props.disabled;
         return (
             <div>
                 <AppBar style={{ backgroundColor: '#212121' }}>
@@ -23,6 +33,8 @@ export default class App extends React.Component<{}, {}> {
                         <Tab label={<label htmlFor="file"> <FolderForm /></label>} />
                         <Tab label={<DownloadButton />} />
                         <Tab label={<DeleteButton />}/>
+                        {this.getTerminatedTab()}
+                        {this.getUploadStatus()}
                     </Tabs>
                 </AppBar>
                 <div style={{ paddingTop: '50px', margin: '0 auto' }}>
@@ -38,4 +50,31 @@ export default class App extends React.Component<{}, {}> {
             </div>
         );
     }
+
+    getTerminatedTab = () => {
+        if(this.props.disabled){
+            return (<Tab disabled/>);
+        }else {
+            return (<Tab label={<TerminatedButton />}/>);
+        }
+    }
+    
+    getUploadStatus = () => {
+        if(this.props.uploading){
+            return (<OneLineInformationComponent text={this.props.text}/>);
+        }else {
+            return (<OneLineInformationComponent text=''/>);
+        }
+    }
+
 }
+
+function mapStateToProps(state: State): ConnectedState {
+    return {
+        disabled: state.ui.terminatedUploads.length <= 0,
+        uploading: state.ui.uploading,
+        text: state.ui.uploadingText
+    };
+}
+
+export const App = connect(mapStateToProps, null)(AppComponent);

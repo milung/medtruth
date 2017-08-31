@@ -9,6 +9,7 @@ import { StatusCode, storagePath, imagePath } from '../../constants';
 import { AzureStorage, AzureDatabase } from '../../azure-service';
 import { Merger } from "../../merger/objectMerger";
 import { TerminatedUpload } from "../../Objects";
+import * as _ from "lodash";
 export const rootUpload = '/upload';
 export const routerUpload = express.Router();
 
@@ -106,8 +107,13 @@ routerUpload.get('/:id', async (req, res) => {
 });
 
 
-routerUpload.get('/terminated/', async (req, res) => {
-    res.json({status: 'OK'});
+routerUpload.get('/terminated/list', async (req, res) => {
+    try{        
+        let terminatedUploads = await AzureDatabase.getTerminatedUploads();   
+        res.json(terminatedUploads);
+    }catch(err){
+        res.sendStatus(StatusCode.InternalServerError);
+    }
 });
 
 
@@ -135,9 +141,31 @@ routerUpload.get('/keep/:id', async (req, res) => {
 });
 
 routerUpload.get('/delete/:id', async (req, res) => {
+    console.log("IN DELETE");
     let id = Number.parseInt(req.params.id);
+    let upload: TerminatedUpload = await AzureDatabase.getTerminatedUpload(id);
+    await AzureDatabase.removeTerminatedUpload(id);
+    res.sendStatus(StatusCode.OK);
+    console.log("SEND STATUS OK");
+    
+    let patients = upload.patients;
+    let patientImages = [];
 
-    res.json({status: 'OK'});
+    _.forEach(patients, (patient)=>{
+        _.forEach(patient.studies, (study) => {
+            _.forEach(study.series, (serie => {
+                _.forEach(serie.images, (image) => {
+                    patientImages.push(image.imageID);
+                });
+            }));
+        });
+    });
+    let removeAll = patientImages.map((image) => {
+        return AzureStorage.deleteImageAndThumbnail(image);
+    }, { concurrency: 5 });
+    // w8 'till all patients are fetched
+    await Promise.all(removeAll);
+    console.log("ALL REMOVED");
 });
 
 

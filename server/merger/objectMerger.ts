@@ -61,35 +61,41 @@ export namespace Merger {
     };
 
     export const mergePatientsToDB = async (uploads: UploadJSON[]) => {
-        console.log("mergePatients");
-        
-        let patients = {};
-        try {
-            var db = await AzureDatabase.connect();
-        } catch (error) { return; }
-
-        let getPatients = uploads.map(async (patient) => {
+        return new Promise( async (resolve,reject) => {
+            console.log("mergePatients");
+            
+            let patients = {};
             try {
-                let patientAzure = await AzureDatabase.getPatientDocumentDB(patient.patientID, db);
-                patients[patient.patientID] = patientAzure;
-            } catch (error) {
-                console.log("patientazure");
-                console.log(error);
+                var db = await AzureDatabase.connect();
+            } catch (error) { 
+                resolve();
+                return; }
+    
+            let getPatients = uploads.map(async (patient) => {
+                try {
+                    let patientAzure = await AzureDatabase.getPatientDocumentDB(patient.patientID, db);
+                    patients[patient.patientID] = patientAzure;
+                } catch (error) {
+                    console.log("patientazure");
+                    console.log(error);
+                }
+            }, { concurrency: 5 });
+            // w8 'till all patients are fetched
+            await Promise.all(getPatients);
+    
+            //  merge fetched patients with current upload
+    
+            let newPatients = Merger.patientsMerger(patients, uploads);
+    
+            for (let key in newPatients) {
+                console.log('inserting ' + key);
+                await AzureDatabase.updateToImageCollectionDB(newPatients[key], db);
             }
-        }, { concurrency: 5 });
-        // w8 'till all patients are fetched
-        await Promise.all(getPatients);
-
-        //  merge fetched patients with current upload
-
-        let newPatients = Merger.patientsMerger(patients, uploads);
-
-        for (let key in newPatients) {
-            console.log('inserting ' + key);
-            await AzureDatabase.updateToImageCollectionDB(newPatients[key], db);
-        }
-
-        db.close();
-        console.timeEnd('upload');
+    
+            db.close();
+            console.timeEnd('upload');
+            resolve();
+        });
+        
     }
 }

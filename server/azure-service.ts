@@ -949,6 +949,20 @@ export namespace AzureDatabase {
             }
         })
     }
+    export function getTerminatedUploads(){
+        return new Promise<any>(async (resolve, reject) => {
+            let filter = {};
+            try {
+                var conn = await connectToTerminatedUpload();
+                let result = await conn.collection.find().toArray();
+                resolve(result);
+            } catch (e) {
+                reject({});
+            } finally {
+                close(conn.db);
+            }
+        });
+    }
 
     export function removeTerminatedUpload(id: number){
         return new Promise<any>(async (resolve, reject) => {

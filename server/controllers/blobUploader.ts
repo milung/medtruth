@@ -152,7 +152,7 @@ export class BlobStorageUploader {
         //this.checkEndOfExecution();
     };
 
-    private checkEndOfExecution() {
+    public checkEndOfExecution() {
         console.log('promiseRunning ',this.promiseRunning);
         console.log('files to upload ',this.unresolvedUploads);
 

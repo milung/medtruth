@@ -8,11 +8,12 @@ import { ApiService } from '../api';
 import { FilesInputComponent } from '../fileInput/FilesInput';
 // import { ButtonComponent } from '../button/Button';
 // import { OneLineInformationComponent } from '../oneLineInformation/OneLineInformation';
-import { FilesUploadedAction, filesUploaded } from '../actions/actions';
+import { FilesUploadedAction, filesUploaded, changeUploadStatus } from '../actions/actions';
 import { Button } from 'material-ui';
 import { CircularProgress } from 'material-ui';
 import { red } from 'material-ui/colors/red';
 import { initializeState } from '../actions/asyncActions';
+import { store } from "../app/store";
 
 interface OwnState {
     readingFiles: boolean;
@@ -92,9 +93,12 @@ export class FolderFormComponent extends React.Component<ConnectedDispatch, OwnS
         console.log('uploading');
         
         this.setState({ uploadingFiles: true });
+        store.dispatch(changeUploadStatus(true,"Files completed: 0/"+files.length));
         await ApiService.uploadSocket(files, () => {});
         console.log('DONE');
+        store.dispatch(changeUploadStatus(false,""));
         this.setState({ uploadingFiles: false });
+        (window as any).location = '/';
     }
 
     async sendFile() {

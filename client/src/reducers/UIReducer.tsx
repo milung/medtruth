@@ -3,6 +3,7 @@ import {
     ActionTypeKeys, ActionType, SeriesSelectedAction, Keys, ImageSelectedAction,
     ItemSelectedAction, ItemTypes, AllItemsUnselectedAction, RemovedAllAction, RemovedSelectedAction
 } from '../actions/actions';
+import { TerminatedUpload } from "../objects";
 
 export interface UIState {
     isBlownUpShowed: boolean;
@@ -16,6 +17,10 @@ export interface UIState {
     lastViewedStudyID: string;
     showDownloadPopUP: boolean;
     showDeleteDialog: boolean;
+    showTerminatedUploads: boolean;
+    terminatedUploads: TerminatedUpload[];
+    uploading: boolean;
+    uploadingText: string;
 }
 
 const initialState: UIState = {
@@ -29,7 +34,11 @@ const initialState: UIState = {
     },
     lastViewedStudyID: '',
     showDownloadPopUP: false,
-    showDeleteDialog: false
+    showDeleteDialog: false,
+    showTerminatedUploads: false,
+    terminatedUploads: [],
+    uploading: false,
+    uploadingText: ''
 };
 
 export function uiReducer(
@@ -78,6 +87,19 @@ export function uiReducer(
         case ActionTypeKeys.DELETE_DIALOG_STATE_CHANGE:
             newState = Object.assign({}, prevState);
             newState.showDeleteDialog = action.showDeleteDialog;
+            return newState;
+        case ActionTypeKeys.TERMINATED_DIALOG_STATE_CHANGE:
+            newState = Object.assign({}, prevState);
+            newState.showTerminatedUploads = action.showTerminatedUploads;
+            return newState;
+        case ActionTypeKeys.ADD_TERMINATED_UPLOADS:
+            newState = Object.assign({}, prevState);
+            newState.terminatedUploads = action.terminatedUploads;
+            return newState;
+        case ActionTypeKeys.CHANGE_UPLOAD_STATUS:
+            newState = Object.assign({}, prevState);
+            newState.uploading = action.uploading;
+            newState.uploadingText = action.uploadingText;
             return newState;
         case ActionTypeKeys.ITEM_SELECTED:
             return handleItemSelectedAction(prevState, action);

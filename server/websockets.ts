@@ -13,10 +13,16 @@ export function handleEvents(socket: SocketIO.Socket) {
 
     socket.on(':upload', () => {
         // Emit an ok, that we are ready to accept files.
-        let uploadController = new UploadFiles();
+        let uploadController = new UploadFiles(()=>{
+            socket.emit(':upload.alldone');
+            socket.disconnect();
+            console.log('DISKOONECTT');
+        });
         console.log('NEW UPLOAD CONTROLLER CREATED');
         
         socket.on('disconnect', () => {
+            console.log("DISKONNECTED");
+            
             _.forEach(uploadController.getFilesTodelete(), (id) => {
                 console.log('removed: ' + id);
                 fs.unlink(storagePath + id, (err) => { });
@@ -48,13 +54,16 @@ export function handleEvents(socket: SocketIO.Socket) {
                     _.remove(uploadController.getFilesTodelete(), (item) => {
                         return item == id;
                     });
+
                     socket.emit(':upload.ok', {});
+                    
                     let status: FileStatus = await uploadController.handleFile(id);
                     let uploadStatus: UploadStatus = {fileName: fileName, id: id, fileStatus: status};
+                    uploadController.addUploadStatus(uploadStatus);
                     console.log(uploadStatus);
                     
                     socket.emit(':upload.completed', uploadStatus)
-
+                    
                 })
                 .on('error', () => {
                     console.log("ERROR pipe");
@@ -69,7 +78,7 @@ export function handleEvents(socket: SocketIO.Socket) {
         socket.on(':upload.end', () => {
             console.log("disconnecting socket");
             uploadController.finish();
-            socket.disconnect();
+            
         })
     });
 }

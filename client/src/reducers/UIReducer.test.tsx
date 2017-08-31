@@ -51,7 +51,11 @@ describe('UIReducer', () => {
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false,
-            showDeleteDialog: false
+            showDeleteDialog: false,
+            showTerminatedUploads: false,
+            terminatedUploads: [],
+            uploading: false,
+            uploadingText: ''
         };
 
         // when
@@ -82,7 +86,11 @@ describe('UIReducer', () => {
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false,
-            showDeleteDialog: false
+            showDeleteDialog: false,
+            showTerminatedUploads: false,
+            terminatedUploads: [],
+            uploading: false,
+            uploadingText: ''
         };
 
         // when
@@ -112,7 +120,11 @@ describe('UIReducer', () => {
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false,
-            showDeleteDialog: false
+            showDeleteDialog: false,
+            showTerminatedUploads: false,
+            terminatedUploads: [],
+            uploading: false,
+            uploadingText: ''
         };
 
         // when
@@ -143,7 +155,11 @@ describe('UIReducer', () => {
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false,
-            showDeleteDialog: false
+            showDeleteDialog: false,
+            showTerminatedUploads: false,
+            terminatedUploads: [],
+            uploading: false,
+            uploadingText: ''
 
         };
 
@@ -173,7 +189,11 @@ describe('UIReducer', () => {
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false,
-            showDeleteDialog: false
+            showDeleteDialog: false,
+            showTerminatedUploads: false,
+            terminatedUploads: [],
+            uploading: false,
+            uploadingText: ''
         };
 
         // when
@@ -203,7 +223,11 @@ describe('UIReducer', () => {
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false,
-            showDeleteDialog: false
+            showDeleteDialog: false,
+            showTerminatedUploads: false,
+            terminatedUploads: [],
+            uploading: false,
+            uploadingText: ''
         };
 
         // when
@@ -234,7 +258,11 @@ describe('UIReducer', () => {
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false,
-            showDeleteDialog: false
+            showDeleteDialog: false,
+            showTerminatedUploads: false,
+            terminatedUploads: [],
+            uploading: false,
+            uploadingText: ''
         };
 
         // when
@@ -264,7 +292,11 @@ describe('UIReducer', () => {
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false,
-            showDeleteDialog: false
+            showDeleteDialog: false,
+            showTerminatedUploads: false,
+            terminatedUploads: [],
+            uploading: false,
+            uploadingText: ''
         };
 
         // when
@@ -295,7 +327,11 @@ describe('UIReducer', () => {
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false,
-            showDeleteDialog: false
+            showDeleteDialog: false,
+            showTerminatedUploads: false,
+            terminatedUploads: [],
+            uploading: false,
+            uploadingText: ''
         };
 
         // when
@@ -326,7 +362,11 @@ describe('UIReducer', () => {
             },
             lastViewedStudyID: '',
             showDownloadPopUP: false,
-            showDeleteDialog: false
+            showDeleteDialog: false,
+            showTerminatedUploads: false,
+            terminatedUploads: [],
+            uploading: false,
+            uploadingText: ''
         };
 
         // when
