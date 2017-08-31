@@ -27,7 +27,8 @@ describe('UIReducer', () => {
                 patients: []
             },
             lastViewedStudyID: '',
-            showDownloadPopUP: false
+             showDeleteDialog: false,
+             showUploadDialog:false
         });
     });
 
@@ -55,7 +56,8 @@ describe('UIReducer', () => {
             showTerminatedUploads: false,
             terminatedUploads: [],
             uploading: false,
-            uploadingText: ''
+            uploadingText: '',
+             showUploadDialog:false
         };
 
         // when
@@ -90,7 +92,8 @@ describe('UIReducer', () => {
             showTerminatedUploads: false,
             terminatedUploads: [],
             uploading: false,
-            uploadingText: ''
+            uploadingText: '',
+             showUploadDialog:false
         };
 
         // when
@@ -124,7 +127,8 @@ describe('UIReducer', () => {
             showTerminatedUploads: false,
             terminatedUploads: [],
             uploading: false,
-            uploadingText: ''
+            uploadingText: '',
+             showUploadDialog:false
         };
 
         // when
@@ -159,7 +163,8 @@ describe('UIReducer', () => {
             showTerminatedUploads: false,
             terminatedUploads: [],
             uploading: false,
-            uploadingText: ''
+            uploadingText: '',
+             showUploadDialog:false
 
         };
 
@@ -193,7 +198,8 @@ describe('UIReducer', () => {
             showTerminatedUploads: false,
             terminatedUploads: [],
             uploading: false,
-            uploadingText: ''
+            uploadingText: '',
+             showUploadDialog:false
         };
 
         // when
@@ -227,7 +233,8 @@ describe('UIReducer', () => {
             showTerminatedUploads: false,
             terminatedUploads: [],
             uploading: false,
-            uploadingText: ''
+            uploadingText: '',
+             showUploadDialog:false
         };
 
         // when
@@ -262,7 +269,8 @@ describe('UIReducer', () => {
             showTerminatedUploads: false,
             terminatedUploads: [],
             uploading: false,
-            uploadingText: ''
+            uploadingText: '',
+             showUploadDialog:false
         };
 
         // when
@@ -296,7 +304,8 @@ describe('UIReducer', () => {
             showTerminatedUploads: false,
             terminatedUploads: [],
             uploading: false,
-            uploadingText: ''
+            uploadingText: '',
+            showUploadDialog:false
         };
 
         // when
@@ -331,7 +340,8 @@ describe('UIReducer', () => {
             showTerminatedUploads: false,
             terminatedUploads: [],
             uploading: false,
-            uploadingText: ''
+            uploadingText: '',
+            showUploadDialog:false
         };
 
         // when
@@ -366,7 +376,8 @@ describe('UIReducer', () => {
             showTerminatedUploads: false,
             terminatedUploads: [],
             uploading: false,
-            uploadingText: ''
+            uploadingText: '',
+            showUploadDialog:false,
         };
 
         // when

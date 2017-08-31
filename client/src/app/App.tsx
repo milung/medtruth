@@ -30,7 +30,8 @@ export class AppComponent extends React.Component<ConnectedState, {}> {
                 <AppBar style={{ backgroundColor: '#212121' }}>
                     <Tabs index={false} onChange={() => { }}>
                         <Tab label={'Medtruth'} style={{ fontStyle: 'bold', color: '#F44336' }} />
-                        <Tab label={<label htmlFor="file"> <FolderForm /></label>} />
+                        <Tab label={<label htmlFor="DIR_UPLOAD"> <FolderForm  isfolderForm={true} buttonName={"FOLDER UPLOAD"} buttonId={"DIR_UPLOAD"}/></label>} />
+                        <Tab label={<label htmlFor="FILE_UPLOAD"> <FolderForm   isfolderForm={false} buttonName={"FILE UPLOAD"} buttonId={"FILE_UPLOAD"}/></label>} /> 
                         <Tab label={<DownloadButton />} />
                         <Tab label={<DeleteButton />}/>
                         {this.getTerminatedTab()}

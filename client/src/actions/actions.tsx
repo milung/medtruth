@@ -14,6 +14,7 @@ export enum ActionTypeKeys {
     LAST_STUDY_SELECTED = 'LAST_STUDY_SELECTED',
     DOWNLOAD_POPUP_STATE_CHANGE = 'DOWNLOAD_POPUP_STATE_CHANGE',
     DELETE_DIALOG_STATE_CHANGE = 'DELETE_DIALOG_STATE_CHANGE',
+    UPLOAD_DIALOG_STATE_CHANGE = 'UPLOAD_DIALOG_STATE_CHANGE', 
     LABELS_DOWNLOADED = 'LABELS_DOWNLOADED',
     REMOVED_ALL = 'REMOVED_ALL',
     REMOVED_SELECTED = 'REMOVED_SELECTED',
@@ -79,6 +80,11 @@ export interface ChangeUploadStatus {
 export interface DeleteDialogState {
     type: ActionTypeKeys.DELETE_DIALOG_STATE_CHANGE;
     showDeleteDialog: boolean;
+}
+
+export interface UploadDialogState {
+    type: ActionTypeKeys.UPLOAD_DIALOG_STATE_CHANGE;
+    showUploadDialog: boolean;
 }
 
 // export interface ImagesSelectedAction {
@@ -250,6 +256,11 @@ export const deleteDialogStateChange = (state: boolean): DeleteDialogState => ({
     showDeleteDialog: state
 });
 
+export const uploadDialogStateChange = (state: boolean): UploadDialogState => ({
+    type: ActionTypeKeys.UPLOAD_DIALOG_STATE_CHANGE,
+    showUploadDialog: state
+});
+
 export const labelsDowloadedAction = (labels: string[]): LabelsDownloadedAction => ({
     type: ActionTypeKeys.LABELS_DOWNLOADED,
     labels
@@ -316,6 +327,7 @@ export type ActionType =
     | TerminatedDialogPopup
     | AddTerminatedUploads
     | ChangeUploadStatus
+    | UploadDialogState
     | LastStudySelected
     | LabelsDownloadedAction
     | RemovedAllAction

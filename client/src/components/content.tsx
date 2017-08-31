@@ -10,6 +10,7 @@ import { RouteMap } from '../router/routermap';
 import { DownloadPopUp } from './downloadpopup';
 import { ConfirmationDialog } from './ConfirmationDialog';
 import { TerminatedPopup } from "./terminatedUploadDialog";
+import { UploadFailDialog } from "./uploadFailDialog";
 
 interface ConnectedState {
     showBlowUp: boolean;
@@ -23,7 +24,8 @@ class ContentComponent extends React.Component<ConnectedState, {}> {
                 <BlowUp />
                 <DownloadPopUp />
                 <ConfirmationDialog />
-                <TerminatedPopup/>
+                <TerminatedPopup />
+                <UploadFailDialog />
                 <BrowserRouter >
                     <RouteMap />
                 </BrowserRouter >

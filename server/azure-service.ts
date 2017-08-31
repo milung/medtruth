@@ -309,9 +309,6 @@ export namespace AzureDatabase {
                 var connection = await connectToTerminatedUpload();
 
                 let result = await connection.collection.insertOne(terminated);
-
-                console.log(result);
-
                 resolve();
             } catch (e) {
                 reject({});

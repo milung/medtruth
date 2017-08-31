@@ -21,6 +21,7 @@ export interface UIState {
     terminatedUploads: TerminatedUpload[];
     uploading: boolean;
     uploadingText: string;
+    showUploadDialog: boolean;
 }
 
 const initialState: UIState = {
@@ -38,7 +39,8 @@ const initialState: UIState = {
     showTerminatedUploads: false,
     terminatedUploads: [],
     uploading: false,
-    uploadingText: ''
+    uploadingText: '',
+    showUploadDialog: false
 };
 
 export function uiReducer(
@@ -101,6 +103,10 @@ export function uiReducer(
             newState.uploading = action.uploading;
             newState.uploadingText = action.uploadingText;
             return newState;
+        case ActionTypeKeys.UPLOAD_DIALOG_STATE_CHANGE:
+            newState = Object.assign({}, prevState);
+            newState.showUploadDialog = action.showUploadDialog;
+            return newState;    
         case ActionTypeKeys.ITEM_SELECTED:
             return handleItemSelectedAction(prevState, action);
         case ActionTypeKeys.ALL_ITEMS_UNSELECTED:
