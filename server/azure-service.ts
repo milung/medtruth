@@ -129,9 +129,8 @@ export namespace AzureDatabase {
     export const localAddress = "localhost:27017/";
     export const localName = "medtruth";
     export const urlMedTruth = "mongodb://medtruthdb:5j67JxnnNB3DmufIoR1didzpMjl13chVC8CRUHSlNLguTLMlB616CxbPOa6cvuv5vHvi6qOquK3KHlaSRuNlpg==@medtruthdb.documents.azure.com:10255/?ssl=true";
-    export const url = (process.argv[2] === 'local' || process.env.NODE_ENV === 'development') ? "mongodb://" + localAddress + localName : urlMedTruth;
-    //export const url = "mongodb://" + localAddress + localName;
-    
+    //export const url = (process.argv[2] === 'local' || process.env.NODE_ENV === 'development') ? "mongodb://" + localAddress + localName : urlMedTruth;
+    export const url = urlMedTruth;
     export enum Status {
         SUCCESFUL,
         FAILED
@@ -328,131 +327,297 @@ export namespace AzureDatabase {
         attributes: Attribute[];
     }
 
-    // export interface ImagesWithAttributesQuery {
-    //     imageIDs: string[];
+    // export function putToAttributes(id, ...attributes: Attribute[]): Promise<AttributeQuery> {
+    //     return new Promise<AttributeQuery>(async (resolve, reject) => {
+    //         try {
+    //             var conn = await connectToAttributes();
+    //             // First we look for an equal image ID.
+    //             let query = { imageID: id };
+    //             let result: AttributeQuery = await conn.collection.findOne(query);
+    //             // If we found an equal image ID, we update the attribute contents.
+    //             if (result) {
+    //                 // Merge the result with new attributes. If the keys are the same,
+    //                 // only the values will be overwritten.
+    //                 // Else it creates a new key with a value.
+    //                 let updatedAttributes = _({}).merge(
+    //                     _(result.attributes).groupBy('key').value(),
+    //                     _(attributes).groupBy('key').value()
+    //                 ).values().flatten().value() as Attribute[];
+    //                 // Updates the result query.
+    //                 let updatedResult: AttributeQuery = { imageID: id, attributes: updatedAttributes };
+    //                 await conn.collection.updateOne(result, updatedResult);
+    //                 await putToLabels(
+    //                     _(attributes.map(attr => attr.key))
+    //                         .difference(result.attributes.map(attr => attr.key))
+    //                         .value()
+    //                 );
+    //                 // Returns the updated result.
+    //                 resolve(updatedResult);
+    //                 // If the query does not exist, we create a brand new one.
+    //             } else {
+    //                 let newResult = { imageID: id, attributes };
+    //                 await conn.collection.insertOne(newResult);
+    //                 await putToLabels(attributes.map(attr => attr.key));
+    //                 // Returns the new result.
+    //                 resolve(newResult);
+    //             }
+    //         } catch (e) {
+    //             reject(Status.FAILED);
+    //         } finally {
+    //             close(conn.db);
+    //         }
+    //     });
     // }
-
-    export function putToAttributes(id, ...attributes: Attribute[]): Promise<AttributeQuery> {
-        return new Promise<AttributeQuery>(async (resolve, reject) => {
-            try {
-                var conn = await connectToAttributes();
-                // First we look for an equal image ID.
-                let query = { imageID: id };
-                let result: AttributeQuery = await conn.collection.findOne(query);
-                // If we found an equal image ID, we update the attribute contents.
-                if (result) {
-                    // Merge the result with new attributes. If the keys are the same,
-                    // only the values will be overwritten.
-                    // Else it creates a new key with a value.
-                    let updatedAttributes = _({}).merge(
-                        _(result.attributes).groupBy('key').value(),
-                        _(attributes).groupBy('key').value()
-                    ).values().flatten().value() as Attribute[];
-                    // Updates the result query.
-                    let updatedResult: AttributeQuery = { imageID: id, attributes: updatedAttributes };
-                    await conn.collection.updateOne(result, updatedResult);
-                    await putToLabels(
-                        _(attributes.map(attr => attr.key))
-                            .difference(result.attributes.map(attr => attr.key))
-                            .value()
-                    );
-                    // Returns the updated result.
-                    resolve(updatedResult);
-                    // If the query does not exist, we create a brand new one.
-                } else {
-                    let newResult = { imageID: id, attributes };
-                    await conn.collection.insertOne(newResult);
-                    await putToLabels(attributes.map(attr => attr.key));
-                    // Returns the new result.
-                    resolve(newResult);
-                }
-            } catch (e) {
-                reject(Status.FAILED);
-            } finally {
-                close(conn.db);
-            }
-        });
-    }
 
     export function putAttribute(imageIDs: string[], attribute: Attribute): Promise<Status> {
         return new Promise<Status>(async (resolve, reject) => {
-            try {
-                let promises = imageIDs.map(imageID => putToAttributes(imageID, attribute));
-                await Promise.all(promises);
-                resolve(Status.SUCCESFUL);
-            } catch (e) {
-                reject(Status.FAILED);
-            }
-        });
-    }
 
-    export function removeFromAttributes(id, labelsToRemove: string[]): Promise<void> {
-        return new Promise<void>(async (resolve, reject) => {
+            if (imageIDs.length === 0) {
+                resolve(Status.SUCCESFUL);
+            }
+
             try {
                 var conn = await connectToAttributes();
-                let origResult = null;
 
-                try {
-                    labelsToRemove.forEach(label => {
-                        if (origResult == null) {
-                            origResult = removeLabelFromAttribute(id, label, conn);
-                        } else {
-                            removeLabelFromAttribute(id, label, conn);
-                        }
-                    });
+                await upsertImageAttributesDocuments(imageIDs, conn);
 
-                } catch (error) {
-                    console.log("CATCH");
-                    console.log(error);
-                    reject();
-                }
+                await updateImageAttributesDocument(imageIDs, attribute, conn);
 
+                close(conn.db);
 
-                if (origResult.value === undefined) {
-                    resolve();
-                    return;
-                }
+                await updateLabels([
+                    {
+                        label: attribute.key,
+                        count: 1
+                    }
+                ]);
 
-                let originalLabels = origResult.value.attributes.map(attr => attr.key);
-                let removedLabels: string[] = _(originalLabels).intersection(labelsToRemove).value();
-                removeFromLabels(removedLabels);
-                resolve();
+                resolve(Status.SUCCESFUL);
+
             } catch (e) {
-                reject();
+                reject(e);
             } finally {
                 close(conn.db);
             }
         });
     }
+
+    async function updateImageAttributesDocument(imageIDs: string[], attribute: Attribute, conn: Connection): Promise<void> {
+        return new Promise<void>(async (resolve, reject) => {
+            try {
+                let bulkSize = 50;
+                for (let index = 0; index < imageIDs.length; index += bulkSize) {
+                    let upperIndex = index + bulkSize > imageIDs.length ? imageIDs.length : index + bulkSize;
+                    await conn.collection.updateMany(
+                        {
+                            _id: {
+                                $in: imageIDs.slice(index, upperIndex)
+                            }
+                        },
+                        {
+                            $pull: {
+                                attributes: {
+                                    key: attribute.key
+                                }
+                            },
+                            $push: {
+                                attributes: {
+                                    key: attribute.key,
+                                    value: attribute.value
+                                }
+                            }
+                        }
+                    );
+                }
+                resolve();
+            } catch (e) {
+                reject(e);
+            }
+        });
+
+    }
+
+    function upsertImageAttributesDocuments(imageIDs: string[], conn: Connection): Promise<void> {
+        return new Promise<void>(async (resolve, reject) => {
+
+            if (imageIDs.length === 0) {
+                resolve();
+            }
+
+            const upsertWithRetry = async (
+                imageIDs: string[],
+                fromIndex: number,
+                conn: Connection,
+                resolve,
+                reject
+            ) => {
+                let index: number;
+                let bulkSize = 20;
+                try {
+                    for (index = fromIndex; index < imageIDs.length; index += bulkSize) {
+                        let upperIndex = index + bulkSize > imageIDs.length ? imageIDs.length : index + bulkSize;
+                        let updateObjects = imageIDs.slice(index, index + bulkSize).map(imageID => ({
+                            updateOne: {
+                                filter: {
+                                    _id: imageID
+                                },
+                                update: {
+                                    $setOnInsert: {
+                                        _id: imageID,
+                                        imageID: imageID
+                                    }
+                                },
+                                upsert: true
+                            },
+                        }));
+                        console.log("start bulk upsert on index: " + index);
+                        await conn.collection.bulkWrite(updateObjects);
+                        console.log("finished bulk upsert on index: " + index);
+                    }
+                    resolve();
+                } catch (e) {
+                    if (e.code === 16500) {
+                        console.log("Error with error code 16500 on index: " + index);
+                        setTimeout(() => {upsertWithRetry(imageIDs, index, conn, resolve, reject)}, 100);
+                    } else {
+                        console.log("!!! Other error !!!");
+                        reject(e);
+                    }
+                }
+            };
+
+            upsertWithRetry(imageIDs, 0, conn, resolve, reject);
+        });
+    }
+
+    // function upsertImageAttributesDocuments(imageIDs: string[], conn: Connection): Promise<void> {
+    //     return new Promise<void>(async (resolve, reject) => {
+
+    //         if (imageIDs.length === 0) {
+    //             resolve();
+    //         }
+
+    //         const upsertWithRetry = async (
+    //             imageIDs: string[],
+    //             fromIndex: number,
+    //             conn: Connection,
+    //             resolve,
+    //             reject
+    //         ) => {
+    //             console.log("upsert with retry from index: " + fromIndex);
+    //             let index: number;
+    //             try {
+    //                 for (index = fromIndex; index < imageIDs.length; index++) {
+    //                     console.log("   upsert one with index: " + index);
+    //                     await conn.collection.updateOne(
+    //                         {
+    //                             imageID: imageIDs[index]
+    //                         },
+    //                         {
+    //                             $setOnInsert: {
+    //                                 imageID: imageIDs[index]
+    //                             }
+    //                         },
+    //                         {
+    //                             upsert: true
+    //                         }
+    //                     );
+    //                 }
+    //                 resolve();
+    //             } catch (e) {
+    //                 if (e.code === 16500) {
+    //                     console.log("Error with error code 16500 on index: " + index);
+    //                     setTimeout(() => {upsertWithRetry(imageIDs, index, conn, resolve, reject)}, 100);
+    //                 } else {
+    //                     console.log("!!! Other error !!!");
+    //                     reject(e);
+    //                 }
+    //             }
+    //         };
+
+    //         upsertWithRetry(imageIDs, 0, conn, resolve, reject);
+    //     });
+    // }
+
+    // function upsertImageAttributesDocument(imageIDs: string[], attribute: Attribute, conn: Connection): Promise<void> {
+    //     return new Promise<void>(async (resolve, reject) => {
+
+    //         if (imageIDs.length === 0) {
+    //             resolve();
+    //         }
+
+    //         try {
+    //             let updateObjects = imageIDs.map(imageID => ({
+    //                 updateOne: {
+    //                     filter: {
+    //                         imageID
+    //                     },
+    //                     update: {
+    //                         $setOnInsert: {
+    //                             imageID
+    //                         }
+    //                     },
+    //                     upsert: true
+    //                 },
+    //             }));
+
+    //             await conn.collection.bulkWrite(updateObjects);
+    //             resolve();
+    //         } catch (e) {
+    //             reject(e);
+    //         }
+    //     });
+    // }
 
     export function removeFromAttributes2(imageIDs: string[], labelToRemove: string) {
         return new Promise<void>(async (resolve, reject) => {
             try {
                 var conn = await connectToAttributes();
-                let updateObjects = imageIDs.map(imageID => ({
-                    updateOne: {
-                        filter: {
-                            imageID
+
+                let bulkSize = 50;
+
+                for (let index = 0; index < imageIDs.length; index += bulkSize) {
+                    let upperIndex = index + bulkSize > imageIDs.length ? imageIDs.length : index + bulkSize;
+                    conn.collection.updateMany(
+                        {
+                            _id: {
+                                $in: imageIDs.slice(index, upperIndex)
+                            }
                         },
-                        update: {
+                        {
                             $pull: {
                                 attributes: {
                                     key: labelToRemove
                                 }
                             }
                         }
-                    }
-                }));
+                    );
+                }
+                // let updateObjects = imageIDs.map(imageID => ({
+                //     updateOne: {
+                //         filter: {
+                //             imageID
+                //         },
+                //         update: {
+                //             $pull: {
+                //                 attributes: {
+                //                     key: labelToRemove
+                //                 }
+                //             }
+                //         }
+                //     }
+                // }));
 
-                let result: BulkWriteOpResultObject = await conn.collection.bulkWrite(updateObjects);
+                // let result: BulkWriteOpResultObject = await conn.collection.bulkWrite(updateObjects);
 
-                let removedLabelsCount: number = result.modifiedCount;
-                await updateLabels([{
-                    label: labelToRemove,
-                    count: -removedLabelsCount
-                }]);
+                // let removedLabelsCount: number = result.modifiedCount;
+                // await updateLabels([{
+                //     label: labelToRemove,
+                //     count: -removedLabelsCount
+                // }]);
                 resolve();
             } catch (e) {
+                console.log(e);
                 reject(e)
             } finally {
                 close(conn.db);
@@ -462,7 +627,7 @@ export namespace AzureDatabase {
 
     function removeLabelFromAttribute(id, labelToRemove: string, conn: Connection): Promise<void> {
         return new Promise<any>(async (resolve, reject) => {
-            let filter = { imageID: id };
+            let filter = { _id: id };
             let update = {
                 $pull: {
                     attributes: {
@@ -494,7 +659,7 @@ export namespace AzureDatabase {
                 var conn = await connectToAttributes();
 
                 // First we look for an equal image ID.
-                let query = { imageID: id };
+                let query = { _id: id };
                 let result: AttributeQuery = await conn.collection.findOne(query);
                 // If we found an equal image ID, we update the attribute contents.
                 if (result) {
@@ -520,7 +685,7 @@ export namespace AzureDatabase {
                 let result: AttributeQuery[] = await conn.collection.find().toArray();
 
                 let attributes = result.filter(elem => elem.attributes.length > 0);
-                
+
                 if (attributes) {
                     resolve(attributes);
                 } else {
@@ -712,113 +877,38 @@ export namespace AzureDatabase {
         });
     }
 
-    export function removeFromLabels(labels: string[]): Promise<Status> {
-        return new Promise<Status>(async (resolve, reject) => {
+    // export function putToLabels(labels: string[]): Promise<Status> {
+    //     return new Promise<Status>(async (resolve, reject) => {
 
-            if (!labels || labels.length === 0) {
-                resolve(Status.SUCCESFUL);
-                return;
-            }
-            try {
-                var conn = await connectToLabels();
+    //         if (!labels || labels.length === 0) {
+    //             resolve(Status.SUCCESFUL);
+    //             return;
+    //         }
 
-                // Decrement count
-                let updateObjects: {}[] = labels.map(label => {
-                    return {
-                        updateOne: {
-                            filter: {
-                                _id: label,
-                            },
-                            update: {
-                                $inc: { count: -1 }
-                            }
-                        }
-                    }
-                });
-
-                await conn.collection.bulkWrite(updateObjects);
-
-                // Delete where count is 0
-                await conn.collection.deleteMany({
-                    _id: {
-                        $in: labels
-                    },
-                    count: 0
-                });
-
-                resolve(Status.SUCCESFUL);
-            } catch (e) {
-                reject(Status.FAILED);
-            } finally {
-                close(conn.db);
-            }
-        });
-    }
-
-    export function putToLabels2(label: string, count: number): Promise<Status> {
-        return new Promise<Status>(async (resolve, reject) => {
-            try {
-                var conn = await connectToLabels();
-                let result = await conn.collection.updateOne(
-                    {
-                        label
-                    },
-                    {
-                        $inc: {
-                            count: count
-                        }
-                    },
-                    {
-                        upsert: true
-                    }
-                );
-
-                if (result.result.ok) {
-                    resolve(Status.SUCCESFUL);
-                } else {
-                    reject(Status.FAILED);
-                }
-
-            } catch (e) {
-                reject(Status.FAILED);
-            } finally {
-                close(conn.db);
-            }
-        });
-    }
-
-    export function putToLabels(labels: string[]): Promise<Status> {
-        return new Promise<Status>(async (resolve, reject) => {
-
-            if (!labels || labels.length === 0) {
-                resolve(Status.SUCCESFUL);
-                return;
-            }
-
-            try {
-                var conn = await connectToLabels();
-                let updateObjects = labels.map(label => {
-                    return {
-                        updateOne: {
-                            filter: {
-                                _id: label
-                            },
-                            update: {
-                                $inc: { count: 1 }
-                            },
-                            upsert: true
-                        }
-                    }
-                });
-                let result: BulkWriteOpResultObject = await conn.collection.bulkWrite(updateObjects);
-                resolve(Status.SUCCESFUL);
-            } catch (e) {
-                reject(Status.FAILED);
-            } finally {
-                close(conn.db);
-            }
-        });
-    }
+    //         try {
+    //             var conn = await connectToLabels();
+    //             let updateObjects = labels.map(label => {
+    //                 return {
+    //                     updateOne: {
+    //                         filter: {
+    //                             _id: label
+    //                         },
+    //                         update: {
+    //                             $inc: { count: 1 }
+    //                         },
+    //                         upsert: true
+    //                     }
+    //                 }
+    //             });
+    //             let result: BulkWriteOpResultObject = await conn.collection.bulkWrite(updateObjects);
+    //             resolve(Status.SUCCESFUL);
+    //         } catch (e) {
+    //             reject(Status.FAILED);
+    //         } finally {
+    //             close(conn.db);
+    //         }
+    //     });
+    // }
 
     export function getLabels(): Promise<string[]> {
         return new Promise<string[]>(async (resolve, reject) => {

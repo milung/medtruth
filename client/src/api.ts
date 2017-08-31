@@ -168,19 +168,19 @@ export namespace ApiService {
         value: number;
     }
 
-    export async function putAttributes(id: string, ...attributes: Attribute[]) {
-        console.log('putting attributes api');
-        const url = uriImages + '/' + id + '/assign';
+    // export async function putAttributes(id: string, ...attributes: Attribute[]) {
+    //     console.log('putting attributes api');
+    //     const url = uriImages + '/' + id + '/assign';
 
-        let res: axios.AxiosResponse = await axios.default({
-            method: 'PUT',
-            url: url,
-            headers: { 'Content-Type': 'application/json' },
-            data: { attributes }
-        });
+    //     let res: axios.AxiosResponse = await axios.default({
+    //         method: 'PUT',
+    //         url: url,
+    //         headers: { 'Content-Type': 'application/json' },
+    //         data: { attributes }
+    //     });
 
-        return { ...res.data };
-    }
+    //     return { ...res.data };
+    // }
 
     /*
         Route:      GET '/images/:id/assign'
@@ -188,19 +188,19 @@ export namespace ApiService {
         -------------------------------------------
         Returns the state of an image's attributes.
     */
-    export async function getAttributes(id: string) {
-        const url = uriImages + '/' + id + '/assign';
+    // export async function getAttributes(id: string) {
+    //     const url = uriImages + '/' + id + '/assign';
 
-        let res: axios.AxiosResponse = await axios.default({
-            method: 'GET',
-            url: url,
-            headers: {}
-        });
+    //     let res: axios.AxiosResponse = await axios.default({
+    //         method: 'GET',
+    //         url: url,
+    //         headers: {}
+    //     });
 
-        return { ...res.data };
-    }
+    //     return { ...res.data };
+    // }
 
-    export async function deleteAttributes2(imageIDs: string[], labelToRemove: string) {
+    export async function deleteAttributes(imageIDs: string[], labelToRemove: string) {
         const url = uriImages + '/assign';
 
         let res: axios.AxiosResponse = await axios.default({
@@ -213,18 +213,31 @@ export namespace ApiService {
         return res.status === Status.SUCCESFUL ? true : false;
     }
 
-    export async function deleteAttributes(id: string, labels: string[]) {
-        const url = uriImages + '/' + id + '/assign';
+    export async function putAttribute(imageIDs: string[], attribute: Attribute) {
+        const url = uriImages + '/assign';
 
         let res: axios.AxiosResponse = await axios.default({
-            method: 'DELETE',
+            method: 'PUT',
             url: url,
             headers: { 'Content-Type': 'application/json' },
-            data: { labels }
+            data: { imageIDs, attribute }
         });
 
         return res.status === Status.SUCCESFUL ? true : false;
     }
+
+    // export async function deleteAttributes(id: string, labels: string[]) {
+    //     const url = uriImages + '/' + id + '/assign';
+
+    //     let res: axios.AxiosResponse = await axios.default({
+    //         method: 'DELETE',
+    //         url: url,
+    //         headers: { 'Content-Type': 'application/json' },
+    //         data: { labels }
+    //     });
+
+    //     return res.status === Status.SUCCESFUL ? true : false;
+    // }
 
     export async function getLabels() {
         const url = uriLabels;
