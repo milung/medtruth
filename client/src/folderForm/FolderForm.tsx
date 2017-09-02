@@ -106,19 +106,22 @@ class FolderFormComponent extends React.Component<ConnectedDispatch & OwnProps, 
 
     async loadFileSocket(files: File[]) {
         //no files seleced
+
+        var validFiles: File[] = []; //only valid files will be send
+
         if (files.length == 0) {
             this.showDialog();
             return null;
         }
 
-        this.setState({ uploadingFiles: true });
-        store.dispatch(changeUploadStatus(true, "Files completed: 0/" + files.length));
-        await ApiService.uploadSocket(files, () => { });
-        console.log('DONE');
-        store.dispatch(changeUploadStatus(false, ""));
-        this.setState({ uploadingFiles: false });
-        (window as any).location = '/';
-
+        //presunute nizsie
+        // this.setState({ uploadingFiles: true });
+        // store.dispatch(changeUploadStatus(true, "Files completed: 0/" + files.length));
+        // await ApiService.uploadSocket(files, () => { });
+        // console.log('DONE');
+        // store.dispatch(changeUploadStatus(false, ""));
+        // this.setState({ uploadingFiles: false });
+        // (window as any).location = '/';
 
 
         let invalidFileNames: string[] = [];
@@ -127,11 +130,10 @@ class FolderFormComponent extends React.Component<ConnectedDispatch & OwnProps, 
         console.log("FILES", files);
 
 
-        files.forEach((file) => {
-            console.log("FILES", file.name);
+        files.forEach((file) => {            
+
             if (file === undefined) {
                 this.showDialog();
-                console.log("UNDEFINE", file.name);
 
                 // fileUndefined = true;
             }
@@ -139,7 +141,10 @@ class FolderFormComponent extends React.Component<ConnectedDispatch & OwnProps, 
                 filesInvalid = true;
                 invalidFileNames.push(file.name);
             }
-            console.log("Invalid", invalidFileNames)
+            else {
+                validFiles.push(file)
+            }
+            //console.log("Invalid", invalidFileNames)
         });
 
 
@@ -156,9 +161,14 @@ class FolderFormComponent extends React.Component<ConnectedDispatch & OwnProps, 
 
         else {
             this.setState({ uploadingFiles: true });
-            await ApiService.uploadSocket(files, () => { });
-            await console.log("DONE ");
-            this.setState({ uploadingFiles: false })
+            //  store.dispatch(changeUploadStatus(true, "Files completed: 0/" + files.length));
+            store.dispatch(changeUploadStatus(true, "Files completed: 0/" + validFiles.length));
+            // await ApiService.uploadSocket(files, () => { });
+            await ApiService.uploadSocket(validFiles, () => { });
+            console.log('DONE');
+            store.dispatch(changeUploadStatus(false, ""));
+            this.setState({ uploadingFiles: false });
+            (window as any).location = '/';
         }
     }
 
